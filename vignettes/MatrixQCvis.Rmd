@@ -1,0 +1,833 @@
+---
+title: "MatrixQCvis: Interactive exploration of proteomics and metabolomics data quality"
+author: 
+ - name: Thomas Naake and Wolfgang Huber
+   mail: thomas.naake@embl.de, wolfgang.huber@embl.de
+   affiliation: European Molecular Biology Laboratory, Meyerhofstrasse 1, 69117 Heidelberg
+package: MatrixQCvis
+abstract: >
+    MatrixQCvis comprises functionality to assess the quality of omics data.
+    
+output:  
+    BiocStyle::html_document:
+        toc_float: true
+bibliography: MatrixQCvis-citations.bib
+vignette: >
+    %\VignetteIndexEntry{QC for metabolomics and proteomics data}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteKeywords{Mass Spectrometry, MS, Metabolomics, Proteomics, Visualization, QC}
+    %\VignettePackage{MatrixQCvis-vignette}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r env, include=FALSE, echo=FALSE, cache=FALSE}
+library("knitr")
+opts_chunk$set(stop_on_error = 1L)
+suppressPackageStartupMessages(library("MatrixQCvis"))
+```
+
+# Introduction {#sec-intro}
+Data quality assessment is an integral part of preparatory data analysis. 
+High-quality data sets are needed for sound biological information retrieval.
+`MatrixQCvis` includes functionality for interactive, `shiny`-based visualization 
+of diagnostic plots that allow for the assessment of data quality. 
+Thus, it allows to identify low-quality samples and exclude them. `MatrixQCvis` builds
+upon the popular Bioconductor class of `SummarizedExperiment` and enables for 
+facile integration into existing workflows. 
+
+`MatrixQCvis` is especially addressed to analyze the quality of proteomics and 
+metabolomics data sets that are characterized by missing values as it 
+allows for imputation
+of missing values and differential expression analysis using the `proDA` 
+package [@Ahlmann2019]. Besides this, it is extensible to other type of data
+(e.g. transcriptomics count data) that can be represented as a 
+`SummarizedExperiment` object. 
+Within this vignette, the term feature will refer to a probed molecular entity,
+e.g. gene, transcript, protein, peptide, or metabolite. 
+
+Visualizations include bar- and violin plots of the
+(count/intensity) values, mean-sd plots, MA plots, empirical cumulative distribution 
+function (ECDF) plots, plots to visualize the
+distance between samples, multiple types of dimension reduction plots, and more. 
+
+Furthermore the `shiny` application allows for simple differential 
+expression analysis using either moderated t-tests (from the `limma` package,
+@Ritchie2015) or Wald tests (from the `proDA` package, @Ahlmann2019).
+
+In the following, we will describe the major setup of `MatrixQCvis` and the 
+navigation through the shiny application, `shinyQC`.
+
+# Questions and bugs {-}
+
+`MatrixQCvis` is currently under active development. If you
+discover any bugs, typos or develop ideas of improving
+`MatrixQCvis` feel free to raise an issue via
+[GitLab](https://git.embl.de/naake/MatrixQCvis) or
+send a mail to the developer.
+
+# Prepare the environment and load the data {#sec-prepare}
+To install `MatrixQCvis` enter the following to the `R` console
+
+```{r install, eval=FALSE}
+install.packages("BiocManager")
+BiocManager::install("MatrixQCvis") 
+```
+
+Before starting with the analysis, load the `MatrixQCvis` package. This 
+will also load the required packages `Biobase`, `BiocGenerics`, `GenomeInfoDb`,
+`GenomicRanges`, `ggplot2`, `IRanges`, `MatrixGenerics`,
+`parallel`, `matrixStats`, `plotly`, `S4Vectors`, `shiny`,
+`shinydashboard`, `SummarizedExperiment`, and `stats4`.
+
+```{r load_MatrixQCvis, eval=TRUE}
+library(MatrixQCvis)
+``` 
+
+The most important function to assess the data quality is the `shinyQC` function
+and its most important argument is `se`. `shinyQC` expects a `SummarizedExperiment` 
+object. One requirement for the `SummarizedExperiment` object is that 
+it contains the column `"name"` in `colData(se)`, storing the names of the 
+samples. If the `SummarizedExperiment` object does not contain this column,
+`shinyQC` will stop and throw an error.
+
+Alternatively, a `SummarizedExperiment` object can also be loaded from within 
+`shinyQC` (when no `se` object is supplied to `shinyQC`).
+
+Objects belonging to the `SummarizedExperiment` class are containers for one 
+or more assays, 
+which are (numerical) matrices containing the quantitative, measured information
+of the experiment. The rows represent features of interest (e.g. 
+transcripts, peptides, proteins, or metabolites) and the column represent the 
+sample. The 
+`SummarizedExperiment` object stores also information on the features of 
+interest (accessible by `rowData`) and information on the samples
+(accessible by `colData`). 
+
+If there is more than one experimental data set (`assay`)
+stored in the `SummarizedExperiment` object, a select option will appear in the 
+sidebar allowing for selecting the `assay`. 
+
+Here, we will generate a `SummarizedExperiment` object with synthetic 
+quantitative information on proteins and use this object, `se`, to showcase the 
+functionality of `shinyQC`. The object will contain information from 40 
+samples. The samples consist of four different types (`1`, `2`, `3`, and `4`) 
+and each type has two treatments, `A` and `B`. In total there are 1000 features. 
+
+```{r, prepare_se, eval=TRUE, echo=TRUE}
+## create synthetic assay using the generate_synthetic_data function from the
+## proDA package
+library(proDA)
+n_samples <- 40
+n_feat <- 1000
+data <- generate_synthetic_data(n_feat, n_conditions = n_samples / 10, 
+    n_replicates = n_samples / 4, frac_changed = 0.1)
+a <- data$Y
+colnames(a) <- gsub(colnames(a), pattern = "Condition", replacement = "Sample")
+
+## add some treatment-specific effects
+set.seed(1)
+a[, 1:5] <- a[, 1:5] + rnorm(5000, mean = 1.0, sd = 0.5)
+a[, 11:15] <- a[, 11:15] + rnorm(5000, mean = 0.8, sd = 0.5)
+a[, 21:25] <- a[, 21:25] + rnorm(5000, mean = 1.2, sd = 0.5)
+a[, 31:35] <- a[, 31:35] + rnorm(5000, mean = 0.7, sd = 0.5)
+
+## create information on the samples
+type_sample <- gsub(data$groups, pattern = "Condition", replacement = "Type")
+trmt_sample <- paste(
+   c(rep("1", 10), rep("2", 10), rep("3", 10), rep("4", 10)),
+   c(rep("A", 5), rep("B", 5)), sep = "_")
+cD <- data.frame(name = colnames(a), type = type_sample, 
+                     treatment = trmt_sample)
+
+## create information on the proteins
+rD <- data.frame(spectra = rownames(a))
+
+## create se
+se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+```
+
+The actual shiny application can then be started by entering the following 
+to the `R` console:
+
+```{r, eval=FALSE}
+qc <- shinyQC(se)
+```
+
+The assignment to `qc` or any other object is not mandatory. Upon exiting the
+shiny application via the exit button, `shinyQC` will return the 
+modified raw, normalized, transformed, batch corrected and imputed data sets that 
+can be in the following further analyzed. 
+
+Now, we will have a closer look on the user interface of the Shiny 
+application. 
+
+# Appearance of user interface depends on the data input
+Please note: Depending on the supplied `SummarizedExperiment` object the user
+interface of `shinyQC` will differ:
+
+- for a `SummarizedExperiment` containing missing values
+    - the tabs `Samples`, `Measured Values`, `Missing Values`, `Values`,
+    `Dimension Reduction` and `DE` will be displayed,
+    - within the tabs `Values` and `Dimension Reduction` the 
+    `imputed` data set will be visualized,
+    - the sidebar panel includes a drop-down menu for the imputation method.
+- for a `SummarizedExperiment` containing no missing values (i.e.
+ with complete observations)
+    - the tabs `Samples`, `Values`, `Dimension Reduction` and `DE` 
+    will be displayed,
+    - within the tabs `Values` and `DE` the `imputed` data set 
+    **will not** be visualized,
+    - the sidebar panel **does not** includes a drop-down menu for the 
+    imputation method.
+
+In the following, the vignette will be (mainly) described from the point of view
+of a `SummarizedExperiment` containing missing values. 
+
+## Sidebar
+The sidebar allows to exclude samples from the analysis (e.g. in the case 
+of identified outliers). Samples are excluded by entering the sample name 
+in the input field and pressing `Enter` on the keyboard or by clicking 
+on the name of the samples in the drop-down menu. 
+
+In addition, in the tabs `Values`, 
+`Dimension Reduction`, and `DE`, the sidebars allows for 
+
+ - normalization: currently the methods `sum`, `quantile divion`, `quantile`
+   and `none`, i.e. no normalization, are supported;
+ - transformation: currently the methods `log2`, `vsn` 
+   (variance stabilizing normalization/transformation, @Huber2002), and `none`, i.e.
+   no transformation, are supported;
+ - batch correction: currently the methods `removeBatchEffect` from the `limma`
+   package [@Ritchie2015} and `none`, i.e. no batch correction, are supported.
+   It is highly advised to consult the dimension reduction plots before 
+   performing any batch correction. Batch correction should not be done based 
+   solely on (count/intensity) value distributions (boxplots/violin plots);
+ - imputation (only for `SummarizedExperiment` containing missing values): 
+   currently the methods `BPCA`, `KNN`, `MLE`, `Min`, `MinDet`, 
+   and `MinProb` are supported (see also @Lazar2016 for a review on 
+   imputation methods for label-free quantitative proteomics data sets).
+   
+By clicking on `Generate report` a markdown report will be created 
+(the progress of rendering is displayed in the bottom right corner). After 
+rendering there is the possibility to open or to save the report. The 
+report will take all values as set in the `shinyQC` application - if the 
+plot was not called yet, default values will be taken for the rendering. 
+   
+By clicking on `Stop and export data set` the shiny application is 
+exited and the following objects are assigned to the `qc` object in a list:
+
+ - the raw,
+ - the normalized,
+ - the transformed, 
+ - the batch corrected, and
+ - the imputed (count/intensity) values (if the `SummarizedExperiment` contains 
+ missing values)
+
+The sidebar in the last tab (`DE`) is different from the other tabs and will
+be explained in the section `Tab: DE`. 
+  
+
+# Tab: Samples
+The tab `Samples` gives general information on the number of samples in the 
+`se` object. 
+
+## Histogram
+The first panel shows a barplot and allows to display the number of 
+samples per sample type, treatment, etc. As an example, if we want to display
+how many samples are in `se` for the different `type`s (`type` is a 
+column name in `colData(se)` and any column in `colData(se)` can be selected), 
+this panel will show the following output:
+```{r hist_sample, eval=TRUE, echo=FALSE}
+tbl <- hist_sample_num(se = se, category = "type")
+hist_sample(tbl, category = "type")
+```
+
+
+## Mosaic
+The figure in this panel displays the relative proportions of the numbers, 
+e.g. how many samples (in %) are there for `type` against `treatment`. Again,
+`type` and `treatment` are columns in `colData(se)` and any column in 
+`colData(se)` can be selected. 
+The figure will tell us that `se` contains the different types/treatments in a
+balanced manner:
+```{r mosaic, eval=TRUE, echo=FALSE}
+mosaic(se = se, f1 = "type", f2 = "treatment")
+```
+
+   
+# Tab: Measured Values and Missing Values
+
+The tabs `Measured Values` and `Missing Values` are only displayed if the 
+`SummarizedExperiment` object contains missing values. 
+
+The layout in the tabs `Measured Values` and `Missing Values` is similar. 
+Therefore, the two tabs are described here simultaneously and the differences
+are pointed out where necessary. 
+
+## Barplot for samples
+The plot shows the number of measured or missing values per sample 
+in the data set (depending on the selected tab). For example for the tab
+`Measured Values`, the plot will look like
+```{r samples_memi, eval=TRUE, echo=FALSE}
+tbl <- samples_memi(se) 
+barplot_samples_memi(tbl, measured = TRUE)
+```
+
+In this case, the samples show more or less the same number of measured features
+and there is no indication to remove any sample based on this measure. 
+
+## Histogram Features
+
+The plot shows different data depending on which tab 
+(`Measured Values` or `Missing Values`) is selected. The binwidth will be 
+determined by the slider input (`Binwidth (Measured Values)` or 
+`Binwidth (Missing Values)`).
+
+
+### Measured Variables
+The plot shows how often a feature was measured in a certain number of 
+samples.
+
+Examples:
+
+1. in the case of one sample (x-axis), the y-axis will denote the number of 
+features for which only one feature was measured.
+
+2. in the case of the number of total samples (x-axis), the y-axis will 
+denote the number of features with complete observations (i.e. the number 
+of features for which the feature was quantified in all samples).
+
+```{r hist_feature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature(assay(se), measured = TRUE)
+```
+
+### Missing Variables
+The plot shows how often a feature was missing in a certain number of samples.
+
+Examples:
+
+1. in the case of one sample (x-axis), the y-axis will denote the number of 
+features for which only one feature was missing.
+
+2. in the case of the number of total samples (x-axis), the y-axis will 
+denote the number of features with completely missing observations 
+(i.e. the number of features for which no feature was quantified in all 
+samples).
+
+```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature(assay(se), measured = FALSE)
+```
+
+## Histogram Features along variable
+
+The plot in this panel can be read accordingly to the one in the panel 
+`Histogram Features`, but, it is segregated for the specified variable 
+(e.g. it shows the distribution of measured/missing values among the sample 
+types).
+
+We will visualize here the plot for the tab `Measured Values` and the 
+categorical variable `type`:
+```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature_category(se, measured = TRUE, category = "type")
+```
+
+## UpSet
+The plot shows the interaction of sets between different variables 
+depending on their presence or absence. The dots in the UpSet plot specify 
+if the criteria for presence/absence are fulfilled (see below for the 
+definition). In each column the intersections are displayed together with 
+the number of features regarding the type of intersection. The boxplots in 
+the rows display the number of present/absent features per set.
+
+All sets present in the data set are displayed. Depending on the data set, 
+however, not all intersections sets are displayed (see the help page for 
+the `upset` function from the `UpSetR` package).
+
+### Measured Values
+Presence is defined by a feature being measured in at least one sample of a 
+set.
+
+```{r upsetmeasured, eval=TRUE, echo=FALSE}
+upset_category(se, category = "type", measured = TRUE)
+```
+
+### Missing Values
+Absence is defined by a feature with only missing values (i.e. no measured 
+values) of a set.
+
+```{r upsetmissing, eval=TRUE, echo=FALSE}
+upset_category(se, category = "type", measured = FALSE)
+```
+
+## Sets
+
+This panel will retrieve the features specified by intersection of sets. 
+
+This panel builds upon the `Upset` panel. By selecting the check boxes, 
+the names of the features (taken from the `rownames` of the features) are 
+printed as text that fulfill the defined intersection of sets.
+
+Example: Four sets (`Type_1`, `Type_2`, `Type_3`, and `Type_4`) are found for 
+a specified variable (here: `type`). When selecting the boxes for `Type_1` and 
+`Type_2` (while not selecting the boxes for `Type_3` and `Type_4`) the 
+features that are present/absent for `Type_1` and `Type_2` 
+(but not in the sets `Type_3` and `Type_4`) are returned.
+
+For the tab `Measured Values`, presence is defined by a feature being 
+measured in at least one sample of a set.
+
+For the tab `Missing Values`, absence is defined by a feature with only 
+missing values (i.e. no measured values) of a set.
+
+# Tab: Values
+The tab `Values` will take a closer look on the `assay` slot of the 
+`SummarizedExperiment`. 
+
+## Boxplot/Violin plot
+
+This panel shows the (count/intensity) values for raw (`raw`), normalized 
+(`normalized`), normalized+transformed (`transformed`), 
+normalized+transformed+batch corrected (`batch corrected`), and
+normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) values 
+(imputation of missing values, `imputed` will only be shown if there are missing
+values in the `SummarizedExperiment`). As already mentioned, the different 
+methods for normalization, transformation, batch correction (and 
+imputation) are specified in 
+the side panel.
+
+For visualization purposes only, the (count/intensity) values for the raw and 
+normalized data sets can be `log2` transformed (see the radio buttons in
+`Display log2 values? (only for 'raw' and 'normalized')`).
+
+The type of visualization (boplot or violin plot) can be specified by 
+selecting boxplot or violin in the radio button panel (`Type of display`).
+
+The figure (violin plot) using the raw values will look like
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
+create_boxplot(assay(se), title = "raw", log2 = FALSE, violin = TRUE)
+```
+
+## Trend/drift 
+This panel shows a trend line for aggregated values to 
+indicate drifts/trends in data acquisition. It
+shows the sum- or median-aggregated values (specified in
+`Select aggregation`). The plot allows to display trends in data
+acquisition that originate e.g. from differences in instrument 
+sensitivity. The panel allows to display aggregated values for 
+raw (`raw`), normalized 
+(`normalized`), normalized+transformed (`transformed`), 
+normalized+transformed+batch corrected (`batch corrected`), and
+normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) values 
+(imputation of missing values, `imputed` will only be shown if there are missing
+values in the `SummarizedExperiment`). 
+The different methods for normalization, transformation, batch correction (and 
+imputation) are specified in the sidebar panel. 
+
+The smoothing is calculated from the 
+selection of samples that are specified by the drop-down menus
+`Select variable` and `Select level to highlight`. 
+The menu `Select variable` corresponds to the `colnames` in 
+`colData(se)`. Here, we can select for the higher-order variable, e.g.
+the sample type (containing for example `Type_1`, `Type_2`, ..., `QC`). 
+The drop-down menu `Select level to highlight` will specify the actual selection 
+from which
+the trend line will be calculated (e.g. `Type_1`, `Type_2`, ..., `QC`). Also,
+the menu will always include the level `all`, which will use all points to 
+calculate the trend line. If we want to calculate the trend line of 
+aggregated values of all samples belonging to the type `QC`, we select
+`QC` in the drop-down menu. 
+
+The panel allows for further customization after expanding the collapsed box.
+The data input is selected in the drop-down menu under `Select data input`.
+The smoothing method (either LOESS or linear model) is selected in the drop-down
+menu under `Select smoothing method`. The aggregation method is selected 
+in the drop-down menu `Select smoothing method`.
+
+With the drop-down menu `Select categorical variable to order samples`, 
+the samples (x-axis) will be ordered alphanumerically according to the 
+selected level (and the sample name). 
+
+
+Here, we are interested in observing if there is a trend/drift for 
+samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
+and `median` as the aggregation method. The figure will then look as follows:
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+driftPlot(se, aggregation = "median", category = "type",
+          orderCategory = "type", level = "Type_1", method = "loess")
+```
+
+
+## Coefficient of variation
+
+This panel shows the coefficient of variation values for raw (`raw`),
+normalized (`normalized`), normalized+transformed+batch corrected 
+(`transformed`), and normalized+transformed+batch corrected+imputed (`imputed`) 
+(count/intensity) values (imputation of missing values, `imputed` will only be shown 
+if there are missing values in the `SummarizedExperiment`) among the samples. 
+The different methods for normalization, transformation, batch correction 
+(and imputation) are specified in the sidebar panel. 
+
+The panel displays the coefficient of variation values from the samples of the
+`SummarizedExperiment` object. The coefficients of variation are calculated 
+according to the formula `sd(x) / mean(x) * 100` with `x` the sample values 
+and `sd` the standard deviation.
+ 
+Here, we shows the plot of coefficient of variation values from the 
+raw values (as obtained by `assay(se)`), normalized values (using `sum` 
+normalization), transformed values (using `vsn`), batch corrected values
+(using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+a <- assay(se)
+se_t <- se
+a_n <- a %>% normalize(., "sum")
+a_t <- a_n %>% transform(., "vsn")
+assay(se_t) <- a_t
+a_b <- se_t %>% batch(., method = "none")
+a_i <- a_b %>% impute(., "MinDet")
+
+## calculate cv values
+cv_r <- cv(a, "raw")
+cv_n <- cv(a_n, "normalized")
+cv_t <- cv(a_t, "transformed")
+cv_b <- cv(a_b, "batch corrected")
+cv_i <- cv(a_i, "imputed")
+ 
+df <- data.frame(cv_r, cv_n, cv_t, cv_b, cv_i)
+plotCV(df)
+```
+
+ 
+## Mean-sd plot
+
+The panel shows the three mean-sd (standard deviation) plots for
+normalized+transformed (`transformed`), 
+normalized+transformed+batch corrected (`batch corrected`),
+and normalized+transformed+batch corrected+imputed (`imputed`) values
+(`imputed` will only be shown if there are missing
+values in the `SummarizedExperiment`). 
+The sd and mean are calculated feature-wise from the values of the respective 
+data set. The plot allows to visualize if there is a dependence of the sd on 
+the mean. The red line depicts the running median estimator (window-width 10%). 
+In case of sd-mean independence, the running median should be approximately 
+horizontal.
+
+For the raw values, the mean-sd plot will look like
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE}
+vsn::meanSdPlot(assay(se))
+```
+
+## MA plot
+
+The panel displays MA plots and Hoeffding's D statistic. 
+
+In the first part of the panel the `A` vs. `M` plots per sample are depicted.
+
+The values are defined as follows
+
+ - $A = \frac{1}{2} \cdot (I_i + I_j)$ and 
+ - $M =  I_i−I_j$ , where $I_i$ and $I_j$  are transformed values. 
+   In the case of `raw` or `normalized` the values are `log2`-transformed 
+   prior to calculating `A` and `M`. In case of `transformed`,
+   `batch corrected`, or `imputed` the values are taken as they are 
+   (N.B. when the transformation method is set to `none` the values are not 
+   `log2`-transformed).
+   
+The values for $I_i$ are taken from the sample $i$. For $I_j$, the 
+feature-wise means are calculated from the values of the `group` $j$ of 
+samples specified by the drop-down menu `group`. The sample for calculating 
+$I_i$ is excluded from the group $j$. The group can be set to 
+`"all"` (i.e. all samples except sample $i$ are used to calculate $I_j$) or 
+any other column in `colData(se)`. For any group except `"all"` the group is 
+taken to which the sample $i$ belongs to and the sample $i$ is excluded from 
+the feature-wise calculation.
+
+The MA values for all samples are by default displayed facet-wise. The MA plot 
+can be set to a specific sample by changing the selected value in the 
+drop-down menu `plot`.
+
+The underlying data set can be selected by the drop-down menu 
+(`Data set for the MA plot`).
+
+In the second part of the panel, the Hoeffding's D statistic values are 
+visualized for the different data sets `raw`, `normalized`, `transformed`, 
+`batch corrected`, and `imputed` (`imputed` will only be shown if there are
+missing values in the `SummarizedExperiment`).
+
+`D` is a measure of the distance between `F(A, M)` and `G(A)H(M)`, where 
+`F(A, M)` is the joint cumulative distribution function (CDF) of `A` and `M`, 
+and `G` and `H` are marginal CDFs. The higher the value of `D`, the more 
+dependent are `A` and `M`. The `D` values are connected for the same 
+samples along the different data sets (when `lines` is selected), allowing to 
+track the influence of 
+normalization, transformation, batch correction (and imputation) methods on the 
+`D` values. 
+
+The MA plot using the raw values and `group = "all"` will look like the 
+following (`plot` = "all"`):
+```{r maplot, eval=TRUE, show=FALSE}
+tbl <- MAvalues(se, group = "all")
+MAplot(tbl, group = "all", plot = "all")
+```
+
+## ECDF
+The plot shows the ECDF of the values of the sample 
+$i$ and the feature-wise mean values of a group $j$ of samples specified 
+by the drop-down menu `Group`. The sample for calculating $I_i$ is
+excluded from the group $j$. The group can be set to `"all"`
+(i.e. all samples except sample $i$ are used to calculate
+$I_j$) or any other column in `colData(se)`. For any group except `"all"` the
+group is taken to which the sample $i$ belongs to and the sample $i$ is 
+excluded from the feature-wise calculation.
+
+The underlying data set can be selected by the drop-down menu 
+`Data set for the MA plot`. The sample $i$ can be selected by
+the drop-down menu `Sample`. The group can be selected by 
+the drop-down menu `Group`.
+
+The ECDF plot for the sample `"Sample_1-1"`, `group = "all"`, and the 
+raw values (as obtained by `assay(se)`) will look like:
+```{r ecdf, eval=TRUE, echo=FALSE}
+ECDF(se, "Sample_1-1", group = "all")
+```
+
+
+## Distance matrix
+On the left, the panel depicts heatmaps of distances between samples for 
+the data sets of
+raw (`raw`), normalized (`normalized`), normalized+transformed 
+(`transformed`), normalized+transformed+batch corrected (`batch corrected`)
+and normalized+transformed+imputed (`imputed`, `imputed` will only be shown if 
+there are missing values in the `SummarizedExperiment`).
+The annotation of the heatmaps can be adjusted by the drop-down
+menu `annotation`.
+
+On the right panel the sum of distances to other samples is depicted.
+
+The distance matrix and sum of distances (for raw values, as obtained by
+`assay(se)`) will look like:
+```{r distSampe, eval=TRUE, echo=FALSE}
+a <- assay(se)
+dist_mat <- distShiny(a)
+distSample(dist_mat, se, "type")
+sumDistSample(dist_mat, title = "raw")
+```
+
+## Features
+
+The first plot shows the values for each samples along the data 
+processing steps.
+The feature to be displayed is selected via the drop-down menu 
+**Select feature**. 
+
+```{r featurePlot, eval=TRUE, echo=FALSE}
+l_assays <- list(raw = a, normalized = a_n, transformed = a_t,
+   `batch.corrected` = a_b, imputed = a_i)
+df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
+featurePlot(df_feature)
+```
+
+The second plot shows the coefficient of variation of the values for all features
+in the data set along the data processing steps. The features of same 
+identity can be connected by lines by clicking on **lines**. 
+
+```{r}
+ cvFeaturePlot(l_assays, lines = FALSE)
+```
+
+The element in the bottom of the tab panel (**Select features**) will specify 
+the selection of features in the data set (the selection will be propagated through 
+all tabs):
+
+- `all`: when selected, all features in the uploaded `SummarizedExperiment` 
+object will used,
+- `exclude`: when selected, the features specified in the text input field
+will be excluded from the uploaded `SummarizedExperiment`,
+- `select`: when selected, the features specified in the text input field 
+will be selected from the uploaded `SummarizedExperiment` 
+(note: a minimum of three features needs to be selected in order for the 
+selection to take place).
+
+
+# Tab: Dimension Reduction
+
+Within this tab several dimension reduction plots are displayed to visualize
+the level of similarity of samples of a data set: 
+principal component analysis (PCA), principal coordinates analysis 
+(PCoA, also known as multidimensional scaling, MDS), 
+non-metric multidimensional scaling (NMDS), 
+t-distributed stochastic neighbor embedding (tSNE, @vanderMaaten2008), and 
+uniform manifold approximation and projection (UMAP, @McInnes2018). 
+Data input for the dimension reduction plots is the `imputed` data set. 
+
+## PCA
+The panel depicts a plot of PCA. The data input can be `scale`d and 
+`center`ed prior to calculating the principal components by adjusting the
+respective tick marks. The different PCs can be displayed by changing the
+values in the drop-down menus for the x-axis and y-axis. 
+
+A scree plot, showing the explained variance per PC, is displayed in the 
+right panel.
+
+## PCoA
+The panel depicts a plot of PCoA (= multidimensional scaling). Different distance 
+measures can be used to calculate the distances between the samples 
+(euclidean, maximum, manhattan, canberra, minkowski). 
+The different axes of the transformed data can be displayed by changing the
+values in the drop-down menus for the x-axis and y-axis. 
+
+## NMDS
+The panel depicts a plot of NMDS. Different distance 
+measures can be used to calculate the distances between the samples 
+(euclidean, maximum, manhattan, canberra, minkowski). 
+The different axes of the transformed data can be displayed by changing the
+values in the drop-down menus for the x-axis and y-axis. 
+
+## tSNE
+The panel depicts a plot of tSNE. The parameters `Perplexity`, 
+`Number of iterations`, `Number of retained dimensions in initial PCA`,
+and `Output dimensionality` required for the tSNE algorithm can be
+set with the sliders. For the parameter
+`Number of retained dimensions in initial PCA` the panel 
+`Principal components` can be employed that shows on the left panel a 
+Scree plot of the data set and permuted values and corresponding p-values
+from the permutation.
+
+The different dimensions of the transformed data can be displayed by changing 
+the values in the drop-down menus for the x-axis and y-axis (either two or 
+three dimensions according to the `Output dimensionality`).  
+
+## UMAP
+The panel depicts a plot of UMAP. The parameters `Minimum distance`, 
+`Number of neighbors`, and `Spread`, required for the UMAP algorithm can be
+set with the sliders. 
+
+The different dimensions of the transformed data can be displayed by changing 
+the values in the drop-down menus for the x-axis and y-axis.  
+
+# DE
+This tab allows to test for differential expression between conditions. 
+
+Currently, two methods/tests are implemented for calculating differential 
+expression between conditions: moderated t-tests from `limma` and the
+Wald test from `proDA`. The approach of `proDA` does not require imputed 
+values and will take the normalized+transformed+batch corrected 
+(`batch corrected`) data set as input.
+
+The moderated t-statistic is the ratio of the M-value to its standard error, 
+where the M-value is the log2-fold change for the feature of interest. 
+The moderated t-statistic has the same interpretation as
+an ordinary t-statistic except that the standard errors have been moderated
+across features, borrowing information from the ensemble of features to aid
+with inference about each individual feature [@Kammers2015]. We use the 
+`eBayes` function from `limma` to compute the moderated t-statistics.
+
+`proDA` [@Ahlmann2019] was devloped for the differential abundance analysis
+in label-free proteomics data sets. `proDA` models missing values in an 
+intensity-dependent probabilistic manner based on a dropout curve 
+(for further details see @Ahlmann2019).
+
+In the input field for levels, the formula for the levels is entered.
+The formula has to start with a `~` (tilde) and the `R`-specific symbolic form:
+
+- `+` to add terms,
+- `:` to denote an interaction term, 
+- `*` to denote factor crossing (`a*b` is interpreted as `a+b+a:b`),
+- `-` to remove the specified term, e.g. `~ x - 1` to specify no intercept,
+- `+ 0` to alternatively specify a model without intercept.
+
+The `colnames` of `colData` can be added as terms.  
+
+The `colnames` of the model matrix can be used to calculate contrasts, e.g. 
+`a - b` to specify the contrast between `a` and `b`. The contrasts can be 
+specified in the input field in the sidebar panel.
+
+The panels `Model matrix` and `Contrast matrix` will show the model and contrast
+matrix upon correct specification of the levels and contrasts. 
+The panel `Top DE` will show the differential features in a tabular format, 
+while the panel `Volcano plot` will display the information of 
+log fold change (for `limma`) or difference (for `proDA`) against the 
+p-values (displayed as `-log10(p-value)`. 
+
+In the following, we will look at the different panels with the
+`se` input as specified above.
+
+## Sample meta-data
+The panel `Sample meta-data` will show the column data of the `se` object. The 
+output will help to specify the levels for the model matrix.
+
+```{r colData, echo=FALSE, eval=TRUE}
+colData(se)
+```
+
+## Model matrix
+When entering `~ treatment + 0` into the input field 
+`Select levels for Model Matrix`, the `Model matrix` panel will look like
+(only the first few rows are shown here):
+
+```{r modelMatrix, echo=FALSE, eval=TRUE}
+mM <- model.matrix(formula("~ treatment + 0"), data = colData(se))
+head(mM)
+```
+
+## Contrast matrix
+As an example, we are interested in the differential expression between 
+`1_A` and `1_B`, i.e. the differential expression between treatment `A` and
+`B` of the type `Type_1`. We enter `treatment1_B-treatment1_A` in the input
+field `Select contast(s)`. The contrast matrix (only the first few rows 
+are shown here) will then look like:
+
+```{r contrasts, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+library(limma)
+cM <- makeContrasts(contrasts = "treatment1_B-treatment1_A", levels = mM)
+head(cM)
+```
+
+
+## Top DE
+Switching to the panel `Top DE`, we will obtain a table with the differentially
+expressed features (normalization method is set to `none`, 
+transformation method to `none` and imputation method to `MinDet`). 
+Here, differential expression is tested via moderated 
+t-tests (from the `limma` package): 
+
+The first few lines are shown here:
+```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+a <- assay(se)
+a_n <- a %>% normalize(., "none")
+a_t <- a_n %>% transform(., "none")
+a_i <- a_t %>% impute(., "MinDet")
+
+fit <- lmFit(a_i, design = mM)
+fit <- contrasts.fit(fit, contrasts = cM)
+fit <- eBayes(fit, trend = TRUE)
+tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
+```
+
+
+## Volcano plot
+The last panel of the tab `DE` displays the information from the differential
+expression analysis. In the case of moderated t-tests, the plot shows the
+log fold changes between the specified contrasts against the p-values. 
+Using the afore-mentioned specification for the model matrix and the 
+contrast matrix, the plot will look like:
+```{r volcano, eval=TRUE, echo=FALSE}
+volcanoPlot(tT, type = "ttest")
+```
+
+
+# Appendix {-}
+
+## Session information {-}
+
+All software and respective versions to build this vignette are listed here:
+
+```{r session,eval=TRUE, echo=FALSE}
+sessionInfo()
+```
+
+## References
+

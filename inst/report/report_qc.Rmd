@@ -1,0 +1,924 @@
+---
+title: "MatrixQCvis report"
+output:   
+    BiocStyle::html_document:
+        toc_float: true
+        mathjax: null
+        self_contained: true
+params:
+    missingValue: TRUE
+    se_r: NULL
+    se_n: NULL
+    se_t: NULL
+    se_b: NULL
+    se_i: NULL
+    sample_hist: "name"
+    sample_mosaic_f1: "name"
+    sample_mosaic_f2: "name"
+    mev_binwidth: 1
+    mev_binwidthC: 1
+    miv_binwidth: 1
+    miv_binwidthC: 1
+    mev_hist_category: NULL
+    mev_upset_category: NULL
+    miv_hist_category: NULL
+    miv_upset_category: NULL
+    int_log: TRUE
+    int_violin: TRUE
+    int_drift_data: "raw"
+    int_drift_aggregation: "median"
+    int_drift_category: "name"
+    int_drift_orderCategory: NULL
+    int_drift_level: NULL
+    int_drift_method: "loess"
+    int_ma_data: "raw"
+    int_ma_group: NULL
+    int_ma_plot: NULL
+    int_hD_lines: FALSE
+    int_ecdf_data: "raw"
+    int_ecdf_sample: NULL
+    int_ecdf_group: "all"
+    int_dist_method: "euclidean"
+    int_dist_label: "name"
+    int_feat_selectFeat: NULL,
+    int_feat_featLine: FALSE,
+    dr_pca_center: TRUE
+    dr_pca_scale: TRUE
+    dr_pca_highlight: "none"
+    dr_pca_x: "PC1"
+    dr_pca_y: "PC1"
+    dr_pcoa_method: "euclidean"
+    dr_pcoa_highlight: "none" 
+    dr_pcoa_x: "Axis.1"
+    dr_pcoa_y: "Axis.2"
+    dr_nmds_highlight: "none"
+    dr_nmds_x: "MDS1"
+    dr_nmds_y: "MDS2"
+    dr_tsne_perplexity: 1
+    dr_tsne_max_iter: 1000
+    dr_tsne_initial_dims: 10
+    dr_tsne_dims: 3
+    dr_tsne_pca_center: TRUE
+    dr_tsne_pca_scale: TRUE
+    dr_tsne_highlight: "none"
+    dr_tsne_x: "X1"
+    dr_tsne_y: "X2"
+    dr_umap_min_dist: 0.1
+    dr_umap_n_neighbors: 15
+    dr_umap_spread: 1
+    dr_umap_highlight: "none"
+    dr_umap_x: "X1"
+    dr_umap_y: "X2"
+    de_m_formula: NULL
+    de_c_formula: NULL
+    de_method: "ttest"
+    de_fit_ttest: NULL
+    de_fit_proDA: NULL
+---
+
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r env, include=FALSE, echo=FALSE, cache=FALSE}
+library("knitr")
+opts_chunk$set(stop_on_error = 1L)
+suppressPackageStartupMessages(library("MatrixQCvis"))
+```
+
+```{r prepare_se, eval=TRUE, echo=FALSE}
+se_r <- params$se_r
+se_n <- params$se_n
+se_t <- params$se_t
+se_b <- params$se_b
+se_i <- params$se_i
+missingValue <- params$missingValue
+```
+
+
+
+This is an automatically-produced report from `shinyQC`. The analyzed data
+contains `r nrow(se_r)` features and `r ncol(se_r)` samples. 
+
+# Tab: Samples
+
+## Histogram
+
+Use the settings
+
+- *Categorical variable = * `r params$sample_hist`.
+
+```{r hist_sample, eval=TRUE, echo=FALSE}
+tbl <- hist_sample_num(se = se_r, category = params$sample_hist)
+hist_sample(tbl, category = params$category_hist)
+```
+
+
+## Mosaic
+```{r mosaic_prepare, eval=TRUE, echo=FALSE}
+if (!is.null(params$sample_mosaic_f1)) {
+    called <- TRUE
+    sample_mosaic_f1 <- params$sample_mosaic_f1
+} else {
+    called <- FALSE
+    sample_mosaic_f1 <- colnames(colData(params$se_r))[1]
+}
+if (!is.null(params$sample_mosaic_f2)) {
+    sample_mosaic_f2 <- params$sample_mosaic_f2
+} else {
+    sample_mosaic_f2 <- colnames(colData(params$se_r))[1]
+}
+
+```
+
+`r if (!called) {"The mosaic plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *Categorical variable 1 =* `r sample_mosaic_f1` and 
+- *Categorical variable 2 =* `r sample_mosaic_f2`. 
+
+```{r mosaic, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+mosaic(se = params$se_r, f1 = sample_mosaic_f1, f2 = sample_mosaic_f2)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.1)
+```
+
+
+`r if (missingValue) {"# Tab: Measured Values\n"}`
+
+`r if (missingValue) {"## Barplot for samples\n"}`
+
+
+
+```{r samples_memi_mev, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+tbl <- samples_memi(se_r)
+barplot_samples_memi(tbl, measured = TRUE)  
+```
+
+
+`r if (missingValue) {"## Histogram Features\n"}`
+
+```{r hist_feature_mev_prepare, eval=TRUE, echo=FALSE,message=FALSE, warning=FALSE}
+if (!is.null(params$mev_binwidth)) {
+    called <- TRUE
+    binwidth <- params$mev_binwidth
+} else {
+    called <- FALSE
+    binwidth <- 1
+}
+```
+
+
+`r if (missingValue & !called) {"The 'Histogram Features' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {"- *Binwidth =*"}`  `r if (missingValue) paste(binwidth, ".", sep = "")`
+```{r hist_feature_mev, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature(assay(se_r), measured = TRUE, binwidth = binwidth)  
+```
+
+`r if (missingValue) {"## Histogram Features along variable\n"}`
+
+```{r hist_feature_category_mev_prepare, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$mev_binwidthC)) {
+    called <- TRUE
+    binwidth <- params$mev_binwidthC
+    mev_hist_category <- params$mev_hist_category
+} else {
+    called <- FALSE
+    binwidth <- 1
+    mev_hist_category <- colnames(colData(se_r))[1]
+}
+```
+
+`r if (missingValue & !called) {"The 'Histogram Features along variable' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {paste("- *Variable for stratification =*", mev_hist_category, "and")}`
+`r if (missingValue) {paste("- *Binwidth =* ", binwidth, ".", sep = "")}`
+
+
+```{r hist_feature_category_mev, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature_category(se_r, measured = TRUE, category = mev_hist_category,
+    binwidth = binwidth)
+```
+
+`r if (missingValue) {"## Upset\n"}`
+
+```{r upset_mev_prepare, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$mev_upset_category)) {
+    called <- TRUE
+    mev_upset_category <- params$mev_upset_category
+} else {
+    called <- FALSE
+    mev_upset_category <- colnames(colData(se_r))[1]
+}
+
+```
+
+`r if (missingValue & !called) {"The 'Upset' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {paste("- *Variable for stratification =* ", mev_upset_category, ".", sep = "")}`
+
+
+```{r upset_mev, eval=params$missingValue, echo=FALSE}
+upset_category(se_r, category = mev_upset_category, measured = TRUE)
+```
+
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.2)
+```
+
+`r if (missingValue) {"# Tab: Missing Values\n"}`
+
+`r if (missingValue) {"## Barplot for samples\n"}`
+
+```{r samples_memi_miv, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+tbl <- samples_memi(se_r)
+barplot_samples_memi(tbl, measured = FALSE)
+```
+
+`r if (missingValue) {"## Histogram Features\n"}`
+
+```{r hist_feature_miv_prepare, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$miv_binwidth)) {
+    called <- TRUE
+    binwidth <- params$miv_binwidth
+} else {
+    called <- FALSE
+    binwidth <- 1
+}
+```
+
+`r if (missingValue & !called) {"The 'Histogram Features' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {paste("- *Binwidth =* ", binwidth, ".", sep = "")}`
+```{r hist_feature_miv, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature(assay(se_r), measured = FALSE, binwidth = binwidth)
+```
+
+`r if (missingValue) {"## Histogram Features along variable\n"}`
+
+```{r hist_feature_category_miv_prepare, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$miv_binwidthC)) {
+    called <- TRUE
+    binwidth <- params$miv_binwidthC
+    miv_hist_category <- params$miv_hist_category
+} else {
+    called <- FALSE
+    binwidth <- 1
+    miv_hist_category <- colnames(colData(se_r))[1]
+}
+```
+
+`r if (missingValue & !called) {"The 'Histogram Features along variable' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {paste("- *Variable for stratification =*", miv_hist_category, "and")}`
+`r if (missingValue) {paste("- *Binwidth =* ", binwidth, ".", sep = " ")}`
+
+```{r hist_feature_category_miv, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
+hist_feature_category(se_r, measured = FALSE, category = miv_hist_category,
+    binwidth = binwidth)
+```
+
+`r if (missingValue) {"## Upset\n"}`
+
+```{r upset_miv_prepare, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$miv_upset_category)) {
+    called <- TRUE
+    miv_upset_category <- params$miv_upset_category
+} else {
+    called <- FALSE
+    miv_upset_category <- colnames(colData(se_r))[1]
+}
+```
+
+`r if (missingValue & !called) {"The 'Upset' plot was not called within the shiny application. Use default settings."}`
+
+`r if (missingValue) {"Use the settings"}`
+
+`r if (missingValue) {paste("- *Variable for stratification =* ", mev_upset_category, ".", sep = " ")}`
+
+```{r upset_miv, eval=params$missingValue, echo=FALSE}
+upset_category(se_r, category = miv_upset_category, measured = FALSE)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.25)
+```
+
+# Tab: Values
+
+## Boxplot/Violin plot
+
+```{r boxplot_prepare, eval=TRUE,echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$int_violin)) {
+    called <- TRUE
+    int_box_type <- int_violin <- params$int_violin
+    int_log <- params$int_log
+    int_violin <- if (int_violin == "violin") TRUE else FALSE
+    int_log <- if (int_log == "log2") TRUE else FALSE
+} else {
+    called <- FALSE
+    int_violin <- TRUE
+    int_log <- FALSE
+    int_box_type <- "violin"
+}
+```
+
+`r if (!called) {"The 'Boxplot/Violin plot' was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *Display log2 values? = * `r int_log` and 
+- *Type of display = * `r int_box_type`.
+
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
+create_boxplot(assay(se_r), title = "raw",
+    log2 = int_log, violin = int_violin)
+create_boxplot(assay(se_n), title = "normalized",
+    log2 = int_log, violin = int_violin)
+create_boxplot(assay(se_t), title = "transformed",
+    log2 = FALSE, violin = int_violin)
+create_boxplot(assay(se_b), title = "batch corrected",
+    log2 = FALSE, violin = int_violin)
+create_boxplot(assay(se_i), title = "imputed",
+    log2 = FALSE, violin = int_violin)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.32)
+```
+
+## Trend/drift
+```{r drift_prepare, eval=TRUE,echo=FALSE, message=FALSE, warning=FALSE}
+if (!is.null(params$int_drift_data)) {
+    called <- TRUE
+    int_drift_data <- params$int_drift_data
+    int_drift_aggregation <- params$int_drift_aggregation
+    int_drift_category <- params$int_drift_category
+    int_drift_orderCategory <- params$int_drift_orderCategory
+    int_drift_level <- params$int_drift_level
+    int_drift_method <- params$int_drift_method
+    
+    if (int_drift_data == "raw") {
+       se_tmp <- se_r
+    }
+    if (int_drift_data == "normalized") {
+        se_tmp <- se_n
+    }
+    if (int_drift_data == "transformed") {
+        se_tmp <- se_t
+    }
+    if (int_drift_data == "batch corrected") {
+        se_tmp <- se_b
+    }
+    if (int_drift_data == "imputed") {
+        se_tmp <- se_i
+    }
+    
+} else {
+    called <- FALSE
+    int_drift_data <- "raw"
+    se_tmp <- se_r
+    int_drift_aggregation <- "sum"
+    int_drift_category <- colnames(colData(se_r))[1]
+    int_drift_orderCategory <- colnames(colData(se_r))[1]
+    int_drift_level <- "all"
+    int_drift_method <- "loess"
+}
+```
+
+`r if (!called) {"The 'Trend/drift' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *Select variable = * `r int_drift_category`,  
+- *Select level to highlight = * `r int_drift_level`, 
+- *Select data input = * `r int_drift_data`, 
+- *Select aggregation = * `r int_drift_aggregation`,
+- *Select smoothing method = * `r int_drift_method`, and 
+- *Select variable to order samples = * `r int_drift_orderCategory`.
+
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+driftPlot(se_tmp, aggregation = int_drift_aggregation,
+    category = int_drift_category,
+    orderCategory = int_drift_orderCategory,
+    level = int_drift_level,
+    method = params$int_drift_method)
+```
+
+## Coefficient of variation
+
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+a_r <- assay(se_r)
+a_n <- assay(se_n)
+a_t <- assay(se_t)
+a_b <- assay(se_b)
+a_i <- assay(se_i)
+
+## calculate cv values
+cv_r <- cv(a_r, "raw")
+cv_n <- cv(a_n, "normalized")
+cv_t <- cv(a_t, "transformed")
+cv_b <- cv(a_b, "batch corrected")
+cv_i <- cv(a_i, "imputed")
+
+df <- data.frame(cv_r, cv_n, cv_t, cv_b, cv_i)
+plotCV(df)
+```
+
+
+## Mean-sd plot
+
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+vsn::meanSdPlot(a_t)
+vsn::meanSdPlot(a_b)
+vsn::meanSdPlot(a_i)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.4)
+```
+
+## MA plot
+```{r maplot_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$int_ma_group)) {
+    called <- TRUE
+    int_ma_group <- params$int_ma_group
+    int_ma_data <- params$int_ma_data
+    int_ma_plot <- params$int_ma_plot
+    int_hD_lines <- params$int_hD_lines
+} else {
+    called <- FALSE
+    int_ma_group <- "all"
+    int_ma_data <- "raw"
+    int_ma_plot <- "all"
+    int_hD_lines <- FALSE
+}
+```
+
+`r if (!called) {"The 'MA plot' was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *group = * `r int_ma_group`,  
+- *plot = * `r int_ma_plot`, 
+- *Data set for the MA plot = * `r int_ma_data`, and
+- *lines = * `r int_hD_lines`.
+
+```{r maplot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+tbl_r <- MAvalues(se_r, log2 = TRUE, group = int_ma_group)
+tbl_n <- MAvalues(se_n, log2 = TRUE, group = int_ma_group)
+tbl_t <- MAvalues(se_t, log2 = FALSE, group = int_ma_group)
+
+if (shiny::isRunning())
+  shiny::setProgress(0.5)
+
+
+tbl_b <- MAvalues(se_b, log2 = FALSE, group = int_ma_group)
+tbl_i <- MAvalues(se_i, log2 = FALSE, group = int_ma_group)
+ 
+if (int_ma_data == "raw") {
+    tbl <- tbl_r
+}
+if (int_ma_data == "normalized") {
+    tbl <- tbl_n
+}
+if (int_ma_data == "transformed") {
+    tbl <- tbl_t
+}
+if (int_ma_data == "batch corrected") {
+    tbl <- tbl_b
+}
+if (int_ma_data == "imputed") {
+    tbl <- tbl_i
+}
+ 
+MAplot(tbl, group = int_ma_group,
+    plot = int_ma_plot)
+
+d_r <- hoeffDValues(tbl_r, name = "raw")
+d_n <- hoeffDValues(tbl_n, name = "normalized")
+d_t <- hoeffDValues(tbl_t, name = "transformed")
+d_b <- hoeffDValues(tbl_b, name = "batch corrected")
+d_i <- hoeffDValues(tbl_i, name = "imputed")
+ 
+df <- data.frame(d_r, d_n, d_t, d_b, d_i)
+hoeffDPlot(df, lines = int_hD_lines)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.55)
+```
+
+## ECDF
+```{r ecdf_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$int_ecdf_sample)) {
+    called <- TRUE
+    int_ecdf_data <- params$int_ecdf_data
+    int_ecdf_sample <- params$int_ecdf_sample
+    int_ecdf_group <- params$int_ecdf_group
+    
+    if (int_ecdf_data == "raw") {
+        se_tmp <- se_r
+    }
+    if (int_ecdf_data == "normalized") {
+        se_tmp <- se_n
+    }
+    if (int_ecdf_data == "transformed") {
+        se_tmp <- se_t
+    }
+    if (int_ecdf_data == "batch corrected") {
+        se_tmp <- se_b
+    }
+    if (int_ecdf_data == "imputed") {
+        se_tmp <- se_i
+    }
+
+} else {
+    called <- FALSE
+    int_ecdf_data <- "raw"
+    int_ecdf_sample <- colnames(se_r)[1]
+    int_ecdf_group <- "all"
+    se_tmp <- se_r
+}
+```
+
+`r if (!called) {"The 'ECDF' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings
+
+- *Data set for the ECDF plot = * `r int_ecdf_data`,  
+- *Sample = * `r int_ecdf_sample`, and
+- *group = * `r int_ecdf_group`.
+
+```{r ecdf, eval=TRUE, echo=FALSE, warning=FALSE}
+ECDF(se_tmp, sample = int_ecdf_sample,
+    group = int_ecdf_group)
+```
+
+
+## Distance matrix
+```{r distSample_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$int_ecdf_label)) {
+    called <- TRUE
+    int_dist_label <- params$int_dist_label
+    int_dist_method <- params$int_dist_method
+} else {
+    called <- FALSE
+    int_dist_label <- colnames(colData(se_r))[1]
+    int_dist_method <- "euclidean"
+}
+```
+
+`r if (!called) {"The 'Distance matrix' plots were not called within the shiny application. Use default settings."}`
+
+Use the settings
+
+- *annotation = * `r int_dist_label` and 
+- *distance method = * `r int_dist_method`.
+
+```{r distSample, eval=TRUE, echo=FALSE}
+dist_mat_r <- distShiny(a_r, method = int_dist_method)
+dist_mat_n <- distShiny(a_n, method = int_dist_method)
+dist_mat_t <- distShiny(a_t, method = int_dist_method)
+dist_mat_b <- distShiny(a_b, method = int_dist_method)
+dist_mat_i <- distShiny(a_i, method = int_dist_method)
+
+## plotting
+distSample(d = dist_mat_r, se = se_r,
+    label = int_dist_label, title = "raw")
+sumDistSample(dist_mat_r, title = "raw")
+
+distSample(d = dist_mat_n, se = se_n,
+    label = int_dist_label, title = "normalized")
+sumDistSample(dist_mat_n, title = "normalized")
+
+distSample(d = dist_mat_t, se = se_t,
+    label = int_dist_label, title = "transformed")
+sumDistSample(dist_mat_t, title = "transformed")
+
+distSample(d = dist_mat_b, se = se_b,
+    label = int_dist_label, title = "batch corrected")
+sumDistSample(dist_mat_b, title = "batch corrected")
+
+distSample(d = dist_mat_i, se = se_i,
+    label = int_dist_label, title = "imputed")
+sumDistSample(dist_mat_i, title = "imputed")
+```
+
+## Features
+
+```{r features_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$int_feat_selectFeat)) {
+    called <- TRUE
+    int_feat_selectFeat <- params$int_feat_selectFeat
+    int_feat_featLine <- params$int_feat_featLine
+} else {
+    called <- FALSE
+    int_feat_selectFeat <- rownames(se_r)[1]
+    int_feat_featLine <- FALSE
+}
+```
+
+`r if (!called) {"The 'Features' plots were not called within the shiny application. Use default settings."}`
+
+Use the settings
+
+- *Select feature = * `r int_feat_selectFeat` and 
+- *lines = * `r int_feat_featLine`.
+
+```{r features, eval=TRUE, echo=FALSE}
+if (missingValue) {
+    l_assays <- list(raw = a, normalized = a_n, 
+      transformed = a_t, `batch.corrected` = a_b, imputed = a_i)
+} else {
+    l_assays <- list(raw = a, normalized = a_n,
+      transformed = a_t, `batch.corrected` = a_b)
+}
+df_feature <- createDfFeature(l_assays, feature = int_feat_selectFeat)
+
+## plotting
+featurePlot(df_feature)
+cvFeaturePlot(l_assays, lines = int_feat_featLine)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.6)
+```
+
+# Tab: Dimension Reduction
+
+## PCA
+```{r PCA_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$dr_pca_highlight)) {
+    called <- TRUE
+    dr_pca_center <- params$dr_pca_center
+    dr_pca_scale <- params$dr_pca_scale
+    dr_pca_highlight <- params$dr_pca_highlight
+    dr_pca_x <- params$dr_pca_x
+    dr_pca_y <- params$dr_pca_y
+} else {
+    called <- FALSE
+    dr_pca_center <- TRUE
+    dr_pca_scale <- TRUE
+    dr_pca_highlight <- "none"
+    dr_pca_x <- "PC1"
+    dr_pca_y <- "PC2"
+}
+```
+
+`r if (!called) {"The 'PCA' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *x-axis = * `r dr_pca_x`, 
+- *y-axis = * `r dr_pca_y`, 
+- *scale = * `r dr_pca_scale`,
+- *center = * `r dr_pca_center`, and 
+- *Highlight = * `r dr_pca_highlight`. 
+
+```{r PCA, eval=TRUE, echo=FALSE}
+tbl <- ordination(a_i, type = "PCA",
+    params = list(center = dr_pca_center, scale = dr_pca_scale))
+ordinationPlot(tbl = tbl, se = se_r, highlight = dr_pca_highlight,
+    x_coord = dr_pca_x, y_coord = dr_pca_y)
+```
+
+
+## PCoA
+```{r PCoA_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$dr_pcoa_highlight)) {
+    called <- TRUE
+    dr_pcoa_method <- params$dr_pcoa_method
+    dr_pcoa_highlight <- params$dr_pcoa_highlight
+    dr_pcoa_x <- params$dr_pcoa_x
+    dr_pcoa_y <- params$dr_pcoa_y
+} else {
+    called <- FALSE
+    dr_pcoa_method <- "euclidean"
+    dr_pcoa_highlight <- "none"
+    dr_pcoa_x <- "Axis.1"
+    dr_pcoa_y <- "Axis.2"
+}
+```
+
+`r if (!called) {"The 'PCoA' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *x-axis = * `r dr_pcoa_x`, 
+- *y-axis = * `r dr_pcoa_y`, 
+- *Distance measure = * `r dr_pcoa_method`, and 
+- *Highlight = * `r dr_pcoa_highlight`. 
+
+```{r PCoA, eval=TRUE, echo=FALSE}
+tbl <- ordination(a_i, type = "PCoA",
+    params = list(method = dr_pcoa_method))
+ordinationPlot(tbl = tbl, se = se_r, highlight = dr_pcoa_highlight,
+    x_coord = dr_pcoa_x, y_coord = dr_pcoa_y)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.65)
+```
+
+## NMDS
+```{r NMDS_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+if (!is.null(params$dr_nmds_highlight)) {
+    called <- TRUE
+    dr_nmds_method <- params$dr_pcoa_method
+    dr_nmds_highlight <- params$dr_nmds_highlight
+    dr_nmds_x <- params$dr_nmds_x
+    dr_nmds_y <- params$dr_nmds_y
+} else {
+    called <- FALSE
+    dr_nmds_method <- "euclidean"
+    dr_nmds_highlight <- "none"
+    dr_nmds_x <- "MDS1"
+    dr_nmds_y <- "MDS2"
+}
+```
+
+`r if (!called) {"The 'NMDS' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings
+
+- *x-axis = * `r dr_nmds_x`, 
+- *y-axis = * `r dr_nmds_y`, 
+- *Distance measure = * `r dr_nmds_method`, and 
+- *Highlight = * `r dr_nmds_highlight`. 
+
+```{r NMDS, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+tbl <- ordination(a_i, type = "NMDS", params = list(method = dr_nmds_method))
+
+```
+```{r NMDS_plot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+ordinationPlot(tbl = tbl, se = se_r, highlight = dr_nmds_highlight,
+    x_coord = dr_nmds_x, y_coord = dr_nmds_y)
+```
+
+## tSNE
+```{r tSNE_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$dr_tsne_highlight)) {
+    called <- TRUE
+    dr_tsne_perplexity <- params$dr_tsne_perplexity
+    dr_tsne_max_iter <- params$dr_tsne_max_iter
+    dr_tsne_initial_dims <- params$dr_tsne_initial_dims
+    dr_tsne_dims <- params$dr_tsne_dims
+    dr_tsne_pca_center <- params$dr_tsne_pca_center
+    dr_tsne_pca_scale <- params$dr_tsne_pca_scale
+    dr_tsne_highlight <- params$dr_tsne_highlight
+    dr_tsne_x <- params$dr_tsne_x
+    dr_tsne_y <- params$dr_tsne_y
+} else {
+    called <- FALSE
+    dr_tsne_perplexity <- 1
+    dr_tsne_max_iter <- 1000
+    dr_tsne_initial_dims <- 10
+    dr_tsne_dims <- 3
+    dr_tsne_pca_center <- TRUE
+    dr_tsne_pca_scale <- TRUE
+    dr_tsne_highlight <- "none"
+    dr_tsne_x <- "X1"
+    dr_tsne_y <- "X2"
+}
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.73)
+```
+
+`r if (!called) {"The 'tSNE' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *x-axis = * `r dr_tsne_x`, 
+- *y-axis = * `r dr_tsne_y`, 
+- *Perplexity = * `r dr_tsne_perplexity`, 
+- *Number of iterations = * `r dr_tsne_max_iter`, 
+- *Number of retained dimensions in intial PCA = * `r dr_tsne_initial_dims`,
+- *Output dimensionality = * `r dr_tsne_dims`, `scale =` `r dr_tsne_pca_scale`,
+- *center = * `r dr_tsne_pca_center`, and 
+- *Highlight = * `r dr_tsne_highlight`.
+
+```{r tSNE, eval=TRUE, echo=FALSE}
+tbl <- ordination(a_i, type = "tSNE", 
+    params = list(perplexity = dr_tsne_perplexity, 
+    max_iter = dr_tsne_max_iter, initial_dims = dr_tsne_initial_dims,
+    dims = dr_tsne_dims, pca_center = dr_tsne_pca_center,
+    pca_scale = dr_tsne_pca_scale))
+ordinationPlot(tbl = tbl, se = se_r, highlight = dr_tsne_highlight,
+    x_coord = dr_tsne_x, y_coord = dr_tsne_y)
+```
+
+
+## UMAP
+```{r UMAP_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+if (!is.null(params$dr_umap_highlight)) {
+    called <- TRUE
+    dr_umap_min_dist = params$dr_umap_min_dist
+    dr_umap_n_neighbors = params$dr_umap_n_neighbors
+    dr_umap_spread = params$dr_umap_spread
+    dr_umap_highlight = params$dr_umap_highlight
+    dr_umap_x = params$dr_umap_x
+    dr_umap_y = params$dr_umap_y
+} else {
+    called <- FALSE
+    dr_umap_min_dist = 0.1
+    dr_umap_n_neighbors = 15
+    dr_umap_spread = 1
+    dr_umap_highlight = "none"
+    dr_umap_x = "X1"
+    dr_umap_y = "X2"
+}
+```
+
+`r if (!called) {"The 'UMAP' plot was not called within the shiny application. Use default settings."}`
+
+Use the settings 
+
+- *x-axis = * `r dr_umap_x`, 
+- *y-axis = * `r dr_umap_y`, 
+- *Minimum distance =* `r dr_umap_min_dist`, 
+- *Number of neighbors =* `r dr_umap_n_neighbors`, 
+- *Spread = * `r dr_umap_spread`, and
+- *Highlight = * `r dr_umap_highlight`. 
+
+```{r UMAP, eval=TRUE, echo=FALSE}
+tbl <- ordination(a_i, type = "UMAP", 
+    params = list(min_dist = dr_umap_min_dist, n_neighbors = dr_umap_n_neighbors,
+        spread = dr_umap_spread))
+ordinationPlot(tbl = tbl, se = se_r, highlight = dr_umap_highlight,
+    x_coord = dr_umap_x, y_coord = dr_umap_y)
+```
+
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.87)
+```
+
+
+
+```{r DE_prepare,echo=FALSE, eval=TRUE}
+m_formula <- params$de_m_formula
+valid_m <- if (!is.null(m_formula)) TRUE else FALSE
+
+c_formula <- params$de_c_formula
+valid_c <- if (!is.null(c_formula)) TRUE else FALSE
+```
+
+`r if (valid_m | (valid_m & valid_c)) {"# Tab: DE\n~\n"}`
+`r if (valid_m) {"The differential expression analysis was called with the model matrix formula:"}`
+`r if (valid_m) {c_formula}`
+
+`r if (valid_m & valid_c) {"The differential expression analysis was called with the contrast expression:"}`
+`r if (valid_m) {c_formula}`
+
+
+```{r DE, echo=FALSE, eval=TRUE}
+if (valid_m & valid_c) {
+    mM <- model.matrix(m_formula, data = colData(se_r))
+    cM <- makeContrasts(contrasts = c_formula, levels = mM)
+
+    if (params$de_method == "limma") {
+        tT <- topTable(params$de_fit_ttest, number = Inf, adjust.method = "fdr", p.value = 0.05)
+        tT <- cbind(name = rownames(tT), tT)
+        volcanoPlot(tT, type = "ttest")
+    }
+    if (params$de_method == "proDA") {
+        tT <- test_diff(fit = params$de_fit_proDA, contrast = params$de_c_formula,
+            sort_by = "adj_pval")
+        volcanoPlot(tT, type = "proDA")
+    }
+}
+```
+
+```{r, eval=TRUE, echo=FALSE}
+if (shiny::isRunning())
+  shiny::setProgress(0.98)
+```
