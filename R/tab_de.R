@@ -9,7 +9,7 @@
 #' `type` parameter. For `type == "ttest"`, the fold changes are plotted; 
 #' for `type == "proDA"`, the  differences are plotted. 
 #' 
-#' @details 
+#' @details
 #' Internal use in `shinyQC`.
 #' 
 #' @param df `data.frame` as received from `topTable` (`ttest`) or 

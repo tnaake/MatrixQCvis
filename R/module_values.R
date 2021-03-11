@@ -777,11 +777,16 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             })
             
             ## create MA values: se, log2, group
-            vals_raw <- reactive(MAvalues(se(), TRUE, input$groupMA))
-            vals_norm <- reactive(MAvalues(se_n(), TRUE, input$groupMA))
-            vals_transf <- reactive(MAvalues(se_t(), FALSE, input$groupMA))
-            vals_batch <- reactive(MAvalues(se_b(), FALSE, input$groupMA))
-            vals_imp <- reactive(MAvalues(se_i(), FALSE, input$groupMA))
+            vals_raw <- reactive(MAvalues(se(), TRUE, input$groupMA)) %>%
+                bindCache(se(), input$groupMA, cache = "session")
+            vals_norm <- reactive(MAvalues(se_n(), TRUE, input$groupMA)) %>%
+                bindCache(se_n(), input$groupMA, cache = "session")
+            vals_transf <- reactive(MAvalues(se_t(), FALSE, input$groupMA)) %>%
+                bindCache(se_t(), input$groupMA, cache = "session")
+            vals_batch <- reactive(MAvalues(se_b(), FALSE, input$groupMA)) %>%
+                bindCache(se_b(), input$groupMA, cache = "session")
+            vals_imp <- reactive(MAvalues(se_i(), FALSE, input$groupMA)) %>%
+                bindCache(se_i(), input$groupMA, cache = "session")
 
             ## MA plots: MA values, group
             p_ma <- reactive({
@@ -828,11 +833,16 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             )
 
             ## Hoeffding's D values: MA values, title for plot
-            hD_raw <- reactive(hoeffDValues(vals_raw(), "raw"))
-            hD_norm <- reactive(hoeffDValues(vals_norm(),  "normalized"))
-            hD_transf <- reactive(hoeffDValues(vals_transf(), "transformed"))
-            hD_batch <- reactive(hoeffDValues(vals_batch(), "batch corrected"))
-            hD_imp <- reactive(hoeffDValues(vals_imp(), "imputed"))
+            hD_raw <- reactive(hoeffDValues(vals_raw(), "raw")) %>%
+                bindCache(vals_raw(), cache = "session")
+            hD_norm <- reactive(hoeffDValues(vals_norm(),  "normalized")) %>%
+                bindCache(vals_norm(), cache = "session")
+            hD_transf <- reactive(hoeffDValues(vals_transf(), "transformed")) %>%
+                bindCache(vals_transf(), cache = "session")
+            hD_batch <- reactive(hoeffDValues(vals_batch(), "batch corrected")) %>%
+                bindCache(vals_batch(), cache = "session")
+            hD_imp <- reactive(hoeffDValues(vals_imp(), "imputed")) %>%
+                bindCache(vals_imp(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function
             hoeffD_df <- reactive({

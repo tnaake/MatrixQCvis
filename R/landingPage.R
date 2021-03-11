@@ -21,6 +21,8 @@
 #' createLandingPage(seUI = NULL, seLoad = NULL, requireButton = TRUE)
 #' }
 #' 
+#' @author authors of `iSEE` package, adjusted by Thomas Naake
+#' 
 #' @importFrom shinyjs show hide
 #' @importFrom methods is
 #' 

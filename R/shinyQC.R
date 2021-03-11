@@ -59,6 +59,8 @@
 #' 
 #' \dontrun{shinyQC(se)}
 #' 
+#' @author Thomas Naake
+#' 
 #' @export
 shinyQC <- function(se, app_server = FALSE) {
     
@@ -203,6 +205,8 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @importFrom SummarizedExperiment assays
 #' @importFrom shiny downloadHandler
 #' @importFrom rmarkdown render
+#' 
+#' @author Thomas Naake
 #' 
 #' @noRd
 .initialize_server <- function(se, input, output, session, missingValue = TRUE) {
@@ -584,7 +588,7 @@ shinyQC <- function(se, app_server = FALSE) {
     fit_proDA <- fitServer("proDA", assay = a_b,
             validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
             contrastMatrix = contrastMatrix) %>%
-        bindCache(a_b(), modelMatrix(), contrastMatrix())
+        bindCache(a_b(), modelMatrix(), contrastMatrix(), cache = "session")
     
     ## create data.frame with the test results
     testResult <- testResultServer("testServer", 

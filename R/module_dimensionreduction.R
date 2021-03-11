@@ -21,6 +21,8 @@
 #' 
 #' @import shiny
 #' 
+#' @author Thomas Naake
+#' 
 #' @noRd
 coordsUI <- function(df, name = "PC", 
         x = "ordination_x", y = "ordination_y", session = session) {
@@ -274,6 +276,8 @@ tP_tSNEUI <- function(id) {
 #' @param id `character`
 #' @param se `SummarizedExperiment` and `reactive` value
 #' 
+#' @author Thomas Naake
+#' 
 #' @return 
 #' `shiny.render.function`
 #' 
@@ -370,6 +374,8 @@ tP_umapUI <- function(id) {
 #' 
 #' @param id `character`
 #' @param se `SummarizedExperiment` and `reactive` value
+#' 
+#' @author Thomas Naake
 #' 
 #' @return 
 #' `shiny.render.function`
