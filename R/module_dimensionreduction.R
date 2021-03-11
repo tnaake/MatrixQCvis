@@ -88,6 +88,10 @@ tP_PCAUI <- function(id) {
             box(title = "Scree plot", width = 6, 
                 collapsible = TRUE, collapsed = TRUE,
                 plotOutput(outputId = ns("PCAVarplot"))
+            ),
+            box(title = "Loadings plot",
+                collapsible = TRUE, collapsed = TRUE,
+                plotlyOutput(outputId = ns("PCALoadings"))
             )
         )
     )
@@ -431,9 +435,12 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
         id, 
         function(input, output, session) {
             
+            params_l <- reactiveValuesToList(params())
+            
             ## create data.frame with new coordinates: x, type, params 
             tbl_vals <- reactive({
-                ordination(assay(), type, reactiveValuesToList(params()))
+                ordination(x = assay(), type = type, 
+                    params = reactiveValuesToList(params()))
             })
             
             ## create an expression that retrieves information on the columns of
@@ -461,8 +468,25 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             ## reactive plot for ordination plots
             output$plot <- renderPlotly({
                 req(input$x)
-                ordinationPlot(tbl_vals(), se = se(), 
-                    highlight = input$highlight, input$x, input$y, height = innerWidth() * 3 / 5)
+                
+                if (id == "PCA") {
+                    
+                    params_l <- reactiveValuesToList(params())
+                    explainedVar <- explVar(assay(), 
+                        center = params_l$center, scale = params_l$scale)
+                    ordinationPlot(tbl_vals(), se = se(), 
+                        highlight = input$highlight, input$x, input$y, 
+                        explainedVar = explainedVar, 
+                        height = innerWidth() * 3 / 5)
+                    
+                } else {
+                    
+                    ordinationPlot(tbl_vals(), se = se(), 
+                        highlight = input$highlight, input$x, input$y, 
+                        explainedVar = NULL, 
+                        height = innerWidth() * 3 / 5)
+
+                }
             })
             
             output$downloadPlot <- downloadHandler(
@@ -483,7 +507,8 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
 
 #' @name screePlotServer
 #' 
-#' @title Module for server expressions of tab panels 'PCA' and 'tSNE'
+#' @title Module for server expressions of tab panels 'PCA' and 'tSNE' 
+#' (scree plot)
 #' 
 #' @description
 #' The module defines the server expressions in the tab panel 
@@ -532,9 +557,53 @@ screePlotServer <- function(id, assay, center, scale) {
                     plotPCAVarPvalue(var_x(), var_perm())
                 })
             }
+            
         }
     )
 }
+
+#' @name loadingsPlotServer
+#' 
+#' @title Module for server expressions of tab panel 'PCA' (loading plot)
+#' 
+#' @description
+#' The module defines the server expressions in the tab panel 
+#' 'Dimension Reduction', specifically for the tab panel 'PCA'. It defines 
+#' the loading plot server expression
+#' 
+#' @details 
+#' Internal function for `shinyQC`.
+#' 
+#' @param id `character`
+#' @param assay `matrix` and `reactive` value, obtained from 
+#' `assay(SummarizedExperiment)`
+#' @param center `logical` and `reactive` value
+#' @param scale `logical` and `reactive` value
+#' 
+#' @return
+#' `shiny.render.function` expression
+#'
+#' @author Thomas Naake
+#' 
+#' @noRd
+loadingsPlotServer <- function(id, assay, params) {
+    moduleServer(
+        id, 
+        function(input, output, session) {
+            
+            tbl_loadings <- reactive({
+                tblPCALoadings(assay(), reactiveValuesToList(params()))
+            })
+
+            output$PCALoadings <- renderPlotly({
+                plotPCALoadings(tbl_loadings(), 
+                    x_coord = input$x, y_coord = input$y) 
+            })
+
+        }
+    )
+}
+
 
 #' @name tP_dimensionReduction_all
 #' 

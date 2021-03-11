@@ -193,3 +193,33 @@ test_that("plotPCAVarPvalue", {
         "arguments imply differing number of rows")
     expect_is(g, "gg")
 })
+
+## function tblPCALoadings
+test_that("tblPCALoadings", {
+    x <- matrix(1:100, nrow = 10, ncol = 10, 
+                dimnames = list(1:10, paste("sample", 1:10)))
+    params <- list(center = TRUE, scale = TRUE)
+    tbl <- tblPCALoadings(x = x, params = params)
+    expect_is(tbl, "tibble")
+    expect_equal(dim(tbl), c(10, 11))
+    expect_equal(tbl$name, as.character(1:10))
+    expect_equal(colnames(tbl), c("name", paste0("PC", 1:10)))
+    expect_equal(tbl$PC1, rep(0.316, 10), tolerance = 1e-3)
+    expect_equal(tbl$PC2, c(-0.9486833, rep(0.1054093, 9)), tolerance = 1e-3)
+    expect_error(tblPCALoadings(x = "foo", params = params), "must be numeric")
+    expect_error(tblPCALoadings(x = x, params = "foo"), 
+        "argument is not interpretable as logical")
+})
+
+## function plotPCALoadings
+test_that("plotPCALoadings", {
+    x <- matrix(1:100, nrow = 10, ncol = 10, 
+                dimnames = list(1:10, paste("sample", 1:10)))
+    params <- list(center = TRUE, scale = TRUE)
+    tbl <- tblPCALoadings(x = x, params = params)
+    expect_is(plotPCALoadings(tbl, "PC1", "PC2"), "plotly")
+    expect_error(plotPCALoadings(NULL, "PC1", "PC2"), "object 'PC1' not found")
+    expect_error(plotPCALoadings(tbl, "foo", "PC2"), "object 'foo' not found")
+    expect_error(plotPCALoadings(tbl, "PC1", "foo"), "object 'foo' not found")
+})
+

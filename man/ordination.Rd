@@ -44,3 +44,6 @@ ordination(x, type = "tSNE", params = params)
 ordination(x, type = "UMAP", params = params)
 
 }
+\author{
+Thomas Naake
+}

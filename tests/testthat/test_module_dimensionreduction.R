@@ -99,6 +99,21 @@ test_that("screePlotServer", {
     })
 })
 
+## loadingsPlotServer
+test_that("loadingsPlotServer", {
+    
+    testServer(loadingsPlotServer, {
+        input <- new.env()    
+        output <- new.env()
+        session <- new.env()
+        assay <- new.env()
+        params <- new.env()
+        
+        out <- loadingsPlotServer("", assay = assay, params = params)
+        expect_is(out, "shiny.render.function")
+    })
+})
+
 ## tP_dimensionReduction_all
 test_that("tP_intensities_all", {
     expect_is(tP_dimensionReduction_all(), "shiny.tag")

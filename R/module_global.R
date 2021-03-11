@@ -576,10 +576,9 @@ selectSampleSE <- function(se, selection, mode = c("all", "exclude", "select")) 
     }
     
     if (mode == "select") {
-        if (length(selection) > 0) {
+        if (length(selection) >= 3) {
             se <- se[, colnames(se) %in% selection]    
         }
-        
     } 
     
     return(se)
@@ -640,10 +639,7 @@ selectFeatureSE <- function(se, selection, mode = c("all", "exclude", "select"))
     if (mode == "select") {
         if (length(selection) >= 3) {
             se <- se[rownames(se) %in% selection, ]    
-        } else {
-            se <- se
-        }
-        
+        } 
     } 
     
     return(se)

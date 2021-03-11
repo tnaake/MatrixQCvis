@@ -8,6 +8,7 @@ ordinationPlot(
   tbl,
   se,
   highlight = c("none", colnames(colData(se))),
+  explainedVar = NULL,
   x_coord,
   y_coord,
   height = 600
@@ -19,6 +20,10 @@ ordinationPlot(
 \item{se}{`SummarizedExperiment`}
 
 \item{highlight}{`character`, one of `"none"` or `colnames(colData(se))`}
+
+\item{explainedVar}{NULL or named `numeric`, if `numeric` `explainedVar` 
+contains the explained variance per principal component (names of 
+`explainedVar` corresponds to the principal components)}
 
 \item{x_coord}{`character`, column name of `tbl` that stores x coordinates}
 
@@ -53,4 +58,7 @@ pca <- ordination(x = assay(se), type = "PCA", params = list())
 ordinationPlot(tbl = pca, se = se, highlight = "type", 
     x_coord = "PC1", y_coord = "PC2")
 
+}
+\author{
+Thomas Naake
 }

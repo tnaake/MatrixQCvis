@@ -35,3 +35,6 @@ x <- x + rnorm(100)
 explVar(x = x, center = TRUE, scale = TRUE)
 
 }
+\author{
+Thomas
+}

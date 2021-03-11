@@ -35,7 +35,9 @@
 #' ordination(x, type = "NMDS", params = params)
 #' ordination(x, type = "tSNE", params = params)
 #' ordination(x, type = "UMAP", params = params)
-#' 
+#'
+#' @author Thomas Naake
+#'
 #' @importFrom stats prcomp
 #' @importFrom ape pcoa
 #' @importFrom vegan metaMDS
@@ -110,6 +112,9 @@ ordination <- function(x,
 #' @param tbl `tibble` as obtained by the function `ordination`
 #' @param se `SummarizedExperiment`
 #' @param highlight `character`, one of `"none"` or `colnames(colData(se))`
+#' @param explainedVar NULL or named `numeric`, if `numeric` `explainedVar` 
+#' contains the explained variance per principal component (names of 
+#' `explainedVar` corresponds to the principal components)
 #' @param x_coord `character`, column name of `tbl` that stores x coordinates
 #' @param y_coord `character`, column name of `tbl` that stores y coordinates
 #' @param height `numeric`, specifying the height of the plot (in pixels)
@@ -130,13 +135,16 @@ ordination <- function(x,
 #' 
 #' ordinationPlot(tbl = pca, se = se, highlight = "type", 
 #'     x_coord = "PC1", y_coord = "PC2")
-#' 
+#'
+#' @author Thomas Naake
+#'
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr left_join
 #' 
 #' @export
 ordinationPlot <- function(tbl, se, 
-    highlight = c("none", colnames(colData(se))), x_coord, y_coord, height = 600) {
+    highlight = c("none", colnames(colData(se))), 
+    explainedVar = NULL, x_coord, y_coord, height = 600) {
     
     highlight <- match.arg(highlight)
     
@@ -153,7 +161,16 @@ ordinationPlot <- function(tbl, se,
     ## use deparse(quote(namesDf)) to convert object name into
     ## character string
     g <- ggplot(tbl, aes_string(x = x_coord, y = y_coord, 
-        text = deparse(quote(name)))) + xlab(x_coord) + ylab(y_coord) 
+        text = deparse(quote(name)))) 
+    
+    if (!is.null(explainedVar)) {
+        g <- g + xlab(paste(x_coord, " (", 
+            round(explainedVar[[x_coord]]*100, 2), "%)", sep = ""))
+        g <- g + ylab(paste(x_coord, " (", 
+            round(explainedVar[[y_coord]]*100, 2), "%)", sep = ""))
+    } else {
+        g <- g + xlab(x_coord) + ylab(y_coord) 
+    }
     
     if (highlight == "none") {
         g <- g + geom_point()
@@ -195,6 +212,8 @@ ordinationPlot <- function(tbl, se,
 #' set.seed(1)
 #' x <- x + rnorm(100)
 #' explVar(x = x, center = TRUE, scale = TRUE)
+#'
+#' @author Thomas
 #'
 #' @export
 explVar <- function(x, center = TRUE, scale = TRUE) {
@@ -239,7 +258,9 @@ explVar <- function(x, center = TRUE, scale = TRUE) {
 #' permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
 #'
 #' @return matrix with explained variance
-#' 
+#'
+#' @author Thomas Naake
+#'
 #' @export
 permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
     
@@ -285,6 +306,8 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' @return 
 #' `gg` object from `ggplot`
 #' 
+#' @author Thomas Naake
+#'
 #' @export
 plotPCAVar <- function(var_x, var_perm = NULL) {
     
@@ -335,6 +358,8 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' 
 #' @return gg object from `ggplot`
 #' 
+#' @author Thomas Naake
+#' 
 #' @export
 plotPCAVarPvalue <- function(var_x, var_perm) {
     p_val <- apply(t(var_perm) >= var_x, 1, sum) / nrow(var_perm)
@@ -348,4 +373,85 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
         geom_hline(aes(yintercept=0.05), color = "red") +
         ylab("p-value") + xlab("principal components") + 
         theme_bw() + theme(axis.text.x = element_text(angle = 90))
+}
+
+#' @name tblPCALoadings
+#' 
+#' @title Return tibble with PCA loadings for features
+#' 
+#' @description 
+#' The function `tblPCALoadings` returns a `tibble` with loadings values for the
+#' features (row entries) in `x`.
+#' 
+#' @details 
+#' The function `tblPCALoadings` acccesses the list entry `rotation` of the
+#' `prcomp` object. 
+#' 
+#' @param x `matrix`, containing no missing values
+#' @param params `list`, arguments/parameters given to the function 
+#' `stats::prcomp`
+#' 
+#' @examples 
+#' x <- matrix(rnorm(1:10000), ncol = 100)
+#' rownames(x) <- paste("feature", 1:nrow(x))
+#' colnames(x) <- paste("sample", 1:ncol(x))
+#' params <- list(method = "euclidean", ## dist
+#'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
+#'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
+#' tblPCALoadings(x, params)
+#'
+#' @return `tibble`
+#' 
+#' @author Thomas Naake
+#' 
+#' @export
+tblPCALoadings <- function(x, params) {
+    params <- append(params, list(x = t(x)))
+    d <- do.call(what = prcomp, params)
+    tbl <- as_tibble(d$rotation)
+    tbl <- tibble(name = rownames(d$rotation), tbl)
+    return(tbl)
+}
+
+#' @name plotPCALoadings
+#' 
+#' @title Plot for PCA loadings of features
+#' 
+#' @description 
+#' The function `plotPCALoadings` creates a loadings plot of the features.
+#' 
+#' @details 
+#' The function takes as input the output of the function `tblPlotPCALoadings`.
+#' It uses the `ggplotly` function from `plotly` to create an interactive plot.
+#' 
+#' 
+#' @param tbl `tibble` as obtained by the function `ordination`
+#' @param x_coord `character`, column name of `tbl` that stores x coordinates
+#' @param y_coord `character`, column name of `tbl` that stores y coordinates
+#' 
+#' @examples 
+#' x <- matrix(rnorm(1:10000), ncol = 100)
+#' rownames(x) <- paste("feature", 1:nrow(x))
+#' colnames(x) <- paste("sample", 1:ncol(x))
+#' params <- list(method = "euclidean", ## dist
+#'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
+#'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
+#' tbl <- tblPCALoadings(x, params)
+#' plotPCALoadings(tbl, x_coord = "PC1", y_coord = "PC2")
+#'
+#' @return `plotly`
+#' 
+#' @author Thomas Naake
+#' 
+#' @importFrom plotly ggplotly
+#' 
+#' @export
+plotPCALoadings <- function(tbl, x_coord, y_coord) {
+    
+    g <- ggplot(tbl, aes_string(text = deparse(quote(name)))) +
+        geom_point(aes_string(x = x_coord, y = y_coord), alpha = 0.4) +
+        xlab(x_coord) + ylab(y_coord) +
+        theme_classic() + theme(legend.position = "none")
+
+    ggplotly(g, tooltip = "name")
 }

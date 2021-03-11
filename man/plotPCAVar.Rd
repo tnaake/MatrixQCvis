@@ -30,3 +30,6 @@ var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 plotPCAVar(var_x = var_x, var_perm = var_perm)
 
 }
+\author{
+Thomas Naake
+}

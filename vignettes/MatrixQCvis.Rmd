@@ -188,10 +188,14 @@ In the following, the vignette will be (mainly) described from the point of view
 of a `SummarizedExperiment` containing missing values. 
 
 ## Sidebar
-The sidebar allows to exclude samples from the analysis (e.g. in the case 
-of identified outliers). Samples are excluded by entering the sample name 
+The sidebar allows to exclude (e.g. in the case of identified outliers)
+and select samples (e.g. in the case if there is interest for a specific 
+sample type). Samples are excluded/selected by entering the sample name 
 in the input field and pressing `Enter` on the keyboard or by clicking 
-on the name of the samples in the drop-down menu. 
+on the name of the samples in the drop-down menu and activating the 
+relevant option (`"all"` for all samples; `"exclude"`, `"select"`). If the 
+option is set to `"select"` at least three samples have to be selected for 
+the selection to take place. 
 
 In addition, in the tabs `Values`, 
 `Dimension Reduction`, and `DE`, the sidebars allows for 

@@ -517,16 +517,17 @@ shinyQC <- function(se, app_server = FALSE) {
     })
     
     ## server modules for the dimensional reduction plots
+    
     dimRedServer("PCA", se = se_r, assay = a_i, type = "PCA", 
         label = "PC", params = reactive(params), 
         innerWidth = reactive(input$innerWidth))
     dimRedServer("PCoA", se = se_r, assay = a_i, type = "PCoA", 
         label = "axis", params = reactive(params),
         innerWidth = reactive(input$innerWidth))
-    dimRedServer("NMDS", se = se_r, assay = a_i, type = "NMDS", 
+    dimRedServer("NMDS", se = se_r, assay = a_i, type = "NMDS",
         label = "MDS", params = reactive(params),
         innerWidth = reactive(input$innerWidth))
-    dimRedServer("tSNE", se = se_r, assay = a_i, type = "tSNE", 
+    dimRedServer("tSNE", se = se_r, assay = a_i, type = "tSNE",
         label = "dimension", params = reactive(params),
         innerWidth = reactive(input$innerWidth))
     tSNEUIServer("tSNE", se = se_r)
@@ -537,10 +538,11 @@ shinyQC <- function(se, app_server = FALSE) {
     
     
     ## run additional server modules for the scree plots (only for the
-    ## tabs 'PCA' and 'tSNE')
+    ## tabs 'PCA' and 'tSNE') and loading plot
     screePlotServer("PCA", assay = a_i,
         center = reactive(input[["PCA-center"]]),
         scale = reactive(input[["PCA-scale"]]))
+    loadingsPlotServer("PCA", assay = a_i, params = reactive(params))
     screePlotServer("tSNE", assay = a_i,
         center = reactive(input[["tSNE-center"]]),
         scale = reactive(input[["tSNE-scale"]]))

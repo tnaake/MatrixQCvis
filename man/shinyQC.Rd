@@ -54,3 +54,6 @@ se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 \dontrun{shinyQC(se)}
 
 }
+\author{
+Thomas Naake
+}

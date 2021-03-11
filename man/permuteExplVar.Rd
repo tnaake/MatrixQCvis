@@ -42,3 +42,6 @@ x <- matrix(1:100, nrow = 10, ncol = 10,
 permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
 
 }
+\author{
+Thomas Naake
+}
