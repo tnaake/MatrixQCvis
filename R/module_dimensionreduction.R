@@ -435,8 +435,6 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
         id, 
         function(input, output, session) {
             
-            params_l <- reactiveValuesToList(params())
-            
             ## create data.frame with new coordinates: x, type, params 
             tbl_vals <- reactive({
                 ordination(x = assay(), type = type, 

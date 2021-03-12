@@ -136,8 +136,9 @@ test_that("selectSampleSE", {
     expect_equal(selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"), se[, 2:4])
     expect_error(selectSampleSE("foo", "sample 1", "exclude"),
         "incorrect number of dimensions")
-    expect_error(selectSampleSE("foo", "sample 1", "select"),
-                 "incorrect number of dimensions")
+    expect_error(selectSampleSE("foo", 
+        c("sample 1", "sample 2", "sample 3"), "select"),
+        "incorrect number of dimensions")
 })
 
 ## function selectFeatureSE

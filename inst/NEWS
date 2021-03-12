@@ -1,1 +1,23 @@
-Changes in version 0.990.1
+Changes in version 0.99.0 (2021-03-12)
++ shinyQC including visualizations/functionality for 
+  - histogram of sample types,
+  - information on number of missing/measured values
+  - information on (intersecting, disjoint) sets for missing/measured values
+  - barplot and violin plot for (count/intensity) values
+  - visualization to detect drifts/trends in (count/intensity) values
+  - coefficients of variation for samples,
+  - mean-sd plots,
+  - MA plots,
+  - empirical cumulative distribution function,
+  - visualizations of distances between samples,
+  - intensities of features and coefficients of variation of features,
+  - dimension reduction plots (PCA, PCoA, NMDS, tSNE, UMAP)
+  - differential expression
++ write functions for data manipulation and plots 
++ write tests for these functions
++ create UI and server modules for shinyQC
++ write tests for UI and server modules
++ load different UI elements depending on the type of data (if the data 
+  contains missing values or is complete)
++ load different UI if the SummarizedExperiment is loaded on start of shinyQC
+  or not

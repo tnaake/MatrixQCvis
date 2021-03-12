@@ -200,7 +200,7 @@ test_that("tblPCALoadings", {
                 dimnames = list(1:10, paste("sample", 1:10)))
     params <- list(center = TRUE, scale = TRUE)
     tbl <- tblPCALoadings(x = x, params = params)
-    expect_is(tbl, "tibble")
+    expect_is(tbl, "tbl")
     expect_equal(dim(tbl), c(10, 11))
     expect_equal(tbl$name, as.character(1:10))
     expect_equal(colnames(tbl), c("name", paste0("PC", 1:10)))
