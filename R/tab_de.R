@@ -5,8 +5,8 @@
 #' @description 
 #' The function `volcanoPlot` creates a volcano plot. On the y-axis the
 #' -log(p-values) are displayed, on the x-axis the fold changes/differences.
-#' The output of the function `volcanoPlot` differs depending on the 
-#' `type` parameter. For `type == "ttest"`, the fold changes are plotted; 
+#' The output of the function `volcanoPlot` differs depending on the
+#' `type` parameter. For `type == "ttest"`, the fold changes are plotted;
 #' for `type == "proDA"`, the  differences are plotted. 
 #' 
 #' @details
@@ -29,16 +29,20 @@
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' a_i <- a %>% impute(., method = "MinDet")
-#' sample <- data.frame(sample = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' sample <- data.frame(sample = colnames(a), 
+#'                                 type = c(rep("1", 5), rep("2", 5)))
 #' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
-#' se_i <- SummarizedExperiment(assay = a_i, rowData = featData, colData = sample)
+#' se <- SummarizedExperiment(assay = a, 
+#'                                 rowData = featData, colData = sample)
+#' se_i <- SummarizedExperiment(assay = a_i, 
+#'                                 rowData = featData, colData = sample)
 #' 
 #' ## create model and contrast matrix
 #' modelMatrix_expr <- formula("~ 0 + type")
 #' contrast_expr <- "type1-type2"
 #' modelMatrix <- model.matrix(modelMatrix_expr, data = colData(se))
-#' contrastMatrix <- makeContrasts(contrasts = contrast_expr, levels = modelMatrix)
+#' contrastMatrix <- makeContrasts(contrasts = contrast_expr, 
+#'                                 levels = modelMatrix)
 #' 
 #' ## ttest
 #' fit <- lmFit(a_i, design = modelMatrix)

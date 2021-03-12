@@ -127,7 +127,7 @@ sidebar_assayUI <- function() {
         conditionalPanel(
             condition = "input.normalization == 'quantile division'",
             uiOutput("quantDiv")),
-                     
+
         ## select type of transformation
         selectInput(inputId = "transformation",
             label = strong("Transformation method"),
@@ -242,7 +242,8 @@ sidebar_DEUI <- function() {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), rowData = rD, colData = cD)
+#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#'                                 rowData = rD, colData = cD)
 #'
 #' sidebar_excludeSampleUI("select")
 #' 
@@ -251,7 +252,8 @@ sidebar_excludeSampleUI <- function(id) {
     ns <- NS(id)
     conditionalPanel(condition = "input.tabs != 'DE'",
         radioButtons(inputId = ns("mode"), label = "Select samples",
-            choices = list("all" = "all", "exclude" = "exclude", "select" = "select")),
+            choices = list("all" = "all", "exclude" = "exclude", 
+                                                        "select" = "select")),
         uiOutput(outputId = ns("excludeSamplesUI"))
     )
 }
@@ -341,7 +343,7 @@ sidebar_reportUI <- function() {
 sidebar_stopUI <- function(app_server) {
     if (!app_server) 
         conditionalPanel(condition = "input.tabs != 'DE'",
-                         actionButton("stop", "Stop and export data set")
+                            actionButton("stop", "Stop and export data set")
         )
 }
 
@@ -415,7 +417,8 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), rowData = rD, colData = cD)
+#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#'                                     rowData = rD, colData = cD)
 #' 
 #' choiceAssaySE(se = se)
 #' 
@@ -469,7 +472,8 @@ choiceAssaySE <- function(se) {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), rowData = rD, colData = cD)
+#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#'                                     rowData = rD, colData = cD)
 #' 
 #' selectAssaySE(se = se, selected = 1)
 #' selectAssaySE(se = se, selected = 2)
@@ -565,7 +569,8 @@ selectAssayServer <- function(id, se, selected) {
 #' selectSampleSE(se = se, selection = samplesToExclude, mode = "exclude")
 #' 
 #' @noRd
-selectSampleSE <- function(se, selection, mode = c("all", "exclude", "select")) {
+selectSampleSE <- function(se, selection, 
+                                    mode = c("all", "exclude", "select")) {
     
     mode <- match.arg(mode)
     
@@ -626,7 +631,8 @@ selectSampleSE <- function(se, selection, mode = c("all", "exclude", "select")) 
 #' selectFeatureSE(se = se, selection = featuresToExclude, mode = "exclude")
 #' 
 #' @noRd
-selectFeatureSE <- function(se, selection, mode = c("all", "exclude", "select")) {
+selectFeatureSE <- function(se, selection, 
+                                    mode = c("all", "exclude", "select")) {
     
     mode <- match.arg(mode)
     
@@ -650,7 +656,7 @@ selectFeatureSE <- function(se, selection, mode = c("all", "exclude", "select"))
 #' @title Update the `SummarizedExperiment` by the slot array
 #' 
 #' @description 
-#' The function `updateSE` updates the `assay` slot of a `SummarizedExperiment` 
+#' The function `updateSE` updates the `assay` slot of a `SummarizedExperiment`
 #' object, `se`, with a supplied `assay` object. The function returns the 
 #' updated object. 
 #' 

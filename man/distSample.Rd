@@ -15,6 +15,9 @@ distSample(d, se, label = "name", title = "raw")
 
 \item{title}{`character`}
 }
+\value{
+`ComplexHeatmap`
+}
 \description{
 The function `distSample` creates a heatmap from a distance matrix created
 by the function `distShiny`. The heatmap is annotated by the column specified

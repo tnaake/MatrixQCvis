@@ -17,8 +17,8 @@ transform(x, method = c("none", "log2", "vsn"))
 }
 \description{
 The function `transform` transforms the (count/intensity) values of a 
-`data.frame`, `tibble` or `matrix`. It uses either `log2`, variance stabilizing 
-normalisation (`vsn`) or no transformation method (pass-through, 
+`data.frame`, `tibble` or `matrix`. It uses either `log2`, variance 
+stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 `none`). The object
 `x` has the samples in the columns and the features in the rows.
 }

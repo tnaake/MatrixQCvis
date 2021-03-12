@@ -27,7 +27,8 @@
 #' @importFrom methods is
 #' 
 #' @noRd
-createLandingPage <- function(seUI = NULL, seLoad = NULL, requireButton = TRUE) {
+createLandingPage <- function(seUI = NULL, seLoad = NULL, 
+    requireButton = TRUE) {
     
     if (is.null(seUI)) {
         seUI <- function(id) fileInput(id, "SummarizedExperiment RDS file:", 
@@ -36,7 +37,7 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL, requireButton = TRUE) 
     if (is.null(seLoad)) {
         seLoad <- function(x) readRDS(x$datapath)
     }
-   
+
     force(requireButton)
     
     function (FUN, input, output, session, app_server) {

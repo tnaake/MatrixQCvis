@@ -16,7 +16,8 @@ driftPlot(
 \arguments{
 \item{se}{`SummarizedExperiment`}
 
-\item{aggregation}{`character`, type of aggregation of (count/intensity) values}
+\item{aggregation}{`character`, type of aggregation of (count/intensity) 
+values}
 
 \item{category}{`character`, column of `colData(se)`}
 

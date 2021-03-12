@@ -170,7 +170,8 @@ mosaicSampleServer <- function(id, se) {
             
             output$downloadPlot <- downloadHandler(
                 filename = function() {
-                    paste("Mosaic_", input$mosaicf1, "_", input$mosaicf2, ".pdf", sep = "")
+                    paste("Mosaic_", input$mosaicf1, "_", input$mosaicf2, 
+                        ".pdf", sep = "")
                 },
                 content = function(file) {
                     ggsave(file, p_mosaic(), device = "pdf")

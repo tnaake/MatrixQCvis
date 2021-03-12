@@ -274,8 +274,8 @@ tP_tSNEUI <- function(id) {
 #' The module defines the UI in the tab panel 'tSNE'.
 #' 
 #' @details
-#' `tP_sSNEUIServer` defines the UI for the tab-pane 'tSNE' from the server-side. 
-#' Internal function for `shinyQC`.
+#' `tP_sSNEUIServer` defines the UI for the tab-pane 'tSNE' from the 
+#' server-side. Internal function for `shinyQC`.
 #' 
 #' @param id `character`
 #' @param se `SummarizedExperiment` and `reactive` value
@@ -543,7 +543,8 @@ screePlotServer <- function(id, assay, center, scale) {
                 })  
             } else { ## tSNE
                 var_perm <- reactive({
-                    permuteExplVar(assay(), n = 10, center = center(), scale = scale()) 
+                    permuteExplVar(assay(), n = 10, center = center(), 
+                            scale = scale()) 
                 })
                 
                 ## Scree plot for tSNE panel including permuted values

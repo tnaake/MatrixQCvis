@@ -11,6 +11,9 @@ distShiny(x, method = "euclidean")
 
 \item{method}{`character`, method for distance calculation}
 }
+\value{
+`matrix`
+}
 \description{
 The function `distShiny` takes as an input a numerical `matrix` or
 `data.frame` and returns the distances between the rows and columns based

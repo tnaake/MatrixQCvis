@@ -2,8 +2,8 @@
 % Please edit documentation in R/tab_values.R
 \name{createDfFeature}
 \alias{createDfFeature}
-\title{Create data frame of (count/intensity) values for a selected feature along
-data processing steps}
+\title{Create data frame of (count/intensity) values for a selected feature
+along data processing steps}
 \usage{
 createDfFeature(l, feature)
 }

@@ -300,7 +300,9 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
                     dataTableOutput(ns("dtMM"))
                 } else {
                     ## show that the formula is not valid
-                    output$textfMM <- renderText("formula for Model Matrix not valid with the given colData")
+                    output$textfMM <- renderText(
+                        c("formula for Model Matrix not valid with",
+                            "the given colData"))
                     verbatimTextOutput(ns("textfMM"))
                 }
                 
@@ -424,7 +426,7 @@ validExprContrast <- function(contrasts, modelMatrix) {
     contrasts_c <- strsplit(contrasts, split = "-")[[1]]
     
     if (all(contrasts_c %in% colnames(modelMatrix)) & 
-        length(contrasts_c) %in% 1:2) {
+        length(contrasts_c) %in% c(1, 2)) {
         contrasts <- paste(contrasts_c, sep = "-")
     } else {
         contrasts <- NULL
@@ -463,7 +465,8 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
         function(input, output, session) {
             contrastMatrix <- reactive({
                 if (!is.null(validExprContrast())) {
-                    makeContrasts(contrasts = validExprContrast(), levels = modelMatrix())
+                    makeContrasts(contrasts = validExprContrast(), 
+                        levels = modelMatrix())
                 }
             })
             
@@ -513,7 +516,8 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
             output$contrastMatrixTab <- renderUI({
                 ns <- session$ns
                 ## if there is a valid formula return the DataTable
-                if (!is.null(validFormulaMM()) & !is.null(validExprContrast())) {
+                if (!is.null(validFormulaMM()) & 
+                                !is.null(validExprContrast())) {
                     output$dtCM <- renderDataTable({
                         cM <- contrastMatrix()
                         cbind(rownames(cM), cM)
@@ -522,11 +526,15 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
                 } else {
                     if (is.null(validFormulaMM())) {
                         ## show that the formula for Model Matrix is not valid
-                        output$textfCM <- renderText("formula for Model Matrix not valid with the given colData")
+                        output$textfCM <- renderText(
+                            c("formula for Model Matrix not valid", 
+                            "with the given colData"))
                         
                     } else {
                         ## show that the expression of contrasts is not valid
-                        output$textfCM <- renderText("contrast formula not valid with the given Model Matrix")
+                        output$textfCM <- renderText(
+                            c("contrast formula not valid with", 
+                                "the given Model Matrix"))
                     }
                     verbatimTextOutput(ns("textfCM"))
                 }
@@ -633,13 +641,17 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
                             })
                             return(dataTableOutput(ns("dtTest")))
                         } else {
-                            output$textTest <- renderText("expression for contrasts not valid with the given colData")
+                            output$textTest <- renderText(
+                                c("expression for contrasts not valid with",
+                                    "the given colData"))
                             return(verbatimTextOutput(ns("textTest")))
                         } 
                     }
                     
                 } else { ## no valid formula for Model Matrix
-                    output$textTest <- renderText("formula for Model Matrix not valid with the given colData")
+                    output$textTest <- renderText(
+                        c("formula for Model Matrix not valid with the",
+                            "given colData"))
                     return(verbatimTextOutput(ns("textTest")))
                 }
                 
@@ -743,8 +755,9 @@ testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM,
                         t <- cbind(name = rownames(t), t)
                     }
                     if (type() == "proDA") {
-                        t <- test_diff(fit = fit_proDA(), contrast = validExprContrast(),
-                                       sort_by = "adj_pval")
+                        t <- test_diff(fit = fit_proDA(), 
+                            contrast = validExprContrast(), 
+                            sort_by = "adj_pval")
                     }
                     return(t)
                 }
@@ -861,17 +874,19 @@ volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast,
                         ## return plot and downloadButton
                         tagList(
                             plotlyOutput(ns("plotVolcano")),
-                            downloadButton(outputId = ns("downloadPlot"), "")    
+                            downloadButton(outputId = ns("downloadPlot"), "")
                         )
                         
                     } else {
                         output$textVolcano <- renderText({
-                            "expression for contrasts not valid with the given colData"})
+                            c("expression for contrasts not",
+                                "valid with the given colData")})
                         verbatimTextOutput(ns("textVolcano"))
                     }
                 } else {
                     output$textVolcano <- renderText({
-                        "formula for Model Matrix not valid with the given colData"})
+                        c("formula for Model Matrix not valid",
+                            "with the given colData")})
                     verbatimTextOutput(ns("textVolcano"))
                 }
             })

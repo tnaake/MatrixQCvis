@@ -13,9 +13,9 @@ featurePlot(df)
 `gg`
 }
 \description{
-The function `featurePlot` creates a plot of (count/intensity) values for different
-data processing steps (referring to columns in the `data.frame`) over 
-the different samples (referring to rows in the `data.frame`).
+The function `featurePlot` creates a plot of (count/intensity) values for 
+different data processing steps (referring to columns in the `data.frame`) 
+over the different samples (referring to rows in the `data.frame`).
 }
 \details{
 Internal usage in `shinyQC`.

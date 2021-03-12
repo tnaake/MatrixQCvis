@@ -101,7 +101,8 @@ test_that("selectAssaySE", {
     expect_equal(colData(selectAssaySE(se_2, 2)), colData(se))
     expect_equal(rowData(selectAssaySE(se_2, 2)), rowData(se))
     expect_error(selectAssaySE(se_2, "abc"), "not in names")
-    expect_error(selectAssaySE(se_2, NULL), "unable to find an inherited method")
+    expect_error(selectAssaySE(se_2, NULL), 
+        "unable to find an inherited method")
 })
 
 ## selectAssayServer
@@ -131,9 +132,12 @@ test_that("selectSampleSE", {
     expect_equal(selectSampleSE(se, "sample 2", "all"), se)
     expect_equal(selectSampleSE(se, "sample 2", "exclude"), se[, -2])
     expect_equal(selectSampleSE(se, "sample 2", "select"), se)
-    expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "exclude"), se[, -c(2:3)])
+    expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "exclude"), 
+        se[, -c(2:3)])
     expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "select"), se)
-    expect_equal(selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"), se[, 2:4])
+    expect_equal(
+        selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"), 
+        se[, 2:4])
     expect_error(selectSampleSE("foo", "sample 1", "exclude"),
         "incorrect number of dimensions")
     expect_error(selectSampleSE("foo", 

@@ -6,7 +6,7 @@
 #' The module defines the UI for the tab panel 'Number of Features'.
 #' 
 #' @details
-#' `tP_histFeatUI` returns the HTML code for the tab-pane 'Number of Features'. 
+#' `tP_histFeatUI` returns the HTML code for the tab-pane 'Number of Features'.
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
@@ -112,7 +112,8 @@ barplotMeMiSampleServer <- function(id, samples_memi, measured = TRUE) {
             
             output$downloadPlot <- downloadHandler(
                 filename = function() {
-                    paste("Number_of_features_measured_", measured, ".html", sep = "")
+                    paste("Number_of_features_measured_", 
+                                            measured, ".html", sep = "")
                 },
                 content = function(file) {
                     saveWidget(p_barplotNumber(), file)
@@ -161,7 +162,7 @@ tP_histFeatUI <- function(id) {
     tabPanel(title = "Histogram Features",
         plotlyOutput(ns("histFeature")) %>% 
             helper(content = helper_file),
-        #######################downloadButton(outputId = ns("downloadPlot"), ""),
+        downloadButton(outputId = ns("downloadPlot_hist"), ""),
         uiOutput(outputId = ns("binwidthUI"))
     )
     
@@ -173,7 +174,8 @@ tP_histFeatUI <- function(id) {
 #' @title Module for server expressions of tab panel 'Histogram Features'
 #' 
 #' @description 
-#' The module defines the server expressions for the tab panel 'Histogram Features'
+#' The module defines the server expressions for the tab panel 
+#' 'Histogram Features'
 #' 
 #' @details 
 #' Internal function for `shinyQC`.
@@ -210,9 +212,10 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
                 p_hist_feature()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot_hist <- downloadHandler(
                 filename = function() {
-                    paste("Histogram_features_measured_", measured, ".html", sep = "")
+                    paste("Histogram_features_measured_", 
+                                                measured, ".html", sep = "")
                 },
                 content = function(file) {
                     saveWidget(p_hist_feature(), file)
@@ -233,7 +236,7 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
 #' 'Histogram Features along variable'.
 #' 
 #' @details 
-#' `tP_histFeatCategoryUI` returns the HTML code for the tab-pane 
+#' `tP_histFeatCategoryUI` returns the HTML code for the tab-pane
 #' 'Histogram Features along variable'. Internal function for `shinyQC`.
 #'
 #' @param id `character`
@@ -261,7 +264,7 @@ tP_histFeatCategoryUI <- function(id) {
     tabPanel(title = "Histogram Features along variable",
         plotlyOutput(ns("histFeatureCategory")) %>%
             helper(content = helper_file),
-        ###################downloadButton(outputId = ns("downloadPlot"), ""),
+        downloadButton(outputId = ns("downloadPlot_histFeat"), ""),
         uiOutput(ns("binwidthCUI")),
         uiOutput(ns("categoryHistUI"))
     )
@@ -269,7 +272,8 @@ tP_histFeatCategoryUI <- function(id) {
 
 #' @name histFeatCategoryServer
 #' 
-#' @title Module for server expressions of tab panel 'Histogram Features along variable'
+#' @title Module for server expressions of tab panel
+#' 'Histogram Features along variable'
 #' 
 #' @description 
 #' The function defines the output for the tab panel 
@@ -296,7 +300,7 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
             
             output$categoryHistUI <- renderUI({
                 selectInput(
-                    inputId = session$ns("categoryHist"), 
+                    inputId = session$ns("categoryHist"),
                     label = "Variable for stratification",
                     choices = colnames(colData(se())),
                     selected = "type")
@@ -306,7 +310,8 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
                 sliderInput(session$ns("binwidthC"),
                     label = "Binwidth (# features per sample type): ", 
                     step = 1, min = 1, value = 1,
-                    max = max(as.vector(table(colData(se())[[input$categoryHist]]))))
+                    max = max(as.vector(
+                        table(colData(se())[[input$categoryHist]]))))
             })
             
             p_histFeatureCategory <- reactive({
@@ -319,7 +324,7 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
                 p_histFeatureCategory()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot_histFeat <- downloadHandler(
                 filename = function() {
                     paste("Histogram_features_along_variable_measured_", 
                         measured, ".html", sep = "")
@@ -577,4 +582,3 @@ tP_miV_all <- function() {
             )
         )
 }
-

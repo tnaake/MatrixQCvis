@@ -22,7 +22,7 @@ The function `normalize` performs normalization by sum of the
 (count/intensity) values per sample or quantile division per sample
 or by quantile normalization (adjusting the distributions that they become
 identical in statistical distributions). The divisor for quantile division
-(e.g., the 75% quantile per sample) can be specified by the `probs` argument. 
+(e.g., the 75% quantile per sample) can be specified by the `probs` argument.
 Quantile normalization is performed by using the `normalize.quantiles` 
 function from `preprocessCore`.
 }

@@ -44,6 +44,8 @@
 #' @importFrom Rtsne Rtsne
 #' @importFrom umap umap
 #' 
+#' @return `tbl`
+#' 
 #' @export
 ordination <- function(x, 
     type = c("PCA", "PCoA", "NMDS", "tSNE", "UMAP"), params = list()) {
@@ -58,7 +60,8 @@ ordination <- function(x,
     }
     if (type == "PCoA") {
         params <- append(params, list(x = t(x)))
-        params <- params[names(params) %in% formalArgs(dist)] ## truncate params
+        ## truncate params
+        params <- params[names(params) %in% formalArgs(dist)] 
         d <- do.call(what = dist, args = params)
         d <- pcoa(d)
         tbl <- as_tibble(d$vectors)
@@ -66,28 +69,31 @@ ordination <- function(x,
     }
     if (type == "NMDS") {
         params <- append(params, list(x = t(x)))
-        params <- params[names(params) %in% formalArgs(dist)] ## truncate params
+        ## truncate params
+        params <- params[names(params) %in% formalArgs(dist)] 
         d <- do.call(what = dist, args = params)
         d <- metaMDS(d)
         tbl <- as_tibble(d$points)
         tbl <- tibble(name = rownames(d$points), tbl)
     }
-    if (type == "tSNE") { ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims
+    if (type == "tSNE") { 
+        ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims
         params <- append(params, list(X = t(x)))
         d <- do.call(what = Rtsne, args = params) 
         d <- d$Y
-        colnames(d) <- paste("X", 1:ncol(d), sep = "")
+        colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
         tbl <- as_tibble(d)
         tbl <- tibble(name = colnames(x), tbl)
     }
-    if (type == "UMAP") { ## hyperparameters for UMAP: n_neighbors, min_dist, spread
+    if (type == "UMAP") { 
+        ## hyperparameters for UMAP: n_neighbors, min_dist, spread
         ## remove first the method from the dist function then add "naive"
         if ("method" %in% names(params)) 
             params <- params[names(params) != "method"]
         params <- append(params, list(d = t(x), method = "naive"))
         d <- do.call(what = umap, args = params)
         d <- d$layout
-        colnames(d) <- paste("X", 1:ncol(d), sep = "")
+        colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
         tbl <- as_tibble(d)
         tbl <- tibble(name = rownames(d), tbl)
     }
@@ -140,6 +146,8 @@ ordination <- function(x,
 #'
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr left_join
+#' 
+#' @return `plotly`
 #' 
 #' @export
 ordinationPlot <- function(tbl, se, 
@@ -220,7 +228,7 @@ explVar <- function(x, center = TRUE, scale = TRUE) {
     ## PCA (by prcomp) and retrieve the exlained variance for each PC
     PC <- prcomp(x, center = center, scale = scale)
     explVar <- PC$sdev^2 / sum(PC$sdev^2)
-    names(explVar) <- paste("PC", 1:ncol(x), sep = "")
+    names(explVar) <- paste("PC", seq_len(ncol(x)), sep = "")
     
     return(explVar)
 }
@@ -326,7 +334,8 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
     g <- ggplot(df, aes_string(x = "PC", y = "values"))  + 
         geom_point(aes_string(color = "group")) + 
         geom_line(aes_string(color = "group", group = "group")) +
-        theme_bw() + ylab("explained variance (%)") + xlab("principal components") +
+        theme_bw() + ylab("explained variance (%)") + 
+        xlab("principal components") +
         theme(axis.text.x = element_text(angle = 90))
     
     if (is.null(var_perm)) g <- g + 

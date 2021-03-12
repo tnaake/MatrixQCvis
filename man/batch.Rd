@@ -18,8 +18,8 @@ batch(se, method = c("none", "removeBatchEffect (limma)"), batchColumn)
 `matrix`
 }
 \description{
-The function `batch` removes the batch effect of (count/intensity) values of a 
-`SummarizedExperiment`. It uses either the `removeBatchEffect` function 
+The function `batch` removes the batch effect of (count/intensity) values of 
+a `SummarizedExperiment`. It uses either the `removeBatchEffect` function 
 or no batch effect correction method (pass-through, 
 `none`).
 }

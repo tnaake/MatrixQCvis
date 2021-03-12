@@ -10,8 +10,9 @@
 #' on the number of missing and measured values across features and across
 #' sets (e.g. quality control samples, control, and treatment groups, only
 #' displayed for `SummarizedExperiment` objects that contain missing values).
-#' `shinyQC` includes functionality to display (count/intensity) values across samples
-#' (to detect drifts in intensity values during the measurement), to display
+#' `shinyQC` includes functionality to display (count/intensity) values 
+#' across samples (to detect drifts in intensity values during the 
+#' measurement), to display
 #' mean-sd plots, MA plots, ECDF plots, and distance plots between samples.
 #' `shinyQC` includes functionality to perform dimensionality reduction
 #' (currently limited to PCA, PCoA, NMDS, tSNE, and UMAP). Additionally,
@@ -21,9 +22,9 @@
 #' @details
 #' `shinyQC` allows to subset the supplied `SummarizedExperiment` object. On
 #' exit of the shiny application, the following objects are returned in a
-#' list: the matrix with (count/intensity) values for `raw`, `normalized`, `transformed`, 
-#' `batch corrected` (and `imputed`). The object will only returned if 
-#' `app_server = FALSE`.
+#' list: the matrix with (count/intensity) values for `raw`, `normalized`, 
+#' `transformed`, `batch corrected` (and `imputed`). The object will 
+#' only returned if `app_server = FALSE`.
 #' 
 #' If the `se` argument is omitted the app will load an interface that allows 
 #' for data upload.
@@ -57,21 +58,25 @@
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 #' 
-#' \dontrun{shinyQC(se)}
+#' \donttest{shinyQC(se)}
 #' 
 #' @author Thomas Naake
 #' 
+#' @return `list` with matrices
+#'
 #' @export
 shinyQC <- function(se, app_server = FALSE) {
     
     has_se <- !missing(se)
     if (has_se) {
-        if (class(se) != "SummarizedExperiment") stop("se is not of class 'SummarizedExperiment'")
+        if (class(se) != "SummarizedExperiment") 
+            stop("se is not of class 'SummarizedExperiment'")
         if (!("name" %in% colnames(colData(se))))
             stop("column 'name' not found in colData(se)")
         
-        ## retrieve the names of `assays(se)` and return a character for choices in
-        ## the selectInput UI that allows for switching between the different assays
+        ## retrieve the names of `assays(se)` and return a character for 
+        ## choices in the selectInput UI that allows for switching between 
+        ## the different assays
         choicesAssaySE <- choiceAssaySE(se)
     } else {
         choicesAssaySE <- NULL
@@ -122,8 +127,10 @@ shinyQC <- function(se, app_server = FALSE) {
         ),
 
         dashboardBody(fluidRow(
-            tags$head( tags$script(type="text/javascript",'$(document).ready(function(){
-                $(".main-sidebar").css("height","100%");
+            tags$head( 
+                tags$script(
+                    type="text/javascript",'$(document).ready(function(){
+                    $(".main-sidebar").css("height","100%");
                     $(".main-sidebar .sidebar").css({"position":"relative","max-height": "100%","overflow": "auto"})
                     })')),
             useShinyjs(debug = TRUE),
@@ -140,7 +147,7 @@ shinyQC <- function(se, app_server = FALSE) {
                         tP_DE_all(),
                     id = "tabs") ## end tabsetPanel
                 )
-           )
+            )
         ),
         div(id = "uploadSE", 
             uiOutput("allPanels")
@@ -150,8 +157,6 @@ shinyQC <- function(se, app_server = FALSE) {
 
     ## define server function
     server <- function(input, output, session) {
-        
-        #rObjects <- reactiveValues(rerender=1L, rerendered=1L, modified=list())
         
         if (!has_se) {
             FUN <- function(SE, MISSINGVALUE) {
@@ -209,7 +214,8 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @author Thomas Naake
 #' 
 #' @noRd
-.initialize_server <- function(se, input, output, session, missingValue = TRUE) {
+.initialize_server <- function(se, input, output, session, 
+                                                        missingValue = TRUE) {
     
     output$keepAlive <- renderText({
         req(input$keepAlive)
@@ -236,8 +242,9 @@ shinyQC <- function(se, app_server = FALSE) {
         selected = reactive(input$assaySelected))
     
     se_feat <- reactive({
-        selectFeatureSE(se_sel(), selection = input[["features-excludeFeature"]], 
-        mode = input[["features-mode"]])
+        selectFeatureSE(se_sel(), 
+            selection = input[["features-excludeFeature"]], 
+            mode = input[["features-mode"]])
     })
     
     sidebar_excludeSampleServer("select", se = se)
@@ -267,8 +274,10 @@ shinyQC <- function(se, app_server = FALSE) {
     ## TAB: Measured values and Missing values
     ## barplot number of measured/missing features per sample
     samples_memi_tbl <- sampleMeMiServer("MeMiTbl", se = se_r)
-    barplotMeMiSampleServer("MeV_number", samples_memi = samples_memi_tbl, measured = TRUE)
-    barplotMeMiSampleServer("MiV_number", samples_memi = samples_memi_tbl, measured = FALSE)
+    barplotMeMiSampleServer("MeV_number", samples_memi = samples_memi_tbl, 
+                                                            measured = TRUE)
+    barplotMeMiSampleServer("MiV_number", samples_memi = samples_memi_tbl, 
+                                                            measured = FALSE)
     
     ## sync input[["MeV-categoryHist"]] with input[["MeV-categoryUpSet"]]
     observe({
@@ -630,13 +639,13 @@ shinyQC <- function(se, app_server = FALSE) {
                 if (missingValue) {
                     params_l <- append(params_l, 
                         list(mev_binwidth = input[["MeV-binwidth"]],
-                             mev_binwidthC = input[["MeV-binwidthC"]],
-                             mev_hist_category = input[["MeV-categoryHist"]],
-                             mev_upset_category = input[["MeV-categoryUpset"]],
-                             miv_binwidth = input[["MiV-binwidth"]],
-                             miv_binwidthC = input[["MiV-binwidthC"]],
-                             miv_hist_category = input[["MiV-categoryHist"]],
-                             miv_upset_category = input[["MiV-categoryUpSet"]]))
+                            mev_binwidthC = input[["MeV-binwidthC"]],
+                            mev_hist_category = input[["MeV-categoryHist"]],
+                            mev_upset_category = input[["MeV-categoryUpset"]],
+                            miv_binwidth = input[["MiV-binwidth"]],
+                            miv_binwidthC = input[["MiV-binwidthC"]],
+                            miv_hist_category = input[["MiV-categoryHist"]],
+                            miv_upset_category = input[["MiV-categoryUpSet"]]))
                 } else {
                     params_l <- append(params_l, 
                         list(mev_binwidth = 1, mev_binwidthC = 1,
@@ -646,7 +655,8 @@ shinyQC <- function(se, app_server = FALSE) {
                             miv_upset_category = NULL))
                 }
                 params_l <- append(params_l,
-                    list(int_log = input[["boxLog"]], int_violin = input[["violinPlot"]],
+                    list(int_log = input[["boxLog"]], 
+                        int_violin = input[["violinPlot"]],
                         int_drift_data = input[["drift-data"]],
                         int_drift_aggregation = input[["drift-aggregation"]],
                         int_drift_category = input[["drift-category"]],
@@ -667,12 +677,15 @@ shinyQC <- function(se, app_server = FALSE) {
                         dr_pca_center = params$center,
                         dr_pca_scale = params$scale,
                         dr_pca_highlight = input[["PCA-highlight"]],
-                        dr_pca_x = input[["PCA-x"]], dr_pca_y = input[["PCA-y"]],
+                        dr_pca_x = input[["PCA-x"]], 
+                        dr_pca_y = input[["PCA-y"]],
                         dr_pcoa_method = params$method,
                         dr_pcoa_highlight = input[["PCoA-highlight"]],
-                        dr_pcoa_x = input[["PCoA-x"]], dr_pcoa_y = input[["PCoA-y"]],
+                        dr_pcoa_x = input[["PCoA-x"]], 
+                        dr_pcoa_y = input[["PCoA-y"]],
                         dr_nmds_highlight = input[["NMDS-highlight"]],
-                        dr_nmds_x = input[["NMDS-x"]], dr_nmds_y = input[["NMDS-y"]],
+                        dr_nmds_x = input[["NMDS-x"]], 
+                        dr_nmds_y = input[["NMDS-y"]],
                         dr_tsne_perplexity = params$perplexity,
                         dr_tsne_max_iter = params$max_iter,
                         dr_tsne_initial_dims = params$initial_dims,
@@ -680,12 +693,14 @@ shinyQC <- function(se, app_server = FALSE) {
                         dr_tsne_pca_center = params$pca_center,
                         dr_tsne_pca_scale = params$pca_scale,
                         dr_tsne_highlight = input[["tSNE-highlight"]],
-                        dr_tsne_x = input[["tSNE-x"]], dr_tsne_y = input[["tSNE-y"]],
+                        dr_tsne_x = input[["tSNE-x"]], 
+                        dr_tsne_y = input[["tSNE-y"]],
                         dr_umap_min_dist = params$min_dist,
                         dr_umap_n_neighbors = params$n_neighbors,
                         dr_umap_spread = params$spread,
                         dr_umap_highlight = input[["UMAP-highlight"]],
-                        dr_umap_x = input[["UMAP-x"]], dr_umap_y = input[["UMAP-y"]],
+                        dr_umap_x = input[["UMAP-x"]], 
+                        dr_umap_y = input[["UMAP-y"]],
                         de_m_formula = validFormulaMM(),
                         de_c_formula = validExprContrast,
                         de_method = input[["DEtype"]],
@@ -705,10 +720,10 @@ shinyQC <- function(se, app_server = FALSE) {
         stopApp(
             if (missingValue) {
                 list("raw" = a(), "normalized" = a_n(), "transformed" = a_t(),
-                     "batch corrected" = a_b(), "imputed" = a_i())
+                        "batch corrected" = a_b(), "imputed" = a_i())
             } else {
                 list("raw" = a(), "normalized" = a_n(), "transformed" = a_t(),
-                     "batch corrected" = a_b())
+                        "batch corrected" = a_b())
             }
         )
     })

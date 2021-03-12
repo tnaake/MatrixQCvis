@@ -10,6 +10,9 @@ plotCV(df)
 \item{df}{`data.frame` containing one or multiple columns containing the 
 coefficients of variation}
 }
+\value{
+`gg`
+}
 \description{
 The function `plotCV` displays the coefficient of variation values of 
 set of values supplied in a `data.frame` object. The function will create

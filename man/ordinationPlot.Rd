@@ -31,6 +31,9 @@ contains the explained variance per principal component (names of
 
 \item{height}{`numeric`, specifying the height of the plot (in pixels)}
 }
+\value{
+`plotly`
+}
 \description{
 The function `ordinationPlot` creates a dimension reduction plot. 
 The function takes as input the `tibble` object obtained 

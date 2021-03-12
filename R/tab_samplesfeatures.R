@@ -85,8 +85,6 @@ hist_sample <- function(tbl, category = "type") {
         theme(axis.text.x = element_text(angle = 90))
     ggplotly(p = p, tooltip = c("x", "y"))
 }
-   
-
 
 #' @name mosaic
 #' 
@@ -94,7 +92,8 @@ hist_sample <- function(tbl, category = "type") {
 #' 
 #' @description 
 #' The function `mosaic` creates a mosaic plot of two factors from
-#' an `SummararizedExperiment` object. The columns `f1` and `f2` are taken from `colData(se)`.
+#' an `SummararizedExperiment` object. The columns `f1` and `f2` 
+#' are taken from `colData(se)`.
 #'
 #' @details
 #' Code partly taken from
@@ -133,8 +132,7 @@ mosaic <- function(se, f1, f2) {
         as.data.frame() %>% 
         group_by(!!f1 := get(f1), !!f2 := get(f2)) %>% 
         summarise(count = n()) %>%
-        mutate(cut.count = sum(count),
-               prop = (count/sum(count)))
+        mutate(cut.count = sum(count), prop = (count/sum(count)))
     
     ## set prop to 1 when f1 == f2 (by default this will be the proportion
     ## of f1 on the total samples)
@@ -144,8 +142,9 @@ mosaic <- function(se, f1, f2) {
     }
     
     df <- df %>%
-        mutate(prop_percent = paste(round(.data$prop, 1)*100, "%", sep = "")) %>% 
-        ungroup()
+        mutate(
+            prop_percent = paste(round(.data$prop, 1)*100, "%", sep = "")) %>% 
+            ungroup()
     
     ## create label for facet (contains the proportion of f1 on total samples)
     sample_percent <- round(df$cut.count / ncol(se) * 100, 2) 
@@ -154,10 +153,10 @@ mosaic <- function(se, f1, f2) {
     
     ## plotting
     ggplot(df, aes_string(x = f1, y = deparse(quote(prop)), #
-                          width = deparse(quote(cut.count)), fill = f2)) +
+                        width = deparse(quote(cut.count)), fill = f2)) +
         geom_bar(stat = "identity", position = "fill", colour = "black") +
         geom_text(aes_string(label = "prop_percent"), angle = 90,
-                  position = position_stack(vjust = 0.5)) +
+                        position = position_stack(vjust = 0.5)) +
         facet_grid(~f1_labs, scales = "free_x", space = "free_x") +
         scale_fill_brewer() + theme_bw() + ylab("proportion (%)") + 
         scale_y_continuous(labels= function(x) x*100) +

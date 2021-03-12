@@ -16,6 +16,9 @@ dimensionality reduction. One of `PCA`, `PCoA`, `NMDS`, `tSNE`, or `UMAP`.}
 \item{params}{`list`, arguments/parameters given to the functions 
 `stats::prcomp`, `stats::dist`, `Rtsne::Rtsne`, `umap::umap`}
 }
+\value{
+`tbl`
+}
 \description{
 The function `ordination` creates a `data.frame` with the coordinates of the
 projected data. The function allows for the following projections:

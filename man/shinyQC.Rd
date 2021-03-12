@@ -11,6 +11,9 @@ shinyQC(se, app_server = FALSE)
 
 \item{app_server}{`logical` (set to `TRUE` if run under a server environment)}
 }
+\value{
+`list` with matrices
+}
 \description{
 The shiny application allows to explore -omics
 data sets especially with a focus on quality control. `shinyQC` gives
@@ -19,8 +22,9 @@ specified within the `SummarizedExperiment` object). It gives information
 on the number of missing and measured values across features and across
 sets (e.g. quality control samples, control, and treatment groups, only
 displayed for `SummarizedExperiment` objects that contain missing values).
-`shinyQC` includes functionality to display (count/intensity) values across samples
-(to detect drifts in intensity values during the measurement), to display
+`shinyQC` includes functionality to display (count/intensity) values 
+across samples (to detect drifts in intensity values during the 
+measurement), to display
 mean-sd plots, MA plots, ECDF plots, and distance plots between samples.
 `shinyQC` includes functionality to perform dimensionality reduction
 (currently limited to PCA, PCoA, NMDS, tSNE, and UMAP). Additionally,
@@ -30,9 +34,9 @@ it includes functionality to perform differential expression analysis
 \details{
 `shinyQC` allows to subset the supplied `SummarizedExperiment` object. On
 exit of the shiny application, the following objects are returned in a
-list: the matrix with (count/intensity) values for `raw`, `normalized`, `transformed`, 
-`batch corrected` (and `imputed`). The object will only returned if 
-`app_server = FALSE`.
+list: the matrix with (count/intensity) values for `raw`, `normalized`, 
+`transformed`, `batch corrected` (and `imputed`). The object will 
+only returned if `app_server = FALSE`.
 
 If the `se` argument is omitted the app will load an interface that allows 
 for data upload.
@@ -51,7 +55,7 @@ cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
-\dontrun{shinyQC(se)}
+\donttest{shinyQC(se)}
 
 }
 \author{

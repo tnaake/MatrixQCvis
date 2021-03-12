@@ -6,18 +6,19 @@ author:
    affiliation: European Molecular Biology Laboratory, Meyerhofstrasse 1, 69117 Heidelberg
 package: MatrixQCvis
 abstract: >
-   Data quality assessment is an integral part of preparatory data analysis since 
-   high-quality data sets are needed for sound biological information retrieval. 
+   Data quality assessment is an integral part of preparatory data analysis  
+   to ensure sound biological information retrieval. 
    We present here the `MatrixQCvis` package that allows for shiny-based   
    interactive visualization and assessment of data quality. The application 
-   enables the detection of low-quality samples, outliers and batch effects in 
-   data sets and their subsequent removal. Visualizations include amongst others 
-   bar- and violin plots of the (count/intensity) values, mean-sd plots, MA plots, 
-   empirical cumulative distribution function (ECDF) plots, visualizations of the 
-   distances between samples, and multiple types of dimension reduction plots. 
-   Furthermore, `MatrixQCvis` allows for differential expression analysis based on 
-   the `limma` (moderated t-tests) and `proDA` (Wald tests) packages. `MatrixQCvis` 
-   builds upon the popular Bioconductor `SummarizedExperiment` S4 class and 
+   enables the detection of low-quality samples, drifts, outliers and batch 
+   effects in data sets and their subsequent removal. Visualizations include 
+   amongst others boxplots and violin plots of the (count/intensity) 
+   values, mean-sd plots, MA plots, empirical cumulative distribution function 
+   (ECDF) plots, visualizations of the distances between samples, and multiple 
+   types of dimension reduction plots. Furthermore, `MatrixQCvis` allows for 
+   differential expression analysis based on the `limma` (moderated t-tests) 
+   and `proDA` (Wald tests) packages. `MatrixQCvis` 
+   builds upon the Bioconductor `SummarizedExperiment` S4 class and 
    enables thus the facile integration into existing workflows.
     
 output:  
@@ -44,16 +45,17 @@ suppressPackageStartupMessages(library("MatrixQCvis"))
 
 # Introduction {#sec-intro}
 
-Data quality assessment is an integral part of preparatory data analysis since 
-high-quality data sets are needed for sound biological information retrieval. 
+Data quality assessment is an integral part of preparatory data analysis 
+to ensure sound biological information retrieval. 
 We present here the `MatrixQCvis` package that allows for shiny-based 
 interactive visualization and assessment of data quality. The application 
-enables the detection of low-quality samples, outliers and batch effects in 
-data sets and their subsequent removal. Visualizations include amongst others 
-bar- and violin plots of the (count/intensity) values, mean-sd plots, MA plots, 
-empirical cumulative distribution function (ECDF) plots, visualizations of the 
-distances between samples, and multiple types of dimension reduction plots. 
-`MatrixQCvis` builds upon the popular Bioconductor `SummarizedExperiment` S4 
+enables the detection of low-quality samples, drifts, outliers and batch effects 
+in data sets and their subsequent removal. Visualizations include amongst others 
+boxplots and violin plots of the (count/intensity) values, mean-sd plots, 
+MA plots, empirical cumulative distribution function (ECDF) plots, 
+visualizations of the distances between samples, and multiple types of 
+dimension reduction plots. 
+`MatrixQCvis` builds upon the Bioconductor `SummarizedExperiment` S4 
 class and enables thus the facile integration into existing workflows.
 
 `MatrixQCvis` is especially addressed to analyze the quality of proteomics and 

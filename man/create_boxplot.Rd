@@ -7,16 +7,19 @@
 create_boxplot(x, title = "", log2 = TRUE, violin = FALSE)
 }
 \arguments{
-\item{x}{`matrix` or `data.frame` containing the (count/intensity) values, samples 
-are in columns and features in rows}
+\item{x}{`matrix` or `data.frame` containing the (count/intensity) values, 
+samples are in columns and features in rows}
 
 \item{title}{`character` or `numeric` of `length(1)`}
 
-\item{log2}{`logical`, if `TRUE` (count/intensity) values are displayed as log2 
-values}
+\item{log2}{`logical`, if `TRUE` (count/intensity) values are displayed as 
+log2 values}
 
 \item{violin}{`logical`, if `FALSE` a boxplot is created, if `TRUE` a 
 violin plot is created}
+}
+\value{
+`gg`
 }
 \description{
 The function `create_boxplot` creates

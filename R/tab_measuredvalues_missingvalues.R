@@ -38,7 +38,7 @@ samples_memi <- function(se) {
     a <- assay(se)
     
     ## count per column the missing/measured values depending on the 
-    a_l <- a %>% as.data.frame() %>% pivot_longer(1:ncol(a))
+    a_l <- a %>% as.data.frame() %>% pivot_longer(seq_len(ncol(a)))
     a_l <- a_l %>% group_by(.data$name)
     a_l <- a_l %>% 
         summarise(measured = sum(!is.na(.data$value)), 
@@ -90,11 +90,15 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
     
     ## create a barplot with the number of measured/missing features per sample
     g <- ggplot(tbl) 
-    if (measured) g <- g + 
-            geom_bar(aes_string(x = "name", y = "measured"), stat = "identity") +
+    if (measured) 
+        g <- g + 
+            geom_bar(aes_string(x = "name", y = "measured"), 
+                                                        stat = "identity") +
             ylab("number of measured features")
-    if (!measured) g <- g + 
-            geom_bar(aes_string(x = "name", y = "missing"), stat = "identity") +
+    if (!measured) 
+        g <- g + 
+            geom_bar(aes_string(x = "name", y = "missing"), 
+                                                        stat = "identity") +
             ylab("number of missing features")
     g <- g + theme_bw() + xlab("sample") + 
         theme(axis.text.x = element_text(angle = 90))
@@ -207,7 +211,7 @@ measured_category <- function(se, measured = TRUE, category = "type") {
     ## dimensions: nrow(a)/number of features as in a and number of 
     ## unique sample types
     tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u), 
-                      dimnames = list(rownames(a), samp_u)) %>% 
+                                    dimnames = list(rownames(a), samp_u)) %>% 
         as_tibble(rownames = "feature")
     
     ## iterate through the columns and write to the respective column if 

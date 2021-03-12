@@ -18,7 +18,8 @@ mosaic(se, f1, f2)
 }
 \description{
 The function `mosaic` creates a mosaic plot of two factors from
-an `SummararizedExperiment` object. The columns `f1` and `f2` are taken from `colData(se)`.
+an `SummararizedExperiment` object. The columns `f1` and `f2` 
+are taken from `colData(se)`.
 }
 \details{
 Code partly taken from

@@ -8,17 +8,19 @@
 #' @details 
 #' Internal usage in `shinyQC`.
 #'
-#' @param x `matrix` or `data.frame` containing the (count/intensity) values, samples 
-#' are in columns and features in rows
+#' @param x `matrix` or `data.frame` containing the (count/intensity) values, 
+#' samples are in columns and features in rows
 #' @param title `character` or `numeric` of `length(1)`
-#' @param log2 `logical`, if `TRUE` (count/intensity) values are displayed as log2 
-#' values
+#' @param log2 `logical`, if `TRUE` (count/intensity) values are displayed as 
+#' log2 values
 #' @param violin `logical`, if `FALSE` a boxplot is created, if `TRUE` a 
 #' violin plot is created
 #'
 #' @examples
 #' x <- matrix(1:100, ncol = 10, dimnames = list(1:10, paste("sample", 1:10)))
 #' create_boxplot(x, title = "", log2 = TRUE, violin = FALSE)
+#' 
+#' @return `gg`
 #' 
 #' @importFrom rlang .data
 #' @import dplyr
@@ -28,7 +30,7 @@ create_boxplot <- function(x, title = "", log2 = TRUE, violin = FALSE) {
 
     ## pivot_longer will create the columns name (containing the colnames of x)
     ## and value (containing the actual values)
-    x_l <- x %>% as_tibble() %>% pivot_longer(cols = 1:ncol(x))
+    x_l <- x %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(x)))
 
     ## take log2 values if log2 = TRUE
     if (log2) x_l$value <- log2(x_l$value)
@@ -69,7 +71,8 @@ create_boxplot <- function(x, title = "", log2 = TRUE, violin = FALSE) {
 #' Internal usage in `shinyQC`.
 #' 
 #' @param se `SummarizedExperiment`
-#' @param aggregation `character`, type of aggregation of (count/intensity) values
+#' @param aggregation `character`, type of aggregation of (count/intensity) 
+#' values
 #' @param category `character`, column of `colData(se)`
 #' @param orderCategory `character`, column of `colData(se)`
 #' @param level `character`, from which samples should the LOESS curve be
@@ -111,7 +114,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     a <- assay(se)
     cD <- colData(se)
     
-    a_l <- a %>% as_tibble() %>% pivot_longer(cols = 1:ncol(a))
+    a_l <- a %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(a)))
     
     if (aggregation == "median") FUN <- median
     if (aggregation == "sum") FUN <- sum
@@ -158,7 +161,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
             aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
         geom_smooth(data = df_subset, 
-            aes_string(x = "x_ggplot_vals_num", y = "value"), method = method) + 
+            aes_string(x = "x_ggplot_vals_num", y = "value"), method = method) +
         theme_classic() + 
         scale_color_manual(values = c("#000000", "#2A6CEF")) +
         scale_x_discrete(labels = df$name[order(df$x_ggplot_vals)]) +
@@ -233,6 +236,8 @@ cv <- function(x, name = "raw") {
 #' df <- data.frame(cv1, cv2, cv3, cv4)
 #' plotCV(df)
 #' 
+#' @return `gg`
+#' 
 #' @export
 plotCV <- function(df) {
     
@@ -282,7 +287,8 @@ plotCV <- function(df) {
 #' @return `gg` object from `ggplot2`
 #' 
 #' @export
-ECDF <- function(se, sample = colnames(se), group = c("all", colnames(colData(se)))) {
+ECDF <- function(se, sample = colnames(se), 
+    group = c("all", colnames(colData(se)))) {
     
     ## match arguments
     sample <- match.arg(sample)
@@ -320,7 +326,8 @@ ECDF <- function(se, sample = colnames(se), group = c("all", colnames(colData(se
     # cdf1 <- ecdf(value_s) 
     # cdf2 <- ecdf(value_g) 
     # 
-    # ## find min and max statistics to draw line between points of greatest distance
+    # ## find min and max statistics to draw line between points of 
+    # ## greatest distance
     # minMax <- seq(min(value_s, value_g, na.rm = TRUE), 
     #     max(value_s, value_g, na.rm = TRUE), 
     #     length.out = nrow(df))
@@ -334,7 +341,9 @@ ECDF <- function(se, sample = colnames(se), group = c("all", colnames(colData(se
     # ggplot(df, aes(x = value)) + stat_ecdf() + geom_vline(xintercept = x0) + 
     #     xlim(0, 1e10) + geom_hline(yintercept = y1)
     # 
-    #x0 <- minMax[which(abs(cdf1(minMax) - cdf2(minMax)) == max(abs(cdf1(minMax) - cdf2(minMax))))[1]] 
+    #x0 <- minMax[
+    ## which(abs(cdf1(minMax) - cdf2(minMax)) == 
+    ## max(abs(cdf1(minMax) - cdf2(minMax))))[1]] 
     
     #y0 <- cdf1(x0)
     #y1 <- cdf2(x0)
@@ -343,9 +352,7 @@ ECDF <- function(se, sample = colnames(se), group = c("all", colnames(colData(se
     
     ## bind together
     df <- rbind(df, df_group)
-    # ggplot(df_m, aes(x = value, color = type)) + stat_ecdf() + geom_vline(xintercept = 5e08) + 
-    #     xlim(0, 1e10) + geom_hline(yintercept = 0.50211)
-    # 
+
     ggplot(df, aes_string(x = "value", color = "type", group = "type")) + # group = group, color = group))+
         stat_ecdf(size=1) + theme_bw() + xlab(sample) + ylab("ECDF") +
         #geom_segment(aes(x = x0, y = y1, xend = x0, yend = y2),
@@ -378,6 +385,8 @@ ECDF <- function(se, sample = colnames(se), group = c("all", colnames(colData(se
 #'         dimnames = list(1:10, paste("sample", 1:10)))
 #' distShiny(x = x)
 #' 
+#' @return `matrix`
+#'
 #' @export
 distShiny <- function(x, method = "euclidean") {
     ## calculate the distance matrix
@@ -420,6 +429,8 @@ distShiny <- function(x, method = "euclidean") {
 #' 
 #' dist <- distShiny(a_i)
 #' distSample(dist, se, "type")
+#'
+#' @return `ComplexHeatmap`
 #'
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
 #' 
@@ -630,7 +641,8 @@ hoeffDValues <- function(tbl, name = "raw") {
         summarise(hd_l = Hmisc::hoeffd(A, M)$D[2, 1]) 
     hd_l <- pull(hd_l, .data$hd_l)
     
-    ## assign the names (do not use the first column since it contains the Feature names)
+    ## assign the names (do not use the first column since it contains the 
+    ## Feature names)
     names(hd_l) <- colnames(A)[-1]
     
     ## create a list containing the named numeric and return the named list of
@@ -711,7 +723,6 @@ hoeffDPlot <- function(df, lines = TRUE) {
     df <- df %>%
         mutate(x = as.numeric(names_f))
 
-    set.seed(1)
     df$x_jitter <- jitter(df$x)
     # ## do the actual plotting
     g <- ggplot(df) + 
@@ -819,8 +830,8 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 
 #' @name createDfFeature
 #' 
-#' @title Create data frame of (count/intensity) values for a selected feature along
-#' data processing steps
+#' @title Create data frame of (count/intensity) values for a selected feature
+#' along data processing steps
 #' 
 #' @description 
 #' The function `createDfFeature` takes as input a list of matrices and 
@@ -858,9 +869,9 @@ createDfFeature <- function(l, feature) {
 #' @title Create a plot of (count/intensity) values over the samples
 #' 
 #' @description 
-#' The function `featurePlot` creates a plot of (count/intensity) values for different
-#' data processing steps (referring to columns in the `data.frame`) over 
-#' the different samples (referring to rows in the `data.frame`).
+#' The function `featurePlot` creates a plot of (count/intensity) values for 
+#' different data processing steps (referring to columns in the `data.frame`) 
+#' over the different samples (referring to rows in the `data.frame`).
 #' 
 #' @details 
 #' Internal usage in `shinyQC`.
@@ -934,16 +945,15 @@ cvFeaturePlot <- function(l, lines = FALSE) {
     df <- df %>% 
         mutate(x = as.numeric(as.factor(df$name)))
     
-    set.seed(1)
     df$x_jitter <- jitter(df$x)
-    
+
     # ## do the actual plotting
     g <- ggplot(df) 
     if (nrow(df) > 2) g <- g + 
         geom_violin(aes_string(x = "name", y = "value"), na.rm = TRUE) 
     g <- g + suppressWarnings(geom_point(
             aes_string(x = "x_jitter", y = "value", color = "name",
-                       text = "feature")))
+                                                        text = "feature")))
     if (lines) g <- g + geom_line(
         aes_string(x = "x_jitter", y = "value", group = "feature"))
     g <- g + ylab("coefficient of variation") + xlab("processing step") +
@@ -956,8 +966,8 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 ## individual features more comparable. You can use one or combine them to 
 ## achieve better results. 
 ## Sample Normalization: sample-specific normalization (weight, volumne),
-## normalization by sum/median/reference sample or feature/pooled sample from group,
-## quantile normalization
+## normalization by sum/median/reference sample or feature/pooled sample 
+## from group, quantile normalization
 ## data transformation: log transformation, cube root transformation
 ## data scaling: mean scaling (mean-centered only), auto scaling 
 ## (mean-centered and divided by sd), pareto scaling (mean-centered and divided
@@ -974,7 +984,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' (count/intensity) values per sample or quantile division per sample
 #' or by quantile normalization (adjusting the distributions that they become
 #' identical in statistical distributions). The divisor for quantile division
-#' (e.g., the 75% quantile per sample) can be specified by the `probs` argument. 
+#' (e.g., the 75% quantile per sample) can be specified by the `probs` argument.
 #' Quantile normalization is performed by using the `normalize.quantiles` 
 #' function from `preprocessCore`.
 #' 
@@ -1010,7 +1020,7 @@ normalize <- function(x,
     }
     if (method == "quantile division") {
         x_n <- apply(x_n, 2, 
-                      function(x) x / quantile(x, probs = probs, na.rm = TRUE))
+                function(x) x / quantile(x, probs = probs, na.rm = TRUE))
     }
     if (method == "quantile") {
         x_n <- normalize.quantiles(x_n)
@@ -1028,8 +1038,8 @@ normalize <- function(x,
 #'
 #' @description
 #' The function `transform` transforms the (count/intensity) values of a 
-#' `data.frame`, `tibble` or `matrix`. It uses either `log2`, variance stabilizing 
-#' normalisation (`vsn`) or no transformation method (pass-through, 
+#' `data.frame`, `tibble` or `matrix`. It uses either `log2`, variance 
+#' stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 #' `none`). The object
 #' `x` has the samples in the columns and the features in the rows.
 #'
@@ -1080,8 +1090,8 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' `SummarizedExperiment`
 #'
 #' @description
-#' The function `batch` removes the batch effect of (count/intensity) values of a 
-#' `SummarizedExperiment`. It uses either the `removeBatchEffect` function 
+#' The function `batch` removes the batch effect of (count/intensity) values of 
+#' a `SummarizedExperiment`. It uses either the `removeBatchEffect` function 
 #' or no batch effect correction method (pass-through, 
 #' `none`).
 #'
@@ -1165,13 +1175,14 @@ batch <- function(se,
 #' @import dplyr 
 #' 
 #' @export
-impute <- function(x, method = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb")) {
-    
+impute <- function(x, 
+    method = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb")) {
+
     method <- match.arg(method)
-    
+
     ## convert the data.frame into matrix
     x_i <- x %>% as.matrix()
-    
+
     if (method == "BPCA")
         x_i <- x_i %>% impute_bpca()
     if (method == "kNN")

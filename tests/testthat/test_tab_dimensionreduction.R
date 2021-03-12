@@ -12,11 +12,11 @@ test_that("ordination", {
     x_foo[1, 3] <- NA
     
     parameters <- list(
-        "center" = TRUE, "scale" = FALSE, ## for PCA
-        "method" = "euclidean", ## for PCoA and NMDS
-        "perplexity" = 3, "max_iter" = 1000, "initial_dims" = 2, ## for tSNE
-        "dims" = 2, "pca_center" = TRUE, "pca_scale" = FALSE, theta = 0, ## for tSNE
-        "min_dist" = 0.1, "n_neighbors" = 5, "spread" = 1) ## for UMAP
+        "center" = TRUE, "scale" = FALSE, ## PCA
+        "method" = "euclidean", ## PCoA and NMDS
+        "perplexity" = 3, "max_iter" = 1000, "initial_dims" = 2, ## tSNE
+        "dims" = 2, "pca_center" = TRUE, "pca_scale" = FALSE, theta = 0, ## tSNE
+        "min_dist" = 0.1, "n_neighbors" = 5, "spread" = 1) ## UMAP
     
     pca_o <- ordination(x, "PCA", params = parameters)
     pcoa_o <- ordination(x, type = "PCoA", params = parameters)
@@ -31,8 +31,9 @@ test_that("ordination", {
         as_tibble()
     nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points %>% 
         as_tibble()
-    tsne_r <- Rtsne::Rtsne(t(x), perplexity = 3, max_iter = 1000, initial_dims =2,
-        dims = 2, pca_center = TRUE, pca_scale = FALSE, theta = 0)$Y %>% 
+    tsne_r <- Rtsne::Rtsne(t(x), perplexity = 3, max_iter = 1000,
+        initial_dims = 2, dims = 2, pca_center = TRUE, pca_scale = FALSE,
+        theta = 0)$Y %>% 
         as_tibble()
     colnames(tsne_r) <- c("X1", "X2")
     umap_r <- umap::umap(t(x), method = "naive", min_dist = 0.1, 
@@ -85,9 +86,9 @@ test_that("ordinationPlot", {
     g <- ordinationPlot(tbl = tbl, se = se, highlight = "type", 
         x_coord = "PC1", y_coord = "PC2")
     
-    
     expect_error(ordinationPlot(tbl = tbl), 'argument "se" is missing')
-    expect_error(ordinationPlot(tbl = tbl, se = se), 'argument "x_coord" is missing')
+    expect_error(ordinationPlot(tbl = tbl, se = se), 
+        'argument "x_coord" is missing')
     expect_error(ordinationPlot(tbl = tbl, se = se,
         highlight = "none"), 'argument "x_coord" is missing')
     expect_error(ordinationPlot(tbl = tbl, se = se, highlight = "none", 
@@ -119,8 +120,8 @@ test_that("explVar", {
     
     expect_error(explVar(NA, center = TRUE, scale = TRUE), 
         "cannot rescale a constant/zero column to unit variance")
-    expect_error(explVar(1:10, center = TRUE, scale = TRUE), 
-        "argument of length 0")
+    suppressWarnings(expect_error(explVar(1:10, center = TRUE, scale = TRUE), 
+        "argument must be coercible to non-negative integer"))
     expect_error(
         explVar(matrix(1, nrow = 10, ncol = 10), center = TRUE, scale = TRUE), 
         "cannot rescale a constant/zero column to unit variance")

@@ -1,5 +1,5 @@
 ################################################################################
-################################# Values ##################################
+################################### Values #####################################
 ################################################################################
 
 #' @name fR_boxplotUI
@@ -44,7 +44,7 @@ fR_boxplotUI <- function(id, name, collapsed) {
 #' serves as a wrapper for the function `fR_boxplotUI`.
 #' 
 #' @details 
-#' `tP_boxplotUI` returns the HTML code for the tab-pane 'Boxplot/Violin plot'. 
+#' `tP_boxplotUI` returns the HTML code for the tab-pane 'Boxplot/Violin plot'.
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
@@ -82,7 +82,8 @@ tP_boxplotUI <- function(id) {
 
 #' @name boxPlotServer
 #' 
-#' @title Module for server expressions for the UI of tab panel 'Boxplot/Violin plot' 
+#' @title Module for server expressions for the UI of tab panel 
+#' 'Boxplot/Violin plot' 
 #' 
 #' @description
 #' The module defines the server expressions for parts of the UI for the tab 
@@ -281,10 +282,10 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
-                                      "batch corrected", "imputed")
+                                        "batch corrected", "imputed")
                 } else {
                     choices_l <- list("raw", "normalized", "transformed", 
-                                      "batch corrected")
+                                        "batch corrected")
                 }
                 selectInput(inputId = session$ns("data"),
                     label = "Select data input",
@@ -589,9 +590,10 @@ meanSdUIServer <- function(id, missingValue) {
         function(input, output, session) {
             
             output$meanSdBatchUI <- renderUI({
-                helperFile <- paste("tabPanel_meanSd_missingValue_", missingValue, sep = "")
+                helperFile <- paste("tabPanel_meanSd_missingValue_", 
+                                                        missingValue, sep = "")
                 box_meanSdUI("meanSdBatch", "batch corrected") %>%
-                helper(content = helperFile)
+                    helper(content = helperFile)
             })
         }
     )
@@ -733,7 +735,8 @@ tP_maUI <- function(id) {
 #' @importFrom htmlwidgets saveWidget
 #' 
 #' @noRd
-maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) {
+maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, 
+                                                                missingValue) {
     
     moduleServer(
         id, 
@@ -741,7 +744,8 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             
             output$MAUI <- renderUI({
                 
-                helperFile <- paste("tabPanel_MA_missingValue_", missingValue, sep = "")
+                helperFile <- paste("tabPanel_MA_missingValue_", 
+                                                        missingValue, sep = "")
                 fluidRow(
                     column(6, 
                         selectInput(
@@ -764,10 +768,10 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             output$MAtypeUI <- renderUI({
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed",
-                                      "batch corrected", "imputed")
+                                        "batch corrected", "imputed")
                 } else {
                     choices_l <- list("raw", "normalized", "transformed",
-                                      "batch corrected")
+                                        "batch corrected")
                 }
                 
                 selectInput(
@@ -777,38 +781,38 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             })
             
             ## create MA values: se, log2, group
-            vals_raw <- reactive(MAvalues(se(), TRUE, input$groupMA)) %>%
+            vals_r <- reactive(MAvalues(se(), TRUE, input$groupMA)) %>%
                 bindCache(se(), input$groupMA, cache = "session")
-            vals_norm <- reactive(MAvalues(se_n(), TRUE, input$groupMA)) %>%
+            vals_n <- reactive(MAvalues(se_n(), TRUE, input$groupMA)) %>%
                 bindCache(se_n(), input$groupMA, cache = "session")
-            vals_transf <- reactive(MAvalues(se_t(), FALSE, input$groupMA)) %>%
+            vals_t <- reactive(MAvalues(se_t(), FALSE, input$groupMA)) %>%
                 bindCache(se_t(), input$groupMA, cache = "session")
-            vals_batch <- reactive(MAvalues(se_b(), FALSE, input$groupMA)) %>%
+            vals_b <- reactive(MAvalues(se_b(), FALSE, input$groupMA)) %>%
                 bindCache(se_b(), input$groupMA, cache = "session")
-            vals_imp <- reactive(MAvalues(se_i(), FALSE, input$groupMA)) %>%
+            vals_i <- reactive(MAvalues(se_i(), FALSE, input$groupMA)) %>%
                 bindCache(se_i(), input$groupMA, cache = "session")
 
             ## MA plots: MA values, group
             p_ma <- reactive({
                 req(input$MAtype)
                 if (input$MAtype == "raw") {
-                    ma <- MAplot(vals_raw(), group = input$groupMA, 
+                    ma <- MAplot(vals_r(), group = input$groupMA, 
                         plot = input$plotMA)
                 }
                 if (input$MAtype == "normalized") {
-                    ma <- MAplot(vals_norm(), group = input$groupMA,
+                    ma <- MAplot(vals_n(), group = input$groupMA,
                         plot = input$plotMA)
                 }
                 if (input$MAtype == "transformed") {
-                    ma <- MAplot(vals_transf(), group = input$groupMA, 
+                    ma <- MAplot(vals_t(), group = input$groupMA, 
                         plot = input$plotMA)
                 }
                 if (input$MAtype == "batch corrected") {
-                    ma <- MAplot(vals_batch(), group = input$groupMA,
+                    ma <- MAplot(vals_b(), group = input$groupMA,
                         plot = input$plotMA)
                 }
                 if (input$MAtype == "imputed") {
-                    ma <- MAplot(vals_imp(), group = input$groupMA,
+                    ma <- MAplot(vals_i(), group = input$groupMA,
                         plot = input$plotMA)
                 }
                 ma
@@ -819,7 +823,7 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
                 p_ma()
             }, 
                 height = reactive(ifelse(!is.null(innerWidth()), 
-                   innerWidth() * 3 / 5, 0))
+                                                    innerWidth() * 3 / 5, 0))
             )
             
             output$downloadPlotMA <- downloadHandler(
@@ -833,27 +837,27 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, missingValue) 
             )
 
             ## Hoeffding's D values: MA values, title for plot
-            hD_raw <- reactive(hoeffDValues(vals_raw(), "raw")) %>%
-                bindCache(vals_raw(), cache = "session")
-            hD_norm <- reactive(hoeffDValues(vals_norm(),  "normalized")) %>%
-                bindCache(vals_norm(), cache = "session")
-            hD_transf <- reactive(hoeffDValues(vals_transf(), "transformed")) %>%
-                bindCache(vals_transf(), cache = "session")
-            hD_batch <- reactive(hoeffDValues(vals_batch(), "batch corrected")) %>%
-                bindCache(vals_batch(), cache = "session")
-            hD_imp <- reactive(hoeffDValues(vals_imp(), "imputed")) %>%
-                bindCache(vals_imp(), cache = "session")
+            hD_r <- reactive(hoeffDValues(vals_r(), "raw")) %>%
+                bindCache(vals_r(), cache = "session")
+            hD_n <- reactive(hoeffDValues(vals_n(),  "normalized")) %>%
+                bindCache(vals_n(), cache = "session")
+            hD_t <- reactive(hoeffDValues(vals_t(), "transformed")) %>%
+                bindCache(vals_t(), cache = "session")
+            hD_b <- reactive(hoeffDValues(vals_b(), "batch corrected")) %>%
+                bindCache(vals_b(), cache = "session")
+            hD_i <- reactive(hoeffDValues(vals_i(), "imputed")) %>%
+                bindCache(vals_i(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function
             hoeffD_df <- reactive({
                 if (missingValue) {
-                    df <- data.frame(raw = hD_raw(), normalized = hD_norm(), 
-                        transformed = hD_transf(), 
-                        `batch corrected` = hD_batch(), imputed = hD_imp())    
+                    df <- data.frame(raw = hD_r(), normalized = hD_n(), 
+                        transformed = hD_t(), 
+                        `batch corrected` = hD_b(), imputed = hD_i())    
                 } else {
-                    df <- data.frame(raw = hD_raw(), normalized = hD_norm(), 
-                        transformed = hD_transf(), 
-                        `batch corrected` = hD_batch())
+                    df <- data.frame(raw = hD_r(), normalized = hD_n(), 
+                        transformed = hD_t(), 
+                        `batch corrected` = hD_b())
                 }
                 df
             })
@@ -957,10 +961,10 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
-                                      "batch corrected", "imputed")
+                                        "batch corrected", "imputed")
                 } else {
                     choices_l <- list("raw", "normalized", "transformed", 
-                                      "batch corrected")
+                                        "batch corrected")
                 }
                 selectInput(inputId = session$ns("typeECDF"), 
                     label = "Data set for the ECDF plot",
@@ -1076,29 +1080,33 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
 #' 
 #' @examples 
 #' tP_distUI()
-#' 
+#'
 #' @noRd
 tP_distUI <- function() {
-    
+
     tabPanel(title = "Distance matrix",
-             uiOutput("distUI-distRawUI"),
-             fR_distUI(id = "distNorm", title = "normalized", collapsed = TRUE),
-             fR_distUI(id = "distTransf", title = "transformed", collapsed = TRUE),
-             fR_distUI(id = "distBatch", title = "batch corrected", collapsed = TRUE),
-             conditionalPanel("output.missingVals == 'TRUE'",
-                              fR_distUI(id = "distImp", title = "imputed", collapsed = TRUE)),
-             fluidRow(
-                 box(title = "Parameters", width = 6,
-                     collapsible = TRUE, collapsed = FALSE,
-                     column(12, uiOutput(outputId = "groupDistUI")),
-                     column(12, 
-                        selectInput(inputId = "methodDistMat", 
-                            label = "distance method", 
-                                choices = c("euclidean", "maximum", "canberra", 
-                                    "minkowski"), 
-                                selected = "euclidean"))
-                 )
-             )
+        uiOutput("distUI-distRawUI"),
+        fR_distUI(id = "distNorm", title = "normalized", 
+            collapsed = TRUE),
+        fR_distUI(id = "distTransf", title = "transformed", 
+            collapsed = TRUE),
+        fR_distUI(id = "distBatch", title = "batch corrected", 
+            collapsed = TRUE),
+        conditionalPanel("output.missingVals == 'TRUE'",
+            fR_distUI(id = "distImp", title = "imputed", 
+                collapsed = TRUE)),
+        fluidRow(
+            box(title = "Parameters", width = 6,
+                collapsible = TRUE, collapsed = FALSE,
+                column(12, uiOutput(outputId = "groupDistUI")),
+                column(12, 
+                selectInput(inputId = "methodDistMat", 
+                    label = "distance method", 
+                    choices = c("euclidean", "maximum", "canberra", 
+                        "minkowski"), 
+                    selected = "euclidean"))
+            )
+        )
     )
 }
 
@@ -1132,10 +1140,10 @@ distUIServer <- function(id, missingValue) {
                 helperFile <- paste("tabPanel_distMat_missingValue_", 
                     missingValue, sep = "")
                 
-                fR_distUI(id = session$ns("distRaw"), title = "raw", collapsed = FALSE) %>%
+                fR_distUI(id = session$ns("distRaw"), title = "raw", 
+                    collapsed = FALSE) %>%
                     helper(content = helperFile) 
             })
-             
         }
     )
 }
@@ -1211,7 +1219,8 @@ distServer <- function(id, se, assay, method, label, type) {
             
             output$downloadPlotSum <- downloadHandler(
                 filename = function() {
-                    paste("Sum_distance_", type, "_", method(), ".pdf", sep = "")
+                    paste("Sum_distance_", type, "_", 
+                        method(), ".pdf", sep = "")
                 },
                 content = function(file) {
                     ggsave(file, p_sumDist(), device = "pdf")
@@ -1266,7 +1275,8 @@ tP_featureUI <- function(id) {
                 label = "lines", value = FALSE))
         ),
         radioButtons(inputId = ns("mode"), label = "Select features",
-            choices = list("all" = "all", "exclude" = "exclude", "select" = "select")),
+            choices = list("all" = "all", "exclude" = "exclude", 
+                                                        "select" = "select")),
         uiOutput(outputId = ns("excludeFeaturesUI"))
     )
 }
@@ -1286,7 +1296,7 @@ tP_featureUI <- function(id) {
 #' @param assay `matrix` and `reactive` value
 #' @param method `character` and `reactive` value, one of `"euclidean"`, 
 #' `"mannhattan"`, `"canberra"`, or `"minkowski"`
-#' @param label `character` and `reactive` value, specified the annotation of 
+#' @param label `character` and `reactive` value, specified the annotation of
 #' the `ComplexHeatmap`
 #' @param type `character`
 #' 
@@ -1304,7 +1314,8 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
         function(input, output, session) {
             
             output$selectFeatureUI <- renderUI({
-                selectInput(inputId = session$ns("selectFeature"), label = "Select feature",
+                selectInput(inputId = session$ns("selectFeature"), 
+                                                    label = "Select feature",
                     choices = as.list(rownames(a())))
             })
             
@@ -1354,11 +1365,13 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
             
             output$downloadPlotCV <- downloadHandler(
                 filename = function() {
-                    paste("Features_CV_lines_", input$FeatureLines, ".html", sep = "")  
+                    paste("Features_CV_lines_", input$FeatureLines, 
+                                                            ".html", sep = "")
                 },
                 content = function(file) {
                     saveWidget(
-                        cvFeaturePlot(l_assays(), lines = input$FeatureLines), file)
+                        cvFeaturePlot(l_assays(), lines = input$FeatureLines),
+                        file)
                 }
             )
             
@@ -1403,5 +1416,3 @@ tP_values_all <- function() {
         )
     )
 }
-
-

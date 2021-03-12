@@ -20,10 +20,7 @@
 #' 
 #' @examples
 #' file <- "path/to/biocrates/object"
-#' 
-#' \dontrun{
-#' biocrates(file = file, sheetName = NULL, ...)
-#' }
+#' \donttest{biocrates(file = file, sheetName = NULL)}
 #' 
 #' @usage biocrates(file, sheetName = NULL, ...)
 #' @return 
@@ -34,7 +31,6 @@
 #' @importFrom xlsx read.xlsx
 #' @importFrom dplyr select
 #' @importFrom SummarizedExperiment SummarizedExperiment
-file <- "Projects/20210112_Hagen_plasma_serum_metabolites/2020-12-11_Results_Plate1_not_normalized.xlsx"
 biocrates <- function(file, sheetName = NULL, ...) {
     
     xls <- read.xlsx(file, header = TRUE, ...)
@@ -60,7 +56,7 @@ biocrates <- function(file, sheetName = NULL, ...) {
     ## create colData
     ## rename column "Sample Identification" to "name" and move to the beginning
     ## of cD
-    cD <- xls[inds_name, 1:(min(which(inds_met))-1)]
+    cD <- xls[inds_name, seq_len(min(which(inds_met)) - 1)]
     cD <- data.frame(name = cD[, "Sample Identification"], cD)
     cD <- select(cD, -c("Sample.Identification"))
     rownames(cD) <- cD[["name"]]
