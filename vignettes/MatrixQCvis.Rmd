@@ -828,7 +828,7 @@ a_i <- a_t %>% impute(., "MinDet")
 
 fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
-fit <- eBayes(fit, trend = TRUE)
+fit <- eBayes(fit, trend = TRUE, robust = TRUE)
 tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
 rmarkdown::paged_table(tT)
 ```
