@@ -2,11 +2,23 @@
 title: "MatrixQCvis: Interactive exploration of proteomics and metabolomics data quality"
 author: 
  - name: Thomas Naake and Wolfgang Huber
-   mail: thomas.naake@embl.de, wolfgang.huber@embl.de
+   mail: thomas.naake@embl.de, thomasnaake@googlemail.com, wolfgang.huber@embl.de
    affiliation: European Molecular Biology Laboratory, Meyerhofstrasse 1, 69117 Heidelberg
 package: MatrixQCvis
 abstract: >
-    MatrixQCvis comprises functionality to assess the quality of omics data.
+   Data quality assessment is an integral part of preparatory data analysis since 
+   high-quality data sets are needed for sound biological information retrieval. 
+   We present here the `MatrixQCvis` package that allows for shiny-based   
+   interactive visualization and assessment of data quality. The application 
+   enables the detection of low-quality samples, outliers and batch effects in 
+   data sets and their subsequent removal. Visualizations include amongst others 
+   bar- and violin plots of the (count/intensity) values, mean-sd plots, MA plots, 
+   empirical cumulative distribution function (ECDF) plots, visualizations of the 
+   distances between samples, and multiple types of dimension reduction plots. 
+   Furthermore, `MatrixQCvis` allows for differential expression analysis based on 
+   the `limma` (moderated t-tests) and `proDA` (Wald tests) packages. `MatrixQCvis` 
+   builds upon the popular Bioconductor `SummarizedExperiment` S4 class and 
+   enables thus the facile integration into existing workflows.
     
 output:  
     BiocStyle::html_document:
@@ -31,32 +43,31 @@ suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
 # Introduction {#sec-intro}
-Data quality assessment is an integral part of preparatory data analysis. 
-High-quality data sets are needed for sound biological information retrieval.
-`MatrixQCvis` includes functionality for interactive, `shiny`-based visualization 
-of diagnostic plots that allow for the assessment of data quality. 
-Thus, it allows to identify low-quality samples and exclude them. `MatrixQCvis` builds
-upon the popular Bioconductor class of `SummarizedExperiment` and enables for 
-facile integration into existing workflows. 
+
+Data quality assessment is an integral part of preparatory data analysis since 
+high-quality data sets are needed for sound biological information retrieval. 
+We present here the `MatrixQCvis` package that allows for shiny-based 
+interactive visualization and assessment of data quality. The application 
+enables the detection of low-quality samples, outliers and batch effects in 
+data sets and their subsequent removal. Visualizations include amongst others 
+bar- and violin plots of the (count/intensity) values, mean-sd plots, MA plots, 
+empirical cumulative distribution function (ECDF) plots, visualizations of the 
+distances between samples, and multiple types of dimension reduction plots. 
+`MatrixQCvis` builds upon the popular Bioconductor `SummarizedExperiment` S4 
+class and enables thus the facile integration into existing workflows.
 
 `MatrixQCvis` is especially addressed to analyze the quality of proteomics and 
 metabolomics data sets that are characterized by missing values as it 
-allows for imputation
-of missing values and differential expression analysis using the `proDA` 
-package [@Ahlmann2019]. Besides this, it is extensible to other type of data
-(e.g. transcriptomics count data) that can be represented as a 
-`SummarizedExperiment` object. 
-Within this vignette, the term feature will refer to a probed molecular entity,
-e.g. gene, transcript, protein, peptide, or metabolite. 
-
-Visualizations include bar- and violin plots of the
-(count/intensity) values, mean-sd plots, MA plots, empirical cumulative distribution 
-function (ECDF) plots, plots to visualize the
-distance between samples, multiple types of dimension reduction plots, and more. 
-
-Furthermore the `shiny` application allows for simple differential 
+allows for imputation of missing values and differential expression analysis 
+using the `proDA` package [@Ahlmann2019]. Besides this, `MatrixQCvis` is 
+extensible to other type of data(e.g. transcriptomics count data) that can be 
+represented as a `SummarizedExperiment` object. 
+Furthermore, the `shiny` application allows for simple differential 
 expression analysis using either moderated t-tests (from the `limma` package,
 @Ritchie2015) or Wald tests (from the `proDA` package, @Ahlmann2019).
+
+Within this vignette, the term feature will refer to a probed molecular entity,
+e.g. gene, transcript, protein, peptide, or metabolite. 
 
 In the following, we will describe the major setup of `MatrixQCvis` and the 
 navigation through the shiny application, `shinyQC`.
@@ -66,7 +77,7 @@ navigation through the shiny application, `shinyQC`.
 `MatrixQCvis` is currently under active development. If you
 discover any bugs, typos or develop ideas of improving
 `MatrixQCvis` feel free to raise an issue via
-[GitLab](https://git.embl.de/naake/MatrixQCvis) or
+[GitHub](https://github.com/tnaake/MatrixQCvis) or
 send a mail to the developer.
 
 # Prepare the environment and load the data {#sec-prepare}
@@ -101,8 +112,8 @@ Objects belonging to the `SummarizedExperiment` class are containers for one
 or more assays, 
 which are (numerical) matrices containing the quantitative, measured information
 of the experiment. The rows represent features of interest (e.g. 
-transcripts, peptides, proteins, or metabolites) and the column represent the 
-sample. The 
+transcripts, peptides, proteins, or metabolites) and the columns represent the 
+samples. The 
 `SummarizedExperiment` object stores also information on the features of 
 interest (accessible by `rowData`) and information on the samples
 (accessible by `colData`). 
@@ -169,19 +180,19 @@ application.
 Please note: Depending on the supplied `SummarizedExperiment` object the user
 interface of `shinyQC` will differ:
 
-- for a `SummarizedExperiment` containing missing values
+- for a `SummarizedExperiment` object containing missing values
     - the tabs `Samples`, `Measured Values`, `Missing Values`, `Values`,
     `Dimension Reduction` and `DE` will be displayed,
     - within the tabs `Values` and `Dimension Reduction` the 
-    `imputed` data set will be visualized,
-    - the sidebar panel includes a drop-down menu for the imputation method.
-- for a `SummarizedExperiment` containing no missing values (i.e.
+    `imputed` data set **will be** visualized,
+    - the sidebar panel **includes** a drop-down menu for the imputation method.
+- for a `SummarizedExperiment` object containing no missing values (i.e.
  with complete observations)
     - the tabs `Samples`, `Values`, `Dimension Reduction` and `DE` 
     will be displayed,
     - within the tabs `Values` and `DE` the `imputed` data set 
     **will not** be visualized,
-    - the sidebar panel **does not** includes a drop-down menu for the 
+    - the sidebar panel **does not includes** a drop-down menu for the 
     imputation method.
 
 In the following, the vignette will be (mainly) described from the point of view
@@ -206,7 +217,7 @@ In addition, in the tabs `Values`,
    (variance stabilizing normalization/transformation, @Huber2002), and `none`, i.e.
    no transformation, are supported;
  - batch correction: currently the methods `removeBatchEffect` from the `limma`
-   package [@Ritchie2015} and `none`, i.e. no batch correction, are supported.
+   package [@Ritchie2015] and `none`, i.e. no batch correction, are supported.
    It is highly advised to consult the dimension reduction plots before 
    performing any batch correction. Batch correction should not be done based 
    solely on (count/intensity) value distributions (boxplots/violin plots);
@@ -281,8 +292,8 @@ tbl <- samples_memi(se)
 barplot_samples_memi(tbl, measured = TRUE)
 ```
 
-In this case, the samples show more or less the same number of measured features
-and there is no indication to remove any sample based on this measure. 
+In this case, the samples show approximately the same number of measured features,
+i.e. there is no indication to remove any sample based on this measure. 
 
 ## Histogram Features
 
@@ -407,8 +418,8 @@ For visualization purposes only, the (count/intensity) values for the raw and
 normalized data sets can be `log2` transformed (see the radio buttons in
 `Display log2 values? (only for 'raw' and 'normalized')`).
 
-The type of visualization (boplot or violin plot) can be specified by 
-selecting boxplot or violin in the radio button panel (`Type of display`).
+The type of visualization (boxplot or violin plot) can be specified by 
+selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
@@ -478,7 +489,9 @@ The different methods for normalization, transformation, batch correction
 The panel displays the coefficient of variation values from the samples of the
 `SummarizedExperiment` object. The coefficients of variation are calculated 
 according to the formula `sd(x) / mean(x) * 100` with `x` the sample values 
-and `sd` the standard deviation.
+and `sd` the standard deviation. The plot might be useful when looking at the
+coefficient of variation values of a specific sample type (e.g. QCs) and trying
+to identify outliers. 
  
 Here, we shows the plot of coefficient of variation values from the 
 raw values (as obtained by `assay(se)`), normalized values (using `sum` 
@@ -519,9 +532,9 @@ the mean. The red line depicts the running median estimator (window-width 10%).
 In case of sd-mean independence, the running median should be approximately 
 horizontal.
 
-For the raw values, the mean-sd plot will look like
+For the transformed values, the mean-sd plot will look like
 ```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE}
-vsn::meanSdPlot(assay(se))
+vsn::meanSdPlot(assay(se_t))
 ```
 
 ## MA plot
@@ -533,12 +546,14 @@ In the first part of the panel the `A` vs. `M` plots per sample are depicted.
 The values are defined as follows
 
  - $A = \frac{1}{2} \cdot (I_i + I_j)$ and 
- - $M =  I_i−I_j$ , where $I_i$ and $I_j$  are transformed values. 
-   In the case of `raw` or `normalized` the values are `log2`-transformed 
-   prior to calculating `A` and `M`. In case of `transformed`,
-   `batch corrected`, or `imputed` the values are taken as they are 
-   (N.B. when the transformation method is set to `none` the values are not 
-   `log2`-transformed).
+ - $M =  I_i−I_j$ ,
+ 
+ where $I_i$ and $I_j$  are transformed values. 
+ In the case of `raw` or `normalized` the values are `log2`-transformed 
+ prior to calculating `A` and `M`. In case of `transformed`,
+ `batch corrected`, or `imputed` the values are taken as they are 
+ (N.B. when the transformation method is set to `none` the values are not 
+ `log2`-transformed).
    
 The values for $I_i$ are taken from the sample $i$. For $I_j$, the 
 feature-wise means are calculated from the values of the `group` $j$ of 
@@ -636,13 +651,13 @@ featurePlot(df_feature)
 
 The second plot shows the coefficient of variation of the values for all features
 in the data set along the data processing steps. The features of same 
-identity can be connected by lines by clicking on **lines**. 
+identity can be connected by lines by clicking on `lines`. 
 
-```{r}
+```{r cvFeaturePlot, eval=TRUE, echo=FALSE}
  cvFeaturePlot(l_assays, lines = FALSE)
 ```
 
-The element in the bottom of the tab panel (**Select features**) will specify 
+The element in the bottom of the tab panel (`Select features`) will specify 
 the selection of features in the data set (the selection will be propagated through 
 all tabs):
 
@@ -698,7 +713,9 @@ set with the sliders. For the parameter
 `Number of retained dimensions in initial PCA` the panel 
 `Principal components` can be employed that shows on the left panel a 
 Scree plot of the data set and permuted values and corresponding p-values
-from the permutation.
+from the permutation (set the number of principal components where the 
+explained variance is above the permuted data set/where p-values are below
+0.05).
 
 The different dimensions of the transformed data can be displayed by changing 
 the values in the drop-down menus for the x-axis and y-axis (either two or 
@@ -727,9 +744,11 @@ The moderated t-statistic has the same interpretation as
 an ordinary t-statistic except that the standard errors have been moderated
 across features, borrowing information from the ensemble of features to aid
 with inference about each individual feature [@Kammers2015]. We use the 
-`eBayes` function from `limma` to compute the moderated t-statistics.
+`eBayes` function from `limma` to compute the moderated t-statistics
+ (`trend` and `robust` are set by default to `TRUE`, see `?eBayes` for 
+ further information).
 
-`proDA` [@Ahlmann2019] was devloped for the differential abundance analysis
+`proDA` [@Ahlmann2019] was developed for the differential abundance analysis
 in label-free proteomics data sets. `proDA` models missing values in an 
 intensity-dependent probabilistic manner based on a dropout curve 
 (for further details see @Ahlmann2019).
@@ -739,8 +758,10 @@ The formula has to start with a `~` (tilde) and the `R`-specific symbolic form:
 
 - `+` to add terms,
 - `:` to denote an interaction term, 
-- `*` to denote factor crossing (`a*b` is interpreted as `a+b+a:b`),
-- `-` to remove the specified term, e.g. `~ x - 1` to specify no intercept,
+- `*` to denote factor crossing (`a*b` is interpreted as `a+b+a:b`), `a` and `b`
+   are columns in `colData(se)`,
+- `-` to remove the specified term, e.g. `~ a - 1` to specify no intercept, and
+   `a` a column in `colData(se)`,
 - `+ 0` to alternatively specify a model without intercept.
 
 The `colnames` of `colData` can be added as terms.  
@@ -809,6 +830,7 @@ fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
 fit <- eBayes(fit, trend = TRUE)
 tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
+rmarkdown::paged_table(tT)
 ```
 
 
