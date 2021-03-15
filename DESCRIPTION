@@ -9,13 +9,15 @@ VignetteBuilder: knitr
 Description: 
 	Data quality assessment is an integral part of preparatory data analysis 
 	to ensure sound biological information retrieval. 
-	We present here the MatrixQCvis package that allows for 
-	shiny-based interactive visualization and assessment of data quality. 
-	The application enables the detection of low-quality samples, outliers 
-	and batch effects in data sets and their subsequent removal. Visualizations 
-	include amongst others bar- and violin plots of the (count/intensity) 
-	values, mean-sd plots, MA plots, empirical cumulative distribution function
-	(ECDF) plots, visualizations of the distances between samples, and multiple 
+	We present here the MatrixQCvis package, which provides shiny-based 
+	interactive visualization of data quality metrics at the per-sample and 
+	per-feature level. It is broadly applicable to quantitative omics data types 
+	that come in matrix-like format (features x samples). It enables the detection 
+	of low-quality samples, drifts, outliers and batch effects in data sets.
+	Visualizations include amongst others bar- and violin plots of the (count/intensity) 
+	values, mean vs standard deviation plots, MA plots, empirical cumulative 
+	distribution function (ECDF) plots, visualizations of the distances 
+	between samples, and multiple 
 	types of dimension reduction plots. Furthermore, MatrixQCvis allows for 
 	differential expression analysis based on the limma (moderated t-tests) and 
 	proDA (Wald tests) packages. MatrixQCvis builds upon the popular 
