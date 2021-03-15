@@ -650,12 +650,13 @@ Use the settings
 
 ```{r features, eval=TRUE, echo=FALSE}
 if (missingValue) {
-    l_assays <- list(raw = a, normalized = a_n, 
-      transformed = a_t, `batch.corrected` = a_b, imputed = a_i)
+    l_assays <- list(raw = a_r, normalized = a_n, 
+      transformed = a_t, batch.corrected = a_b, imputed = a_i)
 } else {
-    l_assays <- list(raw = a, normalized = a_n,
-      transformed = a_t, `batch.corrected` = a_b)
+    l_assays <- list(raw = a_r, normalized = a_n,
+      transformed = a_t, batch.corrected = a_b)
 }
+
 df_feature <- createDfFeature(l_assays, feature = int_feat_selectFeat)
 
 ## plotting
