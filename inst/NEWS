@@ -1,5 +1,5 @@
-Changes in version 0.99.1 (2021-03.17)
-+ reduce size of vignette
+Changes in version 0.99.1 (2021-03-17)
++ reduce file size of vignette to pass checks
 
 Changes in version 0.99.0 (2021-03-12)
 + shinyQC including visualizations/functionality for 
