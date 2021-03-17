@@ -186,7 +186,7 @@ ordinationPlot <- function(tbl, se,
         g <- g + geom_point(aes_string(color = "color"))
     }
     
-    g <- g + theme_classic() + theme(legend.position = "none")
+    g <- g + coord_fixed(ratio = 1) + theme_classic() + theme(legend.position = "none") 
     
     ggplotly(g, tooltip = tT, height = height) 
 }
