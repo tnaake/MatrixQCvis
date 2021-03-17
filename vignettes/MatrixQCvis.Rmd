@@ -342,7 +342,7 @@ denote the number of features with completely missing observations
 (i.e. the number of features for which no feature was quantified in all 
 samples).
 
-```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r hist_feature_missing, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 hist_feature(assay(se), measured = FALSE)
 ```
 
@@ -353,9 +353,7 @@ The plot in this panel can be read accordingly to the one in the panel
 (e.g. it shows the distribution of measured/missing values among the sample 
 types).
 
-We will visualize here the plot for the tab `Measured Values` and the 
-categorical variable `type`:
-```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r hist_feature_category, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 hist_feature_category(se, measured = TRUE, category = "type")
 ```
 

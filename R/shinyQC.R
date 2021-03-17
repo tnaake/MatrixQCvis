@@ -69,7 +69,7 @@ shinyQC <- function(se, app_server = FALSE) {
     
     has_se <- !missing(se)
     if (has_se) {
-        if (class(se) != "SummarizedExperiment") 
+        if (is(se) != "SummarizedExperiment") 
             stop("se is not of class 'SummarizedExperiment'")
         if (!("name" %in% colnames(colData(se))))
             stop("column 'name' not found in colData(se)")
