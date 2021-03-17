@@ -106,7 +106,7 @@ tag_keepAlive <- function() {
 #' 
 #' @details 
 #' `sidebar_assayUI` returns the HTML code for the sidebar in the tabs
-#' `Intensities` and `Dimension Reduction`. Internal function for `shinyQC`.
+#' `Values` and `Dimension Reduction`. Internal function for `shinyQC`.
 #' 
 #' @return `shiny.tag.list` with HTML content
 #' 
@@ -118,7 +118,7 @@ tag_keepAlive <- function() {
 #' @noRd
 sidebar_assayUI <- function() {
     conditionalPanel(
-        condition = "input.tabs == 'Dimension Reduction' | input.tabs == 'Intensities'",
+        condition = "input.tabs == 'Dimension Reduction' | input.tabs == 'Values'",
         ## select type of normalization
         selectInput(inputId = "normalization",
             label = strong("Normalization method"),
@@ -154,7 +154,7 @@ sidebar_assayUI <- function() {
 #' 
 #' @details 
 #' `sidebar_assayUI` returns the HTML code for the sidebar in the tabs
-#' `Intensities` and `Dimension Reduction`. Internal function for `shinyQC`.
+#' `Values` and `Dimension Reduction`. Internal function for `shinyQC`.
 #' 
 #' @return `shiny.tag.list` with HTML content
 #' 
@@ -169,7 +169,7 @@ sidebar_assayUI <- function() {
 #' @noRd
 sidebar_imputationUI <- function() {
     ## select type of imputation
-    conditionalPanel("output.missingVals == 'TRUE' & (input.tabs == 'Dimension Reduction' | input.tabs == 'Intensities')", 
+    conditionalPanel("output.missingVals == 'TRUE' & (input.tabs == 'Dimension Reduction' | input.tabs == 'Values')", 
         selectInput(inputId = "imputation",
             label = strong("Imputation method"),
             choices = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb"),
