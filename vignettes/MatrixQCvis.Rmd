@@ -261,7 +261,14 @@ The tab `Samples` gives general information on the number of samples in the
 
 ## Histogram
 The first panel shows a barplot and allows to display the number of 
-samples per sample type, treatment, etc. 
+samples per sample type, treatment, etc. As an example, if we want to display
+how many samples are in `se` for the different `type`s (`type` is a 
+column name in `colData(se)` and any column in `colData(se)` can be selected), 
+this panel will show the following output:
+```{r hist_sample, eval=TRUE, echo=FALSE}
+tbl <- hist_sample_num(se = se, category = "type")
+partial_bundle(hist_sample(tbl, category = "type"))
+```
 
 ## Mosaic
 The figure in this panel displays the relative proportions of the numbers, 
@@ -270,7 +277,7 @@ e.g. how many samples (in %) are there for `type` against `treatment`. Again,
 `colData(se)` can be selected. 
 The figure will tell us that `se` contains the different types/treatments in a
 balanced manner:
-```{r mosaic, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r mosaic, eval=TRUE, echo=FALSE}
 mosaic(se = se, f1 = "type", f2 = "treatment")
 ```
 
@@ -288,9 +295,10 @@ are pointed out where necessary.
 The plot shows the number of measured or missing values per sample 
 in the data set (depending on the selected tab). For example for the tab
 `Measured Values`, the plot will look like
+
 ```{r samples_memi, eval=TRUE, echo=FALSE}
 tbl <- samples_memi(se) 
-barplot_samples_memi(tbl, measured = TRUE)
+partial_bundle(barplot_samples_memi(tbl, measured = TRUE))
 ```
 
 In this case, the samples show approximately the same number of measured features,
@@ -302,7 +310,6 @@ The plot shows different data depending on which tab
 (`Measured Values` or `Missing Values`) is selected. The binwidth will be 
 determined by the slider input (`Binwidth (Measured Values)` or 
 `Binwidth (Missing Values)`).
-
 
 ### Measured Variables
 The plot shows how often a feature was measured in a certain number of 
@@ -318,7 +325,7 @@ denote the number of features with complete observations (i.e. the number
 of features for which the feature was quantified in all samples).
 
 ```{r hist_feature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-hist_feature(assay(se), measured = TRUE)
+partial_bundle(hist_feature(assay(se), measured = TRUE))
 ```
 
 ### Missing Variables
@@ -334,8 +341,8 @@ denote the number of features with completely missing observations
 (i.e. the number of features for which no feature was quantified in all 
 samples).
 
-```{r hist_feature_missing, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-hist_feature(assay(se), measured = FALSE)
+```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+partial_bundle(hist_feature(assay(se), measured = FALSE))
 ```
 
 ## Histogram Features along variable
@@ -345,8 +352,8 @@ The plot in this panel can be read accordingly to the one in the panel
 (e.g. it shows the distribution of measured/missing values among the sample 
 types).
 
-```{r hist_feature_category, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-hist_feature_category(se, measured = TRUE, category = "type")
+```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+partial_bundle(hist_feature_category(se, measured = TRUE, category = "type"))
 ```
 
 ## UpSet
@@ -365,7 +372,7 @@ the `upset` function from the `UpSetR` package).
 Presence is defined by a feature being measured in at least one sample of a 
 set.
 
-```{r upsetmeasured, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r upsetmeasured, eval=TRUE, echo=FALSE}
 upset_category(se, category = "type", measured = TRUE) 
 ```
 
@@ -373,7 +380,7 @@ upset_category(se, category = "type", measured = TRUE)
 Absence is defined by a feature with only missing values (i.e. no measured 
 values) of a set.
 
-```{r upsetmissing, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r upsetmissing, eval=TRUE, echo=FALSE}
 upset_category(se, category = "type", measured = FALSE)
 ```
 
@@ -421,7 +428,7 @@ The type of visualization (boxplot or violin plot) can be specified by
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
-```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, dev = "png", dpi = 42}
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
 create_boxplot(assay(se), title = "raw", log2 = FALSE, violin = TRUE)
 ```
 
@@ -469,7 +476,7 @@ selected level (and the sample name).
 Here, we are interested in observing if there is a trend/drift for 
 samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
-```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, dev = "png", dpi = 42}
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 driftPlot(se, aggregation = "median", category = "type",
           orderCategory = "type", level = "Type_1", method = "loess")
 ```
@@ -496,7 +503,7 @@ Here, we shows the plot of coefficient of variation values from the
 raw values (as obtained by `assay(se)`), normalized values (using `sum` 
 normalization), transformed values (using `vsn`), batch corrected values
 (using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
-```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, dev = "png", dpi = 42}
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 a <- assay(se)
 se_t <- se
 a_n <- a %>% normalize(., "sum")
@@ -532,7 +539,7 @@ In case of sd-mean independence, the running median should be approximately
 horizontal.
 
 For the transformed values, the mean-sd plot will look like
-```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, dev = "png", dpi = 42}
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE}
 vsn::meanSdPlot(assay(se_t))
 ```
 
@@ -586,7 +593,7 @@ normalization, transformation, batch correction (and imputation) methods on the
 
 The MA plot using the raw values and `group = "all"` will look like the 
 following (`plot` = "Sample_1-1"`):
-```{r maplot, eval=TRUE, show=FALSE, dev = "png", dpi = 42}
+```{r maplot, eval=TRUE, echo = FALSE, show=FALSE}
 tbl <- MAvalues(se, group = "all")
 MAplot(tbl, group = "all", plot = "Sample_1-1")
 ```
@@ -608,7 +615,7 @@ the drop-down menu `Group`.
 
 The ECDF plot for the sample `"Sample_1-1"`, `group = "all"`, and the 
 raw values (as obtained by `assay(se)`) will look like:
-```{r ecdf, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r ecdf, eval=TRUE, echo=FALSE}
 ECDF(se, "Sample_1-1", group = "all")
 ```
 
@@ -627,7 +634,7 @@ On the right panel the sum of distances to other samples is depicted.
 
 The distance matrix and sum of distances (for raw values, as obtained by
 `assay(se)`) will look like:
-```{r distSampe, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r distSampe, eval=TRUE, echo=FALSE}
 a <- assay(se)
 dist_mat <- distShiny(a)
 distSample(dist_mat, se, "type")
@@ -641,7 +648,7 @@ processing steps.
 The feature to be displayed is selected via the drop-down menu 
 **Select feature**. 
 
-```{r featurePlot, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+```{r featurePlot, eval=TRUE, echo=FALSE}
 l_assays <- list(raw = a, normalized = a_n, transformed = a_t,
    `batch.corrected` = a_b, imputed = a_i)
 df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
@@ -653,7 +660,7 @@ in the data set along the data processing steps. The features of same
 identity can be connected by lines by clicking on `lines`. 
 
 ```{r cvFeaturePlot, eval=TRUE, echo=FALSE}
- cvFeaturePlot(l_assays, lines = FALSE)
+partial_bundle(cvFeaturePlot(l_assays, lines = FALSE))
 ```
 
 The element in the bottom of the tab panel (`Select features`) will specify 
@@ -818,7 +825,7 @@ transformation method to `none` and imputation method to `MinDet`).
 Here, differential expression is tested via moderated 
 t-tests (from the `limma` package): 
 
-The first few lines are shown here:
+The output will be:
 ```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 a <- assay(se)
 a_n <- a %>% normalize(., "none")
@@ -840,7 +847,7 @@ log fold changes between the specified contrasts against the p-values.
 Using the afore-mentioned specification for the model matrix and the 
 contrast matrix, the plot will look like:
 ```{r volcano, eval=TRUE, echo=FALSE}
-volcanoPlot(tT, type = "ttest")
+partial_bundle(volcanoPlot(tT, type = "ttest"))
 ```
 
 

@@ -1,8 +1,11 @@
+Changes in version 0.99.3 (2021-03-18)
++ reduce file size of vignette  by using partial_bundle for plotly figures
+
 Changes in version 0.99.2 (2021-03-18)
 + reduce resolution of images in vignette to reduce file size 
 
 Changes in version 0.99.1 (2021-03-17)
-+ reduce file size of vignette to pass checks
++ reduce file size of vignette 
 
 Changes in version 0.99.0 (2021-03-12)
 + shinyQC including visualizations/functionality for 
