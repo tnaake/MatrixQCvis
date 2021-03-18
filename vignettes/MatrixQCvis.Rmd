@@ -261,15 +261,7 @@ The tab `Samples` gives general information on the number of samples in the
 
 ## Histogram
 The first panel shows a barplot and allows to display the number of 
-samples per sample type, treatment, etc. As an example, if we want to display
-how many samples are in `se` for the different `type`s (`type` is a 
-column name in `colData(se)` and any column in `colData(se)` can be selected), 
-this panel will show the following output:
-```{r hist_sample, eval=TRUE, echo=FALSE}
-tbl <- hist_sample_num(se = se, category = "type")
-hist_sample(tbl, category = "type")
-```
-
+samples per sample type, treatment, etc. 
 
 ## Mosaic
 The figure in this panel displays the relative proportions of the numbers, 
@@ -278,7 +270,7 @@ e.g. how many samples (in %) are there for `type` against `treatment`. Again,
 `colData(se)` can be selected. 
 The figure will tell us that `se` contains the different types/treatments in a
 balanced manner:
-```{r mosaic, eval=TRUE, echo=FALSE}
+```{r mosaic, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
 mosaic(se = se, f1 = "type", f2 = "treatment")
 ```
 
@@ -373,15 +365,15 @@ the `upset` function from the `UpSetR` package).
 Presence is defined by a feature being measured in at least one sample of a 
 set.
 
-```{r upsetmeasured, eval=TRUE, echo=FALSE}
-upset_category(se, category = "type", measured = TRUE)
+```{r upsetmeasured, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
+upset_category(se, category = "type", measured = TRUE) 
 ```
 
 ### Missing Values
 Absence is defined by a feature with only missing values (i.e. no measured 
 values) of a set.
 
-```{r upsetmissing, eval=TRUE, echo=FALSE}
+```{r upsetmissing, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
 upset_category(se, category = "type", measured = FALSE)
 ```
 
@@ -429,7 +421,7 @@ The type of visualization (boxplot or violin plot) can be specified by
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
-```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, dev = "png", dpi = 42}
 create_boxplot(assay(se), title = "raw", log2 = FALSE, violin = TRUE)
 ```
 
@@ -477,7 +469,7 @@ selected level (and the sample name).
 Here, we are interested in observing if there is a trend/drift for 
 samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
-```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, dev = "png", dpi = 42}
 driftPlot(se, aggregation = "median", category = "type",
           orderCategory = "type", level = "Type_1", method = "loess")
 ```
@@ -504,7 +496,7 @@ Here, we shows the plot of coefficient of variation values from the
 raw values (as obtained by `assay(se)`), normalized values (using `sum` 
 normalization), transformed values (using `vsn`), batch corrected values
 (using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
-```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, dev = "png", dpi = 42}
 a <- assay(se)
 se_t <- se
 a_n <- a %>% normalize(., "sum")
@@ -540,7 +532,7 @@ In case of sd-mean independence, the running median should be approximately
 horizontal.
 
 For the transformed values, the mean-sd plot will look like
-```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE}
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, dev = "png", dpi = 42}
 vsn::meanSdPlot(assay(se_t))
 ```
 
@@ -593,10 +585,10 @@ normalization, transformation, batch correction (and imputation) methods on the
 `D` values. 
 
 The MA plot using the raw values and `group = "all"` will look like the 
-following (`plot` = "all"`):
-```{r maplot, eval=TRUE, show=FALSE}
+following (`plot` = "Sample_1-1"`):
+```{r maplot, eval=TRUE, show=FALSE, dev = "png", dpi = 42}
 tbl <- MAvalues(se, group = "all")
-MAplot(tbl, group = "all", plot = "all")
+MAplot(tbl, group = "all", plot = "Sample_1-1")
 ```
 
 ## ECDF
@@ -616,7 +608,7 @@ the drop-down menu `Group`.
 
 The ECDF plot for the sample `"Sample_1-1"`, `group = "all"`, and the 
 raw values (as obtained by `assay(se)`) will look like:
-```{r ecdf, eval=TRUE, echo=FALSE}
+```{r ecdf, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
 ECDF(se, "Sample_1-1", group = "all")
 ```
 
@@ -635,7 +627,7 @@ On the right panel the sum of distances to other samples is depicted.
 
 The distance matrix and sum of distances (for raw values, as obtained by
 `assay(se)`) will look like:
-```{r distSampe, eval=TRUE, echo=FALSE}
+```{r distSampe, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
 a <- assay(se)
 dist_mat <- distShiny(a)
 distSample(dist_mat, se, "type")
@@ -649,7 +641,7 @@ processing steps.
 The feature to be displayed is selected via the drop-down menu 
 **Select feature**. 
 
-```{r featurePlot, eval=TRUE, echo=FALSE}
+```{r featurePlot, eval=TRUE, echo=FALSE, dev = "png", dpi = 42}
 l_assays <- list(raw = a, normalized = a_n, transformed = a_t,
    `batch.corrected` = a_b, imputed = a_i)
 df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
