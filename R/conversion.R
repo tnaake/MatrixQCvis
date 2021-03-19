@@ -109,7 +109,6 @@ biocrates <- function(file, sheetName = NULL, ...) {
 #' 
 #' @importFrom xlsx read.xlsx
 #' @importFrom SummarizedExperiment SummarizedExperiment
-file <- "C:/Users/naake/Documents/Projects/20201118_Proteomics_Felix_Pilot_cell_lines/FX_pilot.xlsx"
 maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...) {
     
     type <- match.arg(type)
