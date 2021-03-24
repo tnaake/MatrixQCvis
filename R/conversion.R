@@ -100,7 +100,7 @@ biocrates <- function(file, sheetName = NULL, ...) {
 #' file <- "path/to/maxQuant/object"
 #' \donttest{maxQuant(file = file, sheetName = NULL)}
 #' 
-#' @usage maxQuant(file, type = "LFQ", sheetName = NULL, ...)
+#' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...)
 #'
 #' @return 
 #' `SummarizedExperiment` object
