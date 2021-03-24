@@ -49,6 +49,7 @@ Imports:
 	rlang,
 	rmarkdown,
 	Rtsne,
+	S4Vectors,
 	shinydashboard,
 	shinyhelper,
 	shinyjs,

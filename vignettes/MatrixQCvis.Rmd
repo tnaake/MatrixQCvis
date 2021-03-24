@@ -242,14 +242,17 @@ report will take all values as set in the `shinyQC` application - if the
 plot was not called yet, default values will be taken for the rendering. 
    
 By clicking on `Stop and export data set` the shiny application is 
-exited and the following objects are assigned to the `qc` object in a list:
+exited and a `SummarizedExperiment` is returned to the `qc` object.
+If the supplied `SummarizedExperiment` contains missing values, the 
+`SummarizedExperiment` with imputed values is returned, otherwise the
+`SummarizedExperiment` with batch corrected values is returned.
 
- - the raw,
- - the normalized,
- - the transformed, 
- - the batch corrected, and
- - the imputed (count/intensity) values (if the `SummarizedExperiment` contains 
- missing values)
+The `metadata` slot contains information about the method of 
+ - the normalization,
+ - the transformation,
+ - the batch correction, and
+ - the imputation of (count/intensity) values (if the supplied 
+   `SummarizedExperiment` contains missing values).
 
 The sidebar in the last tab (`DE`) is different from the other tabs and will
 be explained in the section `Tab: DE`. 

@@ -207,7 +207,8 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @return 
 #' Observers and reactive server expressions for all app elements
 #' 
-#' @importFrom SummarizedExperiment assays
+#' @importFrom SummarizedExperiment assays `metadata<-`
+#' @importFrom S4Vectors metadata
 #' @importFrom shiny downloadHandler
 #' @importFrom rmarkdown render
 #' 
@@ -717,14 +718,17 @@ shinyQC <- function(se, app_server = FALSE) {
 
     ## observer for exiting the app: return the assays
     observeEvent(input$stop, {
-        stopApp(
+        stopApp({
+            se <- se_r_i()
+            metadata(se) <- list(
+                "normalized" = input$normalization,
+                "transformation" = input$transformation,
+                "batch corrected" = input$batch)
+
             if (missingValue) {
-                list("raw" = a(), "normalized" = a_n(), "transformed" = a_t(),
-                        "batch corrected" = a_b(), "imputed" = a_i())
-            } else {
-                list("raw" = a(), "normalized" = a_n(), "transformed" = a_t(),
-                        "batch corrected" = a_b())
+                metadata(se)[["imputation"]] <- input$imputation
             }
-        )
+            se
+        })
     })
 }
