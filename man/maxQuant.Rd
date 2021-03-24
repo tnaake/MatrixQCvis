@@ -4,7 +4,7 @@
 \alias{maxQuant}
 \title{Convert MaxQuant xlsx output to `SummarizedExperiment` object}
 \usage{
-maxQuant(file, type = "LFQ", sheetName = NULL, ...)
+maxQuant(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...)
 }
 \arguments{
 \item{file}{`character`}
