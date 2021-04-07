@@ -1003,7 +1003,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' 
 #' @return `matrix`
 #'
-#' @importFrom preprocessCore normalize.quantiles
+#' @importFrom limma normalizeQuantiles
 #'  
 #' @export
 normalize <- function(x, 
@@ -1023,7 +1023,7 @@ normalize <- function(x,
                 function(x) x / quantile(x, probs = probs, na.rm = TRUE))
     }
     if (method == "quantile") {
-        x_n <- normalize.quantiles(x_n)
+        x_n <- limma::normalizeQuantiles(x_n, ties = TRUE)
     }
     
     rownames(x_n) <- rownames(x)
