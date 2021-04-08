@@ -1055,7 +1055,7 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
             plotOutput(outputId = ns("distSample")),
             downloadButton(outputId = ns("downloadPlotDist"), "")),
         column(6, 
-            plotOutput(outputId = ns("distSampleSum")),
+            plotlyOutput(outputId = ns("distSampleSum")),
             downloadButton(outputId = ns("downloadPlotSum"), ""))))
 }
 
@@ -1213,7 +1213,7 @@ distServer <- function(id, se, assay, method, label, type) {
                 sumDistSample(d(), title = "")
             })
             
-            output$distSampleSum <- renderPlot({
+            output$distSampleSum <- renderPlotly({
                 p_sumDist()
             })
             
@@ -1223,7 +1223,7 @@ distServer <- function(id, se, assay, method, label, type) {
                         method(), ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_sumDist(), device = "pdf")
+                    saveWidget(p_sumDist(), file)
                 }
             )
         }

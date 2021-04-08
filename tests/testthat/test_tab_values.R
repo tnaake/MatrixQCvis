@@ -123,7 +123,7 @@ test_that("sumDistSample", {
     ##expect_error(sumDistSample(matrix(1:3)), "requires the following aesthetics")
     expect_error(sumDistSample(se), 
         "must be an array of at least two dimensions")
-    expect_is(g, "gg")
+    expect_is(g, "plotly")
 })
 
 ## function MAvalues

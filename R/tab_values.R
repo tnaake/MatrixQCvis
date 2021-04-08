@@ -478,10 +478,11 @@ distSample <- function(d, se, label = "name", title = "raw") {
 #' @export
 sumDistSample <- function(d, title = "raw") {
     d_sum <- rowSums(d) 
-    tbl <- tibble(sample = names(d_sum), dist = d_sum)
-    ggplot(tbl, aes(x = dist, y = sample)) + geom_point() + 
-        geom_segment(aes(xend = 0, yend = sample)) + ggtitle(title) +
+    tbl <- tibble(name = names(d_sum), distance = d_sum)
+    g <- ggplot(tbl, aes_string(x = "distance", y = "name")) + geom_point() + 
+        geom_segment(aes_string(xend = 0, yend = "name")) + ggtitle(title) +
         xlab("sum of distances") + ylab("") + theme_bw()
+    ggplotly(g, tooltip = c("x", "y"))
 }
 
 #' @name MAvalues
@@ -858,9 +859,11 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 #' 
 #' @export
 createDfFeature <- function(l, feature) {
-    l_slice <- lapply(seq_along(l), function(x) l[[x]][feature, ])
+    l_slice <- lapply(seq_along(l), function(x) as.numeric(l[[x]][feature, ]))
     names(l_slice) <- names(l)
-    data.frame(l_slice)
+    df <- data.frame(l_slice)
+    rownames(df) <- colnames(l[[1]])
+    return(df)
 }
 
 #' 
