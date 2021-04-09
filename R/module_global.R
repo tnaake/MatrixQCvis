@@ -131,7 +131,7 @@ sidebar_assayUI <- function() {
         ## select type of transformation
         selectInput(inputId = "transformation",
             label = strong("Transformation method"),
-            choices = c("none", "log2", "vsn"), selected = "log2"),
+            choices = c("none", "log2", "vsn"), selected = "none"),
 
         ## select type of batch correction
         selectInput(inputId = "batch",
