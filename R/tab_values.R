@@ -784,6 +784,11 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     
     group <- match.arg(group)
     
+    if (!all(plot %in% c("all", unique(tbl[["name"]])))) {
+        stop("plot not in 'all' or 'unique(tbl$name)'")
+    }
+    
+    
     ## get the number of features (this will govern if points will be plotted
     ## or hexagons)
     n <- pull(tbl, "Feature")

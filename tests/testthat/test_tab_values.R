@@ -196,7 +196,10 @@ test_that("MAplot", {
     expect_error(MAplot(se, "all"), 
         "no applicable method for")
     expect_error(MAplot(tbl, group = "foo", plot = "all"), "should be one of ")
-    expect_error(MAplot(tbl, group = "all", plot = "foo"), "should be one of ")
+    expect_error(MAplot(tbl, group = "all", plot = "foo"), 
+        "plot not in ")
+    expect_error(MAplot(tbl, group = "all", plot = c("sample 1", "foo")), 
+        "plot not in ")
     expect_is(g, "gg")
 })
 
