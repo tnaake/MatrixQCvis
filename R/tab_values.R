@@ -783,7 +783,6 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     plot = c("all", unique(tbl[["name"]]))) {
     
     group <- match.arg(group)
-    plot <- match.arg(plot)
     
     ## get the number of features (this will govern if points will be plotted
     ## or hexagons)
@@ -799,8 +798,8 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     y_lim <- c(min(M, na.rm = TRUE), max(M, na.rm = TRUE))
     y_lim <- ifelse(is.infinite(y_lim), NA, y_lim)
     
-    if (plot != "all") {
-        tbl <- filter(tbl, tbl[["name"]] == plot)
+    if (!("all" %in% plot)) {
+        tbl <- filter(tbl, tbl[["name"]] %in% plot)
     }
     
     ## create a formula depending on the group argument for facet_wrap 

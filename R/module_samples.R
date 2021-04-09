@@ -49,7 +49,9 @@ tP_histSampleUI <- function(id) {
 #' `shiny.render.function` expression
 #' 
 #' @author Thomas Naake
-#' 
+#'
+#' @importFrom htmlwidgets saveWidget
+#'
 #' @noRd
 histSampleServer <- function(id, se) {
     moduleServer(

@@ -757,9 +757,8 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                     column(6, 
                         selectInput(
                             inputId = session$ns("plotMA"),
-                            label = "plot",
-                            choices = c("all", colData(se())$name),
-                            selected = "all") 
+                            label = "plot", multiple = TRUE,
+                            choices = colData(se())$name) 
                     )
                 ) %>% 
                     helper(content = helperFile)
@@ -781,39 +780,54 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             })
             
             ## create MA values: se, log2, group
-            vals_r <- reactive(MAvalues(se(), TRUE, input$groupMA)) %>%
+            vals_r <- reactive({
+                log2_se <- if (any(assay(se()) < 0) ) FALSE else TRUE
+                MAvalues(se(), log2_se, input$groupMA)}) %>%
                 bindCache(se(), input$groupMA, cache = "session")
-            vals_n <- reactive(MAvalues(se_n(), TRUE, input$groupMA)) %>%
+            
+            vals_n <- reactive({
+                log2_se <- if (any(assay(se_n()) < 0) ) FALSE else TRUE
+                MAvalues(se_n(), log2_se, input$groupMA)}) %>%
                 bindCache(se_n(), input$groupMA, cache = "session")
+            
             vals_t <- reactive(MAvalues(se_t(), FALSE, input$groupMA)) %>%
                 bindCache(se_t(), input$groupMA, cache = "session")
+            
             vals_b <- reactive(MAvalues(se_b(), FALSE, input$groupMA)) %>%
                 bindCache(se_b(), input$groupMA, cache = "session")
+            
             vals_i <- reactive(MAvalues(se_i(), FALSE, input$groupMA)) %>%
                 bindCache(se_i(), input$groupMA, cache = "session")
 
             ## MA plots: MA values, group
             p_ma <- reactive({
                 req(input$MAtype)
+                if (length(input$plotMA) == 0) {
+                    ma_plot <- "all"
+                } else {
+                    ma_plot <- input$plotMA
+                }
+                    
+                    
                 if (input$MAtype == "raw") {
                     ma <- MAplot(vals_r(), group = input$groupMA, 
-                        plot = input$plotMA)
+                        plot = ma_plot)
                 }
                 if (input$MAtype == "normalized") {
                     ma <- MAplot(vals_n(), group = input$groupMA,
-                        plot = input$plotMA)
+                        plot = ma_plot)
                 }
                 if (input$MAtype == "transformed") {
                     ma <- MAplot(vals_t(), group = input$groupMA, 
-                        plot = input$plotMA)
+                        plot = ma_plot)
                 }
                 if (input$MAtype == "batch corrected") {
                     ma <- MAplot(vals_b(), group = input$groupMA,
-                        plot = input$plotMA)
+                        plot = ma_plot)
                 }
                 if (input$MAtype == "imputed") {
                     ma <- MAplot(vals_i(), group = input$groupMA,
-                        plot = input$plotMA)
+                        plot = ma_plot)
                 }
                 ma
             })
@@ -1216,11 +1230,11 @@ distServer <- function(id, se, assay, method, label, type) {
             output$distSampleSum <- renderPlotly({
                 p_sumDist()
             })
-            
+
             output$downloadPlotSum <- downloadHandler(
                 filename = function() {
                     paste("Sum_distance_", type, "_", 
-                        method(), ".pdf", sep = "")
+                        method(), ".html", sep = "")
                 },
                 content = function(file) {
                     saveWidget(p_sumDist(), file)
