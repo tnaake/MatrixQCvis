@@ -63,13 +63,18 @@ tP_boxplotUI <- function(id) {
     ns <- NS(id)
     tabPanel(title = "Boxplot/Violin plot",
         fluidRow(
-            column(6, 
+            column(4, 
                 radioButtons(inputId = "boxLog",
                     label = HTML("Display log2 values? <br>
                         (only for 'raw' and 'normalized')"),
                     choices = list("no log2", "log2"),
                     selected = "no log2")),
-            column(6, uiOutput(ns("violinPlotUI")))
+            column(4, 
+                radioButtons(inputId = "violinPlot",
+                    label = "Type of display", 
+                    choices = list("boxplot", "violin"), 
+                     selected = "boxplot")),
+            column(4, uiOutput(ns("orderCategoryUI")))
         ),
         fR_boxplotUI("boxRaw", "raw", collapsed = FALSE),
         fR_boxplotUI("boxNorm", "normalized", collapsed = TRUE),
@@ -102,22 +107,22 @@ tP_boxplotUI <- function(id) {
 #' @author Thomas Naake
 #' 
 #' @noRd
-boxPlotUIServer <- function(id, missingValue) {
+boxPlotUIServer <- function(id, missingValue, se) {
     
     moduleServer(
         id, 
         function(input, output, session) {
-            output$violinPlotUI <- renderUI({
-                
+
+            output$orderCategoryUI <- renderUI({
                 helperFile <- paste("tabPanel_boxplot_missingValue_", 
                                     missingValue, sep = "")
-                
-                radioButtons(inputId = session$ns("violinPlot"),
-                    label = "Type of display", 
-                    choices = list("boxplot", "violin"), 
-                    selected = "boxplot") %>% 
+
+                selectInput(inputId = session$ns("orderCategory"), 
+                    label = "Select variable to order samples",
+                    choices = colnames(colData(se)), selected = "name") %>% 
                         helper(content = helperFile)
             })
+
         }
     )
 }
@@ -134,7 +139,7 @@ boxPlotUIServer <- function(id, missingValue) {
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
-#' @param assay `matrix`
+#' @param se `SummarizedExperiment`
 #' @param boxLog `reactive` expression and `logical`
 #' @param violin `reactive` expression and `character`
 #' @param type `character`
@@ -145,7 +150,7 @@ boxPlotUIServer <- function(id, missingValue) {
 #' @author Thomas Naake
 #' 
 #' @noRd
-boxPlotServer <- function(id, assay, boxLog, violin, type) {
+boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
     
     moduleServer(
         id, 
@@ -170,7 +175,8 @@ boxPlotServer <- function(id, assay, boxLog, violin, type) {
             
             ## create the actual plot
             p_boxplot <- reactive({
-                create_boxplot(assay(), title = "", log2 = logValues(), 
+                create_boxplot(se = se(), orderCategory = orderCategory(), 
+                    title = "", log2 = logValues(), 
                     violin = vP())
             })
             output$boxplot <- renderPlot({
@@ -333,7 +339,7 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                     level = input$levelSel, method = input$method)
             })
             
-            output$plotDrift <- renderPlot({
+            output$plotDrift <- renderPlotly({
                 req(input$levelSel)
                 p_drift()
             })
@@ -341,7 +347,7 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             output$plotDriftUI <- renderUI({
                 helperFile <- paste("tabPanel_drift_missingValue_", 
                     missingValue, sep = "")
-                plotOutput(outputId = session$ns("plotDrift")) %>%
+                plotlyOutput(outputId = session$ns("plotDrift")) %>%
                     helper(content = helperFile)
             })
             
@@ -350,14 +356,12 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 filename = function() {
                     paste("Drift_", input$aggregation, "_", 
                         input$category, "_", 
-                        input$levelSel, "_", input$method, ".pdf", sep = "")
+                        input$levelSel, "_", input$method, ".html", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_drift(), device = "pdf")
+                    htmlwidgets::saveWidget(p_drift(), file)
                 }
             )
-            
-        
         }
     )
 }
@@ -397,7 +401,8 @@ tP_cvUI <- function(id) {
             box(width = 12, collapsible = FALSE, 
                 collapsed = FALSE,
                 uiOutput(outputId = ns("cvUI")),
-                downloadButton(outputId = ns("downloadPlot"), ""))
+                column(6, uiOutput(outputId = ns("dataUI"))),
+                column(6, downloadButton(outputId = ns("downloadPlot"), "")))
                 
         )
     )
@@ -454,14 +459,28 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
             cv_i <- reactive({
                 cv(a_i(), name = "imputed")
             })
+            
+            output$dataUI <- renderUI({
+                if (missingValue) {
+                    choices_l <-  c("raw", "normalized", "transformed", 
+                        "batch corrected", "imputed")   
+                } else {
+                    choices_l <- c("raw", "normalized", "transformed",
+                        "batch corrected")
+                }
+                selectInput(inputId = session$ns("data"), label = "Data set", 
+                    choices = choices_l, multiple = TRUE, selected = "raw")
+            })
 
             ## create a reactive data.frame containing the cv values
             df_cv <- reactive({
-                if (missingValue) {
-                    data.frame(cv_r(), cv_n(), cv_t(), cv_b(), cv_i())    
-                } else {
-                    data.frame(cv_r(), cv_n(), cv_t(), cv_b())
-                }
+                df <- data.frame(row.names = colnames(a_r()))
+                if ("raw" %in% input$data) df <- cbind(df, cv_r())
+                if ("normalized" %in% input$data) df <- cbind(df, cv_n())
+                if ("transformed" %in% input$data) df <- cbind(df, cv_t())
+                if ("batch corrected" %in% input$data) df <- cbind(df, cv_b())
+                if ("imputed" %in% input$data) df <- cbind(df, cv_i())
+                df
             })
 
             p_cv <- reactive({
@@ -1279,8 +1298,10 @@ tP_featureUI <- function(id) {
         box(title = "", width = 12, collapsible = TRUE, collapsed = FALSE,
             plotOutput(outputId = ns("Features")) %>% 
                 helper(content = "tabPanel_Features"),
-            column(6, downloadButton(outputId = ns("downloadPlot"), "")),
-            column(6, uiOutput(outputId = ns("selectFeatureUI")))
+            column(4, downloadButton(outputId = ns("downloadPlot"), "")),
+            column(4, uiOutput(outputId = ns("dataUI"))),
+            column(4, selectizeInput(inputId = ns("selectFeature"), 
+                choices = NULL, label = "Select feature"))
         ),
         box(title = "", width = 12, collapsible = TRUE, collapsed = FALSE,
             plotlyOutput(outputId = ns("FeaturesCV")),
@@ -1291,7 +1312,9 @@ tP_featureUI <- function(id) {
         radioButtons(inputId = ns("mode"), label = "Select features",
             choices = list("all" = "all", "exclude" = "exclude", 
                                                         "select" = "select")),
-        uiOutput(outputId = ns("excludeFeaturesUI"))
+        selectizeInput(inputId = ns("excludeFeature"), choices = NULL, 
+            label = NULL, multiple = TRUE)
+        
     )
 }
 
@@ -1326,23 +1349,33 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
     moduleServer(
         id, 
         function(input, output, session) {
-            
-            output$selectFeatureUI <- renderUI({
-                selectInput(inputId = session$ns("selectFeature"), 
-                                                    label = "Select feature",
-                    choices = as.list(rownames(a())))
+
+            observe({
+                updateSelectizeInput(session = session, 
+                    inputId = "selectFeature", 
+                    choices = as.list(rownames(a())), server = TRUE)
+            })
+
+            updateSelectizeInput(session, "excludeFeature", 
+                choices = rownames(se), server = TRUE)
+
+            output$dataUI <- renderUI({
+                if (missingValue) {
+                    choices_l <-  c("raw", "normalized", "transformed", 
+                        "batch.corrected", "imputed")   
+                } else {
+                    choices_l <- c("raw", "normalized", "transformed",
+                        "batch.corrected")
+                }
+                selectInput(inputId = session$ns("data"), label = "Data set", 
+                    choices = choices_l, multiple = TRUE, selected = choices_l)
             })
             
-            output$excludeFeaturesUI <- renderUI({
-                selectInput(inputId = session$ns("excludeFeature"),
-                            label = NULL, choices = rownames(se),
-                            multiple = TRUE)
-            })
-            
+            ## create a reactive data.frame containing the assay values
             l_assays <- reactive({
                 req(a_i())
                 if (missingValue) {
-                    l <- list(raw = a(), normalized = a_n(), 
+                    l <- list(raw = a(), normalized = a_n(),
                         transformed = a_t(), `batch.corrected` = a_b(),
                         imputed = a_i())
                 } else {
@@ -1353,11 +1386,18 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
             })
             
             df_feature <- reactive({
-                createDfFeature(l_assays(), feature = input$selectFeature)
+                l <- l_assays()
+                l <- l[names(l) %in% input$data]
+                if (length(l) > 0) {
+                    createDfFeature(l, feature = input$selectFeature)
+                } else {
+                    NULL
+                }
             })
                 
             p_feature <- reactive({
-                featurePlot(df_feature())
+                if (!is.null(df_feature()))
+                    featurePlot(df_feature())
             })
             
             output$Features <- renderPlot({
