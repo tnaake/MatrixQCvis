@@ -69,7 +69,7 @@ shinyQC <- function(se, app_server = FALSE) {
     
     has_se <- !missing(se)
     if (has_se) {
-        if (is(se) != "SummarizedExperiment") 
+        if (!is(se, "SummarizedExperiment")) 
             stop("se is not of class 'SummarizedExperiment'")
         if (!("name" %in% colnames(colData(se))))
             stop("column 'name' not found in colData(se)")
@@ -397,17 +397,27 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## TAB: Values
     ## boxplots
-    boxPlotUIServer("boxUI", missingValue = missingValue)
-    boxPlotServer("boxRaw", assay = a, boxLog = reactive(input$boxLog),
-        violin = reactive(input[["boxUI-violinPlot"]]), type = "raw")
-    boxPlotServer("boxNorm", assay = a_n, boxLog = reactive(input$boxLog),
-        violin = reactive(input[["boxUI-violinPlot"]]), type = "normalized")
-    boxPlotServer("boxTransf", assay = a_t, boxLog = function() FALSE,
-        violin = reactive(input[["boxUI-violinPlot"]]), type = "transformed")
-    boxPlotServer("boxBatch", assay = a_b, boxLog = function() FALSE,
-        violin = reactive(input[["boxUI-violinPlot"]]), type = "transformed")
-    boxPlotServer("boxImp", assay = a_i, boxLog = function() FALSE,
-        violin = reactive(input[["boxUI-violinPlot"]]), type = "imputed")
+    boxPlotUIServer("boxUI", missingValue = missingValue, se = se)
+    boxPlotServer("boxRaw", se = se_r, 
+        orderCategory = reactive(input[["boxUI-orderCategory"]]),
+        boxLog = reactive(input$boxLog),
+        violin = reactive(input$violinPlot), type = "raw")
+    boxPlotServer("boxNorm", se = se_r_n, 
+        orderCategory = reactive(input[["boxUI-orderCategory"]]),
+        boxLog = reactive(input$boxLog),
+        violin = reactive(input$violinPlot), type = "normalized")
+    boxPlotServer("boxTransf", se = se_r_t, 
+        orderCategory = reactive(input[["boxUI-orderCategory"]]),
+        boxLog = function() FALSE,
+        violin = reactive(input$violinPlot), type = "transformed")
+    boxPlotServer("boxBatch", se = se_r_b, 
+        orderCategory = reactive(input[["boxUI-orderCategory"]]),
+        boxLog = function() FALSE,
+        violin = reactive(input$violinPlot), type = "transformed")
+    boxPlotServer("boxImp", se = se_r_i, 
+        orderCategory = reactive(input[["boxUI-orderCategory"]]),
+        boxLog = function() FALSE,
+        violin = reactive(input$violinPlot), type = "imputed")
         
     ## drift
     driftServer("drift", se = se_r, se_n = se_r_n, se_t = se_r_t, 
