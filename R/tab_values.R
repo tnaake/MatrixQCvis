@@ -8,8 +8,9 @@
 #' @details 
 #' Internal usage in `shinyQC`.
 #'
-#' @param x `matrix` or `data.frame` containing the (count/intensity) values, 
-#' samples are in columns and features in rows
+#' @param se `SummarizedExperiment` containing the (count/intensity) values in
+#' the `assay` slot
+#' @param orderCategory `character`, one of `colnames(colData(se))`
 #' @param title `character` or `numeric` of `length(1)`
 #' @param log2 `logical`, if `TRUE` (count/intensity) values are displayed as 
 #' log2 values
@@ -17,8 +18,18 @@
 #' violin plot is created
 #'
 #' @examples
-#' x <- matrix(1:100, ncol = 10, dimnames = list(1:10, paste("sample", 1:10)))
-#' create_boxplot(x, title = "", log2 = TRUE, violin = FALSE)
+#' #' ## create se
+#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#'     dimnames = list(1:10, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' set.seed(1)
+#' a <- a + rnorm(100)
+#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' featData <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' 
+#' create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
+#'     violin = FALSE)
 #' 
 #' @return `gg`
 #' 
@@ -26,27 +37,43 @@
 #' @import dplyr
 #' 
 #' @export
-create_boxplot <- function(x, title = "", log2 = TRUE, violin = FALSE) {
+create_boxplot <- function(se, orderCategory = colnames(colData(se)), 
+    title = "", log2 = TRUE, violin = FALSE) {
 
-    ## pivot_longer will create the columns name (containing the colnames of x)
+    ## match arguments for order
+    orderCategory <- match.arg(orderCategory)
+
+    ## access the assay slot
+    a <- assay(se)
+
+    ## pivot_longer will create the columns name (containing the colnames of a)
     ## and value (containing the actual values)
-    x_l <- x %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(x)))
+    a_l <- a %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(a)))
 
     ## take log2 values if log2 = TRUE
-    if (log2) x_l$value <- log2(x_l$value)
+    if (log2) a_l$value <- log2(a_l$value)
     
-    ## keep colnames in the supplied order
-    x_l$name <- factor(x = x_l$name, levels = colnames(x))
-
+    
+    ## add another column that gives the order of plotting (will be factor)
+    ## order alphabetically: combine the levels of the orderCategory and add 
+    ## the name (to secure that the levels are unique)
+    ## add another column for the x_values
+    a_l <- left_join(a_l, colData(se)[, c("name", orderCategory)], 
+        by = "name", copy = TRUE)
+    a_o <- paste(a_l[[orderCategory]], a_l[["name"]])
+    a_o_u <- unique(a_o)
+    a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
+    
     ## do the actual plotting
-    g <- ggplot(x_l, aes_string(y = "value", x = "name"))
+    g <- ggplot(a_l, aes_string(y = "value", x = "x_ggplot_vals"))
 
     if (!violin) { 
         g <- g + geom_boxplot() 
     } else { ## violin == TRUE
         g <- g + geom_violin()
     }
-
+    
+    g <- g + scale_x_discrete(labels = unique(a_l$name)[order(a_o_u)])
     g + theme(axis.text.x = element_text(angle = 90)) + ggtitle(title)
 
 }
@@ -98,6 +125,7 @@ create_boxplot <- function(x, title = "", log2 = TRUE, violin = FALSE) {
 #' 
 #' @importFrom stats median
 #' @importFrom rlang .data
+#' @importFrom plotly ggplotly style 
 #' 
 #' @export
 driftPlot <- function(se, aggregation = c("median", "sum"), 
@@ -115,24 +143,24 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     cD <- colData(se)
     
     a_l <- a %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(a)))
-    
+
     if (aggregation == "median") FUN <- median
     if (aggregation == "sum") FUN <- sum
-    
+
     ## aggregate the values across the samples
     a_l <- a_l %>% 
         group_by(.data$name) %>% 
         summarise(across(starts_with("value"), FUN, na.rm = TRUE))
-    
+
     ## join with cD
     tb <- left_join(a_l, cD, by = "name", copy = TRUE)
     df <- as.data.frame(tb)
-    
+
     df <- data.frame(df, col_ggplot_points = "all")
     df$name <- factor(df$name, sort(df$name))
-    
+
     df_c <- df[, category]
-    
+
     ## add another column that gives the order of plotting (will be factor)
     ## order alphabetically: combine the levels of the orderCategory and add 
     ## the name (to secure that the levels are unique)
@@ -140,7 +168,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     df_o <- df[, orderCategory]
     df_o_n <- paste(df_o, df$name)
     df$x_ggplot_vals <- factor(df_o_n, sort(df_o_n))
-    
+
     ## create a separate data.frame which only contains the level or "all"
     if (level == "all") {
         df_subset <- df  
@@ -148,15 +176,15 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         df_subset <- df[df_c == level, ]
     }
     df_subset$col_ggplot_points <- "subset"
-    
+
     ## create another column which converts factors into numeric (needed for 
     ## geom_smooth)
     df_subset$x_ggplot_vals_num <- as.numeric(df_subset$x_ggplot_vals)
-    
-    ggplot(df,
+
+    g <- ggplot(df,
             aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
-        geom_point() + 
+        suppressWarnings(geom_point(aes_string(text = "name"))) + 
         geom_point(data = df_subset, 
             aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
@@ -167,6 +195,8 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         scale_x_discrete(labels = df$name[order(df$x_ggplot_vals)]) +
         xlab("samples") + ylab(paste(aggregation, "of values")) +
         theme(axis.text.x = element_text(angle = 90), legend.position = "none")
+    g <- ggplotly(g, tooltip = c("text"))
+    g %>% style(hoveron = "fills", traces = 2)
 }
 
 

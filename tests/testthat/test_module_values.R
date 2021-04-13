@@ -39,12 +39,13 @@ test_that("boxPlotServer", {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
-        assay <- new.env()
+        se <- new.env()
+        orderCategory <- new.env()
         boxLog <- new.env()
         violin <- new.env()
         
-        out <- boxPlotServer("", assay = assay, boxLog = boxLog, 
-            violin = violin, type = "test")
+        out <- boxPlotServer("", se = se, orderCategory = orderCategory, 
+            boxLog = boxLog, violin = violin, type = "test")
         expect_is(out, "shiny.render.function")
     })
 })

@@ -10,14 +10,17 @@ se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
 
 ## function create_boxplot
 test_that("create_boxplot", {
-    x <- assay(se)
-    g <- create_boxplot(x)
+    g <- create_boxplot(se)
     
-    expect_error(create_boxplot(se), "no method for coercing this S4 class")
-    expect_error(create_boxplot(x, "test", "", TRUE), "not interpretable as logical")
-    expect_error(create_boxplot(x, "test", TRUE, ""), "invalid argument type")
-    # expect_error(create_boxplot(x, se, TRUE, TRUE),
-    #     "no method for coercing this S4 class")
+    expect_error(create_boxplot(assay(se)), 
+        "unable to find an inherited method for function")
+    expect_error(create_boxplot(se = se, orderCategory = "name", 
+        title =  "test", log2 = "", violin = TRUE), "not interpretable as logical")
+    expect_error(create_boxplot(se = se, orderCategory = "name",
+        title = "test", log2 = TRUE, violin = ""), "invalid argument type")
+    expect_error(create_boxplot(se = se, orderCategory = "foo", title = "", 
+          log2 = TRUE, violin = TRUE),
+      "should be one of")
     expect_is(g, "gg")
 })
 
@@ -25,7 +28,7 @@ test_that("create_boxplot", {
 test_that("driftPlot", {
     expect_is(
         driftPlot(se = se, aggregation = "median", category = "type", 
-            orderCategory = "type", level = "all", method = "loess"), "gg")
+            orderCategory = "type", level = "all", method = "loess"), "plotly")
   expect_error(driftPlot(se = se, aggregation = "", category = "type", 
       orderCategory = "type", level = "all", method = "loess"), 
       "should be one of")
@@ -41,8 +44,6 @@ test_that("driftPlot", {
   expect_error(driftPlot(se = se, aggregation = "median", category = "type", 
       orderCategory = "type", level = "all", method = "foo"),
       "should be one of")
-  
-  
 })
 
 ## function cv
