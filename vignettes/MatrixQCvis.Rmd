@@ -416,10 +416,10 @@ The tab `Values` will take a closer look on the `assay` slot of the
 This panel shows the (count/intensity) values for raw (`raw`), normalized 
 (`normalized`), normalized+transformed (`transformed`), 
 normalized+transformed+batch corrected (`batch corrected`), and
-normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) values 
-(imputation of missing values, `imputed` will only be shown if there are missing
-values in the `SummarizedExperiment`). As already mentioned, the different 
-methods for normalization, transformation, batch correction (and 
+normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) 
+values (imputation of missing values, `imputed` will only be shown if there are 
+missing values in the `SummarizedExperiment`). As already mentioned, the 
+different methods for normalization, transformation, batch correction (and 
 imputation) are specified in 
 the side panel.
 
@@ -432,7 +432,8 @@ selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
-create_boxplot(assay(se), title = "raw", log2 = FALSE, violin = TRUE)
+create_boxplot(se, orderCategory = "name", title = "raw", log2 = FALSE, 
+               violin = TRUE)
 ```
 
 ## Trend/drift 

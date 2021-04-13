@@ -4,11 +4,19 @@
 \alias{create_boxplot}
 \title{Create a boxplot of (count/intensity) values per sample}
 \usage{
-create_boxplot(x, title = "", log2 = TRUE, violin = FALSE)
+create_boxplot(
+  se,
+  orderCategory = colnames(colData(se)),
+  title = "",
+  log2 = TRUE,
+  violin = FALSE
+)
 }
 \arguments{
-\item{x}{`matrix` or `data.frame` containing the (count/intensity) values, 
-samples are in columns and features in rows}
+\item{se}{`SummarizedExperiment` containing the (count/intensity) values in
+the `assay` slot}
+
+\item{orderCategory}{`character`, one of `colnames(colData(se))`}
 
 \item{title}{`character` or `numeric` of `length(1)`}
 
@@ -28,7 +36,17 @@ The function `create_boxplot` creates
 Internal usage in `shinyQC`.
 }
 \examples{
-x <- matrix(1:100, ncol = 10, dimnames = list(1:10, paste("sample", 1:10)))
-create_boxplot(x, title = "", log2 = TRUE, violin = FALSE)
+#' ## create se
+a <- matrix(1:100, nrow = 10, ncol = 10, 
+    dimnames = list(1:10, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
+set.seed(1)
+a <- a + rnorm(100)
+sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+featData <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+
+create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
+    violin = FALSE)
 
 }
