@@ -22,8 +22,8 @@ group is taken to which the sample $i$ belongs to and the sample $i$ is
 excluded from the feature-wise calculation. 
 
 The MA values for all samples are by default displayed facet-wise. The MA plot 
-can be set to a specific sample by changing the selected value in the 
-drop-down menu **plot**.
+can be set to specific samples by changing the selected value in the 
+input menu **plot**.
 
 The underlying data set can be selected by the drop-down menu 
 (**Data set for the MA plot**). 
@@ -35,5 +35,5 @@ visualized for the different data sets **raw**, **normalized**,
 
 `D` is a measure of the distance between `F(A, M)` and `G(A)H(M)`, where
 `F(A, M)` is the joint cumulative distribution function (CDF) of 
-`A` and `M` , and `G` and `H` are marginal CDFs. 
+`A` and `M`, and `G` and `H` are marginal CDFs. 
 The higher the value of `D`, the more dependent are `A` and `M`. 
