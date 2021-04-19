@@ -32,10 +32,10 @@ Depends:
 	shiny (>= 1.6)
 Imports:
 	ape,
-	ComplexHeatmap,
 	dplyr,
 	ggplot2,
 	grDevices,
+	heatmaply,
 	Hmisc,
 	htmlwidgets,
 	imputeLCMD,

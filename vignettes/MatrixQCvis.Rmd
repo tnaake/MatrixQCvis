@@ -641,8 +641,8 @@ The distance matrix and sum of distances (for raw values, as obtained by
 ```{r distSampe, eval=TRUE, echo=FALSE}
 a <- assay(se)
 dist_mat <- distShiny(a)
-distSample(dist_mat, se, "type")
-sumDistSample(dist_mat, title = "raw")
+partial_bundle(distSample(dist_mat, se, "type"))
+partial_bundle(sumDistSample(dist_mat, title = "raw"))
 ```
 
 ## Features

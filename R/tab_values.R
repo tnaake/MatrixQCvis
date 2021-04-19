@@ -74,7 +74,8 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
     }
     
     g <- g + scale_x_discrete(labels = unique(a_l$name)[order(a_o_u)])
-    g + theme(axis.text.x = element_text(angle = 90)) + ggtitle(title)
+    g + theme(axis.text.x = element_text(angle = 90)) + 
+        ggtitle(title) + xlab("samples")
 
 }
 
@@ -458,29 +459,24 @@ distShiny <- function(x, method = "euclidean") {
 #' se <- SummarizedExperiment(assay = a_i, rowData = featData, colData = sample)
 #' 
 #' dist <- distShiny(a_i)
-#' distSample(dist, se, "type")
+#' distSample(dist, se, label = "type", title = "imputed")
 #'
-#' @return `ComplexHeatmap`
+#' @return `plotly`
 #'
-#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
+#' @importFrom heatmaply heatmaply
 #' 
 #' @export
 distSample <- function(d, se, label = "name", title = "raw") {
-    
-    ## create the annotation, use here the colData, get the column label in 
-    ## colData
-    val <- colData(se)[[label]]
-    val_u <- unique(val)
-    df <- data.frame(x = val)
-    colnames(df) <- label
-    l <- list(setNames(hcl.colors(n = length(val_u)), val_u))
-    names(l) <- label
-    ha <- HeatmapAnnotation(df = df, col = l)
+
+    ## define the row annotation
+    row_side_col <- list(colData(se)[[label]])
+    names(row_side_col) <- label
     
     ## do the actual plotting
-    Heatmap(d, name = "distances",
-        top_annotation = ha, column_title = title,
-        show_row_names = TRUE, show_column_names = FALSE)
+    heatmaply::heatmaply(d, trace = "none", plot_method = "plotly", 
+        row_dend_left = TRUE, main = title, dendrogram = "both",
+        row_side_colors = row_side_col, scale = "none", 
+        showticklabels = c(FALSE, FALSE), show_dendrogram = c(TRUE, FALSE))
 }
 
 #' @name sumDistSample

@@ -1085,7 +1085,7 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
     fluidRow(box(title = title, width = 12, collapsible = TRUE, 
                     collapsed = collapsed, 
         column(6, 
-            plotOutput(outputId = ns("distSample")),
+            plotlyOutput(outputId = ns("distSample")),
             downloadButton(outputId = ns("downloadPlotDist"), "")),
         column(6, 
             plotlyOutput(outputId = ns("distSampleSum")),
@@ -1205,8 +1205,8 @@ distUIServer <- function(id, missingValue) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom ComplexHeatmap draw
 #' @importFrom grDevices pdf dev.off
+#' @importFrom plotly partial_bundle
 #' @noRd
 distServer <- function(id, se, assay, method, label, type) {
     
@@ -1224,20 +1224,17 @@ distServer <- function(id, se, assay, method, label, type) {
                 distSample(d(), se(), label = label(), title = "") 
             })
             
-            output$distSample <- renderPlot({
+            output$distSample <- renderPlotly({
                 req(label())
                 p_dist()  
             })
             
             output$downloadPlotDist <- downloadHandler(
                 filename = function() {
-                    paste("Distance_", type, "_", method(), ".pdf", sep = "")
+                    paste("Distance_", type, "_", method(), ".html", sep = "")
                 },
                 content = function(file) {
-                    pdf(file)
-                    p = p_dist()
-                    draw(p)
-                    dev.off()
+                    saveWidget(partial_bundle(p_dist()), file)
                 }
             )
             
@@ -1256,7 +1253,7 @@ distServer <- function(id, se, assay, method, label, type) {
                         method(), ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(p_sumDist(), file)
+                    saveWidget(partial_bundle(p_sumDist()), file)
                 }
             )
         }
