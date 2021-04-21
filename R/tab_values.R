@@ -741,11 +741,11 @@ hoeffDPlot <- function(df, lines = TRUE) {
     
     ## add the sample names as a column and create a long format of the df
     df <- data.frame(sample = rownames(df), df)
-    df <- pivot_longer(df, cols = 2:ncol(df))
+    df <- pivot_longer(df, cols = 2:ncol(df), names_to = "processing step")
     
     ## refactor the names according to the supplied order (cols)
-    names_f <- factor(df$name, cols)
-    df$name <- names_f
+    names_f <- factor(df["processing step"], cols)
+    df["processing step"] <- names_f
 
     df <- df %>%
         mutate(x = as.numeric(names_f))
@@ -753,9 +753,10 @@ hoeffDPlot <- function(df, lines = TRUE) {
     df$x_jitter <- jitter(df$x)
     # ## do the actual plotting
     g <- ggplot(df) + 
-        geom_violin(aes_string(x = "name", y = "value"), na.rm = TRUE) + 
+        geom_violin(aes_string(x = "processing step", y = "value"), 
+            na.rm = TRUE) + 
         suppressWarnings(geom_point(
-            aes_string(x = "x_jitter", y = "value", color = "name",
+            aes_string(x = "x_jitter", y = "value", color = "processing step",
                     text = "sample")))
     if (lines) g <- g + geom_line(
         aes_string(x = "x_jitter", y = "value", group = "sample"))
