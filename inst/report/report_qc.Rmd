@@ -520,9 +520,14 @@ d_r <- hoeffDValues(tbl_r, name = "raw")
 d_n <- hoeffDValues(tbl_n, name = "normalized")
 d_t <- hoeffDValues(tbl_t, name = "transformed")
 d_b <- hoeffDValues(tbl_b, name = "batch corrected")
-d_i <- hoeffDValues(tbl_i, name = "imputed")
- 
-df <- data.frame(d_r, d_n, d_t, d_b, d_i)
+
+if (missingValue) {
+    d_i <- hoeffDValues(tbl_i, name = "imputed")
+    df <- data.frame(d_r, d_n, d_t, d_b, d_i)  
+} else {
+    df <- data.frame(d_r, d_n, d_t, d_b)
+}
+
 hoeffDPlot(df, lines = int_hD_lines)
 ```
 
@@ -603,7 +608,6 @@ dist_mat_r <- distShiny(a_r, method = int_dist_method)
 dist_mat_n <- distShiny(a_n, method = int_dist_method)
 dist_mat_t <- distShiny(a_t, method = int_dist_method)
 dist_mat_b <- distShiny(a_b, method = int_dist_method)
-dist_mat_i <- distShiny(a_i, method = int_dist_method)
 
 ## plotting
 distSample(d = dist_mat_r, se = se_r,
@@ -622,9 +626,13 @@ distSample(d = dist_mat_b, se = se_b,
     label = int_dist_label, title = "batch corrected")
 sumDistSample(dist_mat_b, title = "batch corrected")
 
-distSample(d = dist_mat_i, se = se_i,
-    label = int_dist_label, title = "imputed")
-sumDistSample(dist_mat_i, title = "imputed")
+if (missingValue) {
+    dist_mat_i <- distShiny(a_i, method = int_dist_method)
+    distSample(d = dist_mat_i, se = se_i,
+        label = int_dist_label, title = "imputed")
+    sumDistSample(dist_mat_i, title = "imputed")  
+}
+
 ```
 
 ## Features
