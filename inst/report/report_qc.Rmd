@@ -180,7 +180,8 @@ if (!is.null(params$mev_binwidth)) {
 
 `r if (missingValue) {"- *Binwidth =*"}`  `r if (missingValue) paste(binwidth, ".", sep = "")`
 ```{r hist_feature_mev, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
-hist_feature(assay(se_r), measured = TRUE, binwidth = binwidth)  
+hist_feature(SummarizedExperiment::assay(se_r), measured = TRUE, 
+    binwidth = binwidth)  
 ```
 
 `r if (missingValue) {"## Histogram Features along variable\n"}`
@@ -193,7 +194,7 @@ if (!is.null(params$mev_binwidthC)) {
 } else {
     called <- FALSE
     binwidth <- 1
-    mev_hist_category <- colnames(colData(se_r))[1]
+    mev_hist_category <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 ```
 
@@ -218,7 +219,7 @@ if (!is.null(params$mev_upset_category)) {
     mev_upset_category <- params$mev_upset_category
 } else {
     called <- FALSE
-    mev_upset_category <- colnames(colData(se_r))[1]
+    mev_upset_category <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 
 ```
@@ -267,7 +268,8 @@ if (!is.null(params$miv_binwidth)) {
 
 `r if (missingValue) {paste("- *Binwidth =* ", binwidth, ".", sep = "")}`
 ```{r hist_feature_miv, eval=params$missingValue, echo=FALSE, message=FALSE, warning=FALSE}
-hist_feature(assay(se_r), measured = FALSE, binwidth = binwidth)
+hist_feature(SummarizedExperiment::assay(se_r), measured = FALSE, 
+    binwidth = binwidth)
 ```
 
 `r if (missingValue) {"## Histogram Features along variable\n"}`
@@ -280,7 +282,7 @@ if (!is.null(params$miv_binwidthC)) {
 } else {
     called <- FALSE
     binwidth <- 1
-    miv_hist_category <- colnames(colData(se_r))[1]
+    miv_hist_category <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 ```
 
@@ -304,7 +306,7 @@ if (!is.null(params$miv_upset_category)) {
     miv_upset_category <- params$miv_upset_category
 } else {
     called <- FALSE
-    miv_upset_category <- colnames(colData(se_r))[1]
+    miv_upset_category <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 ```
 
@@ -350,15 +352,15 @@ Use the settings
 - *Type of display = * `r int_box_type`.
 
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
-create_boxplot(assay(se_r), title = "raw",
+create_boxplot(SummarizedExperiment::assay(se_r), title = "raw",
     log2 = int_log, violin = int_violin)
-create_boxplot(assay(se_n), title = "normalized",
+create_boxplot(SummarizedExperiment::assay(se_n), title = "normalized",
     log2 = int_log, violin = int_violin)
-create_boxplot(assay(se_t), title = "transformed",
+create_boxplot(SummarizedExperiment::assay(se_t), title = "transformed",
     log2 = FALSE, violin = int_violin)
-create_boxplot(assay(se_b), title = "batch corrected",
+create_boxplot(SummarizedExperiment::assay(se_b), title = "batch corrected",
     log2 = FALSE, violin = int_violin)
-create_boxplot(assay(se_i), title = "imputed",
+create_boxplot(SummarizedExperiment::assay(se_i), title = "imputed",
     log2 = FALSE, violin = int_violin)
 ```
 
@@ -399,8 +401,8 @@ if (!is.null(params$int_drift_data)) {
     int_drift_data <- "raw"
     se_tmp <- se_r
     int_drift_aggregation <- "sum"
-    int_drift_category <- colnames(colData(se_r))[1]
-    int_drift_orderCategory <- colnames(colData(se_r))[1]
+    int_drift_category <- colnames(SummarizedExperiment::colData(se_r))[1]
+    int_drift_orderCategory <- colnames(SummarizedExperiment::colData(se_r))[1]
     int_drift_level <- "all"
     int_drift_method <- "loess"
 }
@@ -428,11 +430,11 @@ driftPlot(se_tmp, aggregation = int_drift_aggregation,
 ## Coefficient of variation
 
 ```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-a_r <- assay(se_r)
-a_n <- assay(se_n)
-a_t <- assay(se_t)
-a_b <- assay(se_b)
-a_i <- assay(se_i)
+a_r <- SummarizedExperiment::assay(se_r)
+a_n <- SummarizedExperiment::assay(se_n)
+a_t <- SummarizedExperiment::assay(se_t)
+a_b <- SummarizedExperiment::assay(se_b)
+a_i <- SummarizedExperiment::assay(se_i)
 
 ## calculate cv values
 cv_r <- cv(a_r, "raw")
@@ -912,16 +914,18 @@ valid_c <- if (!is.null(c_formula)) TRUE else FALSE
 
 ```{r DE, echo=FALSE, eval=TRUE}
 if (valid_m & valid_c) {
-    mM <- model.matrix(m_formula, data = colData(se_r))
-    cM <- makeContrasts(contrasts = c_formula, levels = mM)
+    mM <- stats::model.matrix(m_formula, data = colData(se_r))
+    cM <- limma::makeContrasts(contrasts = c_formula, levels = mM)
 
     if (params$de_method == "limma") {
-        tT <- topTable(params$de_fit_ttest, number = Inf, adjust.method = "fdr", p.value = 0.05)
+        tT <- limma::topTable(params$de_fit_ttest, number = Inf, 
+            adjust.method = "fdr", p.value = 0.05)
         tT <- cbind(name = rownames(tT), tT)
         volcanoPlot(tT, type = "ttest")
     }
     if (params$de_method == "proDA") {
-        tT <- test_diff(fit = params$de_fit_proDA, contrast = params$de_c_formula,
+        tT <- proDA::test_diff(fit = params$de_fit_proDA, 
+            contrast = params$de_c_formula,
             sort_by = "adj_pval")
         volcanoPlot(tT, type = "proDA")
     }
