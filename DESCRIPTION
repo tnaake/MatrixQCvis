@@ -32,6 +32,7 @@ Depends:
 	shiny (>= 1.6)
 Imports:
 	ape,
+	ComplexHeatmap,
 	dplyr,
 	ggplot2,
 	grDevices,
@@ -40,7 +41,6 @@ Imports:
 	htmlwidgets,
 	imputeLCMD,
 	limma,
-	Matrix,
 	methods,
 	MsCoreUtils,
 	proDA,
