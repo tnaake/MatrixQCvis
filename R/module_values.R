@@ -1174,7 +1174,7 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
     shiny::fluidRow(shinydashboard::box(title = title, width = 12, 
                 collapsible = TRUE, collapsed = collapsed, 
         shiny::column(6, 
-            plotly::plotlyOutput(outputId = ns("distSample")),
+            shiny::plotOutput(outputId = ns("distSample")),
             shiny::downloadButton(outputId = ns("downloadPlotDist"), "")),
         shiny::column(6, 
             plotly::plotlyOutput(outputId = ns("distSampleSum")),
@@ -1303,6 +1303,9 @@ distUIServer <- function(id, missingValue) {
 #' @importFrom shiny moduleServer reactive downloadHandler req
 #' @importFrom plotly renderPlotly partial_bundle
 #' @importFrom htmlwidgets saveWidget
+#' @importFrom ComplexHeatmap draw
+#' @importFrom grDevices pdf dev.off
+#' 
 #' 
 #' @noRd
 distServer <- function(id, se, assay, method, label, type) {
@@ -1320,17 +1323,21 @@ distServer <- function(id, se, assay, method, label, type) {
                 distSample(d(), se(), label = label(), title = "") 
             })
             
-            output$distSample <- plotly::renderPlotly({
+            output$distSample <- shiny::renderPlot({
                 shiny::req(label())
                 p_dist()  
             })
             
             output$downloadPlotDist <- shiny::downloadHandler(
                 filename = function() {
-                    paste("Distance_", type, "_", method(), ".html", sep = "")
+                    paste("Distance_", type, "_", method(), ".pdf", sep = "")
                 },
                 content = function(file) {
-                    htmlwidgets::saveWidget(partial_bundle(p_dist()), file)
+                    grDevices::pdf(file)
+                    p = p_dist()
+                    ComplexHeatmap::draw(p)
+                    grDevices::dev.off()
+                    ##htmlwidgets::saveWidget(partial_bundle(p_dist()), file)
                 }
             )
             

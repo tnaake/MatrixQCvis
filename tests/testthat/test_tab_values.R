@@ -110,10 +110,10 @@ test_that("distSample", {
     g <- distSample(d, se, label = "type")
     
     expect_error(distSample(d[1:3, 1:3], se = se, label = "type"), 
-        "not equal to nrow")
+        "number of observations in top annotation")
     expect_error(distSample(d, se = se[, 1:3], label = "type"), 
-        "not equal to nrow")
-    expect_is(g, "plotly")
+        "number of observations in top annotation")
+    expect_is(g, "Heatmap")
 })
 
 ## function sumDistSample

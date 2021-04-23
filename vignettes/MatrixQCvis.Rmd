@@ -159,9 +159,9 @@ qc <- shinyQC(se)
 ```
 
 The assignment to `qc` or any other object is not mandatory. Upon exiting the
-shiny application via the exit button, `shinyQC` will return the 
-modified raw, normalized, transformed, batch corrected and imputed data sets that 
-can be in the following further analyzed. 
+shiny application via the exit button, `shinyQC` will return a 
+`SummarizedExperiment` object containing the imputed dataset
+that can be in the following further analyzed. 
 
 Now, we will have a closer look on the user interface of the Shiny 
 application. 
@@ -622,7 +622,7 @@ The distance matrix and sum of distances (for raw values, as obtained by
 ```{r distSampe, eval=TRUE, echo=FALSE}
 a <- assay(se)
 dist_mat <- distShiny(a)
-partial_bundle(distSample(dist_mat, se, "type"))
+distSample(dist_mat, se, "type")
 partial_bundle(sumDistSample(dist_mat, title = "raw"))
 ```
 

@@ -141,6 +141,7 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly style 
 #' @importFrom tibble as_tibble
+#' @importFrom rlang .data
 #' 
 #' @export
 driftPlot <- function(se, aggregation = c("median", "sum"), 
@@ -466,21 +467,37 @@ distShiny <- function(x, method = "euclidean") {
 #'
 #' @return `plotly`
 #'
-#' @importFrom heatmaply heatmaply
+
 #' @importFrom SummarizedExperiment colData
-#' 
+#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
+#' @importFrom grDevices hcl.colors
+#' @importFrom stats setNames
 #' @export
 distSample <- function(d, se, label = "name", title = "raw") {
 
-    ## define the row annotation
-    row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
-    names(row_side_col) <- label
     
-    ## do the actual plotting
-    heatmaply::heatmaply(d, trace = "none", plot_method = "plotly", 
-        row_dend_left = TRUE, main = title, dendrogram = "both",
-        row_side_colors = row_side_col, scale = "none", 
-        showticklabels = c(FALSE, FALSE), show_dendrogram = c(TRUE, FALSE))
+    ## create the annotation, use here the colData, get the column label in 
+    ## colData
+    val <- colData(se)[[label]]
+    val_u <- unique(val)
+    df <- data.frame(x = val)
+    colnames(df) <- label
+    l <- list(stats::setNames(grDevices::hcl.colors(n = length(val_u)), val_u))
+    names(l) <- label
+    ha <- ComplexHeatmap::HeatmapAnnotation(df = df, col = l)
+    
+    Heatmap(d, name = "distances",
+        top_annotation = ha, column_title = title,
+        show_row_names = TRUE, show_column_names = FALSE)
+    # @importFrom heatmaply heatmaply
+    ## define the row annotation
+    ##row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
+    ##names(row_side_col) <- label
+    ## ## do the actual plotting
+    ## heatmaply::heatmaply(d, trace = "none", plot_method = "plotly", 
+    ##     row_dend_left = TRUE, main = title, dendrogram = "both",
+    ##     row_side_colors = row_side_col, scale = "none", 
+    ##     showticklabels = c(FALSE, FALSE), show_dendrogram = c(TRUE, FALSE))
 }
 
 #' @name sumDistSample
@@ -1054,13 +1071,14 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' or by quantile normalization (adjusting the distributions that they become
 #' identical in statistical distributions). The divisor for quantile division
 #' (e.g., the 75% quantile per sample) can be specified by the `probs` argument.
-#' Quantile normalization is performed by using the `normalize.quantiles` 
-#' function from `preprocessCore`.
+#' Quantile normalization is performed by using the `normalizeQuantiles` 
+#' function from `limma`.
 #' 
 #' @details
 #' Internal usage in `shinyQC`.
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix`
+#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
+#' features in rows
 #' @param method `character`
 #' @param probs `numeric`, ranging between `[0, 1)`. `probs` is used as the 
 #' divisor for quantile division in `method = "quantile division"`
@@ -1116,7 +1134,8 @@ normalize <- function(x,
 #' @details 
 #' Internal use in `shinyQC`.
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix`
+#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
+#' features in rows
 #' @param method `character`, one of `"none"`, `"log2"` or `"vsn"`
 #'
 #' @examples
@@ -1221,12 +1240,34 @@ batch <- function(se,
 #' random draws from a Gaussian distribution centred to a minimal value 
 #' (`MinProb`). 
 #' 
-#' The function is a wrapper function from the functions `impute_bpca`, 
-#' `impute_knn`, `impute_mle`, and `impute_min` from the `MsCoreUtils` package
-#' and the functions `impute.MinDet` and `impute.MinProb` from the `imputeLCMD`
-#' package. 
+#' @details 
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix`
+#' `BPCA` wrapper for `pcaMethods::pca` with `methods = "bpca"`. `BPCA` is a
+#' missing at random (MAR) imputation method. 
+#' 
+#' `kNN` wrapper for `impute::impute.knn` with `k = 10`, `rowmax = 0.5`, 
+#' `colmax = 0.5`, `maxp = 1500`. `kNN` is a MAR imputation method.
+#' 
+#' `MLE` wrapper for `imputeLCMD::impute.MAR` with `method = "MLE"`, 
+#' `model.selector = 1`/`imputeLCMD::impute.wrapper.MLE`. `MLE` is a MAR
+#' imputation method.
+#' 
+#' `Min` imputes the missing values by the observed minimal value of `x`. 
+#' `Min` is a missing not at random (MNAR) imputation method.
+#' 
+#' `MinDet` is a wrapper for `imputeLCMD::impute.MinDet` with `q = 0.01`. 
+#' `MinDet` performs the imputation using a 
+#' deterministic minimal value approach. The missing entries are
+#' replaced with a minimal value, estimated from the `q`-th quantile from each
+#' sample. `MinDet` is a MNAR imputation method.
+#' 
+#' `MinProb` is a wrapper for `imputeLCMD::impute.MinProb` with `q = 0.01` and 
+#' `tune.sigma = 1`. `MinProb` performs the imputation based on random draws 
+#' from a Gaussion distribution with the mean set to the minimal value of a 
+#' sample. `MinProb` is a MNAR imputation method.
+#' 
+#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
+#' features in rows
 #' @param method `character`, one of `"BPCA"`, `"kNN"`, `"MLE`, `"Min"`, 
 #' `"MinDet"`, or `"MinProb"`
 #' 
@@ -1238,9 +1279,9 @@ batch <- function(se,
 #' 
 #' @return `matrix`
 #' 
-#' @importFrom MsCoreUtils impute_bpca impute_knn impute_mle impute_min
 #' @importFrom imputeLCMD impute.MinDet impute.MinProb
-#' @import dplyr 
+#' @importFrom impute impute.knn
+#' @importFrom pcaMethods pca completeObs
 #' 
 #' @export
 impute <- function(x, 
@@ -1251,18 +1292,41 @@ impute <- function(x,
     ## convert the data.frame into matrix
     x_i <- as.matrix(x)
 
-    if (method == "BPCA")
-        x_i <- MsCoreUtils::impute_bpca(x = x_i)
-    if (method == "kNN")
-        x_i <- MsCoreUtils::impute_knn(x = x_i)
-    if (method == "MLE")
-        x_i <- MsCoreUtils::impute_mle(x = x_i)
-    if (method == "Min")
-        x_i <- MsCoreUtils::impute_min(x = x_i)
-    if (method == "MinDet")
-        x_i <- imputeLCMD::impute.MinDet(dataSet.mvs = x_i)
-    if (method == "MinProb")
-        x_i <- imputeLCMD::impute.MinProb(dataSet.mvs = x_i)
+    if (method == "BPCA") {
+        n_samp <- ncol(x_i)
+        ## expects a matrix with features in cols, samples in rows
+        res <- pcaMethods::pca(t(x_i), method = "bpca", nPcs = (n_samp - 1), 
+                                                            verbose = FALSE)
+        x_i <- pcaMethods::completeObs(res)
+        x_i <- t(x_i)
+    }
+
+    if (method == "kNN") {
+        ## expects a matrix with features in rows, samples in columns
+        x_i <- impute::impute.knn(data = x_i)$data
+    }
+
+    if (method == "MLE") {
+        ## expects a matrix with features in rows, samples in columns
+        x_i <- imputeLCMD::impute.wrapper.MLE(dataSet.mvs = x_i)
+    }
+        
+    if (method == "Min") {
+        min_val <- min(x_i, na.rm = TRUE)
+        x_i[is.na(x_i)] <- min_val
+    }
+        
+    if (method == "MinDet") {
+        ## expects a matrix with features in rows, samples in columns
+        x_i <- imputeLCMD::impute.MinDet(dataSet.mvs = x_i, q = 0.01)
+    }
+        
+    if (method == "MinProb") {
+        ## expects a matrix with features in rows, samples in columns
+        x_i <- imputeLCMD::impute.MinProb(dataSet.mvs = x_i, q = 0.01, 
+            tune.sigma = 1)
+    }
+        
     return(x_i)
 }
 
