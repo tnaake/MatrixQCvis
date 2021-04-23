@@ -1,3 +1,3 @@
 library(testthat)
 library(MatrixQCvis)
-test_check("MatrixQCvis")
+testthat::test_check("MatrixQCvis")

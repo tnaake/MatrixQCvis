@@ -4,9 +4,10 @@ a <- matrix(1:1000, nrow = 100, ncol = 10,
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(1000)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+                                                                colData = cD)
 
 
 ## tP_PCAUI
@@ -31,7 +32,7 @@ test_that("tP_tSNEUI", {
 
 ## tSNEUIServer
 test_that("tSNEUIServer", {
-    testServer(tSNEUIServer, {
+    shiny::testServer(tSNEUIServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -49,7 +50,7 @@ test_that("tP_umapUI", {
 
 ## umapUIServer
 test_that("umapUIServer", {
-    testServer(umapUIServer, {
+    shiny::testServer(umapUIServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -64,7 +65,7 @@ test_that("umapUIServer", {
 
 ## dimRedServer
 test_that("dimRedServer", {
-    testServer(dimRedServer, {
+    shiny::testServer(dimRedServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -84,7 +85,7 @@ test_that("dimRedServer", {
 ## screePlotServer
 test_that("screePlotServer", {
 
-    testServer(screePlotServer, {
+    shiny::testServer(screePlotServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -102,7 +103,7 @@ test_that("screePlotServer", {
 ## loadingsPlotServer
 test_that("loadingsPlotServer", {
     
-    testServer(loadingsPlotServer, {
+    shiny::testServer(loadingsPlotServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()

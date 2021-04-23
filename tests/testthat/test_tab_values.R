@@ -1,18 +1,22 @@
+#' @importFrom SummarizedExperiment SummarizedExperiment assay
+#' @importFrom tibble tibble
+
 ## create se
 a <- matrix(1:1000, nrow = 100, ncol = 10, 
             dimnames = list(1:100, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(1000)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+    colData = cD)
 
 ## function create_boxplot
 test_that("create_boxplot", {
     g <- create_boxplot(se)
     
-    expect_error(create_boxplot(assay(se)), 
+    expect_error(create_boxplot(SummarizedExperiment::assay(se)), 
         "unable to find an inherited method for function")
     expect_error(create_boxplot(se = se, orderCategory = "name", 
         title =  "test", log2 = "", violin = TRUE), "not interpretable as logical")
@@ -74,7 +78,7 @@ test_that("plotCV", {
 test_that("ECDF", {
   
     sample_1 <- colnames(se)[1]
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     g <- ECDF(se, sample_1, "all")
     
     expect_error(ECDF(x, sample_1, "all"), "unable to find an inherited method")
@@ -85,7 +89,7 @@ test_that("ECDF", {
 
 ## function distShiny
 test_that("distShiny", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
 
     matTest <- matrix(
         c(0,        173.0173, 349.8123, 
@@ -101,22 +105,20 @@ test_that("distShiny", {
 
 ## function distSample
 test_that("distSample", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     d <- distShiny(x, method = "euclidean")
     g <- distSample(d, se, label = "type")
     
     expect_error(distSample(d[1:3, 1:3], se = se, label = "type"), 
-        "number of observations in top")
-    expect_error(distSample(d[, 1:3], se = se, label = "type"), 
-        "number of observations in top")
+        "not equal to nrow")
     expect_error(distSample(d, se = se[, 1:3], label = "type"), 
-        "number of observations in top")
-    expect_is(g, "Heatmap")
+        "not equal to nrow")
+    expect_is(g, "plotly")
 })
 
 ## function sumDistSample
 test_that("sumDistSample", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     d <- distShiny(x, method = "euclidean")
     g <- sumDistSample(d)
     
@@ -129,7 +131,7 @@ test_that("sumDistSample", {
 
 ## function MAvalues
 test_that("MAvalues", {
-    tbl_test <- tibble(Feature = as.character(c(rep(2, 3), rep(3, 3))), 
+    tbl_test <- tibble::tibble(Feature = as.character(c(rep(2, 3), rep(3, 3))), 
         name = rep(colnames(se)[1:3], 2),
         A = c(4.149180, 5.535751, 5.785051, 4.144537, 5.534471, 5.785192),
         M = c( -6.044885, 2.274541, 3.770344, -6.061178, 2.278427, 3.782751),
@@ -148,7 +150,8 @@ test_that("MAvalues", {
     expect_true(is.numeric(ma$A))
     expect_true(is.numeric(ma$M))
     expect_true(is.character(ma$type))
-    expect_equal(MAvalues(se[2:3, 1:3], group = "all"), tbl_test, tolerance = 1e-07)
+    expect_equal(MAvalues(se[2:3, 1:3], group = "all"), tbl_test, 
+          tolerance = 1e-07)
 })
 
 ## function hoeffDvalues
@@ -256,7 +259,7 @@ test_that("cvFeaturePlot", {
 
 ## function normalize
 test_that("normalize", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     x_n <- normalize(x, method = "none")
     x_s <- normalize(x, method = "sum")
     x_qd <- normalize(x, method = "quantile division", probs = 0.75)
@@ -287,7 +290,7 @@ test_that("normalize", {
 
 ## function transform
 test_that("transform", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     x_n <- transform(x, method = "none")
     x_l <- transform(x, method = "log2")
     x_v <- transform(x, method = "vsn")
@@ -315,7 +318,7 @@ test_that("batch", {
   a <- matrix(1:1000, nrow = 100, ncol = 10, 
       dimnames = list(1:100, paste("sample", 1:10)))
   se_b <- se
-  assay(se_b) <- a
+  SummarizedExperiment::assay(se_b) <- a
   x_n <- batch(se_b, method = "none")
   x_l <- batch(se_b, method = "removeBatchEffect (limma)", batchColumn = "type")
   
@@ -337,7 +340,7 @@ test_that("batch", {
 
 ## function impute
 test_that("impute", {
-    x <- assay(se)
+    x <- SummarizedExperiment::assay(se)
     x_bpca <- impute(x, "BPCA")
     x_knn <- impute(x, "kNN")
     x_min <- impute(x, "Min")

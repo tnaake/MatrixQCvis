@@ -1,4 +1,5 @@
-library(SummarizedExperiment)
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom shiny testServer
 
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -8,7 +9,8 @@ set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+    colData = cD)
 
 ## tP_colDataUI
 test_that("tP_colDataUI", {
@@ -37,7 +39,7 @@ test_that("tP_volcanoUI", {
 
 ## colDataServer
 test_that("colDataServer", {
-    testServer(colDataServer, {
+    shiny::testServer(colDataServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -52,7 +54,7 @@ test_that("colDataServer", {
 
 ## validFormulaMMServer
 test_that("validFormulaMMServer", {
-    testServer(validFormulaMMServer, {
+    shiny::testServer(validFormulaMMServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -76,7 +78,7 @@ test_that("validExprModelMatrix", {
 
 ## modelMatrixServer
 test_that("modelMatrixServer", {
-    testServer(modelMatrixServer, {
+    shiny::testServer(modelMatrixServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -91,7 +93,7 @@ test_that("modelMatrixServer", {
 
 ## modelMatrixUIServer
 test_that("modelMatrixUIServer", {
-    testServer(modelMatrixUIServer, {
+    shiny::testServer(modelMatrixUIServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -109,7 +111,7 @@ test_that("modelMatrixUIServer", {
 
 ## validExprContrastServer
 test_that("validExprContrastServer", {
-    testServer(validExprContrastServer, {
+    shiny::testServer(validExprContrastServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -125,7 +127,7 @@ test_that("validExprContrastServer", {
 
 ## validExprContrast
 test_that("validExprContrast", {
-    modelMatrix <- model.matrix(~type, colData(se))
+    modelMatrix <- stats::model.matrix(~type, colData(se))
     expect_equal(validExprContrast("type2", modelMatrix = modelMatrix), "type2")
     expect_equal(validExprContrast("type2-", modelMatrix = modelMatrix), "type2")
     expect_is(validExprContrast("foo", modelMatrix = modelMatrix), "NULL")
@@ -134,7 +136,7 @@ test_that("validExprContrast", {
 
 ## contrastMatrixServer
 test_that("contrastMatrixServer", {
-    testServer(contrastMatrixServer, {
+    shiny::testServer(contrastMatrixServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -149,7 +151,7 @@ test_that("contrastMatrixServer", {
 
 ## contrastMatrixUIServer
 test_that("contrastMatrixUIServer", {
-    testServer(contrastMatrixUIServer, {
+    shiny::testServer(contrastMatrixUIServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -170,7 +172,7 @@ test_that("contrastMatrixUIServer", {
 
 ## topDEUIServer
 test_that("topDEUIServer", {
-    testServer(topDEUIServer, {
+    shiny::testServer(topDEUIServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -194,7 +196,7 @@ test_that("topDEUIServer", {
 
 ## fitServer
 test_that("fitServer", {
-    testServer(fitServer, {
+    shiny::testServer(fitServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -211,7 +213,7 @@ test_that("fitServer", {
 
 ## testResultServer
 test_that("testResultServer", {
-    testServer(testResultServer, {
+    shiny::testServer(testResultServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -231,7 +233,7 @@ test_that("testResultServer", {
 
 ## volcanoUIServer
 test_that("volcanoUIServer", {
-    testServer(volcanoUIServer, {
+    shiny::testServer(volcanoUIServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()

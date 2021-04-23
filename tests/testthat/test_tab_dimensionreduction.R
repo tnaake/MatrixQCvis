@@ -1,3 +1,11 @@
+#' @importFrom stats prcomp
+#' @importFrom ape pcoa
+#' @importFrom vegan metaMDS
+#' @importFrom Rtsne Rtsne
+#' @importFrom umap umap
+#' @importFrom tibble as_tibble 
+#' @importFrom SummarizedExperiment SummarizedExperiment
+
 ## function ordination
 test_that("ordination", {
     set.seed(1)
@@ -25,20 +33,20 @@ test_that("ordination", {
     tsne_o <- ordination(x, "tSNE", params = parameters)
     umap_o <- ordination(x, "UMAP", params = parameters)
     
-    pca_r <- prcomp(t(x), center = TRUE, scale = FALSE)$x %>% 
-        as_tibble()
-    pcoa_r <- ape::pcoa(dist(t(x), method = "euclidean"))$vectors %>% 
-        as_tibble()
-    nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points %>% 
-        as_tibble()
+    pca_r <- stats::prcomp(t(x), center = TRUE, scale = FALSE)$x 
+    pca_r <- tibble::as_tibble(pca_r)
+    pcoa_r <- ape::pcoa(dist(t(x), method = "euclidean"))$vectors
+    pcoa_r <- tibble::as_tibble(pcoa_r)
+    nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points 
+    nmds_r <- tibble::as_tibble(nmds_r)
     tsne_r <- Rtsne::Rtsne(t(x), perplexity = 3, max_iter = 1000,
         initial_dims = 2, dims = 2, pca_center = TRUE, pca_scale = FALSE,
-        theta = 0)$Y %>% 
-        as_tibble()
+        theta = 0)$Y
+    tsne_r <- tibble::as_tibble(tsne_r)
     colnames(tsne_r) <- c("X1", "X2")
     umap_r <- umap::umap(t(x), method = "naive", min_dist = 0.1, 
-        n_neighbors = 5, spread = 1)$layout %>% 
-        as_tibble()
+        n_neighbors = 5, spread = 1)$layout
+    umap_r <- tibble::as_tibble(umap_r)
     colnames(umap_r) <- c("X1", "X2")
     
     expect_error(ordination(x, type = "foo", params = parameters), 
@@ -68,8 +76,6 @@ test_that("ordination", {
 
 ## function ordinationPlot
 test_that("ordinationPlot", {
-
-    library(SummarizedExperiment)
      
     ## create se
     a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -78,7 +84,8 @@ test_that("ordinationPlot", {
     a <- a + rnorm(100)
     cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
     rD <- data.frame(spectra = rownames(a))
-    se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+    se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+        rowData = rD, colData = cD)
     
     ## create the data.frame containing the transformed values
     parameters <- list("center" = TRUE, "scale" = FALSE)

@@ -1,20 +1,25 @@
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom dplyr pull
+#' @importFrom tibble tibble is_tibble
+
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(sample = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(sample = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+    colData = cD)
 
 ## function samples_memi
 test_that("samples_memi", {
     measured <- c(7, 10, 7, 7, 7, 7, 10, 10, 10, 10)
     missing <- c(3, 0, 3, 3, 3, 3, 0, 0, 0, 0)
     x <- samples_memi(se)
-    expect_equal(pull(x, "measured"), measured)
-    expect_equal(pull(x, "missing"), missing)
+    expect_equal(dplyr::pull(x, "measured"), measured)
+    expect_equal(dplyr::pull(x, "missing"), missing)
     expect_is(x, "tbl")
     expect_error(samples_memi(NULL), "unable to find an inherited method for")
     expect_error(samples_memi("foo"), "unable to find an inherited method for")
@@ -58,19 +63,20 @@ test_that("hist_feature", {
 test_that("measured_category", {
     mc_t <- measured_category(se, measured = TRUE, category = "type")
     mc_f <- measured_category(se, measured = FALSE, category = "type")
-    library(tibble)
     
-    tbl_1 <- tibble(feature = 1:10, "1" = c(0, 5, 5, 5, 0, 5, 5, 0, 5, 5), 
+    tbl_1 <- tibble::tibble(feature = 1:10, 
+        "1" = c(0, 5, 5, 5, 0, 5, 5, 0, 5, 5), 
         "2" = c(5, 5, 5, 5, 5, 5, 5, 5, 5, 5))
     colnames(tbl_1) <- c("feature", 1, 2)
-    tbl_2 <- tibble(feature = 1:10, "1" = c(5, 0, 0, 0, 5, 0, 0, 5, 0, 0), 
-                       "2" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+    tbl_2 <- tibble::tibble(feature = 1:10, 
+        "1" = c(5, 0, 0, 0, 5, 0, 0, 5, 0, 0), 
+        "2" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
     colnames(tbl_2) <- c("feature", 1, 2)
     
     expect_true(all(mc_t == tbl_1))
     expect_true(all(mc_f == tbl_2))
-    expect_true(is_tibble(mc_t))
-    expect_true(is_tibble(mc_f))
+    expect_true(tibble::is_tibble(mc_t))
+    expect_true(tibble::is_tibble(mc_f))
     expect_equal(dim(mc_t), c(10, 3))
     expect_equal(dim(mc_f), c(10, 3))
     expect_equal(

@@ -1,3 +1,6 @@
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom shiny testServer
+
 ## create se
 a <- matrix(1:1000, nrow = 100, ncol = 10, 
     dimnames = list(1:100, paste("sample", 1:10)))
@@ -6,7 +9,8 @@ set.seed(1)
 a <- a + rnorm(1000)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+                            colData = cD)
 
 ## function fR_boxplotUI
 test_that("fR_boxplotUI", {
@@ -21,7 +25,7 @@ test_that("tP_boxplotUI", {
 
 ## boxPlotUIServer
 test_that("boxPlotUIServer", {
-    testServer(boxPlotUIServer, {
+    shiny::testServer(boxPlotUIServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -35,7 +39,7 @@ test_that("boxPlotUIServer", {
 
 ## boxPlotServer
 test_that("boxPlotServer", {
-    testServer(boxPlotServer, {
+    shiny::testServer(boxPlotServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -52,7 +56,7 @@ test_that("boxPlotServer", {
 
 ## driftServer
 test_that("driftServer", {
-    testServer(driftServer, {
+    shiny::testServer(driftServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -87,7 +91,7 @@ test_that("tP_cvUI", {
 
 ## cvServer
 test_that("cvServer", {
-    testServer(cvServer, {
+    shiny::testServer(cvServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -118,7 +122,7 @@ test_that("tP_meanSdUI", {
 
 ## meanSdUIServer
 test_that("meanSdUIServer", {
-    testServer(meanSdUIServer, {
+    shiny::testServer(meanSdUIServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
@@ -132,7 +136,7 @@ test_that("meanSdUIServer", {
 
 ## meanSdServer
 test_that("meanSdServer", {
-    testServer(meanSdServer, {
+    shiny::testServer(meanSdServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -155,7 +159,7 @@ test_that("tP_maUI", {
 
 ## maServer
 test_that("maServer", {
-    testServer(maServer, {
+    shiny::testServer(maServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -182,7 +186,7 @@ test_that("tP_ECDFUI", {
 
 ## ECDFServer
 test_that("ECDFServer", {
-    testServer(ECDFServer, {
+    shiny::testServer(ECDFServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -209,7 +213,7 @@ test_that("fR_distUI", {
 
 ## distServer
 test_that("distServer", {
-    testServer(distServer, {
+    shiny::testServer(distServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -231,21 +235,21 @@ test_that("tP_distUI", {
 
 ## featureServer
 test_that("featureServer", {
-    testServer(featureServer, {
+    shiny::testServer(featureServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
-        se <- new.env()
-        a <- new.env()
+        se <- reactive(se)
+        a <- reactive(assay(se))
         a_n <- new.env()
         a_t <- new.env()
         a_b <- new.env()
         a_i <- new.env()
         
-        out <- featureServer("", se = se, a = a, a_n = a_n, a_t = a_t, 
+        out <- featureServer(id = "", se = se, a = a, a_n = a_n, a_t = a_t, 
             a_b = a_b, a_i = a_i, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- featureServer("", se = se, a = a, a_n = a_n, a_t = a_t, 
+        out <- featureServer(id = "", se = se, a = a, a_n = a_n, a_t = a_t, 
             a_b = a_b, a_i = a_i, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })

@@ -1,3 +1,6 @@
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom shiny testServer
+
 ## create se
 a <- matrix(1:1000, nrow = 100, ncol = 10, 
             dimnames = list(1:100, paste("sample", 1:10)))
@@ -6,7 +9,8 @@ set.seed(1)
 a <- a + rnorm(1000)
 sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = featData, 
+    colData = sample)
 
 ## tP_histSampleUI
 test_that("tP_histSampleUI", {
@@ -16,7 +20,7 @@ test_that("tP_histSampleUI", {
 
 ## histSampleServer
 test_that("histSampleServer", {
-    testServer(histSampleServer, {
+    shiny::testServer(histSampleServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()
@@ -34,7 +38,7 @@ test_that("tP_mosaicSampleUI", {
 
 ## mosaicSampleServer
 test_that("mosaicSampleServer", {
-    testServer(mosaicSampleServer, {
+    shiny::testServer(mosaicSampleServer, {
         input <- new.env()    
         output <- new.env()
         session <- new.env()

@@ -1,3 +1,6 @@
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom tibble tibble
+
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
     dimnames = list(1:10, paste("sample", 1:10)))
@@ -6,7 +9,8 @@ set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(sample = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
 
 ## function hist_sample
 test_that("hist_sample_num and hist_sample", {
@@ -15,7 +19,7 @@ test_that("hist_sample_num and hist_sample", {
     
     
     expect_equal(tbl, 
-        tibble(names = c("1", "2"), values = as.integer(c(5.0, 5.0))))
+        tibble::tibble(names = c("1", "2"), values = as.integer(c(5.0, 5.0))))
     expect_is(g, "plotly")
     # expect_error(hist_sample_num(se, category = "foo"), 
     #     "Input must be a vector")
