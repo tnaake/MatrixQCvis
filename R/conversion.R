@@ -34,7 +34,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 biocrates <- function(file, sheetName = NULL, ...) {
     
-    xls <- read.xlsx(file, header = TRUE, ...)
+    xls <- xlsx::read.xlsx(file, header = TRUE, ...)
     
     ## colnames is in the first row, assign and remove the first row
     colnames(xls) <- xls[1, ]
@@ -59,7 +59,7 @@ biocrates <- function(file, sheetName = NULL, ...) {
     ## of cD
     cD <- xls[inds_name, seq_len(min(which(inds_met)) - 1)]
     cD <- data.frame(name = cD[, "Sample Identification"], cD)
-    cD <- select(cD, -c("Sample.Identification"))
+    cD <- dplyr::select(cD, -c("Sample.Identification"))
     rownames(cD) <- cD[["name"]]
     
     ## create assay, set values of 0 to NA
@@ -70,7 +70,8 @@ biocrates <- function(file, sheetName = NULL, ...) {
     rownames(a) <- cD[["name"]]
 
     ## create SummarizedExperiment
-    se <- SummarizedExperiment(assays = t(a), rowData = rD, colData = cD)
+    se <- SummarizedExperiment::SummarizedExperiment(assays = t(a), 
+        rowData = rD, colData = cD)
     
     return(se)
 }
@@ -113,7 +114,7 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...) {
     
     type <- match.arg(type)
     
-    xls <- read.xlsx(file, header = TRUE, ...)
+    xls <- xlsx::read.xlsx(file, header = TRUE, ...)
     
     ## names of proteins is in the first col, assign and remove the first col
     rownames(xls) <- xls[, 1]
@@ -198,7 +199,8 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...) {
     a[a == 0] <- NA
     
     ## create SummarizedExperiment
-    se <- SummarizedExperiment(assays = a, rowData = rD, colData = cD)
+    se <- SummarizedExperiment::SummarizedExperiment(assays = a, 
+        rowData = rD, colData = cD)
     
     return(se)
 }

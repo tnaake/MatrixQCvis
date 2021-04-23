@@ -23,6 +23,8 @@
 #' 
 #' @author authors of `iSEE` package, adjusted by Thomas Naake
 #' 
+#' @importFrom shiny fileInput renderUI tagList actionButton observeEvent
+#' @importFrom shiny showNotification insertTab
 #' @importFrom shinyjs show hide
 #' @importFrom methods is
 #' 
@@ -31,8 +33,8 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
     requireButton = TRUE) {
     
     if (is.null(seUI)) {
-        seUI <- function(id) fileInput(id, "SummarizedExperiment RDS file:", 
-                                                            multiple = FALSE)
+        seUI <- function(id) shiny::fileInput(id, 
+            "SummarizedExperiment RDS file:", multiple = FALSE)
     }
     if (is.null(seLoad)) {
         seLoad <- function(x) readRDS(x$datapath)
@@ -42,34 +44,36 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
     
     function (FUN, input, output, session, app_server) {
         
-        output$allPanels <- renderUI({
-            tagList(
+        output$allPanels <- shiny::renderUI({
+            shiny::tagList(
                 seUI("upload"),
-                if (requireButton) actionButton("launch", label = "Launch")
+                if (requireButton) shiny::actionButton("launch", 
+                                                            label = "Launch")
             )
         })
         
         target <- if (requireButton) "launch" else "upload"
         
-        observeEvent(input[[target]], {
+        shiny::observeEvent(input[[target]], {
             se2 <- try(seLoad(input[["upload"]]))
             if (is(se2, "try-error")) {
-                showNotification("invalid SummarizedExperiment supplied", 
+                shiny::showNotification("invalid SummarizedExperiment supplied", 
                                                                 type = "error")
             } else {
                 ## if the launch button was pressed and the se is valid
                 ## load the tabPanel and hide the upload button
                 ## tabPanel for tab "Measured Values"
                 missingValue2 <- missingValuesSE(se2)
-                if (missingValue2) insertTab(inputId = "tabs", tP_meV_all(), 
-                        target = "Samples", position = "after")
+                if (missingValue2) shiny::insertTab(inputId = "tabs", 
+                    tP_meV_all(), target = "Samples", position = "after")
                 ## tabPanel for tab "Missing Values"
-                if (missingValue2) insertTab(inputId = "tabs", tP_miV_all(), 
-                        target = "Measured Values", position = "after")
-                show("tabPanelSE")
-                show("sidebarPanelSE")
-                hide("uploadSE")
-                if (!app_server) show("sidebarStop")
+                if (missingValue2) shiny::insertTab(inputId = "tabs", 
+                    tP_miV_all(), target = "Measured Values", 
+                    position = "after")
+                shinyjs::show("tabPanelSE")
+                shinyjs::show("sidebarPanelSE")
+                shinyjs::hide("uploadSE")
+                if (!app_server) shinyjs::show("sidebarStop")
                 FUN(SE = se2, MISSINGVALUE = missingValue2)
             }
         }, ignoreNULL = TRUE, ignoreInit = TRUE)
