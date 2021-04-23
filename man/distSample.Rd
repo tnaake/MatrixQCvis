@@ -16,7 +16,7 @@ distSample(d, se, label = "name", title = "raw")
 \item{title}{`character`}
 }
 \value{
-`ComplexHeatmap`
+`plotly`
 }
 \description{
 The function `distSample` creates a heatmap from a distance matrix created
@@ -27,9 +27,6 @@ by the `label` column in `colData(se)`.
 Internal use in `shinyQC`
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
-
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
@@ -37,12 +34,12 @@ a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
 a_i <- a \%>\% impute(., method = "MinDet")
-sample <- data.frame(name = colnames(a_i), 
+cD <- data.frame(name = colnames(a_i), 
     type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a_i))
-se <- SummarizedExperiment(assay = a_i, rowData = featData, colData = sample)
+rD <- data.frame(spectra = rownames(a_i))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD, colData = cD)
 
 dist <- distShiny(a_i)
-distSample(dist, se, "type")
+distSample(dist, se, label = "type", title = "imputed")
 
 }

@@ -43,9 +43,10 @@ a <- matrix(1:100, nrow = 10, ncol = 10,
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
 
 tbl <- MAvalues(se, group = "all")
 MAplot(tbl, group = "all", plot = "all")

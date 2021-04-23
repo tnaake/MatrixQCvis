@@ -21,9 +21,6 @@ features of samples as a barplot. The function will take as input the
 returned `tibble` of `samples_memi`.
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
-
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
@@ -32,7 +29,8 @@ set.seed(1)
 a <- a + rnorm(100)
 sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = featData, colData = sample)
 
 ## create the data.frame with information on number of measured/missing
 ## values
@@ -43,4 +41,5 @@ barplot_samples_memi(tbl, measured = TRUE)
 
 ## plot number of missing values
 barplot_samples_memi(tbl, measured = FALSE)
+
 }

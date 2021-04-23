@@ -32,8 +32,18 @@ values of the quantities.
 as a histogram. It use the returned `tibble` from `hist_sample_num`.
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
+## create se
+a <- matrix(1:100, nrow = 10, ncol = 10, 
+            dimnames = list(1:10, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
+set.seed(1)
+a <- a + rnorm(100)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
+
+hist_sample_num(se, category = "type")
 
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -43,22 +53,8 @@ set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
-
-hist_sample_num(se, category = "type")
-
-library(dplyr)
-library(SummarizedExperiment)
-
-## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
-set.seed(1)
-a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
 
 tbl <- hist_sample_num(se, category = "type")
 hist_sample(tbl)

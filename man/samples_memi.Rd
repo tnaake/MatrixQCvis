@@ -20,9 +20,6 @@ features of samples. The function will take as input a
 `SummarizedExperiment` object and will access its `assay()` slot
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
-
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
@@ -31,10 +28,11 @@ set.seed(1)
 a <- a + rnorm(100)
 sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = featData, colData = sample)
 
 ## create the data.frame with information on number of measured/missing
 ## values
-samples_memi(se) 
+samples_memi(se)
 
 }

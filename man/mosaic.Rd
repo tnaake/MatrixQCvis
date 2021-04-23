@@ -26,20 +26,18 @@ Code partly taken from
 https://stackoverflow.com/questions/21588096/pass-string-to-facet-grid-ggplot2
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
-
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), 
+cD <- data.frame(name = colnames(a), 
     type = c(rep("1", 5), rep("2", 5)),
     cell_type = c("A", "B"))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
 
 mosaic(se, "cell_type", "type")
 

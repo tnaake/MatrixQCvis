@@ -9,11 +9,11 @@ extractComb(se, combination, measured = TRUE, category = "type")
 \arguments{
 \item{se}{`SummarizedExperiment`}
 
-\item{combination}{character}
+\item{combination}{`character`}
 
-\item{measured}{logical}
+\item{measured}{`logical`}
 
-\item{category}{character, corresponding to a column name in `colData(se)`}
+\item{category}{`character`, corresponding to a column name in `colData(se)`}
 }
 \value{
 `character`
@@ -22,8 +22,6 @@ extractComb(se, combination, measured = TRUE, category = "type")
 The function `extractComb` extracts the features that are
 }
 \examples{
-library(dplyr)
-library(SummarizedExperiment)
 
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -31,9 +29,9 @@ a <- matrix(1:100, nrow = 10, ncol = 10,
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
 extractComb(se, combination = "2", measured = TRUE, category = "type") 
 

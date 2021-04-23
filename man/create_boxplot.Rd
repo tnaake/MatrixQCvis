@@ -36,15 +36,16 @@ The function `create_boxplot` creates
 Internal usage in `shinyQC`.
 }
 \examples{
-#' ## create se
+## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
     dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
 
 create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
     violin = FALSE)
