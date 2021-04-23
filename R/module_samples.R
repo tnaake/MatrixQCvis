@@ -20,13 +20,16 @@
 #' @examples
 #' tP_histSampleUI("test")
 #' 
+#' @importFrom shiny NS tabPanel downloadButton uiOutput
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 tP_histSampleUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "Histogram", 
-        plotlyOutput(outputId = ns("histSample")),
-        downloadButton(outputId = ns("downloadPlot"), ""),
-        uiOutput(outputId = ns("typeHistUI"))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Histogram", 
+        plotly::plotlyOutput(outputId = ns("histSample")),
+        shiny::downloadButton(outputId = ns("downloadPlot"), ""),
+        shiny::uiOutput(outputId = ns("typeHistUI"))
     )
 }
 
@@ -50,39 +53,43 @@ tP_histSampleUI <- function(id) {
 #' 
 #' @author Thomas Naake
 #'
+#' @importFrom shiny moduleServer renderUI selectInput reactive downloadHandler
+#' @importFrom shiny req
 #' @importFrom htmlwidgets saveWidget
+#' @importFrom plotly renderPlotly
+#' @importFrom SummarizedExperiment colData
 #'
 #' @noRd
 histSampleServer <- function(id, se) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$typeHistUI <- renderUI({
-                selectInput(inputId = session$ns("typeHist"), 
-                            label = "Categorical variable", 
-                            choices = colnames(colData(se())))
+            output$typeHistUI <- shiny::renderUI({
+                shiny::selectInput(inputId = session$ns("typeHist"), 
+                    label = "Categorical variable", 
+                    choices = colnames(SummarizedExperiment::colData(se())))
             })
             
-            histTbl <- reactive({
+            histTbl <- shiny::reactive({
                 hist_sample_num(se(), category = input$typeHist)
             })
             
-            p_hist <- reactive({
+            p_hist <- shiny::reactive({
                 hist_sample(histTbl(), category = input$typeHist)
             })
             
-            output$histSample <- renderPlotly({
-                req(input$typeHist)
+            output$histSample <- plotly::renderPlotly({
+                shiny::req(input$typeHist)
                 p_hist()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Histogram_", input$typeHist, ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(p_hist(), file)
+                    htmlwidgets::saveWidget(p_hist(), file)
                 }
             )
         }
@@ -113,14 +120,17 @@ histSampleServer <- function(id, se) {
 #' @examples
 #' tP_mosaicSampleUI("test")
 #' 
+#' @importFrom shiny NS tabPanel plotOutput downloadButton uiOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_mosaicSampleUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "Mosaic", 
-        plotOutput(outputId = ns("mosaicSample")) %>% 
-            helper(content = "tabPanel_mosaicSample"),
-        downloadButton(outputId = ns("downloadPlot"), ""),
-        uiOutput(outputId = ns("mosaicVarUI"))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Mosaic", 
+        shiny::plotOutput(outputId = ns("mosaicSample")) %>% 
+            shinyhelper::helper(content = "tabPanel_mosaicSample"),
+        shiny::downloadButton(outputId = ns("downloadPlot"), ""),
+        shiny::uiOutput(outputId = ns("mosaicVarUI"))
         )
 }
 
@@ -142,41 +152,46 @@ tP_mosaicSampleUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI tagList selectInput reactive
+#' @importFrom shiny renderPlot req downloadHandler
+#' @importFrom SummarizedExperiment colData
+#' @importFrom ggplot2 ggsave
+#' 
 #' @noRd
 mosaicSampleServer <- function(id, se) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
 
-            output$mosaicVarUI <- renderUI({
+            output$mosaicVarUI <- shiny::renderUI({
                 
-                tagList(
-                    selectInput(inputId = session$ns("mosaicf1"), 
+                shiny::tagList(
+                    shiny::selectInput(inputId = session$ns("mosaicf1"), 
                         label = "Categorical variable 1", 
-                        choices = colnames(colData(se())),
+                        choices = colnames(SummarizedExperiment::colData(se())),
                         selected = "type"),
-                    selectInput(inputId = session$ns("mosaicf2"),
+                    shiny::selectInput(inputId = session$ns("mosaicf2"),
                         label = "Categorical variable 2", 
-                        choices = colnames(colData(se())),
+                        choices = colnames(SummarizedExperiment::colData(se())),
                         selected = "type"))
             })
             
-            p_mosaic <- reactive({
+            p_mosaic <- shiny::reactive({
                 mosaic(se(), f1 = input$mosaicf1, f2 = input$mosaicf2)
             })
             
-            output$mosaicSample <- renderPlot({
-                req(input$mosaicf1, input$mosaicf2)
+            output$mosaicSample <- shiny::renderPlot({
+                shiny::req(input$mosaicf1, input$mosaicf2)
                 p_mosaic()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Mosaic_", input$mosaicf1, "_", input$mosaicf2, 
                         ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_mosaic(), device = "pdf")
+                    ggplot2::ggsave(file, p_mosaic(), device = "pdf")
                 }
             )
         }
@@ -214,13 +229,14 @@ mosaicSampleServer <- function(id, se) {
 #' 
 #' tP_samples_all()
 #' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
 #' @noRd
 tP_samples_all <- function() {
-    tabPanel("Samples",
-        tabBox(title = "", width = 12,
+    shiny::tabPanel("Samples",
+        shinydashboard::tabBox(title = "", width = 12,
             tP_histSampleUI(id = "Sample_hist"),
             tP_mosaicSampleUI(id = "Sample_mosaic")
         )
     )
-    
 }

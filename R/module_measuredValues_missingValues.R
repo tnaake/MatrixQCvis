@@ -20,10 +20,13 @@
 #' @examples
 #' tP_barPlotMeMiSampleUI("test")
 #' 
+#' @importFrom shiny NS tabPanel downloadButton
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
 #' 
 #' @noRd
 tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
-    ns <- NS(id)
+    ns <- shiny::NS(id)
     
     if (id == "MeV_number") {
         helper_file <- "tabPanel_barNumberFeature_measured"
@@ -32,10 +35,10 @@ tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
         helper_file <- "tabPanel_barNumberFeature_missing"
     }
     
-    tabPanel(title = title,
-        plotlyOutput(ns("barplotNumber")) %>% 
-            helper(content = helper_file),
-        downloadButton(outputId = ns("downloadPlot"), "")
+    shiny::tabPanel(title = title,
+        plotly::plotlyOutput(ns("barplotNumber")) %>% 
+            shinyhelper::helper(content = helper_file),
+        shiny::downloadButton(outputId = ns("downloadPlot"), "")
     )
 }
 
@@ -51,25 +54,26 @@ tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
-#' @param se `SUmmarizedExperiment` and `reactive` value
+#' @param se `SummarizedExperiment` and `reactive` value
 #' 
 #' @return
 #' `shiny.render.function` expression
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive
+#' 
 #' @noRd
 sampleMeMiServer <- function(id, se) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            reactive({
+            shiny::reactive({
                 samples_memi(se())
             })
             
-    
         }
     )
 }
@@ -95,28 +99,32 @@ sampleMeMiServer <- function(id, se) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive downloadHandler
+#' @importFrom plotly renderPlotly
+#' @importFrom htmlwidgets saveWidget
+#' 
 #' @noRd
 barplotMeMiSampleServer <- function(id, samples_memi, measured = TRUE) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            p_barplotNumber <- reactive({
+            p_barplotNumber <- shiny::reactive({
                 barplot_samples_memi(samples_memi(), measured = measured)
             })
             
-            output$barplotNumber <- renderPlotly({
+            output$barplotNumber <- plotly::renderPlotly({
                 p_barplotNumber()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Number_of_features_measured_", 
                                             measured, ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(p_barplotNumber(), file)
+                    htmlwidgets::saveWidget(p_barplotNumber(), file)
                 }
             )
 
@@ -148,9 +156,13 @@ barplotMeMiSampleServer <- function(id, samples_memi, measured = TRUE) {
 #' @examples
 #' tP_histFeatUI("test")
 #' 
+#' @importFrom shiny NS tabPanel downloadButton uiOutput
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 tP_histFeatUI <- function(id) {
-    ns <- NS(id)
+    ns <- shiny::NS(id)
     
     if (id == "MeV") {
         helper_file <-  "tabPanel_histFeature_measured"
@@ -159,11 +171,11 @@ tP_histFeatUI <- function(id) {
         helper_file <- "tabPanel_histFeature_missing"
     }
     
-    tabPanel(title = "Histogram Features",
-        plotlyOutput(ns("histFeature")) %>% 
-            helper(content = helper_file),
-        downloadButton(outputId = ns("downloadPlot_hist"), ""),
-        uiOutput(outputId = ns("binwidthUI"))
+    shiny::tabPanel(title = "Histogram Features",
+        plotly::plotlyOutput(ns("histFeature")) %>% 
+            shinyhelper::helper(content = helper_file),
+        shiny::downloadButton(outputId = ns("downloadPlot_hist"), ""),
+        shiny::uiOutput(outputId = ns("binwidthUI"))
     )
     
 }
@@ -190,35 +202,40 @@ tP_histFeatUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI reactive sliderInput
+#' @importFrom shiny downloadHandler 
+#' @importFrom htmlwidgets saveWidget
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 histFeatServer <- function(id, se, assay, measured = TRUE) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$binwidthUI <- renderUI({
-                sliderInput(session$ns("binwidth"), 
+            output$binwidthUI <- shiny::renderUI({
+                shiny::sliderInput(session$ns("binwidth"), 
                     "Binwidth: ", min = 1, 
                     max = ncol(se()), value = 1, step = 1)
             })
             
-            p_hist_feature <- reactive({
+            p_hist_feature <- shiny::reactive({
                 hist_feature(assay(), binwidth = input$binwidth, 
                     measured = measured)
             })
             
-            output$histFeature <- renderPlotly({
+            output$histFeature <- plotly::renderPlotly({
                 p_hist_feature()
             })
             
-            output$downloadPlot_hist <- downloadHandler(
+            output$downloadPlot_hist <- shiny::downloadHandler(
                 filename = function() {
                     paste("Histogram_features_measured_", 
                                                 measured, ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(p_hist_feature(), file)
+                    htmlwidgets::saveWidget(p_hist_feature(), file)
                 }
             )
         }
@@ -250,9 +267,13 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
 #' @examples
 #' tP_histFeatCategoryUI("test")
 #' 
+#' @importFrom shiny NS tabPanel downloadButton uiOutput
+#' @importFrom plotly plotlyOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_histFeatCategoryUI <- function(id) {
-    ns <- NS(id)
+    ns <- shiny::NS(id)
     
     if (id == "MeV") {
         helper_file <- "tabPanel_histFeatureSample_measured"
@@ -261,12 +282,12 @@ tP_histFeatCategoryUI <- function(id) {
         helper_file <- "tabPanel_histFeatureSample_missing"
     }
     
-    tabPanel(title = "Histogram Features along variable",
-        plotlyOutput(ns("histFeatureCategory")) %>%
-            helper(content = helper_file),
-        downloadButton(outputId = ns("downloadPlot_histFeat"), ""),
-        uiOutput(ns("binwidthCUI")),
-        uiOutput(ns("categoryHistUI"))
+    shiny::tabPanel(title = "Histogram Features along variable",
+        plotly::plotlyOutput(ns("histFeatureCategory")) %>%
+            shinyhelper::helper(content = helper_file),
+        shiny::downloadButton(outputId = ns("downloadPlot_histFeat"), ""),
+        shiny::uiOutput(ns("binwidthCUI")),
+        shiny::uiOutput(ns("categoryHistUI"))
     )
 }
 
@@ -291,46 +312,52 @@ tP_histFeatCategoryUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI selectInput reactive req
+#' @importFrom shiny downloadHandler
+#' @importFrom htmlwidgets saveWidget
+#' @importFrom plotly renderPlotly
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 histFeatCategoryServer <- function(id, se, measured = TRUE) {
     
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$categoryHistUI <- renderUI({
-                selectInput(
+            output$categoryHistUI <- shiny::renderUI({
+                shiny::selectInput(
                     inputId = session$ns("categoryHist"),
                     label = "Variable for stratification",
-                    choices = colnames(colData(se())),
+                    choices = colnames(SummarizedExperiment::colData(se())),
                     selected = "type")
             })
             
-            output$binwidthCUI <- renderUI({
+            output$binwidthCUI <- shiny::renderUI({
                 sliderInput(session$ns("binwidthC"),
                     label = "Binwidth (# features per sample type): ", 
                     step = 1, min = 1, value = 1,
                     max = max(as.vector(
-                        table(colData(se())[[input$categoryHist]]))))
+                        table(SummarizedExperiment::colData(se())[[input$categoryHist]]))))
             })
             
-            p_histFeatureCategory <- reactive({
+            p_histFeatureCategory <- shiny::reactive({
                 hist_feature_category(se(), binwidth = input$binwidthC, 
                     measured = measured, category = input$categoryHist)
             })
             
-            output$histFeatureCategory <- renderPlotly({
-                req(input$binwidthC)
+            output$histFeatureCategory <- plotly::renderPlotly({
+                shiny::req(input$binwidthC)
                 p_histFeatureCategory()
             })
             
-            output$downloadPlot_histFeat <- downloadHandler(
+            output$downloadPlot_histFeat <- shiny::downloadHandler(
                 filename = function() {
                     paste("Histogram_features_along_variable_measured_", 
                         measured, ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(p_histFeatureCategory(), file)
+                    htmlwidgets::saveWidget(p_histFeatureCategory(), file)
                 }
             )
             
@@ -359,10 +386,13 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
 #' @examples
 #' tP_upSetUI("test")
 #' 
+#' @importFrom shiny tabPanel plotOutput downloadButton uiOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 #' 
 tP_upSetUI <- function(id) {
-    ns <- NS(id)
+    ns <- shiny::NS(id)
     
     if (id == "MeV") {
         helper_file <- "tabPanel_upSet_measured"
@@ -372,10 +402,10 @@ tP_upSetUI <- function(id) {
     }
     
     tabPanel(title = "UpSet", 
-        plotOutput(ns("upsetSample")) %>% 
-            helper(content = helper_file),
-        downloadButton(outputId = ns("downloadPlot"), ""),
-        uiOutput(ns("categoryUpSetUI"))
+        shiny::plotOutput(ns("upsetSample")) %>% 
+            shinyhelper::helper(content = helper_file),
+        shiny::downloadButton(outputId = ns("downloadPlot"), ""),
+        shiny::uiOutput(ns("categoryUpSetUI"))
     )
 }
 
@@ -398,37 +428,42 @@ tP_upSetUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI selectInput req reactive
+#' @importFrom shiny downloadHandler renderPlot
+#' @importFrom ggplot2 ggsave
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 upSetServer <- function(id, se, measured = TRUE) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$categoryUpSetUI <- renderUI({
-                selectInput(
+            output$categoryUpSetUI <- shiny::renderUI({
+                shiny::selectInput(
                     inputId = session$ns("categoryUpSet"), 
                     label = "Variable for stratification", 
-                    choices = colnames(colData(se())),
+                    choices = colnames(SummarizedExperiment::colData(se())),
                     selected = "type")
             })
             
-            p_upset <- reactive({
+            p_upset <- shiny::reactive({
                 upset_category(se(), category = input$categoryUpSet, 
                     measured = measured)
             })
             
-            output$upsetSample <- renderPlot({
-                req(input$categoryUpSet)
+            output$upsetSample <- shiny::renderPlot({
+                shiny::req(input$categoryUpSet)
                 p_upset()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Upset_measured_", measured, ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_upset(), device = "pdf")
+                    ggplot2::ggsave(file, p_upset(), device = "pdf")
                 }
             )
             
@@ -458,9 +493,11 @@ upSetServer <- function(id, se, measured = TRUE) {
 #' @examples
 #' tP_setUI("test")
 #' 
+#' @importFrom shiny NS uiOutput textOutput tabPanel
+#' @importFrom shinyhelper helper
 #' @noRd 
 tP_setsUI <- function(id) {
-    ns <- NS(id)
+    ns <- shiny::NS(id)
     
     if (id == "MeV") {
         helper_file <- "tabPanel_sets_measured"
@@ -469,10 +506,10 @@ tP_setsUI <- function(id) {
         helper_file <- "tabPanel_sets_missing"
     }
     
-    tabPanel(title = "Sets", 
-        uiOutput(ns("checkboxCategoryUI")) %>% 
-            helper(content = helper_file),
-        textOutput(ns("combinationText"))
+    shiny::tabPanel(title = "Sets", 
+        shiny::uiOutput(ns("checkboxCategoryUI")) %>% 
+            shinyhelper::helper(content = helper_file),
+        shiny::textOutput(ns("combinationText"))
     )
 }
 
@@ -495,19 +532,22 @@ tP_setsUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI checkboxGroupInput renderText
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 setsServer <- function(id, se, measured = TRUE) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
-            output$checkboxCategoryUI <- renderUI({
-                checkboxGroupInput(session$ns("checkboxCategory"), 
+            output$checkboxCategoryUI <- shiny::renderUI({
+                shiny::checkboxGroupInput(session$ns("checkboxCategory"), 
                     label = "Select sets", 
-                    choices = unique(colData(se())[[input$categoryUpSet]])) 
+                    choices = unique(SummarizedExperiment::colData(se())[[input$categoryUpSet]])) 
             })
             
-            output$combinationText <- renderText({
+            output$combinationText <- shiny::renderText({
                 extractComb(se(), combination = input$checkboxCategory, 
                     category = input$categoryUpSet, measured = measured)
             })
@@ -535,10 +575,13 @@ setsServer <- function(id, se, measured = TRUE) {
 #' @examples
 #' tP_meV_all()
 #' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
+#' 
 #' @noRd 
 tP_meV_all <- function() {
-    tabPanel("Measured Values",
-        tabBox(title = "", width = 12,
+    shiny::tabPanel("Measured Values",
+        shinydashboard::tabBox(title = "", width = 12,
             tP_barplotMeMiSampleUI(id = "MeV_number", 
                 title = "Number of features"),
             tP_histFeatUI(id = "MeV"),
@@ -566,13 +609,15 @@ tP_meV_all <- function() {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' 
 #' tP_miV_all()
+#' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
 #' 
 #' @noRd
 tP_miV_all <- function() {
-        tabPanel("Missing Values",
-            tabBox(title = "", width = 12,
+        shiny::tabPanel("Missing Values",
+            shinydashboard::tabBox(title = "", width = 12,
                 tP_barplotMeMiSampleUI(id = "MiV_number",
                     title = "Number of features"),
                 tP_histFeatUI(id = "MiV"),

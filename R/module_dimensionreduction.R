@@ -23,18 +23,20 @@
 #' 
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny fluidRow column selectInput
+#' 
 #' @noRd
 coordsUI <- function(df, name = "PC", 
         x = "ordination_x", y = "ordination_y", session = session) {
     
-    fluidRow(
-        column(12, name),
-        column(6, 
-            selectInput(session$ns(x), label = "x-axis",
+    shiny::fluidRow(
+        shiny::column(12, name),
+        shiny::column(6, 
+            shiny::selectInput(session$ns(x), label = "x-axis",
                     choices = colnames(df)[-1],
                     selected = colnames(df)[-1][1])),
-        column(6, 
-            selectInput(session$ns(y), label = "y-axis",
+        shiny::column(6, 
+            shiny::selectInput(session$ns(y), label = "y-axis",
                     choices = colnames(df)[-1],
                     selected = colnames(df)[-1][2]))
     )
@@ -62,36 +64,44 @@ coordsUI <- function(df, name = "PC",
 #' @examples
 #' tP_PCAUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column downloadButton uiOutput
+#' @importFrom shiny checkboxInput plotOutput
+#' @importFrom shinydashboard box
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' @importFrom dplyr `%>%`
+#' 
 #' @noRd
 tP_PCAUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "PCA", 
-        fluidRow(
-            column(12, 
-                plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
-                    helper(content = "tabPanel_PCA"),
-                downloadButton(outputId = ns("downloadPlot"), ""))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "PCA", 
+        shiny::fluidRow(
+            shiny::column(12, 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                    shinyhelper::helper(content = "tabPanel_PCA"),
+                shiny::downloadButton(outputId = ns("downloadPlot"), ""))
         ),
-        fluidRow(
-            box(title = "Parameters", width = 6, collapsible = TRUE, 
-                column(12, 
-                    uiOutput(outputId = ns("coords"))),
-                column(3, 
-                    checkboxInput(inputId = ns("scale"),
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6, 
+                collapsible = TRUE, 
+                shiny::column(12, 
+                    shiny::uiOutput(outputId = ns("coords"))),
+                shiny::column(3, 
+                    shiny::checkboxInput(inputId = ns("scale"),
                         label = "scale", value = TRUE)),
-                column(3, 
-                    checkboxInput(inputId = ns("center"),
+                shiny::column(3, 
+                    shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
-                column(6, 
-                    uiOutput(outputId = ns("highlightUI")))
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("highlightUI")))
             ),
-            box(title = "Scree plot", width = 6, 
+            shinydashboard::box(title = "Scree plot", width = 6, 
                 collapsible = TRUE, collapsed = TRUE,
-                plotOutput(outputId = ns("PCAVarplot"))
+                shiny::plotOutput(outputId = ns("PCAVarplot"))
             ),
-            box(title = "Loadings plot",
+            shinydashboard::box(title = "Loadings plot",
                 collapsible = TRUE, collapsed = TRUE,
-                plotlyOutput(outputId = ns("PCALoadings"))
+                plotly::plotlyOutput(outputId = ns("PCALoadings"))
             )
         )
     )
@@ -118,30 +128,37 @@ tP_PCAUI <- function(id) {
 #' @examples
 #' tP_PCoAUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput selectInput
+#' @importFrom shinydashboard box
+#' @importFrom dplyr `%>%`
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_PCoAUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "PCoA", 
-        fluidRow(
-            column(12, 
-                plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
-                    helper(content = "tabPanel_PCoA"),
-                downloadButton(outputId = ns("downloadPlot"), ""))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "PCoA", 
+        shiny::fluidRow(
+            shiny::column(12, 
+                plotly::plotlyOutput(outputId = ns("plot"), 
+                                                        height = "auto") %>% 
+                    shinyhelper::helper(content = "tabPanel_PCoA"),
+                shiny::downloadButton(outputId = ns("downloadPlot"), ""))
             ), 
-        fluidRow(
-            box(title = "Parameters", width = 6, collapsible = TRUE, 
-                column(12, 
-                    uiOutput(ns("coords"))
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6, 
+                collapsible = TRUE, 
+                shiny::column(12, 
+                    shiny::uiOutput(ns("coords"))
                 ),
-                column(6, 
-                    selectInput(inputId = ns("dist"),
+                shiny::column(6, 
+                    shiny::selectInput(inputId = ns("dist"),
                         label = "Distance measure",
                         choices = c("euclidean", "maximum", 
                             "manhattan", "canberra", "minkowski"), 
                         selected = "euclidean")
                 ),
-                column(6, 
-                    uiOutput(outputId = ns("highlightUI"))
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("highlightUI"))
                 )
             )
         )
@@ -169,29 +186,37 @@ tP_PCoAUI <- function(id) {
 #' @examples
 #' tP_NMDSUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column downloadButton 
+#' @importFrom shiny uiOutput selectInput
+#' @importFrom shinydashboard box
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' @importFrom dplyr `%>%`
+#' 
 #' @noRd
 tP_NMDSUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "NMDS", 
-        fluidRow(
-            column(12, 
-                plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
-                    helper(content = "tabPanel_NMDS"),
-                downloadButton(outputId = ns("downloadPlot"), ""))), 
-        fluidRow(
-            box(title = "Parameters", width = 6, collapsible = TRUE, 
-                column(12, 
-                    uiOutput(outputId = ns("coords"))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "NMDS", 
+        shiny::fluidRow(
+            shiny::column(12, 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                    shinyhelper::helper(content = "tabPanel_NMDS"),
+                shiny::downloadButton(outputId = ns("downloadPlot"), ""))), 
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6, 
+                collapsible = TRUE, 
+                shiny::column(12, 
+                    shiny::uiOutput(outputId = ns("coords"))
                 ),
-                column(6, 
-                    selectInput(inputId = ns("dist"),
+                shiny::column(6, 
+                    shiny::selectInput(inputId = ns("dist"),
                         label = "Distance measure",
                         choices = c("euclidean", "maximum", 
                             "manhattan", "canberra", "minkowski"), 
                         selected = "euclidean")
                 ),
-                column(6, 
-                    uiOutput(outputId = ns("highlightUI"))
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("highlightUI"))
                 )
             )
         )
@@ -219,45 +244,58 @@ tP_NMDSUI <- function(id) {
 #' @examples
 #' tP_tSNEUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column downloadButton 
+#' @importFrom shiny uiOutput selectInput plotOutput sliderInput checkboxInput
+#' @importFrom shinydashboard box
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' @importFrom dplyr `%>%`
+#' 
 #' @noRd
 tP_tSNEUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "tSNE", 
-        fluidRow(
-            column(12, 
-                plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
-                    helper(content = "tabPanel_tSNE"),
-                downloadButton(outputId = ns("downloadPlot"), ""))),
-        fluidRow(
-            box(title = "Principal components", status = "primary", width = 12,
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "tSNE", 
+        shiny::fluidRow(
+            shiny::column(12, 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                    shinyhelper::helper(content = "tabPanel_tSNE"),
+                shiny::downloadButton(outputId = ns("downloadPlot"), ""))),
+        shiny::fluidRow(
+            shinydashboard::box(
+                title = "Principal components", status = "primary", width = 12,
                 collapsible = TRUE, collapsed = TRUE,
-                fluidRow(
-                    column(6, plotOutput(outputId = ns("PCAVarplotPerm"))),
-                    column(6, plotOutput(outputId = ns("PCAVarPvalueplot")))
+                shiny::fluidRow(
+                    shiny::column(6, 
+                        shiny::plotOutput(outputId = ns("PCAVarplotPerm"))),
+                    shiny::column(6, 
+                        shiny::plotOutput(outputId = ns("PCAVarPvalueplot")))
                 )
             )
         ),
-        fluidRow(
-            box(title = "Parameters", width = 6, collapsible = TRUE, 
-                uiOutput(outputId = ns("coords")),
-                column(6, uiOutput(outputId = ns("perplexityUI"))),
-                column(6, 
-                    sliderInput(inputId = ns("maxIter"),
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6, 
+                collapsible = TRUE, 
+                shiny::uiOutput(outputId = ns("coords")),
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("perplexityUI"))),
+                shiny::column(6, 
+                    shiny::sliderInput(inputId = ns("maxIter"),
                         label = "Number of iterations", 
                         min = 100, max = 10000, value = 1000)),
-                column(6, uiOutput(outputId = ns("initialDimsUI"))),
-                column(6, 
-                    sliderInput(inputId = ns("dims"),
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("initialDimsUI"))),
+                shiny::column(6, 
+                    shiny::sliderInput(inputId = ns("dims"),
                         label = "Output dimensionality",
                         min = 2, max = 3, value = 3, step = 1)),
-                column(3, 
-                    checkboxInput(inputId = ns("scale"),
+                shiny::column(3, 
+                    shiny::checkboxInput(inputId = ns("scale"),
                         label = "scale", value = TRUE)),
-                column(3, 
-                    checkboxInput(inputId = ns("center"),
+                shiny::column(3, 
+                    shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
-                column(6, 
-                    uiOutput(outputId = ns("highlightUI"))
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("highlightUI"))
                 )
             )
         )
@@ -285,25 +323,31 @@ tP_tSNEUI <- function(id) {
 #' @return 
 #' `shiny.render.function`
 #' 
+#' @importFrom shiny NS moduleServer renderUI sliderInput
+#' @importFrom plotly plotlyOutput
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 tSNEUIServer <- function(id, se) {
-    ns <- NS(id)
-    moduleServer(
+    ns <- shiny::NS(id)
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$perplexityUI <- renderUI({
-                sliderInput(inputId = session$ns("perplexity"), 
+            output$perplexityUI <- shiny::renderUI({
+                shiny::sliderInput(inputId = session$ns("perplexity"), 
                     label = "Perplexity", min = 0,
-                    max = ceiling((nrow(colData(se())) - 1) / 3),
-                    value = ceiling(nrow(colData(se()))^0.5),
+                    max = ceiling(
+                        (nrow(SummarizedExperiment::colData(se())) - 1) / 3),
+                    value = ceiling(
+                        nrow(SummarizedExperiment::colData(se()))^0.5),
                     step = 1)
             })
             
-            output$initialDimsUI <- renderUI({
-                sliderInput(inputId = session$ns("initialDims"),
+            output$initialDimsUI <- shiny::renderUI({
+                shiny::sliderInput(inputId = session$ns("initialDims"),
                     label = "Number of retained dimensions in initial PCA",
-                    min = 1, max = nrow(colData(se())), 
+                    min = 1, max = nrow(SummarizedExperiment::colData(se())), 
                     value = 10, step = 1)
             })
 
@@ -332,33 +376,43 @@ tSNEUIServer <- function(id, se) {
 #' 
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column downloadButton
+#' @importFrom shiny uiOutput selectInput
+#' @importFrom shinydashboard box
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' @importFrom dplyr `%>%`
+#' 
 #' @examples
 #' tP_UMAPUI("test")
 #' 
 #' @noRd
 tP_umapUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "UMAP", 
-        fluidRow(
-            column(12, 
-                plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
-                    helper(content = "tabPanel_UMAP"),
-                downloadButton(outputId = ns("downloadPlot"), ""))), 
-        fluidRow(
-            box(title = "Parameters", width = 6, collapsible = TRUE, 
-                uiOutput(outputId = ns("coords")),
-                column(6, 
-                    sliderInput(
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "UMAP", 
+        shiny::fluidRow(
+            shiny::column(12, 
+                plotly::plotlyOutput(outputId = ns("plot"), 
+                    height = "auto") %>% 
+                    shinyhelper::helper(content = "tabPanel_UMAP"),
+                shiny::downloadButton(outputId = ns("downloadPlot"), ""))), 
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6, 
+                collapsible = TRUE, 
+                shiny::uiOutput(outputId = ns("coords")),
+                shiny::column(6, 
+                    shiny::sliderInput(
                         inputId = ns("minDist"), 
                         label = "Minimum distance", min = 0.01, 
                         max = 10, value = 0.1)),
-                column(6, uiOutput(outputId = ns("nNeighborsUI"))),
-                column(6, 
-                    sliderInput(
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("nNeighborsUI"))),
+                shiny::column(6, 
+                    shiny::sliderInput(
                         inputId = ns("spread"), 
                         label = "Spread", min = 0.01, max = 10, value = 1)),
-                column(6, 
-                    uiOutput(outputId = ns("highlightUI"))
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("highlightUI"))
                 )
             )
         )
@@ -384,17 +438,21 @@ tP_umapUI <- function(id) {
 #' @return 
 #' `shiny.render.function`
 #' 
+#' @importFrom shiny moduleServer renderUI sliderInput
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 umapUIServer <- function(id, se) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$nNeighborsUI <- renderUI({
-                sliderInput(
+            output$nNeighborsUI <- shiny::renderUI({
+                shiny::sliderInput(
                     inputId = session$ns("nNeighbors"), 
                     label = "Number of neighbors", min = 2, 
-                    max = nrow(colData(se())), value = 15, step = 1)
+                    max = nrow(SummarizedExperiment::colData(se())), 
+                        value = 15, step = 1)
             })
         }
     )
@@ -425,18 +483,23 @@ umapUIServer <- function(id, se) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive renderUI fluidRow column selectInput
+#' @importFrom shiny reactiveValuesToList downloadHandler req
+#' @importFrom plotly renderPlotly
+#' @importFrom htmlwidgets saveWidget
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 #' 
-#' @importFrom htmlwidgets saveWidget
 dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params, 
     innerWidth) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
             ## create data.frame with new coordinates: x, type, params 
-            tbl_vals <- reactive({
+            tbl_vals <- shiny::reactive({
                 ordination(x = assay(), type = type, 
                     params = reactiveValuesToList(params()))
             })
@@ -444,32 +507,34 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             ## create an expression that retrieves information on the columns of
             ## a_ordinationPlot (from PCA, PCoA, or NMDS), i.e. the principal
             ## components or axis (remove the first column = namesDf)
-            output$coords <- renderUI({
-                fluidRow(
-                    column(6,
-                        selectInput(session$ns("x"), label = "x-axis", 
+            output$coords <- shiny::renderUI({
+                shiny::fluidRow(
+                    shiny::column(6,
+                        shiny::selectInput(session$ns("x"), label = "x-axis", 
                             choices = colnames(tbl_vals())[-1],
                             selected = colnames(tbl_vals())[-1][1])),
-                    column(6,
-                        selectInput(session$ns("y"), label = "y-axis", 
+                    shiny::column(6,
+                        shiny::selectInput(session$ns("y"), label = "y-axis", 
                             choices = colnames(tbl_vals())[-1],
                             selected = colnames(tbl_vals())[-1][2]))
                 )
             })
             
-            output$highlightUI <- renderUI({
+            output$highlightUI <- shiny::renderUI({
                 ns <- session$ns
-                selectInput(inputId = ns("highlight"), label = "Highlight", 
-                            choices = c("none", colnames(colData(se()))))
+                shiny::selectInput(
+                    inputId = ns("highlight"), label = "Highlight", 
+                    choices = c("none", 
+                        colnames(SummarizedExperiment::colData(se()))))
             })
             
             ## reactive plot for ordination plots
-            output$plot <- renderPlotly({
-                req(input$x)
+            output$plot <- plotly::renderPlotly({
+                shiny::req(input$x)
                 
                 if (id == "PCA") {
                     
-                    params_l <- reactiveValuesToList(params())
+                    params_l <- shiny::reactiveValuesToList(params())
                     explainedVar <- explVar(assay(), 
                         center = params_l$center, scale = params_l$scale)
                     ordinationPlot(tbl_vals(), se = se(), 
@@ -487,13 +552,13 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 }
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste(type, "_", input$x, "_", input$y, "_", 
                         input$highlight, ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(
+                    htmlwidgets::saveWidget(
                         ordinationPlot(tbl = tbl_vals(), se = se(), 
                             highlight = input$highlight, 
                             x_coord = input$x, y_coord = input$y), file)
@@ -524,35 +589,39 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
 #' @return
 #' `shiny.render.function` expression
 #'
+#' @importFrom shiny moduleServer reactive renderPlot
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#'
 #' @author Thomas Naake
 #' 
 #' @noRd
 screePlotServer <- function(id, assay, center, scale) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            var_x <- reactive({
+            var_x <- shiny::reactive({
                 explVar(assay(), center = center(), scale = scale())
             })
             
             if (id == "PCA") {
                 ## Scree plot for PCA Panel
-                output$PCAVarplot <- renderPlot({
+                output$PCAVarplot <- shiny::renderPlot({
                     plotPCAVar(var_x(), NULL)
                 })  
             } else { ## tSNE
-                var_perm <- reactive({
+                var_perm <- shiny::reactive({
                     permuteExplVar(assay(), n = 10, center = center(), 
                             scale = scale()) 
                 })
                 
                 ## Scree plot for tSNE panel including permuted values
-                output$PCAVarplotPerm <- renderPlot({
+                output$PCAVarplotPerm <- shiny::renderPlot({
                     plotPCAVar(var_x(), var_perm())
                 })
                 
-                output$PCAVarPvalueplot <- renderPlot({
+                output$PCAVarPvalueplot <- shiny::renderPlot({
                     plotPCAVarPvalue(var_x(), var_perm())
                 })
             }
@@ -584,17 +653,20 @@ screePlotServer <- function(id, assay, center, scale) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive reactiveValuesToList
+#' @importFrom plotly renderPlotly
+#' 
 #' @noRd
 loadingsPlotServer <- function(id, assay, params) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            tbl_loadings <- reactive({
-                tblPCALoadings(assay(), reactiveValuesToList(params()))
+            tbl_loadings <- shiny::reactive({
+                tblPCALoadings(assay(), shiny::reactiveValuesToList(params()))
             })
 
-            output$PCALoadings <- renderPlotly({
+            output$PCALoadings <- plotly::renderPlotly({
                 plotPCALoadings(tbl_loadings(), 
                     x_coord = input$x, y_coord = input$y) 
             })
@@ -623,10 +695,13 @@ loadingsPlotServer <- function(id, assay, params) {
 #' @examples 
 #' tP_dimensionReduction_all()
 #' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
+#' 
 #' @noRd
 tP_dimensionReduction_all <- function() {
-    tabPanel("Dimension Reduction",
-        tabBox(title = "", width = 12,
+    shiny::tabPanel("Dimension Reduction",
+        shinydashboard::tabBox(title = "", width = 12,
             tP_PCAUI(id = "PCA"),
             tP_PCoAUI(id = "PCoA"),
             tP_NMDSUI(id = "NMDS"),

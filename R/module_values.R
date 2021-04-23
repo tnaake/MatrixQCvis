@@ -25,13 +25,17 @@
 #' @examples
 #' fR_boxplotUI("test", "name")
 #' 
+#' @importFrom shiny NS fluidRow downloadButton plotOutput
+#' @importFrom shinydashboard box
+#' 
 #' @noRd
 fR_boxplotUI <- function(id, name, collapsed) {
-    ns <- NS(id)
-    fluidRow(
-        box(title = name, width = 12, collapsible = TRUE, collapsed = collapsed,
-            plotOutput(outputId = ns("boxplot")),
-            downloadButton(outputId = ns("downloadPlot"), ""))
+    ns <- shiny::NS(id)
+    shiny::fluidRow(
+        shinydashboard::box(title = name, width = 12, collapsible = TRUE, 
+            collapsed = collapsed,
+            shiny::plotOutput(outputId = ns("boxplot")),
+            shiny::downloadButton(outputId = ns("downloadPlot"), ""))
     )
 }
 
@@ -56,31 +60,36 @@ fR_boxplotUI <- function(id, name, collapsed) {
 #' 
 #' @examples
 #' tP_boxplotUI("test")
-#'
+#' 
+#' @importFrom shiny NS tabPanel fluidRow column conditionalPanel
+#' @importFrom shiny uiOutput selectInput radioButtons
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 tP_boxplotUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Boxplot/Violin plot",
-        fluidRow(
-            column(4, 
-                radioButtons(inputId = "boxLog",
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Boxplot/Violin plot",
+        shiny::fluidRow(
+            shiny::column(4, 
+                shiny::radioButtons(inputId = "boxLog",
                     label = HTML("Display log2 values? <br>
                         (only for 'raw' and 'normalized')"),
                     choices = list("no log2", "log2"),
                     selected = "no log2")),
-            column(4, 
-                radioButtons(inputId = "violinPlot",
+            shiny::column(4, 
+                shiny::radioButtons(inputId = "violinPlot",
                     label = "Type of display", 
                     choices = list("boxplot", "violin"), 
                      selected = "boxplot")),
-            column(4, uiOutput(ns("orderCategoryUI")))
+            shiny::column(4, shiny::uiOutput(ns("orderCategoryUI")))
         ),
         fR_boxplotUI("boxRaw", "raw", collapsed = FALSE),
         fR_boxplotUI("boxNorm", "normalized", collapsed = TRUE),
         fR_boxplotUI("boxTransf", "transformed", collapsed = TRUE),
         fR_boxplotUI("boxBatch", "batch corrected", collapsed = TRUE),
-        conditionalPanel("output.missingVals == 'TRUE'", 
+        shiny::conditionalPanel("output.missingVals == 'TRUE'", 
             fR_boxplotUI("boxImp", "imputed", collapsed = TRUE))
     )
 }
@@ -103,24 +112,30 @@ tP_boxplotUI <- function(id) {
 #' 
 #' @return
 #' `shiny.render.function` expression
+#' 
+#' @importFrom shiny moduleServer renderUI
+#' @importFrom shinyhelper helper
+#' @importFrom dplyr `%>%`
+#' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @author Thomas Naake
 #' 
 #' @noRd
 boxPlotUIServer <- function(id, missingValue, se) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
 
-            output$orderCategoryUI <- renderUI({
+            output$orderCategoryUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_boxplot_missingValue_", 
                                     missingValue, sep = "")
 
-                selectInput(inputId = session$ns("orderCategory"), 
+                shiny::selectInput(inputId = session$ns("orderCategory"), 
                     label = "Select variable to order samples",
-                    choices = colnames(colData(se)), selected = "name") %>% 
-                        helper(content = helperFile)
+                    choices = colnames(SummarizedExperiment::colData(se)), 
+                        selected = "name") %>% 
+                        shinyhelper::helper(content = helperFile)
             })
 
         }
@@ -149,14 +164,18 @@ boxPlotUIServer <- function(id, missingValue, se) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive renderPlot downloadHandler req
+#' @importFrom ggplot2 ggsave
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            logValues <- reactive({
+            logValues <- shiny::reactive({
                 if (boxLog() == "log2") {
                     return(TRUE)
                 } else {
@@ -164,8 +183,8 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
                 }
             })
             
-            vP <- reactive({
-                req(violin())
+            vP <- shiny::reactive({
+                shiny::req(violin())
                 if (violin() == "violin") {
                     return(TRUE)
                 } else {
@@ -174,21 +193,21 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
             })
             
             ## create the actual plot
-            p_boxplot <- reactive({
+            p_boxplot <- shiny::reactive({
                 create_boxplot(se = se(), orderCategory = orderCategory(), 
                     title = "", log2 = logValues(), 
                     violin = vP())
             })
-            output$boxplot <- renderPlot({
+            output$boxplot <- shiny::renderPlot({
                 p_boxplot()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Boxplot_violinplot_", type, ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_boxplot(), device = "pdf")
+                    ggplot2::ggsave(file, p_boxplot(), device = "pdf")
                 }
             )
             
@@ -221,33 +240,39 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
 #' @examples
 #' tP_driftUI("test", se)
 #' 
+#' @importFrom shiny NS tabPanel fluidRow downloadButton
+#' @importFrom shiny uiOutput selectInput
+#' @importFrom shinydashboard box
+#' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 tP_driftUI <- function(id) {
 
-    ns <- NS(id)
-    tabPanel(title = "Trend/drift",
-        fluidRow(
-            box(width = 12, collapsible = FALSE,
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Trend/drift",
+        shiny::fluidRow(
+            shinydashboard::box(width = 12, collapsible = FALSE,
                 collapsed = FALSE,
-                uiOutput(ns("plotDriftUI")),
-                downloadButton(outputId = ns("downloadPlot"), "")
+                shiny::uiOutput(ns("plotDriftUI")),
+                shiny::downloadButton(outputId = ns("downloadPlot"), "")
             ),
-            box(width = 6, collapsible = TRUE, 
+            shinydashboard::box(width = 6, collapsible = TRUE, 
                 collapsed = FALSE,
-                uiOutput(ns("categoryUI")),
-                uiOutput(ns("levelUI")),
-                uiOutput(ns("dataUI"))
+                shiny::uiOutput(ns("categoryUI")),
+                shiny::uiOutput(ns("levelUI")),
+                shiny::uiOutput(ns("dataUI"))
             ),
-            box(width = 6, collapsible = TRUE,
+            shinydashboard::box(width = 6, collapsible = TRUE,
                 collapsed = TRUE,
-                selectInput(inputId = ns("aggregation"), 
+                shiny::selectInput(inputId = ns("aggregation"), 
                     label = "Select aggregation",
                     choices = list("sum", "median"), selected = "sum"),
-                selectInput(inputId = ns("method"),
+                shiny::selectInput(inputId = ns("method"),
                     label = "Select smoothing method",
                     choices = list("LOESS" = "loess", "linear model" = "lm"),
                     selected = "loess"),
-                uiOutput(outputId = ns("orderCategoryUI"))
+                shiny::uiOutput(outputId = ns("orderCategoryUI"))
             )
         )
     )
@@ -277,14 +302,20 @@ tP_driftUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI selectInput reactive req
+#' @importFrom plotly renderPlotly
+#' @importFrom htmlwidgets saveWidget
+#' @importFrom SummarizedExperiment colData
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
 
-            output$dataUI <- renderUI({
+            output$dataUI <- shiny::renderUI({
                 
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
@@ -293,13 +324,13 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
                                         "batch corrected")
                 }
-                selectInput(inputId = session$ns("data"),
+                shiny::selectInput(inputId = session$ns("data"),
                     label = "Select data input",
                     choices = choices_l, selected = "raw")
             })
             
-            se_drift <- reactive({
-                req(input$data)
+            se_drift <- shiny::reactive({
+                shiny::req(input$data)
                 if (input$data == "raw") se <- se()
                 if (input$data == "normalized") se <- se_n()
                 if (input$data == "transformed") se <- se_t()
@@ -308,51 +339,50 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 se
             })
 
-            output$categoryUI <- renderUI({
-                selectInput(
+            output$categoryUI <- shiny::renderUI({
+                shiny::selectInput(
                     inputId = session$ns("category"),
                     label = "Select variable",
                     choices = colnames(colData(se())))
             })
             
-            output$levelUI <- renderUI({
-                req(se_drift())
-                selectInput(
+            output$levelUI <- shiny::renderUI({
+                shiny::req(se_drift())
+                shiny::selectInput(
                     inputId = session$ns("levelSel"), 
                     label = "Select level to highlight", 
-                    choices = c("all", 
-                        unique(colData(se_drift())[[input$category]])))
+                    choices = c("all", unique(SummarizedExperiment::colData(se_drift())[[input$category]])))
             })
             
-            output$orderCategoryUI <- renderUI({
-                selectInput(
+            output$orderCategoryUI <- shiny::renderUI({
+                shiny::selectInput(
                     inputId = session$ns("orderCategory"),
                     label = "Select variable to order samples",
-                    choices = colnames(colData(se())))    
+                    choices = colnames(SummarizedExperiment::colData(se())))    
             })
             
             
-            p_drift <- reactive({
+            p_drift <- shiny::reactive({
                 driftPlot(se = se_drift(), aggregation = input$aggregation, 
                     category = input$category, 
                     orderCategory = input$orderCategory,
                     level = input$levelSel, method = input$method)
             })
             
-            output$plotDrift <- renderPlotly({
-                req(input$levelSel)
+            output$plotDrift <- plotly::renderPlotly({
+                shiny::req(input$levelSel)
                 p_drift()
             })
             
-            output$plotDriftUI <- renderUI({
+            output$plotDriftUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_drift_missingValue_", 
                     missingValue, sep = "")
-                plotlyOutput(outputId = session$ns("plotDrift")) %>%
-                    helper(content = helperFile)
+                plotly::plotlyOutput(outputId = session$ns("plotDrift")) %>%
+                    shinyhelper::helper(content = helperFile)
             })
             
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Drift_", input$aggregation, "_", 
                         input$category, "_", 
@@ -392,17 +422,22 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
 #' @examples
 #' fR_cvUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow downloadButton uiOutput
+#' @importFrom shinydashboard box
+#' 
 #' @noRd
 tP_cvUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Coefficient of variation",
-        fluidRow(
-            box(width = 12, collapsible = FALSE, 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Coefficient of variation",
+        shiny::fluidRow(
+            shinydashboard::box(width = 12, collapsible = FALSE, 
                 collapsed = FALSE,
-                uiOutput(outputId = ns("cvUI")),
-                column(6, uiOutput(outputId = ns("dataUI"))),
-                column(6, downloadButton(outputId = ns("downloadPlot"), "")))
+                shiny::uiOutput(outputId = ns("cvUI")),
+                shiny::column(6, 
+                    shiny::uiOutput(outputId = ns("dataUI"))),
+                shiny::column(6, 
+                    shiny::downloadButton(outputId = ns("downloadPlot"), "")))
                 
         )
     )
@@ -432,35 +467,42 @@ tP_cvUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive renderUI selectInput renderPlot
+#' @importFrom shiny downloadHandler
+#' @importFrom shinyhelper helper
+#' @importFrom ggplot2 ggsave
+#' @importFrom dplyr `%>%`
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
             ## create the cv values
-            cv_r <- reactive({
+            cv_r <- shiny::reactive({
                 cv(a_r(), name = "raw")
             })
 
-            cv_n <- reactive({
+            cv_n <- shiny::reactive({
                 cv(a_n(), name = "normalized")
             })
 
-            cv_t <- reactive({
+            cv_t <- shiny::reactive({
                 cv(a_t(), name = "transformed")
             })
 
-            cv_b <- reactive({
+            cv_b <- shiny::reactive({
                 cv(a_b(), name = "batch corrected")
             })
 
-            cv_i <- reactive({
+            cv_i <- shiny::reactive({
                 cv(a_i(), name = "imputed")
             })
             
-            output$dataUI <- renderUI({
+            output$dataUI <- shiny::renderUI({
                 if (missingValue) {
                     choices_l <-  c("raw", "normalized", "transformed", 
                         "batch corrected", "imputed")   
@@ -468,12 +510,13 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
                     choices_l <- c("raw", "normalized", "transformed",
                         "batch corrected")
                 }
-                selectInput(inputId = session$ns("data"), label = "Data set", 
-                    choices = choices_l, multiple = TRUE, selected = "raw")
+                shiny::selectInput(inputId = session$ns("data"), 
+                    label = "Data set", choices = choices_l, 
+                    multiple = TRUE, selected = "raw")
             })
 
             ## create a reactive data.frame containing the cv values
-            df_cv <- reactive({
+            df_cv <- shiny::reactive({
                 df <- data.frame(row.names = colnames(a_r()))
                 if ("raw" %in% input$data) df <- cbind(df, cv_r())
                 if ("normalized" %in% input$data) df <- cbind(df, cv_n())
@@ -483,29 +526,29 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
                 df
             })
 
-            p_cv <- reactive({
+            p_cv <- shiny::reactive({
                 plotCV(df = df_cv())
             })
             
             ## create the actual plot
-            output$cv <- renderPlot({
+            output$cv <- shiny::renderPlot({
                 p_cv()
             })
             
-            output$cvUI <- renderUI({
+            output$cvUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_cv_missingValue_",
                     missingValue, sep = "")
-                plotOutput(outputId = session$ns("cv")) %>% 
-                    helper(content = helperFile)
+                shiny::plotOutput(outputId = session$ns("cv")) %>% 
+                    shinyhelper::helper(content = helperFile)
                 
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("CV.pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_cv(), device = "pdf")
+                    ggplot2::ggsave(file, p_cv(), device = "pdf")
                 }
             )
             
@@ -538,14 +581,16 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
 #' @examples
 #' box_meanSdUI("test", "test")
 #' 
+#' @importFrom shiny NS plotOutput downloadButton
+#' @importFrom shinydashboard box
+#' 
 #' @noRd
 box_meanSdUI <- function(id, name) {
-    ns <- NS(id)
-    box(title = name, width = 6, collapsible = TRUE,
-        plotOutput(outputId = ns("meanSd")),
-        downloadButton(outputId = ns("downloadPlot"), "")
+    ns <- shiny::NS(id)
+    shinydashboard::box(title = name, width = 6, collapsible = TRUE,
+        shiny::plotOutput(outputId = ns("meanSd")),
+        shiny::downloadButton(outputId = ns("downloadPlot"), "")
     )
-    
 }
 
 #' @name tP_meanSdUI
@@ -568,16 +613,18 @@ box_meanSdUI <- function(id, name) {
 #' @examples 
 #' tP_meanSdUI()
 #' 
+#' @importFrom shiny tabPanel fluidRow uiOutput conditionalPanel
+#' 
 #' @noRd
 tP_meanSdUI <- function() {
 
-    tabPanel(title = "mean-sd plot",
+    shiny::tabPanel(title = "mean-sd plot",
         ## call here the module UIs box_meanSdUI
-        fluidRow(
+        shiny::fluidRow(
             box_meanSdUI("meanSdTransf", "transformed"),
-            uiOutput("meanSd-meanSdBatchUI"),
-        conditionalPanel("output.missingVals == 'TRUE'",  
-            fluidRow(column = 6,
+            shiny::uiOutput("meanSd-meanSdBatchUI"),
+        shiny::conditionalPanel("output.missingVals == 'TRUE'",  
+            shiny::fluidRow(column = 6,
                 box_meanSdUI("meanSdImp", "imputed")))
         )
     )
@@ -602,17 +649,21 @@ tP_meanSdUI <- function() {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI
+#' @importFrom shinyhelper helper
+#' @importFrom dplyr `%>%`
+#' 
 #' @noRd
 meanSdUIServer <- function(id, missingValue) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$meanSdBatchUI <- renderUI({
+            output$meanSdBatchUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_meanSd_missingValue_", 
                                                         missingValue, sep = "")
                 box_meanSdUI("meanSdBatch", "batch corrected") %>%
-                    helper(content = helperFile)
+                    shinyhelper::helper(content = helperFile)
             })
         }
     )
@@ -640,28 +691,31 @@ meanSdUIServer <- function(id, missingValue) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive renderPlot downloadHandler
+#' @importFrom ggplot2 ggsave
+#' 
 #' @noRd
 #' 
 #' @importFrom vsn meanSdPlot
 meanSdServer <- function(id, assay, type, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
 
-            p_meansd <- reactive({
+            p_meansd <- shiny::reactive({
                 meanSdPlot(assay(), ranks = TRUE)$gg
             })
-            output$meanSd <- renderPlot({
+            output$meanSd <- shiny::renderPlot({
                 p_meansd()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Meansd_", type, ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_meansd(), device = "pdf")
+                    ggplot2::ggsave(file, p_meansd(), device = "pdf")
                 }
             )
         }
@@ -693,27 +747,32 @@ meanSdServer <- function(id, assay, type, missingValue) {
 #' @examples
 #' tP_maUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow downloadButton
+#' @importFrom shiny uiOutput plotOutput checkboxInput
+#' @importFrom shinydashboard box
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 tP_maUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "MA plot", 
-        uiOutput(ns("MAUI")),
-        fluidRow(
-            box(title = "MA plot per sample", width = 12, 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "MA plot", 
+        shiny::uiOutput(ns("MAUI")),
+        shiny::fluidRow(
+            shinydashboard::box(title = "MA plot per sample", width = 12, 
                 collapsible = TRUE, 
-                plotOutput(outputId = ns("MAplot"), height = "auto"),
-                downloadButton(outputId = ns("downloadPlotMA"), ""),
-                uiOutput(ns("MAtypeUI"))
+                shiny::plotOutput(outputId = ns("MAplot"), height = "auto"),
+                shiny::downloadButton(outputId = ns("downloadPlotMA"), ""),
+                shiny::uiOutput(ns("MAtypeUI"))
                 
             )
         ),
-        fluidRow(
-            box(title = "Hoeffding's D statistic", width = 12, 
+        shiny::fluidRow(
+            shinydashboard::box(title = "Hoeffding's D statistic", width = 12, 
                 collapsible = TRUE,
-                plotlyOutput(outputId = ns("hoeffDPlot")),
-                downloadButton(outputId = ns("downloadPlothD"), ""),
-                checkboxInput(inputId = ns("hDLines"),
+                plotly::plotlyOutput(outputId = ns("hoeffDPlot")),
+                shiny::downloadButton(outputId = ns("downloadPlothD"), ""),
+                shiny::checkboxInput(inputId = ns("hDLines"),
                     label = "lines", value = FALSE)
             )
         )
@@ -751,39 +810,45 @@ tP_maUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI fluidRow selectInput column req 
+#' @importFrom shiny downloadHandler bindCache
+#' @importFrom shinyhelper helper
+#' @importFrom plotly renderPlotly
 #' @importFrom htmlwidgets saveWidget
+#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, 
                                                                 missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$MAUI <- renderUI({
+            output$MAUI <- shiny::renderUI({
                 
                 helperFile <- paste("tabPanel_MA_missingValue_", 
                                                         missingValue, sep = "")
-                fluidRow(
-                    column(6, 
-                        selectInput(
+                shiny::fluidRow(
+                    shiny::column(6, 
+                        shiny::selectInput(
                             inputId = session$ns("groupMA"), 
                             label = "group",
-                            choices = c("all", colnames(colData(se()))),
+                            choices = c("all", 
+                                colnames(SummarizedExperiment::colData(se()))),
                             selected = "all") 
                     ),
-                    column(6, 
-                        selectInput(
+                    shiny::column(6, 
+                        shiny::selectInput(
                             inputId = session$ns("plotMA"),
                             label = "plot", multiple = TRUE,
-                            choices = colData(se())$name) 
+                            choices = SummarizedExperiment::colData(se())$name) 
                     )
                 ) %>% 
-                    helper(content = helperFile)
+                    shinyhelper::helper(content = helperFile)
             })
             
-            output$MAtypeUI <- renderUI({
+            output$MAtypeUI <- shiny::renderUI({
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed",
                                         "batch corrected", "imputed")
@@ -792,35 +857,46 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                                         "batch corrected")
                 }
                 
-                selectInput(
+                shiny::selectInput(
                     inputId = session$ns("MAtype"), 
                     label = "Data set for the MA plot",
                     choices = choices_l, selected = "raw")
             })
             
             ## create MA values: se, log2, group
-            vals_r <- reactive({
-                log2_se <- if (any(assay(se()) < 0) ) FALSE else TRUE
+            vals_r <- shiny::reactive({
+                log2_se <- if (any(SummarizedExperiment::assay(se()) < 0)) {
+                    FALSE 
+                } else {
+                    TRUE
+                }
                 MAvalues(se(), log2_se, input$groupMA)}) %>%
-                bindCache(se(), input$groupMA, cache = "session")
+                    shiny::bindCache(se(), input$groupMA, cache = "session")
             
-            vals_n <- reactive({
-                log2_se <- if (any(assay(se_n()) < 0) ) FALSE else TRUE
+            vals_n <- shiny::reactive({
+                log2_se <- if (any(SummarizedExperiment::assay(se_n()) < 0)) {
+                    FALSE 
+                } else {
+                    TRUE
+                }
                 MAvalues(se_n(), log2_se, input$groupMA)}) %>%
-                bindCache(se_n(), input$groupMA, cache = "session")
+                    shiny::bindCache(se_n(), input$groupMA, cache = "session")
             
-            vals_t <- reactive(MAvalues(se_t(), FALSE, input$groupMA)) %>%
-                bindCache(se_t(), input$groupMA, cache = "session")
+            vals_t <- shiny::reactive({
+                MAvalues(se_t(), FALSE, input$groupMA)}) %>%
+                    shiny::bindCache(se_t(), input$groupMA, cache = "session")
             
-            vals_b <- reactive(MAvalues(se_b(), FALSE, input$groupMA)) %>%
-                bindCache(se_b(), input$groupMA, cache = "session")
+            vals_b <- shiny::reactive({
+                MAvalues(se_b(), FALSE, input$groupMA)}) %>%
+                    shiny::bindCache(se_b(), input$groupMA, cache = "session")
             
-            vals_i <- reactive(MAvalues(se_i(), FALSE, input$groupMA)) %>%
-                bindCache(se_i(), input$groupMA, cache = "session")
+            vals_i <- shiny::reactive({
+                MAvalues(se_i(), FALSE, input$groupMA)}) %>%
+                    shiny::bindCache(se_i(), input$groupMA, cache = "session")
 
             ## MA plots: MA values, group
-            p_ma <- reactive({
-                req(input$MAtype)
+            p_ma <- shiny::reactive({
+                shiny::req(input$MAtype)
                 if (length(input$plotMA) == 0) {
                     ma_plot <- "all"
                 } else {
@@ -851,38 +927,38 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                 ma
             })
             
-            output$MAplot <- renderPlot({
-                req(p_ma())
+            output$MAplot <- shiny::renderPlot({
+                shiny::req(p_ma())
                 p_ma()
             }, 
-                height = reactive(ifelse(!is.null(innerWidth()), 
+                height = shiny::reactive(ifelse(!is.null(innerWidth()), 
                                                     innerWidth() * 3 / 5, 0))
             )
             
-            output$downloadPlotMA <- downloadHandler(
+            output$downloadPlotMA <- shiny::downloadHandler(
                 filename = function() {
                     paste("MA_", input$MAtype, "_", input$groupMA, "_", 
                         input$plotMA,".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_ma(), device = "pdf")
+                    ggplot2::ggsave(file, p_ma(), device = "pdf")
                 }
             )
 
             ## Hoeffding's D values: MA values, title for plot
-            hD_r <- reactive(hoeffDValues(vals_r(), "raw")) %>%
-                bindCache(vals_r(), cache = "session")
-            hD_n <- reactive(hoeffDValues(vals_n(),  "normalized")) %>%
-                bindCache(vals_n(), cache = "session")
-            hD_t <- reactive(hoeffDValues(vals_t(), "transformed")) %>%
-                bindCache(vals_t(), cache = "session")
-            hD_b <- reactive(hoeffDValues(vals_b(), "batch corrected")) %>%
-                bindCache(vals_b(), cache = "session")
-            hD_i <- reactive(hoeffDValues(vals_i(), "imputed")) %>%
-                bindCache(vals_i(), cache = "session")
+            hD_r <- shiny::reactive(hoeffDValues(vals_r(), "raw")) %>%
+                shiny::bindCache(vals_r(), cache = "session")
+            hD_n <- shiny::reactive(hoeffDValues(vals_n(),  "normalized")) %>%
+                shiny::bindCache(vals_n(), cache = "session")
+            hD_t <- shiny::reactive(hoeffDValues(vals_t(), "transformed")) %>%
+                shiny::bindCache(vals_t(), cache = "session")
+            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) %>%
+                shiny::bindCache(vals_b(), cache = "session")
+            hD_i <- shiny::reactive(hoeffDValues(vals_i(), "imputed")) %>%
+                shiny::bindCache(vals_i(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function
-            hoeffD_df <- reactive({
+            hoeffD_df <- shiny::reactive({
                 if (missingValue) {
                     df <- data.frame(raw = hD_r(), normalized = hD_n(), 
                         transformed = hD_t(), 
@@ -896,16 +972,16 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             })
             
             ## Hoeffding's D plots: lists (Hoeffding's D values), lines
-            output$hoeffDPlot <- renderPlotly({
+            output$hoeffDPlot <- plotly::renderPlotly({
                 hoeffDPlot(hoeffD_df(), lines = input$hDLines)  
             })
             
-            output$downloadPlothD <- downloadHandler(
+            output$downloadPlothD <- shiny::downloadHandler(
                 filename = function() {
                     paste("Hoeffding_D_", input$groupMA, ".html")  
                 },
                 content = function(file) {
-                    saveWidget(
+                    htmlwidgets::saveWidget(
                         hoeffDPlot(hoeffD_df(), lines = input$hDLines), file)
                 }
             )
@@ -938,18 +1014,21 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
 #' @examples
 #' tP_ECDFUI("test")
 #' 
+#' @importFrom shiny NS tabPanel plotOutput fluidRow column uiOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_ECDFUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "ECDF",
-        plotOutput(outputId = ns("ECDF")) %>% 
-            helper(content = "tabPanel_ecdf"),
-        downloadButton(outputId = ns("downloadPlot"), ""),
-        fluidRow( 
-            column(4, uiOutput(outputId = ns("typeECDFUI"))),
-            column(4, uiOutput(outputId = ns("sampleECDFUI"))),
-            column(4, uiOutput(outputId = ns("groupECDFUI")))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "ECDF",
+        shiny::plotOutput(outputId = ns("ECDF")) %>% 
+            shinyhelper::helper(content = "tabPanel_ecdf"),
+        shiny::downloadButton(outputId = ns("downloadPlot"), ""),
+        shiny::fluidRow( 
+            shiny::column(4, shiny::uiOutput(outputId = ns("typeECDFUI"))),
+            shiny::column(4, shiny::uiOutput(outputId = ns("sampleECDFUI"))),
+            shiny::column(4, shiny::uiOutput(outputId = ns("groupECDFUI")))
         )
     )
 
@@ -980,17 +1059,22 @@ tP_ECDFUI <- function(id) {
 #' 
 #' @return
 #' `shiny.render.function` expression
+#' 
+#' @importFrom shiny moduleServer renderUI selectInput req reactive
+#' @importFrom shiny downloadHandler renderPlot
+#' @importFrom ggplot2 ggsave
+#' @importFrom SummarizedExperiment colData
 #'
 #' @author Thomas Naake
 #' 
 #' @noRd
 ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$typeECDFUI <- renderUI({
+            output$typeECDFUI <- shiny::renderUI({
                 
                 if (missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
@@ -999,30 +1083,31 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                     choices_l <- list("raw", "normalized", "transformed", 
                                         "batch corrected")
                 }
-                selectInput(inputId = session$ns("typeECDF"), 
+                shiny::selectInput(inputId = session$ns("typeECDF"), 
                     label = "Data set for the ECDF plot",
                     choices = choices_l,
                     selected = "raw")
             })
             
-            output$sampleECDFUI <- renderUI({
-                selectInput(
+            output$sampleECDFUI <- shiny::renderUI({
+                shiny::selectInput(
                     inputId = session$ns("sampleECDF"), 
                         label = "Sample", 
-                        choices = colData(se())$name, 
-                        selected = colData(se())$name[1])
+                        choices = SummarizedExperiment::colData(se())$name, 
+                        selected = SummarizedExperiment::colData(se())$name[1])
             })
             
-            output$groupECDFUI <- renderUI({
+            output$groupECDFUI <- shiny::renderUI({
                 selectInput(
                     inputId = session$ns("groupECDF"), 
                     label = "group",
-                    choices = c("all", colnames(colData(se()))),
+                    choices = c("all", 
+                        colnames(SummarizedExperiment::colData(se()))),
                     selected = "all")
             })
             
             ## ECDF plots: se, sample, group
-            p_ecdf <- reactive({
+            p_ecdf <- shiny::reactive({
                 req(input$typeECDF)
                 if (input$typeECDF == "raw") SE <- se()
                 if (input$typeECDF == "normalized") SE <- se_n()
@@ -1032,17 +1117,17 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 ECDF(SE, input$sampleECDF, input$groupECDF)
             })
             
-            output$ECDF <- renderPlot({
+            output$ECDF <- shiny::renderPlot({
                 p_ecdf()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("ECDF_", input$typeECDF, "_", input$groupECDF, "_", 
                         input$sampleECDF, ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_ecdf(), device = "pdf")
+                    ggplot2::ggsave(file, p_ecdf(), device = "pdf")
                 }
             )
         }
@@ -1079,17 +1164,21 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
 #' @examples
 #' fR_distUI("test", "test")
 #' 
+#' @importFrom shiny NS fluidRow downloadButton 
+#' @importFrom shinydashboard box
+#' @importFrom plotly plotlyOutput
+#' 
 #' @noRd
 fR_distUI <- function(id, title, collapsed = TRUE) {
-    ns <- NS(id)
-    fluidRow(box(title = title, width = 12, collapsible = TRUE, 
-                    collapsed = collapsed, 
-        column(6, 
-            plotlyOutput(outputId = ns("distSample")),
-            downloadButton(outputId = ns("downloadPlotDist"), "")),
-        column(6, 
-            plotlyOutput(outputId = ns("distSampleSum")),
-            downloadButton(outputId = ns("downloadPlotSum"), ""))))
+    ns <- shiny::NS(id)
+    shiny::fluidRow(shinydashboard::box(title = title, width = 12, 
+                collapsible = TRUE, collapsed = collapsed, 
+        shiny::column(6, 
+            plotly::plotlyOutput(outputId = ns("distSample")),
+            shiny::downloadButton(outputId = ns("downloadPlotDist"), "")),
+        shiny::column(6, 
+            plotly::plotlyOutput(outputId = ns("distSampleSum")),
+            shiny::downloadButton(outputId = ns("downloadPlotSum"), ""))))
 }
 
 #' @name tP_distUI
@@ -1113,27 +1202,30 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
 #' 
 #' @examples 
 #' tP_distUI()
+#' 
+#' @importFrom shiny tabPanel uiOutput fluidRow column selectInput
+#' @importFrom shinydashboard box
 #'
 #' @noRd
 tP_distUI <- function() {
 
-    tabPanel(title = "Distance matrix",
-        uiOutput("distUI-distRawUI"),
+    shiny::tabPanel(title = "Distance matrix",
+        shiny::uiOutput("distUI-distRawUI"),
         fR_distUI(id = "distNorm", title = "normalized", 
             collapsed = TRUE),
         fR_distUI(id = "distTransf", title = "transformed", 
             collapsed = TRUE),
         fR_distUI(id = "distBatch", title = "batch corrected", 
             collapsed = TRUE),
-        conditionalPanel("output.missingVals == 'TRUE'",
+        shiny::conditionalPanel("output.missingVals == 'TRUE'",
             fR_distUI(id = "distImp", title = "imputed", 
                 collapsed = TRUE)),
-        fluidRow(
-            box(title = "Parameters", width = 6,
+        shiny::fluidRow(
+            shinydashboard::box(title = "Parameters", width = 6,
                 collapsible = TRUE, collapsed = FALSE,
-                column(12, uiOutput(outputId = "groupDistUI")),
-                column(12, 
-                selectInput(inputId = "methodDistMat", 
+                shiny::column(12, uiOutput(outputId = "groupDistUI")),
+                shiny::column(12, 
+                shiny::selectInput(inputId = "methodDistMat", 
                     label = "distance method", 
                     choices = c("euclidean", "maximum", "canberra", 
                         "minkowski"), 
@@ -1163,19 +1255,22 @@ tP_distUI <- function() {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI 
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 distUIServer <- function(id, missingValue) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
 
-            output$distRawUI <- renderUI({
+            output$distRawUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_distMat_missingValue_", 
                     missingValue, sep = "")
                 
                 fR_distUI(id = session$ns("distRaw"), title = "raw", 
                     collapsed = FALSE) %>%
-                    helper(content = helperFile) 
+                    shinyhelper::helper(content = helperFile) 
             })
         }
     )
@@ -1205,55 +1300,56 @@ distUIServer <- function(id, missingValue) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom grDevices pdf dev.off
-#' @importFrom plotly partial_bundle
+#' @importFrom shiny moduleServer reactive downloadHandler req
+#' @importFrom plotly renderPlotly partial_bundle
+#' @importFrom htmlwidgets saveWidget
+#' 
 #' @noRd
 distServer <- function(id, se, assay, method, label, type) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
-            
-            
-            d <- reactive({
+
+            d <- shiny::reactive({
                 distShiny(assay(), method = method())
             })
             
             ## plot of distance matrix
-            p_dist <- reactive({
+            p_dist <- shiny::reactive({
                 distSample(d(), se(), label = label(), title = "") 
             })
             
-            output$distSample <- renderPlotly({
-                req(label())
+            output$distSample <- plotly::renderPlotly({
+                shiny::req(label())
                 p_dist()  
             })
             
-            output$downloadPlotDist <- downloadHandler(
+            output$downloadPlotDist <- shiny::downloadHandler(
                 filename = function() {
                     paste("Distance_", type, "_", method(), ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(partial_bundle(p_dist()), file)
+                    htmlwidgets::saveWidget(partial_bundle(p_dist()), file)
                 }
             )
             
             ## plot of sum of distances
-            p_sumDist <- reactive({
+            p_sumDist <- shiny::reactive({
                 sumDistSample(d(), title = "")
             })
             
-            output$distSampleSum <- renderPlotly({
+            output$distSampleSum <- plotly::renderPlotly({
                 p_sumDist()
             })
 
-            output$downloadPlotSum <- downloadHandler(
+            output$downloadPlotSum <- shiny::downloadHandler(
                 filename = function() {
                     paste("Sum_distance_", type, "_", 
                         method(), ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(partial_bundle(p_sumDist()), file)
+                    htmlwidgets::saveWidget(partial_bundle(p_sumDist()), file)
                 }
             )
         }
@@ -1288,30 +1384,41 @@ distServer <- function(id, se, assay, method, label, type) {
 #' @examples
 #' fR_distUI("test", "test")
 #' 
+#' @importFrom shiny NS tabPanel plotOutput column radioButtons 
+#' @importFrom shiny selectizeInput checkboxInput downloadButton
+#' @importFrom shinydashboard box
+#' @importFrom plotly plotlyOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_featureUI <- function(id) {
-    ns <- NS(id)
-    tabPanel(title = "Features",
-        box(title = "", width = 12, collapsible = TRUE, collapsed = FALSE,
-            plotOutput(outputId = ns("Features")) %>% 
-                helper(content = "tabPanel_Features"),
-            column(4, downloadButton(outputId = ns("downloadPlot"), "")),
-            column(4, uiOutput(outputId = ns("dataUI"))),
-            column(4, selectizeInput(inputId = ns("selectFeature"), 
-                choices = NULL, label = "Select feature"))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Features",
+        shinydashboard::box(title = "", width = 12, collapsible = TRUE, 
+            collapsed = FALSE,
+            shiny::plotOutput(outputId = ns("Features")) %>% 
+                shinyhelper::helper(content = "tabPanel_Features"),
+            shiny::column(4, 
+                shiny::downloadButton(outputId = ns("downloadPlot"), "")),
+            shiny::column(4, shiny::uiOutput(outputId = ns("dataUI"))),
+            shiny::column(4, 
+                shiny::selectizeInput(inputId = ns("selectFeature"), 
+                    choices = NULL, label = "Select feature"))
         ),
-        box(title = "", width = 12, collapsible = TRUE, collapsed = FALSE,
-            plotlyOutput(outputId = ns("FeaturesCV")),
-            column(6, downloadButton(outputId = ns("downloadPlotCV"), "")),
-            column(6, checkboxInput(inputId = ns("FeatureLines"),
+        shinydashboard::box(title = "", width = 12, collapsible = TRUE, 
+            collapsed = FALSE,
+            plotly::plotlyOutput(outputId = ns("FeaturesCV")),
+            shiny::column(6, 
+                shiny::downloadButton(outputId = ns("downloadPlotCV"), "")),
+            shiny::column(6, 
+                shiny::checkboxInput(inputId = ns("FeatureLines"),
                 label = "lines", value = FALSE))
         ),
-        radioButtons(inputId = ns("mode"), label = "Select features",
+        shiny::radioButtons(inputId = ns("mode"), label = "Select features",
             choices = list("all" = "all", "exclude" = "exclude", 
                                                         "select" = "select")),
-        selectizeInput(inputId = ns("excludeFeature"), choices = NULL, 
+        shiny::selectizeInput(inputId = ns("excludeFeature"), choices = NULL, 
             label = NULL, multiple = TRUE)
-        
     )
 }
 
@@ -1339,24 +1446,33 @@ tP_featureUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom ComplexHeatmap draw
+#' @importFrom shiny moduleServer observe updateSelectizeInput renderUI 
+#' @importFrom shiny selectInput reactive req renderPlot downloadHandler
+#' @importFrom ggplot2 ggsave
+#' @importFrom plotly renderPlotly
+#' @importFrom htmlwidgets saveWidget 
+#'
 #' @noRd
 featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
 
-            observe({
-                updateSelectizeInput(session = session, 
+            shiny::observe({
+                shiny::updateSelectizeInput(session = session, 
                     inputId = "selectFeature", 
                     choices = as.list(rownames(a())), server = TRUE)
             })
 
-            updateSelectizeInput(session, "excludeFeature", 
-                choices = rownames(se), server = TRUE)
+            shiny::observe({
+                shiny::updateSelectizeInput(session = session, 
+                    inputId = "excludeFeature", 
+                    choices = rownames(se), server = TRUE)    
+            })
+            
 
-            output$dataUI <- renderUI({
+            output$dataUI <- shiny::renderUI({
                 if (missingValue) {
                     choices_l <-  c("raw", "normalized", "transformed", 
                         "batch.corrected", "imputed")   
@@ -1364,13 +1480,14 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
                     choices_l <- c("raw", "normalized", "transformed",
                         "batch.corrected")
                 }
-                selectInput(inputId = session$ns("data"), label = "Data set", 
-                    choices = choices_l, multiple = TRUE, selected = choices_l)
+                shiny::selectInput(inputId = session$ns("data"), 
+                    label = "Data set", choices = choices_l, multiple = TRUE, 
+                    selected = choices_l)
             })
             
             ## create a reactive data.frame containing the assay values
-            l_assays <- reactive({
-                req(a_i())
+            l_assays <- shiny::reactive({
+                shiny::req(a_i())
                 if (missingValue) {
                     l <- list(raw = a(), normalized = a_n(),
                         transformed = a_t(), `batch.corrected` = a_b(),
@@ -1382,7 +1499,7 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
                 l
             })
             
-            df_feature <- reactive({
+            df_feature <- shiny::reactive({
                 l <- l_assays()
                 l <- l[names(l) %in% input$data]
                 if (length(l) > 0) {
@@ -1392,35 +1509,35 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
                 }
             })
                 
-            p_feature <- reactive({
+            p_feature <- shiny::reactive({
                 if (!is.null(df_feature()))
                     featurePlot(df_feature())
             })
             
-            output$Features <- renderPlot({
+            output$Features <- shiny::renderPlot({
                 p_feature()
             })
             
-            output$downloadPlot <- downloadHandler(
+            output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste("Features_", input$selectFeature, ".pdf", sep = "")
                 },
                 content = function(file) {
-                    ggsave(file, p_feature(), device = "pdf")
+                    ggplot2::ggsave(file, p_feature(), device = "pdf")
                 }
             )
             
-            output$FeaturesCV <- renderPlotly({
+            output$FeaturesCV <- plotly::renderPlotly({
                 cvFeaturePlot(l_assays(), lines = input$FeatureLines)
             })
             
-            output$downloadPlotCV <- downloadHandler(
+            output$downloadPlotCV <- shiny::downloadHandler(
                 filename = function() {
                     paste("Features_CV_lines_", input$FeatureLines, 
                                                             ".html", sep = "")
                 },
                 content = function(file) {
-                    saveWidget(
+                    htmlwidgets::saveWidget(
                         cvFeaturePlot(l_assays(), lines = input$FeatureLines),
                         file)
                 }
@@ -1452,10 +1569,13 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
 #' @examples
 #' tP_values_all()
 #' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
+#' 
 #' @noRd
 tP_values_all <- function() {
-    tabPanel("Values",
-        tabBox(title = "", width = 12,
+    shiny::tabPanel("Values",
+        shinydashboard::tabBox(title = "", width = 12,
             tP_boxplotUI(id = "boxUI"),
             tP_driftUI(id = "drift"),
             tP_cvUI(id = "cv"),

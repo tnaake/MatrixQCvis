@@ -17,9 +17,11 @@
 #' @examples
 #' tag_loadMessage()
 #' 
+#' @importFrom shiny conditionalPanel tagList
+#' 
 #' @noRd
 tag_loadMessage <- function() {
-    l <- tagList(
+    l <- shiny::tagList(
         ##
         tags$head(tags$script("
             $(document).on('shiny:connected', function(e) {
@@ -45,7 +47,7 @@ tag_loadMessage <- function() {
                     z-index: 105;
                 }
         ")),
-        conditionalPanel(condition = "$('html').hasClass('shiny-busy')",
+        shiny::conditionalPanel(condition = "$('html').hasClass('shiny-busy')",
             tags$div("Loading...",id = "loadmessage"))      
     )
     return(l)
@@ -70,11 +72,13 @@ tag_loadMessage <- function() {
 #' @examples
 #' tag_keepAlive()
 #' 
+#' @importFrom shiny tagList HTML
+#' 
 #' @noRd
 tag_keepAlive <- function() {
     
-    l <- tagList(
-        tags$head(HTML(
+    l <- shiny::tagList(
+        tags$head(shiny::HTML(
             "
             <script>
             var socket_timeout_interval
@@ -115,32 +119,34 @@ tag_keepAlive <- function() {
 #' @examples
 #' sidebar_assayUI()
 #' 
+#' @importFrom shiny conditionalPanel selectInput uiOutput
+#' 
 #' @noRd
 sidebar_assayUI <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.tabs == 'Dimension Reduction' | input.tabs == 'Values'",
         ## select type of normalization
-        selectInput(inputId = "normalization",
+        shiny::selectInput(inputId = "normalization",
             label = strong("Normalization method"),
             choices = c("none", "sum", "quantile division", "quantile"),
             selected = "none"),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.normalization == 'quantile division'",
-            uiOutput("quantDiv")),
+            shiny::uiOutput("quantDiv")),
 
         ## select type of transformation
-        selectInput(inputId = "transformation",
+        shiny::selectInput(inputId = "transformation",
             label = strong("Transformation method"),
             choices = c("none", "log2", "vsn"), selected = "none"),
 
         ## select type of batch correction
-        selectInput(inputId = "batch",
+        shiny::selectInput(inputId = "batch",
             label = strong("Batch correction method"),
             choices = c("none", "removeBatchEffect (limma)"), 
             selected = "none"),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.batch == 'removeBatchEffect (limma)'",
-            uiOutput("batchCol"))
+            shiny::uiOutput("batchCol"))
         )
     
 }
@@ -166,11 +172,13 @@ sidebar_assayUI <- function() {
 #' @examples
 #' sidebar_imputationUI()
 #' 
+#' @importFrom shiny conditionalPanel selectInput
+#' 
 #' @noRd
 sidebar_imputationUI <- function() {
     ## select type of imputation
-    conditionalPanel("output.missingVals == 'TRUE' & (input.tabs == 'Dimension Reduction' | input.tabs == 'Values')", 
-        selectInput(inputId = "imputation",
+    shiny::conditionalPanel("output.missingVals == 'TRUE' & (input.tabs == 'Dimension Reduction' | input.tabs == 'Values')", 
+        shiny::selectInput(inputId = "imputation",
             label = strong("Imputation method"),
             choices = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb"),
             selected = "MinDet"))
@@ -195,22 +203,24 @@ sidebar_imputationUI <- function() {
 #' @examples
 #' sidebar_DEUI()
 #' 
+#' @importFrom shiny conditionalPanel radioButtons textInput actionButton
+#' 
 #' @noRd
 sidebar_DEUI <- function() {
-    conditionalPanel(condition = "input.tabs == 'DE'",
-        radioButtons(inputId = "DEtype",
+    shiny::conditionalPanel(condition = "input.tabs == 'DE'",
+        shiny::radioButtons(inputId = "DEtype",
             label = "Choose method/test for DE",
             choices = list("Moderated t-test (limma)" ="ttest",
                                 "Wald test (proDA)" = "proDA")),
-        textInput(inputId = "modelMat",
+        shiny::textInput(inputId = "modelMat",
             label = "Select levels for Model Matrix", 
             value = "~", placeholder = "~ treatment"),
-        actionButton(inputId = "actionModelMat",
+        shiny::actionButton(inputId = "actionModelMat",
             label = "Update formula for Model Matrix"),
-        textInput(inputId = "contrastMat",
+        shiny::textInput(inputId = "contrastMat",
             label = "Select contrast(s)", 
             value = "", placeholder = "treatment"),
-        actionButton(inputId = "actionContrasts",
+        shiny::actionButton(inputId = "actionContrasts",
             label = "Update contrasts"))
 }
 
@@ -232,7 +242,6 @@ sidebar_DEUI <- function() {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' library(SummarizedExperiment)
 #'
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -242,19 +251,21 @@ sidebar_DEUI <- function() {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#' se <- SummarizedExperiment::SummarizedExperiment(assays = list(a, a+10), 
 #'                                 rowData = rD, colData = cD)
 #'
 #' sidebar_excludeSampleUI("select")
 #' 
+#' @importFrom shiny NS conditionalPanel radioButtons uiOutput
+#' 
 #' @noRd
 sidebar_excludeSampleUI <- function(id) {
-    ns <- NS(id)
-    conditionalPanel(condition = "input.tabs != 'DE'",
-        radioButtons(inputId = ns("mode"), label = "Select samples",
+    ns <- shiny::NS(id)
+    shiny::conditionalPanel(condition = "input.tabs != 'DE'",
+        shiny::radioButtons(inputId = ns("mode"), label = "Select samples",
             choices = list("all" = "all", "exclude" = "exclude", 
                                                         "select" = "select")),
-        uiOutput(outputId = ns("excludeSamplesUI"))
+        shiny::uiOutput(outputId = ns("excludeSamplesUI"))
     )
 }
 
@@ -278,14 +289,16 @@ sidebar_excludeSampleUI <- function(id) {
 #' 
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer selectInput
+#' 
 #' @noRd
 sidebar_excludeSampleServer <- function(id, se) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
             output$excludeSamplesUI <- renderUI({
-                selectInput(inputId = session$ns("excludeSamples"),
+                shiny::selectInput(inputId = session$ns("excludeSamples"),
                             label = NULL, choices = colnames(se),
                             multiple = TRUE)
             })
@@ -311,9 +324,11 @@ sidebar_excludeSampleServer <- function(id, se) {
 #' @examples
 #' sidebar_reportUI()
 #' 
+#' @importFrom shiny downloadButton
+#' 
 #' @noRd
 sidebar_reportUI <- function() {
-    downloadButton("report", "Generate report")
+    shiny::downloadButton("report", "Generate report")
 }
 
 
@@ -339,11 +354,13 @@ sidebar_reportUI <- function() {
 #' app_server <- TRUE
 #' sidebar_stopUI(app_server)
 #' 
+#' @importFrom shiny conditionalPanel actionButton
+#' 
 #' @noRd
 sidebar_stopUI <- function(app_server) {
     if (!app_server) 
-        conditionalPanel(condition = "input.tabs != 'DE'",
-                            actionButton("stop", "Stop and export data set")
+        shiny::conditionalPanel(condition = "input.tabs != 'DE'",
+            shiny::actionButton("stop", "Stop and export data set")
         )
 }
 
@@ -375,11 +392,12 @@ sidebar_stopUI <- function(app_server) {
 #' choicesAssaySE <- 1:2
 #' sidebar_selectAssayUI(choicesAssaySE = choicesAssaySE)
 #' 
+#' @importFrom shiny conditionalPanel selectInput
 #' @noRd
 sidebar_selectAssayUI <- function(choicesAssaySE) {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "output.lengthAssays == 'TRUE'", 
-        selectInput(inputId = "assaySelected",
+        shiny::selectInput(inputId = "assaySelected",
                     label = "Select data input", choices = choicesAssaySE, 
                     selected = 1, multiple = FALSE))
 }
@@ -406,9 +424,7 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' 
 #' @author Thomas Naake
 #' 
-#' @examples
-#' library(SummarizedExperiment)
-#' 
+#' @examples 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -417,7 +433,7 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#' se <- SummarizedExperiment::SummarizedExperiment(assays = list(a, a+10), 
 #'                                     rowData = rD, colData = cD)
 #' 
 #' choiceAssaySE(se = se)
@@ -425,7 +441,7 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' @importFrom SummarizedExperiment assays
 #' @noRd
 choiceAssaySE <- function(se) {
-    a <- assays(se)
+    a <- SummarizedExperiment::assays(se)
     names_a <- names(a)
     
     if (NA %in% names_a) stop("names(assays(se)) contains NA")
@@ -462,8 +478,6 @@ choiceAssaySE <- function(se) {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -472,21 +486,23 @@ choiceAssaySE <- function(se) {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assays = list(a, a+10), 
+#' se <- SummarizedExperiment::SummarizedExperiment(assays = list(a, a+10), 
 #'                                     rowData = rD, colData = cD)
 #' 
 #' selectAssaySE(se = se, selected = 1)
 #' selectAssaySE(se = se, selected = 2)
 #' 
-#' @importFrom SummarizedExperiment assays rowData
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom SummarizedExperiment assay assays colData rowData
 #' @noRd
 selectAssaySE <- function(se, selected = 1) {
     
-    if (length(names(assays(se))) > 1) {
-        a <- assay(se, i = selected)
-        cD <- colData(se)
-        rD <- rowData(se)
-        se <- SummarizedExperiment(assays = a, rowData = rD, colData = cD)    
+    if (length(names(SummarizedExperiment::assays(se))) > 1) {
+        a <- SummarizedExperiment::assay(se, i = selected)
+        cD <- SummarizedExperiment::colData(se)
+        rD <- SummarizedExperiment::rowData(se)
+        se <- SummarizedExperiment::SummarizedExperiment(assays = a, 
+            rowData = rD, colData = cD)    
     }
     
     return(se)
@@ -515,13 +531,15 @@ selectAssaySE <- function(se, selected = 1) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive
+#'
 #' @noRd
 selectAssayServer <- function(id, se, selected) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
 
-            se_sel <- reactive({
+            se_sel <- shiny::reactive({
                 selectAssaySE(se, selected = selected())
             })
             
@@ -553,8 +571,6 @@ selectAssayServer <- function(id, se, selected) {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -563,7 +579,8 @@ selectAssayServer <- function(id, se, selected) {
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' samplesToExclude <- c("sample 1")
 #' selectSampleSE(se = se, selection = samplesToExclude, mode = "exclude")
@@ -615,8 +632,6 @@ selectSampleSE <- function(se, selection,
 #' @author Thomas Naake
 #' 
 #' @examples
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -625,7 +640,8 @@ selectSampleSE <- function(se, selection,
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' featuresToExclude <- c("1", "2")
 #' selectFeatureSE(se = se, selection = featuresToExclude, mode = "exclude")
@@ -672,16 +688,18 @@ selectFeatureSE <- function(se, selection,
 #' @author Thomas Naake
 #' 
 #' @examples
-#' assayOld <- assay(se)
+#' assayOld <- SummarizedExperiment::assay(se)
 #' assayNew <- assayOld + 1
 #' updateSE(se, assayNew)
 #' 
 #' @importFrom SummarizedExperiment assay 'assay<-'
-#' 
+#' @importFrom shiny req
+#'
 #' @noRd
 updateSE <- function(se, assay) {
-    req(assay)
-    assay(se) <- assay
+    shiny::req(assay)
+    SummarizedExperiment::assay(se, withDimnames = FALSE) <- assay
+    
     return(se)
 }
 
@@ -712,7 +730,8 @@ updateSE <- function(se, assay) {
 #' 
 #' @noRd
 missingValuesSE <- function(se) {
-    len <- length(assays(se))
-    l_na <- lapply(seq_len(len), function(i) any(is.na(assay(se, i))))
+    len <- length(SummarizedExperiment::assays(se))
+    l_na <- lapply(seq_len(len), 
+        function(i) any(is.na(SummarizedExperiment::assay(se, i))))
     any(unlist(l_na))
 }

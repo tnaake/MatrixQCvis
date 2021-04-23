@@ -23,15 +23,17 @@
 #' @examples
 #' tP_colDataUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput dataTableOutput
+#' 
 #' @noRd
 tP_colDataUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Sample meta-data",
-        fluidRow(width = 12,
-            column(12, uiOutput(ns("helperUI"))), 
-            column(width = 12, 
-                dataTableOutput(outputId = ns("colDt")) 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Sample meta-data",
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))), 
+            shiny::column(width = 12, 
+                shiny::dataTableOutput(outputId = ns("colDt")) 
             )  
         )
     )
@@ -58,23 +60,26 @@ tP_colDataUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI renderDataTable br
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 colDataServer <- function(id, se, missingValue) {
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$helperUI <- renderUI({
+            output$helperUI <- shiny::renderUI({
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
                 
-                br()  %>% 
-                    helper(content = helperFile)
+                shiny::br()  %>% 
+                    shinyhelper::helper(content = helperFile)
             })
             
-            output$colDt <- renderDataTable({
-                colData(se())
+            output$colDt <- shiny::renderDataTable({
+                SummarizedExperiment::colData(se())
             }, options = list(pageLength = 20))
         }
     )
@@ -105,15 +110,17 @@ colDataServer <- function(id, se, missingValue) {
 #' @examples
 #' tP_modelMatrixUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput
+#' 
 #' @noRd
 tP_modelMatrixUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Model matrix", 
-        fluidRow(width = 12,
-            column(12, uiOutput(ns("helperUI"))),
-            column(width = 12, 
-                uiOutput(outputId = ns("modelMatrixTab")) 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Model matrix", 
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12, 
+                shiny::uiOutput(outputId = ns("modelMatrixTab")) 
             )  
         )
     )
@@ -141,15 +148,17 @@ tP_modelMatrixUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive isolate
+#' 
 #' @noRd
 validFormulaMMServer <- function(id, expr, action, se) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            validFormulaMM <- reactive({
+            validFormulaMM <- shiny::reactive({
                 action()
-                fMM <- isolate(expr())
+                fMM <- shiny::isolate(expr())
                 validExprModelMatrix(expr = fMM, se = se())
             })
             
@@ -194,10 +203,12 @@ validFormulaMMServer <- function(id, expr, action, se) {
 #' validExprModelMatrix("~type", se = se) ## returns a formula
 #' validExprModelMatrix("~foo", se = se) ## returns NULL
 #' 
+#' @importFrom SummarizedExperiment colData
+#' @importFrom stats as.formula
 #' @noRd
 validExprModelMatrix <- function(expr, se) {
     
-    fMM <- tryCatch(as.formula(expr), error = function(e) NULL)
+    fMM <- tryCatch(stats::as.formula(expr), error = function(e) NULL)
     
     if (!is.null(fMM)) {
         
@@ -206,7 +217,8 @@ validExprModelMatrix <- function(expr, se) {
         fMM_l_c <- as.character(fMM_l_c)
         fMM_l_c <- fMM_l_c[!(fMM_l_c %in% c("+", "0", "1"))]
         
-        if (all(fMM_l_c %in% colnames(colData(se))) & length(fMM_l_c) != 0) {
+        if (all(fMM_l_c %in% colnames(SummarizedExperiment::colData(se))) & 
+                                                        length(fMM_l_c) != 0) {
             fMM <- fMM
         } else {
             fMM <- NULL
@@ -238,15 +250,20 @@ validExprModelMatrix <- function(expr, se) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive
+#' @importFrom stats model.matrix
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 modelMatrixServer <- function(id, se, validFormulaMM) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            modelMatrix <- reactive({
+            modelMatrix <- shiny::reactive({
                 if (!is.null(validFormulaMM())) {
-                    model.matrix(validFormulaMM(), data = colData(se()))
+                    stats::model.matrix(validFormulaMM(), 
+                        data = SummarizedExperiment::colData(se()))
                 }
             })
             
@@ -277,33 +294,38 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI renderDataTable renderText br
+#' @importFrom shiny dataTableOutput verbatimTextOutput
+#' @importFrom shinyhelper helper 
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
     moduleServer(
         id, 
         function(input, output, session) {
             
-            output$helperUI <- renderUI({
+            output$helperUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                br() %>% helper(content = helperFile)
+                shiny::br() %>% shinyhelper::helper(content = helperFile)
             })
             
-            output$modelMatrixTab <- renderUI({
+            output$modelMatrixTab <- shiny::renderUI({
                 ns <- session$ns
                 ## if there is a valid formula return the DataTable
                 if (!is.null(validFormulaMM())) {
-                    output$dtMM <- renderDataTable({
+                    output$dtMM <- shiny::renderDataTable({
                         mM <- modelMatrix() %>% as.matrix()
                         cbind(rownames(mM), mM)
                     }, options = list(pageLength = 20))
-                    dataTableOutput(ns("dtMM"))
+                    shiny::dataTableOutput(ns("dtMM"))
                 } else {
                     ## show that the formula is not valid
-                    output$textfMM <- renderText(
+                    output$textfMM <- shiny::renderText(
                         c("formula for Model Matrix not valid with",
                             "the given colData"))
-                    verbatimTextOutput(ns("textfMM"))
+                    shiny::verbatimTextOutput(ns("textfMM"))
                 }
                 
             })
@@ -336,15 +358,17 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
 #' @examples
 #' tP_contrastUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput
+#' 
 #' @noRd
 tP_contrastUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Contrast matrix", 
-        fluidRow(width = 12,
-            column(12, uiOutput(ns("helperUI"))),
-            column(width = 12, 
-                uiOutput(outputId = ns("contrastMatrixTab")) 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Contrast matrix", 
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12, 
+                shiny::uiOutput(outputId = ns("contrastMatrixTab")) 
             )
         ) 
     )
@@ -372,15 +396,17 @@ tP_contrastUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive isolate
+#' 
 #' @noRd
 validExprContrastServer <- function(id, expr, action, modelMatrix) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            validExprC <- reactive({
+            validExprC <- shiny::reactive({
                 action()
-                contrasts <- isolate(expr())
+                contrasts <- shiny::isolate(expr())
                 validExprContrast(contrasts = contrasts,
                     modelMatrix = modelMatrix())
             })
@@ -457,13 +483,14 @@ validExprContrast <- function(contrasts, modelMatrix) {
 #' @author Thomas Naake
 #' 
 #' @importFrom limma makeContrasts
+#' @importFrom shiny moduleServer reactive
 #' 
 #' @noRd
 contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
-            contrastMatrix <- reactive({
+            contrastMatrix <- shiny::reactive({
                 if (!is.null(validExprContrast())) {
                     makeContrasts(contrasts = validExprContrast(), 
                         levels = modelMatrix())
@@ -498,45 +525,49 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI renderDataTable dataTableOutput br
+#' @importFrom shiny  renderText verbatimTextOutput
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast, 
         contrastMatrix, missingValue) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$helperUI <- renderUI({
+            output$helperUI <- shiny::renderUI({
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                br() %>% helper(content = helperFile)
+                shiny::br() %>% shinyhelper::helper(content = helperFile)
                 
             })
             
-            output$contrastMatrixTab <- renderUI({
+            output$contrastMatrixTab <- shiny::renderUI({
                 ns <- session$ns
                 ## if there is a valid formula return the DataTable
                 if (!is.null(validFormulaMM()) & 
                                 !is.null(validExprContrast())) {
-                    output$dtCM <- renderDataTable({
+                    output$dtCM <- shiny::renderDataTable({
                         cM <- contrastMatrix()
                         cbind(rownames(cM), cM)
                     }, options = list(pageLength = 20))
-                    dataTableOutput(ns("dtCM"))
+                    shiny::dataTableOutput(ns("dtCM"))
                 } else {
                     if (is.null(validFormulaMM())) {
                         ## show that the formula for Model Matrix is not valid
-                        output$textfCM <- renderText(
+                        output$textfCM <- shiny::renderText(
                             c("formula for Model Matrix not valid", 
                             "with the given colData"))
                         
                     } else {
                         ## show that the expression of contrasts is not valid
-                        output$textfCM <- renderText(
+                        output$textfCM <- shiny::renderText(
                             c("contrast formula not valid with", 
                                 "the given Model Matrix"))
                     }
-                    verbatimTextOutput(ns("textfCM"))
+                    shiny::verbatimTextOutput(ns("textfCM"))
                 }
             })
             
@@ -568,15 +599,17 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
 #' @examples
 #' tP_topDEUI("test")
 #' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput
+#' 
 #' @noRd
 tP_topDEUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Top DE", 
-        fluidRow(width = 12,
-            column(12, uiOutput(ns("helperUI"))),
-            column(width = 12, 
-                uiOutput(outputId = ns("topDE")) 
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Top DE", 
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12, 
+                shiny::uiOutput(outputId = ns("topDE")) 
             )  
         )
     )
@@ -599,60 +632,66 @@ tP_topDEUI <- function(id) {
 #' @param validExprContrast `character` and `reactive` value
 #' @param testResult `matrix` and `reactive` value
 #' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containign missing or non-missing data
+#' `SummarizedExperiment` containing missing or non-missing data
 #' 
 #' @return 
 #' `shiny.render.function` expression
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer renderUI renderDataTable dataTableOutput br
+#' @importFrom shiny renderText verbatimTextOutput
+#' @importFrom shinyhelper helper
+#' @importFrom ggplot2 ggsave
+#' @importFrom SummarizedExperiment colData
+#' 
 #' @noRd
 topDEUIServer <- function(id, type, validFormulaMM, validExprContrast, 
         testResult, missingValue) {
     
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$helperUI <- renderUI({
+            output$helperUI <- shiny::renderUI({
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                br()  %>% 
-                    helper(content = helperFile)
+                shiny::br()  %>% 
+                    shinyhelper::helper(content = helperFile)
 
             })
             
-            output$topDE <- renderUI({
+            output$topDE <- shiny::renderUI({
                 ns <- session$ns
                 if (!is.null(validFormulaMM())) {
                     
                     if (type() == "ttest") {
-                        output$dtTest <- renderDataTable({
+                        output$dtTest <- shiny::renderDataTable({
                             testResult()
                         })
-                        return(dataTableOutput(ns("dtTest")))
+                        return(shiny::dataTableOutput(ns("dtTest")))
                     } 
                     
                     if (type() == "proDA") {
                         if (!is.null(validExprContrast())) {
-                            output$dtTest <- renderDataTable({
+                            output$dtTest <- shiny::renderDataTable({
                                 testResult()
                             })
-                            return(dataTableOutput(ns("dtTest")))
+                            return(shiny::dataTableOutput(ns("dtTest")))
                         } else {
-                            output$textTest <- renderText(
+                            output$textTest <- shiny::renderText(
                                 c("expression for contrasts not valid with",
                                     "the given colData"))
-                            return(verbatimTextOutput(ns("textTest")))
+                            return(shiny::verbatimTextOutput(ns("textTest")))
                         } 
                     }
                     
                 } else { ## no valid formula for Model Matrix
-                    output$textTest <- renderText(
+                    output$textTest <- shiny::renderText(
                         c("formula for Model Matrix not valid with the",
                             "given colData"))
-                    return(verbatimTextOutput(ns("textTest")))
+                    return(shiny::verbatimTextOutput(ns("textTest")))
                 }
                 
             })
@@ -689,25 +728,27 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom limma lmFit contrasts.fit
+#' @importFrom shiny moduleServer reactive
+#' @importFrom limma lmFit contrasts.fit eBayes
+#' @importFrom proDA proDA
 #' 
 #' @noRd
 fitServer <- function(id, assay, validFormulaMM, modelMatrix, contrastMatrix) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            fit <- reactive({
+            fit <- shiny::reactive({
                 if (!is.null(validFormulaMM())) {
                     
                     if (id == "ttest") {
-                        fit <- lmFit(assay(), design = modelMatrix())
+                        fit <- limma::lmFit(assay(), design = modelMatrix())
                         if (!is.null(contrastMatrix())) 
-                            fit <- contrasts.fit(fit, contrastMatrix())
-                        fit <- eBayes(fit, trend = TRUE, robust = TRUE)
+                            fit <- limma::contrasts.fit(fit, contrastMatrix())
+                        fit <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
                     }
                     if (id == "proDA") {
-                        fit <- proDA(assay(), design = modelMatrix()) 
+                        fit <- proDA::proDA(assay(), design = modelMatrix()) 
                     }
                     
                     return(fit)
@@ -740,22 +781,26 @@ fitServer <- function(id, assay, validFormulaMM, modelMatrix, contrastMatrix) {
 #'
 #' @author Thomas Naake
 #' 
+#' @importFrom shiny moduleServer reactive
+#' @importFrom limma topTable
+#' @importFrom proDA test_diff
+#' 
 #' @noRd
 testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM, 
         validExprContrast) {
-    moduleServer(
+    shiny::moduleServer(
         id,
         function(input, output, session) {
-            testResult <- reactive({
+            testResult <- shiny::reactive({
                 
                 if (!is.null(validFormulaMM())) {
                     if (type() == "ttest") {
-                        t <- topTable(fit_ttest(), number = Inf, 
+                        t <- limma::topTable(fit_ttest(), number = Inf, 
                                 adjust.method = "fdr", p.value = 0.05)
                         t <- cbind(name = rownames(t), t)
                     }
                     if (type() == "proDA") {
-                        t <- test_diff(fit = fit_proDA(), 
+                        t <- proDA::test_diff(fit = fit_proDA(), 
                             contrast = validExprContrast(), 
                             sort_by = "adj_pval")
                     }
@@ -792,15 +837,16 @@ testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM,
 #' @examples
 #' tP_volcanoUI("test")
 #'
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput
 #' @noRd
 tP_volcanoUI <- function(id) {
     
-    ns <- NS(id)
-    tabPanel(title = "Volcano plot", 
-        fluidRow(width = 12,
-            column(12, uiOutput(ns("helperUI"))),
-            column(width = 12,
-                uiOutput(outputId = ns("volcano"))
+    ns <- shiny::NS(id)
+    shiny::tabPanel(title = "Volcano plot", 
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12,
+                shiny::uiOutput(outputId = ns("volcano"))
             )
         )
     )
@@ -823,71 +869,75 @@ tP_volcanoUI <- function(id) {
 #' @param validExprContrast `character` and `reactive` value
 #' @param testResult `matrix` and `reactive` value
 #' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containign missing or non-missing data
+#' `SummarizedExperiment` containing missing or non-missing data
 #' 
 #' @return 
 #' `shiny.render.function` expression
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny tagList
+#' @importFrom shiny moduleServer renderUI reactive downloadHandler renderText
+#' @importFrom shiny verbatimTextOutput br tagList
+#' @importFrom plotly renderPlotly
+#' @importFrom shinyhelper helper
 #' @importFrom htmlwidgets saveWidget
 #' 
 #' @noRd
 volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast, 
         testResult, missingValue) {
 
-    moduleServer(
+    shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            output$helperUI <- renderUI({
+            output$helperUI <- shiny::renderUI({
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                br()  %>% helper(content = helperFile)
+                shiny::br()  %>% shinyhelper::helper(content = helperFile)
             })
             
-            output$volcano <- renderUI({
+            output$volcano <- shiny::renderUI({
                 ns <- session$ns
                 if (!is.null(validFormulaMM())) {
                     
                     if (!is.null(validExprContrast())) {
                         
-                        p_volcano <- reactive({
+                        p_volcano <- shiny::reactive({
                             volcanoPlot(testResult(), type())
                         })
                         
-                        output$plotVolcano <- renderPlotly({
+                        output$plotVolcano <- plotly::renderPlotly({
                             p_volcano()
                         })
                         
-                        output$downloadPlot <- downloadHandler(
+                        output$downloadPlot <- shiny::downloadHandler(
                             filename = function() {
                                 paste("Volcano_", type(), ".html")
                             },
                             content = function(file) {
-                                saveWidget(p_volcano(), file)
+                                htmlwidgets::saveWidget(p_volcano(), file)
                             }
                         )
                         
                         ## return plot and downloadButton
-                        tagList(
-                            plotlyOutput(ns("plotVolcano")),
-                            downloadButton(outputId = ns("downloadPlot"), "")
+                        shiny::tagList(
+                            plotly::plotlyOutput(ns("plotVolcano")),
+                            shiny::downloadButton(
+                                outputId = ns("downloadPlot"), "")
                         )
                         
                     } else {
-                        output$textVolcano <- renderText({
+                        output$textVolcano <- shiny::renderText({
                             c("expression for contrasts not",
                                 "valid with the given colData")})
-                        verbatimTextOutput(ns("textVolcano"))
+                        shiny::verbatimTextOutput(ns("textVolcano"))
                     }
                 } else {
-                    output$textVolcano <- renderText({
+                    output$textVolcano <- shiny::renderText({
                         c("formula for Model Matrix not valid",
                             "with the given colData")})
-                    verbatimTextOutput(ns("textVolcano"))
+                    shiny::verbatimTextOutput(ns("textVolcano"))
                 }
             })
         }
@@ -913,10 +963,13 @@ volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #' @examples
 #' tP_DE_all()
 #' 
+#' @importFrom shiny tabPanel 
+#' @importFrom shinydashboard tabBox
+#' 
 #' @noRd
 tP_DE_all <- function() {
-    tabPanel("DE",
-        tabBox(title = "", width = 12,
+    shiny::tabPanel("DE",
+        shinydashboard::tabBox(title = "", width = 12,
             tP_colDataUI(id = "colData"),
             tP_modelMatrixUI(id = "modelMatrix"),
             tP_contrastUI(id = "contrast"),
