@@ -35,7 +35,6 @@ Imports:
 	ComplexHeatmap,
 	dplyr,
 	ggplot2,
-	grDevices,
 	heatmaply,
 	Hmisc,
 	htmlwidgets,
@@ -63,7 +62,6 @@ Suggests:
 	BiocGenerics,
 	BiocStyle,
 	knitr,
-	magick,
 	testthat
 biocViews: Visualization, GUI, DimensionReduction, Metabolomics, Proteomics
 License: GPL (>= 3)
