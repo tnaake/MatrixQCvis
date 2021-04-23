@@ -27,12 +27,11 @@
 #' 
 #' hist_sample_num(se, category = "type")
 #' 
-#' @import ggplot2
+#' @importFrom tibble tibble
 #' 
 #' @export
 hist_sample_num <- function(se, category = "type") { 
 
-    
     ## retrieve the sample type
     df <- SummarizedExperiment::colData(se)[[category]]
     
@@ -69,7 +68,8 @@ hist_sample_num <- function(se, category = "type") {
 #' tbl <- hist_sample_num(se, category = "type")
 #' hist_sample(tbl)
 #' 
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot aes_string geom_bar ggtitle ylab xlab theme_bw
+#' @importFrom ggplot2 theme element_text
 #' @importFrom plotly ggplotly
 #' 
 #' @export
@@ -119,8 +119,8 @@ hist_sample <- function(tbl, category = "type") {
 #' 
 #' mosaic(se, "cell_type", "type")
 #' 
-#' @importFrom rlang :=
-#' @importFrom dplyr group_by summarise mutate ungroup
+#' @importFrom rlang := .data
+#' @importFrom dplyr group_by summarise mutate ungroup n
 #' 
 #' @export
 mosaic <- function(se, f1, f2) {
@@ -128,8 +128,9 @@ mosaic <- function(se, f1, f2) {
     df <- colData(se) %>% 
         as.data.frame() %>% 
         dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) %>% 
-        dplyr::summarise(count = n()) %>%
-        dplyr::mutate(cut.count = sum(count), prop = (count/sum(count)))
+        dplyr::summarise(count = dplyr::n()) %>%
+        dplyr::mutate(cut.count = sum(.data$count), 
+            prop = (.data$count/sum(.data$count)))
     
     ## set prop to 1 when f1 == f2 (by default this will be the proportion
     ## of f1 on the total samples)

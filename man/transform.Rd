@@ -8,7 +8,8 @@
 transform(x, method = c("none", "log2", "vsn"))
 }
 \arguments{
-\item{x}{`data.frame`, `tibble`, or `matrix`}
+\item{x}{`data.frame`, `tibble`, or `matrix` with samples in columns and 
+features in rows}
 
 \item{method}{`character`, one of `"none"`, `"log2"` or `"vsn"`}
 }

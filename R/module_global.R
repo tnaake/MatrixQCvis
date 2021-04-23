@@ -17,13 +17,13 @@
 #' @examples
 #' tag_loadMessage()
 #' 
-#' @importFrom shiny conditionalPanel tagList
+#' @importFrom shiny conditionalPanel tagList tags
 #' 
 #' @noRd
 tag_loadMessage <- function() {
     l <- shiny::tagList(
         ##
-        tags$head(tags$script("
+        shiny::tags$head(tags$script("
             $(document).on('shiny:connected', function(e) {
                 Shiny.onInputChange('innerWidth', window.innerWidth);
             });
@@ -32,7 +32,7 @@ tag_loadMessage <- function() {
             });
         ")),
         ## loading panel when app busy
-        tags$head(tags$style(type="text/css", "
+        shiny::tags$head(tags$style(type="text/css", "
                 #loadmessage {
                     position: fixed;
                     top: 0px;
@@ -72,13 +72,13 @@ tag_loadMessage <- function() {
 #' @examples
 #' tag_keepAlive()
 #' 
-#' @importFrom shiny tagList HTML
+#' @importFrom shiny tagList HTML tags
 #' 
 #' @noRd
 tag_keepAlive <- function() {
     
     l <- shiny::tagList(
-        tags$head(shiny::HTML(
+        shiny::tags$head(shiny::HTML(
             "
             <script>
             var socket_timeout_interval
@@ -119,7 +119,7 @@ tag_keepAlive <- function() {
 #' @examples
 #' sidebar_assayUI()
 #' 
-#' @importFrom shiny conditionalPanel selectInput uiOutput
+#' @importFrom shiny conditionalPanel selectInput uiOutput strong
 #' 
 #' @noRd
 sidebar_assayUI <- function() {
@@ -127,7 +127,7 @@ sidebar_assayUI <- function() {
         condition = "input.tabs == 'Dimension Reduction' | input.tabs == 'Values'",
         ## select type of normalization
         shiny::selectInput(inputId = "normalization",
-            label = strong("Normalization method"),
+            label = shiny::strong("Normalization method"),
             choices = c("none", "sum", "quantile division", "quantile"),
             selected = "none"),
         shiny::conditionalPanel(
@@ -172,14 +172,14 @@ sidebar_assayUI <- function() {
 #' @examples
 #' sidebar_imputationUI()
 #' 
-#' @importFrom shiny conditionalPanel selectInput
+#' @importFrom shiny conditionalPanel selectInput strong
 #' 
 #' @noRd
 sidebar_imputationUI <- function() {
     ## select type of imputation
     shiny::conditionalPanel("output.missingVals == 'TRUE' & (input.tabs == 'Dimension Reduction' | input.tabs == 'Values')", 
         shiny::selectInput(inputId = "imputation",
-            label = strong("Imputation method"),
+            label = shiny::strong("Imputation method"),
             choices = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb"),
             selected = "MinDet"))
 }

@@ -28,6 +28,8 @@
 #' ## values
 #' samples_memi(se)
 #' 
+#' @importFrom rlang .data
+#' 
 #' @export
 samples_memi <- function(se) {
     
@@ -78,7 +80,9 @@ samples_memi <- function(se) {
 #' ## plot number of missing values
 #' barplot_samples_memi(tbl, measured = FALSE)
 #'
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot geom_bar aes_string ylab theme_bw xlab theme
+#' @importFrom ggplot2 element_text
+#' @importFrom plotly ggplotly
 #' 
 #' @export
 barplot_samples_memi <- function(tbl, measured = TRUE) {
@@ -96,7 +100,7 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
                                                         stat = "identity") +
             ggplot2::ylab("number of missing features")
     g <- g + ggplot2::theme_bw() + ggplot2::xlab("sample") + 
-        ggplot2::theme(axis.text.x = element_text(angle = 90))
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
     plotly::ggplotly(g)
 } 
 

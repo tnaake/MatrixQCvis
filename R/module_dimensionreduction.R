@@ -19,7 +19,7 @@
 #' df <- ordination(x, "PCA")
 #' coordsUI(df)
 #' 
-#' @import shiny
+#' @importFrom shiny fluidRow column selectInput
 #' 
 #' @author Thomas Naake
 #' 

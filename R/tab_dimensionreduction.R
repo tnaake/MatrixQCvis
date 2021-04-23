@@ -369,6 +369,9 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' 
 #' @return gg object from `ggplot`
 #' 
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_line geom_hline aes
+#' @importFrom ggplot2 ylab xlab theme_bw theme element_text
+#'
 #' @author Thomas Naake
 #' 
 #' @export
@@ -379,13 +382,13 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
     df$PC <- factor(df$PC, levels = df$PC)
     
     ## plotting
-    ggplot2::ggplot(df, aes_string(x = "PC", y = "values")) + 
+    ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values")) + 
         ggplot2::geom_point() + 
-        ggplot2::geom_line(aes_string(group = "group")) + 
-        ggplot2::geom_hline(aes(yintercept=0.05), color = "red") +
+        ggplot2::geom_line(ggplot2::aes_string(group = "group")) + 
+        ggplot2::geom_hline(ggplot2::aes(yintercept=0.05), color = "red") +
         ggplot2::ylab("p-value") + ggplot2::xlab("principal components") + 
         ggplot2::theme_bw() + 
-        ggplot2::theme(axis.text.x = element_text(angle = 90))
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 }
 
 #' @name tblPCALoadings

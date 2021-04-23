@@ -7,7 +7,8 @@
 normalize(x, method = c("none", "sum", "quantile division", "quantile"), probs)
 }
 \arguments{
-\item{x}{`data.frame`, `tibble`, or `matrix`}
+\item{x}{`data.frame`, `tibble`, or `matrix` with samples in columns and 
+features in rows}
 
 \item{method}{`character`}
 
@@ -23,8 +24,8 @@ The function `normalize` performs normalization by sum of the
 or by quantile normalization (adjusting the distributions that they become
 identical in statistical distributions). The divisor for quantile division
 (e.g., the 75% quantile per sample) can be specified by the `probs` argument.
-Quantile normalization is performed by using the `normalize.quantiles` 
-function from `preprocessCore`.
+Quantile normalization is performed by using the `normalizeQuantiles` 
+function from `limma`.
 }
 \details{
 Internal usage in `shinyQC`.

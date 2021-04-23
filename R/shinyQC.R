@@ -32,8 +32,9 @@
 #' @param se `SummarizedExperiment` object (can be omitted)
 #' @param app_server `logical` (set to `TRUE` if run under a server environment)
 #'
-#' @importFrom shiny div fluidRow uiOutput insertTab runApp
+#' @importFrom shiny div fluidRow uiOutput insertTab runApp shinyUI tabsetPanel
 #' @importFrom shinydashboard dashboardPage dashboardHeader dashboardSidebar
+#' @importFrom shiny tags
 #' @importFrom shinyjs useShinyjs hidden show
 #' @importFrom SummarizedExperiment assay colData SummarizedExperiment
 #' @importFrom methods is 
@@ -87,7 +88,7 @@ shinyQC <- function(se, app_server = FALSE) {
     landingPage = createLandingPage()
 
     ## define UI
-    ui <- shinyUI(shinydashboard::dashboardPage(skin = "black",
+    ui <- shiny::shinyUI(shinydashboard::dashboardPage(skin = "black",
         shinydashboard::dashboardHeader(title = "MatrixQCvis"),
         shinydashboard::dashboardSidebar(
             #fileInput("upload", "Upload...")
@@ -121,8 +122,8 @@ shinyQC <- function(se, app_server = FALSE) {
         ),
 
         shinydashboard::dashboardBody(shiny::fluidRow(
-            tags$head( 
-                tags$script(
+            shiny::tags$head( 
+                shiny::tags$script(
                     type="text/javascript",'$(document).ready(function(){
                     $(".main-sidebar").css("height","100%");
                     $(".main-sidebar .sidebar").css({"position":"relative","max-height": "100%","overflow": "auto"})
@@ -130,7 +131,7 @@ shinyQC <- function(se, app_server = FALSE) {
             shinyjs::useShinyjs(debug = TRUE),
             shinyjs::hidden(
                 shiny::div(id = "tabPanelSE",
-                    tabsetPanel(type = "tabs",
+                    shiny::tabsetPanel(type = "tabs",
                         ## tabPanel for tab "Samples"
                         tP_samples_all(),
                         ## tabPanel for tab "Values"

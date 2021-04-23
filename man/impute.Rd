@@ -7,7 +7,8 @@
 impute(x, method = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb"))
 }
 \arguments{
-\item{x}{`data.frame`, `tibble`, or `matrix`}
+\item{x}{`data.frame`, `tibble`, or `matrix` with samples in columns and 
+features in rows}
 
 \item{method}{`character`, one of `"BPCA"`, `"kNN"`, `"MLE`, `"Min"`, 
 `"MinDet"`, or `"MinProb"`}
@@ -23,12 +24,32 @@ the EM algorithm (`MLE`), replacement by the smallest non-missing value
 in the data (`Min`), replacement by the minimal value observed as
 the q-th quantile (`MinDet`, default `q = 0.01`), and replacement by
 random draws from a Gaussian distribution centred to a minimal value 
-(`MinProb`). 
+(`MinProb`).
+}
+\details{
+`BPCA` wrapper for `pcaMethods::pca` with `methods = "bpca"`. `BPCA` is a
+missing at random (MAR) imputation method. 
 
-The function is a wrapper function from the functions `impute_bpca`, 
-`impute_knn`, `impute_mle`, and `impute_min` from the `MsCoreUtils` package
-and the functions `impute.MinDet` and `impute.MinProb` from the `imputeLCMD`
-package.
+`kNN` wrapper for `impute::impute.knn` with `k = 10`, `rowmax = 0.5`, 
+`colmax = 0.5`, `maxp = 1500`. `kNN` is a MAR imputation method.
+
+`MLE` wrapper for `imputeLCMD::impute.MAR` with `method = "MLE"`, 
+`model.selector = 1`/`imputeLCMD::impute.wrapper.MLE`. `MLE` is a MAR
+imputation method.
+
+`Min` imputes the missing values by the observed minimal value of `x`. 
+`Min` is a missing not at random (MNAR) imputation method.
+
+`MinDet` is a wrapper for `imputeLCMD::impute.MinDet` with `q = 0.01`. 
+`MinDet` performs the imputation using a 
+deterministic minimal value approach. The missing entries are
+replaced with a minimal value, estimated from the `q`-th quantile from each
+sample. `MinDet` is a MNAR imputation method.
+
+`MinProb` is a wrapper for `imputeLCMD::impute.MinProb` with `q = 0.01` and 
+`tune.sigma = 1`. `MinProb` performs the imputation based on random draws 
+from a Gaussion distribution with the mean set to the minimal value of a 
+sample. `MinProb` is a MNAR imputation method.
 }
 \examples{
 x <- matrix(1:100, nrow = 10, ncol = 10, 
