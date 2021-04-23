@@ -16,44 +16,39 @@
 #' `test_diff` (proDA)
 #' @param type `character`
 #' 
-#' @examples
-#' library(dplyr)
-#' library(limma)
-#' library(proDA)
-#' library(SummarizedExperiment)
-#' 
+#' @examples 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' a_i <- a %>% impute(., method = "MinDet")
+#' a_i <- impute(a, method = "MinDet")
 #' sample <- data.frame(sample = colnames(a), 
 #'                                 type = c(rep("1", 5), rep("2", 5)))
 #' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, 
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'                                 rowData = featData, colData = sample)
-#' se_i <- SummarizedExperiment(assay = a_i, 
+#' se_i <- SummarizedExperiment::SummarizedExperiment(assay = a_i, 
 #'                                 rowData = featData, colData = sample)
 #' 
 #' ## create model and contrast matrix
-#' modelMatrix_expr <- formula("~ 0 + type")
+#' modelMatrix_expr <- stats::formula("~ 0 + type")
 #' contrast_expr <- "type1-type2"
 #' modelMatrix <- model.matrix(modelMatrix_expr, data = colData(se))
-#' contrastMatrix <- makeContrasts(contrasts = contrast_expr, 
+#' contrastMatrix <- limma::makeContrasts(contrasts = contrast_expr, 
 #'                                 levels = modelMatrix)
 #' 
 #' ## ttest
-#' fit <- lmFit(a_i, design = modelMatrix)
-#' fit <- contrasts.fit(fit, contrastMatrix)
-#' fit <- eBayes(fit, trend = TRUE)
-#' df_ttest <- topTable(fit, n = Inf, adjust = "fdr", p = 0.05)
+#' fit <- limma::lmFit(a_i, design = modelMatrix)
+#' fit <- limma::contrasts.fit(fit, contrastMatrix)
+#' fit <- limma::eBayes(fit, trend = TRUE)
+#' df_ttest <- limma::topTable(fit, n = Inf, adjust = "fdr", p = 0.05)
 #' df_ttest <- cbind(name = rownames(df_ttest), df_ttest)
 #' 
 #' ## proDA
-#' fit <- proDA(a, design = modelMatrix)
-#' df_proDA <- test_diff(fit = fit, contrast = contrast_expr,
+#' fit <- proDA::proDA(a, design = modelMatrix)
+#' df_proDA <- proDA::test_diff(fit = fit, contrast = contrast_expr,
 #'                       sort_by = "adj_pval")
 #' 
 #' ## plot
@@ -72,10 +67,12 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     if (type == "ttest") {
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$P.Value))
-        p <- ggplot(df, aes_string(x = "logFC", y = "log10pvalue")) + 
-            geom_point() + 
-            ylab("-log10(p-value)") + xlab("log fold change") + theme_bw()
-        pp <- ggplotly(p) 
+        p <- ggplot2::ggplot(df, aes_string(x = "logFC", y = "log10pvalue")) + 
+            ggplot2::geom_point() + 
+            ggplot2::ylab("-log10(p-value)") + 
+            ggplot2::xlab("log fold change") + 
+            ggplot2::theme_bw()
+        pp <- plotly::ggplotly(p) 
         
         ## define the ttest-specific style for the tooltip
         fc_text <- paste("log fold change:", signif(pp$x$data[[1]]$x, 3))
@@ -85,10 +82,13 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     if (type == "proDA") {
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$pval))
-        p <- ggplot(df, aes_string(x = "diff", y = "log10pvalue")) + 
-            geom_point() + 
-            ylab("-log10(p-value)") + xlab("difference") + theme_bw()
-        pp <- ggplotly(p, tooltip = c("pval", "diff", "log10pvalue", "name"))
+        p <- ggplot2::ggplot(df, aes_string(x = "diff", y = "log10pvalue")) + 
+            ggplot2::geom_point() + 
+            ggplot2::ylab("-log10(p-value)") + 
+            ggplot2::xlab("difference") + 
+            ggplot2::theme_bw()
+        pp <- plotly::ggplotly(p, 
+            tooltip = c("pval", "diff", "log10pvalue", "name"))
         
         ## define the proDA-specific style for the tooltip
         fc_text <- paste("diff:", signif(pp$x$data[[1]]$x, 3))
@@ -101,6 +101,6 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     
     ## return 
     pp %>% 
-        style(pp, text = paste0(name_text, "</br></br>",  pvalue_text,
+        plotly::style(pp, text = paste0(name_text, "</br></br>",  pvalue_text,
                                 "</br>", fc_text, "</br>", log10_text))
 }

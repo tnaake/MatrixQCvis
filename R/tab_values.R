@@ -18,23 +18,28 @@
 #' violin plot is created
 #'
 #' @examples
-#' #' ## create se
+#' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'     dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
 #'     violin = FALSE)
 #' 
 #' @return `gg`
 #' 
-#' @importFrom rlang .data
-#' @import dplyr
+#' @importFrom dplyr left_join
+#' @importFrom tidyr pivot_longer 
+#' @importFrom tibble as_tibble
+#' @importFrom SummarizedExperiment assay
+#' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
+#' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
 #' 
 #' @export
 create_boxplot <- function(se, orderCategory = colnames(colData(se)), 
@@ -44,38 +49,40 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
     orderCategory <- match.arg(orderCategory)
 
     ## access the assay slot
-    a <- assay(se)
+    a <- SummarizedExperiment::assay(se)
 
     ## pivot_longer will create the columns name (containing the colnames of a)
     ## and value (containing the actual values)
-    a_l <- a %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(a)))
+    a <- tibble::as_tibble(a) 
+    a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
 
     ## take log2 values if log2 = TRUE
     if (log2) a_l$value <- log2(a_l$value)
-    
     
     ## add another column that gives the order of plotting (will be factor)
     ## order alphabetically: combine the levels of the orderCategory and add 
     ## the name (to secure that the levels are unique)
     ## add another column for the x_values
-    a_l <- left_join(a_l, colData(se)[, c("name", orderCategory)], 
+    a_l <- dplyr::left_join(x = a_l, 
+        y = SummarizedExperiment::colData(se)[, c("name", orderCategory)], 
         by = "name", copy = TRUE)
     a_o <- paste(a_l[[orderCategory]], a_l[["name"]])
     a_o_u <- unique(a_o)
     a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
     
     ## do the actual plotting
-    g <- ggplot(a_l, aes_string(y = "value", x = "x_ggplot_vals"))
+    g <- ggplot2::ggplot(a_l, 
+        ggplot2::aes_string(y = "value", x = "x_ggplot_vals"))
 
     if (!violin) { 
-        g <- g + geom_boxplot() 
+        g <- g + ggplot2::geom_boxplot() 
     } else { ## violin == TRUE
-        g <- g + geom_violin()
+        g <- g + ggplot2::geom_violin()
     }
     
-    g <- g + scale_x_discrete(labels = unique(a_l$name)[order(a_o_u)])
-    g + theme(axis.text.x = element_text(angle = 90)) + 
-        ggtitle(title) + xlab("samples")
+    g <- g + ggplot2::scale_x_discrete(labels = unique(a_l[["name"]])[order(a_o_u)])
+    g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) + 
+        ggplot2::ggtitle(title) + ggplot2::xlab("samples")
 
 }
 
@@ -117,16 +124,23 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' driftPlot(se, aggregation = "sum", category = "type", 
 #'     orderCategory = "name", level = "1", method = "loess")
 #' 
+#' @importFrom dplyr across left_join summarise starts_with
+#' @importFrom tidyr pivot_longer 
 #' @importFrom stats median
-#' @importFrom rlang .data
+#' @importFrom SummarizedExperiment assay colData
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_smooth theme_classic
+#' @importFrom ggplot2 scale_color_manual scale_x_discrete xlab ylab theme
+#' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly style 
+#' @importFrom tibble as_tibble
 #' 
 #' @export
 driftPlot <- function(se, aggregation = c("median", "sum"), 
@@ -140,21 +154,22 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     level <- match.arg(level)
     method <- match.arg(method)
     
-    a <- assay(se)
-    cD <- colData(se)
+    a <- SummarizedExperiment::assay(se)
+    cD <- SummarizedExperiment::colData(se)
     
-    a_l <- a %>% as_tibble() %>% pivot_longer(cols = seq_len(ncol(a)))
+    a <- tibble::as_tibble(a) 
+    a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
 
     if (aggregation == "median") FUN <- median
     if (aggregation == "sum") FUN <- sum
 
     ## aggregate the values across the samples
-    a_l <- a_l %>% 
-        group_by(.data$name) %>% 
-        summarise(across(starts_with("value"), FUN, na.rm = TRUE))
+    a_l <- dplyr::group_by(.data = a_l, .data$name)
+    a_l <- dplyr::summarise(a_l, 
+        dplyr::across(dplyr::starts_with("value"), FUN, na.rm = TRUE))
 
     ## join with cD
-    tb <- left_join(a_l, cD, by = "name", copy = TRUE)
+    tb <- dplyr::left_join(a_l, cD, by = "name", copy = TRUE)
     df <- as.data.frame(tb)
 
     df <- data.frame(df, col_ggplot_points = "all")
@@ -182,22 +197,26 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     ## geom_smooth)
     df_subset$x_ggplot_vals_num <- as.numeric(df_subset$x_ggplot_vals)
 
-    g <- ggplot(df,
-            aes_string(x = "x_ggplot_vals", y = "value", 
+    g <- ggplot2::ggplot(df,
+            ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
-        suppressWarnings(geom_point(aes_string(text = "name"))) + 
-        geom_point(data = df_subset, 
-            aes_string(x = "x_ggplot_vals", y = "value", 
+        suppressWarnings(
+            ggplot2::geom_point(ggplot2::aes_string(text = "name"))) + 
+        ggplot2::geom_point(data = df_subset, 
+            ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
-        geom_smooth(data = df_subset, 
-            aes_string(x = "x_ggplot_vals_num", y = "value"), method = method) +
-        theme_classic() + 
-        scale_color_manual(values = c("#000000", "#2A6CEF")) +
-        scale_x_discrete(labels = df$name[order(df$x_ggplot_vals)]) +
-        xlab("samples") + ylab(paste(aggregation, "of values")) +
-        theme(axis.text.x = element_text(angle = 90), legend.position = "none")
-    g <- ggplotly(g, tooltip = c("text"))
-    g %>% style(hoveron = "fills", traces = 2)
+        ggplot2::geom_smooth(data = df_subset, 
+            ggplot2::aes_string(x = "x_ggplot_vals_num", y = "value"), 
+            method = method) +
+        ggplot2::theme_classic() + 
+        ggplot2::scale_color_manual(values = c("#000000", "#2A6CEF")) +
+        ggplot2::scale_x_discrete(labels = df$name[order(df$x_ggplot_vals)]) +
+        ggplot2::xlab("samples") + 
+        ggplot2::ylab(paste(aggregation, "of values")) +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90), 
+            legend.position = "none")
+    g <- plotly::ggplotly(g, tooltip = c("text"))
+    g %>% plotly::style(hoveron = "fills", traces = 2)
 }
 
 
@@ -223,10 +242,11 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
 #' x <- matrix(1:10, ncol = 2)
 #' cv(x)
 #' 
+#' @importFrom stats sd
 #' @export
 cv <- function(x, name = "raw") {
     
-    sd_v <- apply(x, 2, sd, na.rm = TRUE)
+    sd_v <- apply(x, 2, stats::sd, na.rm = TRUE)
     mean_v <- apply(x, 2, mean, na.rm = TRUE)
     cv_v <- sd_v / mean_v * 100
     
@@ -269,20 +289,26 @@ cv <- function(x, name = "raw") {
 #' 
 #' @return `gg`
 #' 
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_line xlab ylab
+#' @importFrom ggplot2 theme_bw theme element_text
 #' @export
 plotCV <- function(df) {
     
     ## add a sample column
     if (!is.data.frame(df)) stop("df is not a data.frame")
-    tbl <- tibble(sample = rownames(df), df)
+    tbl <- tibble::tibble(sample = rownames(df), df)
     tbl$sample <- factor(x = tbl$sample, levels = tbl$sample)
-    tbl <- pivot_longer(tbl, cols = 2:ncol(tbl))
+    tbl <- tidyr::pivot_longer(tbl, cols = 2:ncol(tbl))
     
-    ggplot(tbl, aes_string(x = "sample", y = "value")) + 
-        geom_point(aes_string(color = "name")) + 
-        geom_line(aes_string(group = "name", color = "name")) + 
-        xlab("sample") + ylab("coefficient of variation") + 
-        theme_bw() + theme(axis.text.x = element_text(angle = 90))
+    ggplot2::ggplot(tbl, ggplot2::aes_string(x = "sample", y = "value")) + 
+        ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
+        ggplot2::geom_line(ggplot2::aes_string(group = "name", 
+            color = "name")) + 
+        ggplot2::xlab("sample") + ggplot2::ylab("coefficient of variation") + 
+        ggplot2::theme_bw() + 
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 }
 
 #' @name ECDF
@@ -314,21 +340,24 @@ plotCV <- function(df) {
 #' ECDF(se, "sample 1", group = "all")
 #' 
 #' @importFrom SummarizedExperiment assay colData
+#' @importFrom stats ks.test
+#' @importFrom ggplot2 ggplot aes_string stat_ecdf theme_bw xlab ylab
+#' @importFrom ggplot2 ggtitle theme element_blank
 #' 
 #' @return `gg` object from `ggplot2`
 #' 
 #' @export
 ECDF <- function(se, sample = colnames(se), 
     group = c("all", colnames(colData(se)))) {
-    
+
     ## match arguments
     sample <- match.arg(sample)
     group <- match.arg(group)
     
     ## obtain assay and colData from SummarizedExperiment object for 
     ## further use 
-    a <- assay(se)
-    cd <- colData(se)
+    a <- SummarizedExperiment::assay(se)
+    cd <- SummarizedExperiment::colData(se)
     
     df <- data.frame(value = a[, sample], type = sample)
     
@@ -354,46 +383,21 @@ ECDF <- function(se, sample = colnames(se),
     ## create ECDF of data (taken from https://rpubs.com/mharris/KSplot)
     value_s <- df$value
     value_g <- df_group$value
-    # cdf1 <- ecdf(value_s) 
-    # cdf2 <- ecdf(value_g) 
-    # 
-    # ## find min and max statistics to draw line between points of 
-    # ## greatest distance
-    # minMax <- seq(min(value_s, value_g, na.rm = TRUE), 
-    #     max(value_s, value_g, na.rm = TRUE), 
-    #     length.out = nrow(df))
-    # 
-    # inds <- which.max( abs(cdf1(minMax) - cdf2(minMax)) )
-    # x0 <- minMax[inds]
-    # y1 <- cdf1(x0)
-    # y2 <- cdf2(x0)
-    # # 
-    # # cdf1(5e08)
-    # ggplot(df, aes(x = value)) + stat_ecdf() + geom_vline(xintercept = x0) + 
-    #     xlim(0, 1e10) + geom_hline(yintercept = y1)
-    # 
-    #x0 <- minMax[
-    ## which(abs(cdf1(minMax) - cdf2(minMax)) == 
-    ## max(abs(cdf1(minMax) - cdf2(minMax))))[1]] 
     
-    #y0 <- cdf1(x0)
-    #y1 <- cdf2(x0)
-    
-    ks_test <- ks.test(value_s, value_g, exact = TRUE)
+    ks_test <- stats::ks.test(value_s, value_g, exact = TRUE)
     
     ## bind together
     df <- rbind(df, df_group)
 
-    ggplot(df, aes_string(x = "value", color = "type", group = "type")) + # group = group, color = group))+
-        stat_ecdf(size=1) + theme_bw() + xlab(sample) + ylab("ECDF") +
-        #geom_segment(aes(x = x0, y = y1, xend = x0, yend = y2),
-        #             linetype = "dashed", color = "red") +
-        #geom_point(aes(x = x0, y= y1), color = "red", size = 5) +
-        #geom_point(aes(x = x0, y= y2), color = "red", size = 5) +
-        ggtitle(sprintf("K-S Test: D: %s, p-value: %s", 
+    ggplot2::ggplot(df, 
+        ggplot2::aes_string(x = "value", color = "type", group = "type")) + 
+        ggplot2::stat_ecdf(size=1) + ggplot2::theme_bw() + 
+        ggplot2::xlab(sample) + ggplot2::ylab("ECDF") +
+        ggplot2::ggtitle(sprintf("K-S Test: D: %s, p-value: %s", 
             signif(ks_test$statistic, 3), 
             signif(ks_test$p.value, 3))) + 
-        theme(legend.title=element_blank(), legend.position ="top")
+        ggplot2::theme(legend.title = ggplot2::element_blank(), 
+            legend.position ="top")
 }
 
 #' @name distShiny
@@ -417,11 +421,13 @@ ECDF <- function(se, sample = colnames(se),
 #' distShiny(x = x)
 #' 
 #' @return `matrix`
+#' 
+#' @importFrom stats dist
 #'
 #' @export
 distShiny <- function(x, method = "euclidean") {
     ## calculate the distance matrix
-    d <- dist(t(x), method = method, diag = TRUE)
+    d <- stats::dist(t(x), method = method, diag = TRUE)
     data.matrix(d)
 }
 
@@ -443,9 +449,6 @@ distShiny <- function(x, method = "euclidean") {
 #' @param title `character`
 #'
 #' @examples
-#' library(dplyr)
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -453,10 +456,10 @@ distShiny <- function(x, method = "euclidean") {
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' a_i <- a %>% impute(., method = "MinDet")
-#' sample <- data.frame(name = colnames(a_i), 
+#' cD <- data.frame(name = colnames(a_i), 
 #'     type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a_i))
-#' se <- SummarizedExperiment(assay = a_i, rowData = featData, colData = sample)
+#' rD <- data.frame(spectra = rownames(a_i))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD, colData = cD)
 #' 
 #' dist <- distShiny(a_i)
 #' distSample(dist, se, label = "type", title = "imputed")
@@ -464,12 +467,13 @@ distShiny <- function(x, method = "euclidean") {
 #' @return `plotly`
 #'
 #' @importFrom heatmaply heatmaply
+#' @importFrom SummarizedExperiment colData
 #' 
 #' @export
 distSample <- function(d, se, label = "name", title = "raw") {
 
     ## define the row annotation
-    row_side_col <- list(colData(se)[[label]])
+    row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
     names(row_side_col) <- label
     
     ## do the actual plotting
@@ -499,16 +503,21 @@ distSample <- function(d, se, label = "name", title = "raw") {
 #' 
 #' @return `gg` object from `ggplot`
 #' 
-#' @import ggplot2
-#' 
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
+#' @importFrom ggplot2 xlab ylab theme_bw
+#' @importFrom tibble tibble
+#' @importFrom plotly ggplotly
 #' @export
 sumDistSample <- function(d, title = "raw") {
     d_sum <- rowSums(d) 
-    tbl <- tibble(name = names(d_sum), distance = d_sum)
-    g <- ggplot(tbl, aes_string(x = "distance", y = "name")) + geom_point() + 
-        geom_segment(aes_string(xend = 0, yend = "name")) + ggtitle(title) +
-        xlab("sum of distances") + ylab("") + theme_bw()
-    ggplotly(g, tooltip = c("x", "y"))
+    tbl <- tibble::tibble(name = names(d_sum), distance = d_sum)
+    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "distance", y = "name")) + 
+        ggplot2::geom_point() + 
+        ggplot2::geom_segment(ggplot2::aes_string(xend = 0, yend = "name")) + 
+        ggplot2::ggtitle(title) +
+        ggplot2::xlab("sum of distances") + ggplot2::ylab("") + 
+        ggplot2::theme_bw()
+    plotly::ggplotly(g, tooltip = c("x", "y"))
 }
 
 #' @name MAvalues
@@ -542,11 +551,10 @@ sumDistSample <- function(d, title = "raw") {
 #' 
 #' MAvalues(se, group = "all")
 #' 
-#' @import dplyr
+#' @importFrom dplyr pull left_join
 #' @importFrom SummarizedExperiment assay colData
-#' @import tidyr
-#' @importFrom tibble add_column
-#' @importFrom Matrix rowMeans
+#' @importFrom tibble as_tibble add_column tibble
+#' @importFrom tidyr pivot_longer
 #' 
 #' @export
 MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
@@ -555,8 +563,9 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     group <- match.arg(group)
     
     ## retrieve the assay and colData entries
-    a <- assay(se)
-    cd <- colData(se) %>% as.data.frame()
+    a <- SummarizedExperiment::assay(se)
+    cd <- SummarizedExperiment::colData(se)
+    cd <- as.data.frame(cd)
     
     if (ncol(a) < 2) 
         stop("MAplot needs more than one samples")
@@ -587,16 +596,16 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     }
     
     ## combine the data and add additional information from 
-    A_l <- A %>% as_tibble() 
-    A_l <- add_column(Feature = rownames(A), .data = A_l, .before = 1)  
-    A_l <- pivot_longer(A_l, cols = 2:ncol(A_l), values_to = "A")
+    A_l <- tibble::as_tibble(A) 
+    A_l <- tibble::add_column(Feature = rownames(A), .data = A_l, .before = 1)  
+    A_l <- tidyr::pivot_longer(A_l, cols = 2:ncol(A_l), values_to = "A")
     
-    M_l <- M %>% as_tibble()
-    M_l <- add_column(Feature = rownames(M), M_l, .before = 1)
-    M_l <- pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
+    M_l <- as_tibble(M)
+    M_l <- tibble::add_column(Feature = rownames(M), M_l, .before = 1)
+    M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
     
-    tbl <- tibble(A_l, M = pull(M_l, "M")) 
-    tbl <- left_join(x = tbl, y = cd, by = c("name"))
+    tbl <- tibble::tibble(A_l, M = dplyr::pull(M_l, "M")) 
+    tbl <- dplyr::left_join(x = tbl, y = cd, by = c("name"))
     
     return(tbl)
 }
@@ -617,37 +626,35 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' @param name `character`, name of the returned lists
 #' 
 #' @examples
-#' library(dplyr)
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' tbl <- MAvalues(se)
 #' hd_r <- hoeffDValues(tbl, "raw")
 #' 
 #' ## normalized values
 #' se_n <- se
-#' assay(se_n) <- assay(se) %>% normalize(., "sum")
+#' assay(se_n) <- normalize(a, "sum")
 #' tbl_n <- MAvalues(se_n, group = "all")
 #' hd_n <- hoeffDValues(tbl_n, "normalized")
 #' 
 #' ## transformed values
 #' se_t <- se
-#' assay(se_t) <- assay(se_n) %>% transform(., "log2")
+#' assay(se_t) <- transform(a, "log2")
 #' tbl_t <- MAvalues(se_t, group = "all")
 #' hd_t <- hoeffDValues(tbl_t, "transformed")
 #' 
 #' @importFrom Hmisc hoeffd
-#' @importFrom rlang .data
-#' @import tidyr
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr mutate group_by summarise pull
 #'
 #' @return named list of lists
 #' 
@@ -656,17 +663,18 @@ hoeffDValues <- function(tbl, name = "raw") {
     
     ## create a wide tibble with the samples as columns and features as rows 
     ## for A and M values
-    A <- pivot_wider(tbl, id_cols = c("Feature", "name"), values_from = "A")
-    M <- pivot_wider(tbl, id_cols = c("Feature", "name"), values_from = "M")
+    A <- tidyr::pivot_wider(tbl, id_cols = c("Feature", "name"), 
+        values_from = "A")
+    M <- tidyr::pivot_wider(tbl, id_cols = c("Feature", "name"), 
+        values_from = "M")
     
     ## create the D statistic between M and A values, 
     ## only return these comparisons (not A vs. A and M vs. M, i.e. index 
     ## by [2, 1])
-    hd_l <- tbl %>% 
-        mutate(name = factor(.data$name, levels = unique(.data$name))) %>% 
-        group_by(.data$name) %>%  
-        summarise(hd_l = Hmisc::hoeffd(A, M)$D[2, 1]) 
-    hd_l <- pull(hd_l, .data$hd_l)
+    hd_l <- dplyr::mutate(tbl, name = factor(name, levels = unique(name)))
+    hd_l <- dplyr::group_by(hd_l, name)
+    hd_l <- dplyr::summarise(hd_l, hd_l = Hmisc::hoeffd(A, M)$D[2, 1]) 
+    hd_l <- dplyr::pull(hd_l, hd_l)
     
     ## assign the names (do not use the first column since it contains the 
     ## Feature names)
@@ -701,25 +709,23 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' connected
 #'
 #' @examples
-#' library(dplyr)
-#' library(SummarizedExperiment)
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' tbl <- MAvalues(se)
 #' hd_r <- hoeffDValues(tbl, "raw")
 #' 
 #' ## normalized values
 #' se_n <- se
-#' assay(se_n) <- assay(se) %>% normalize(., "sum")
+#' assay(se_n) <- normalize(a, "sum")
 #' tbl_n <- MAvalues(se_n, group = "all")
 #' hd_n <- hoeffDValues(tbl_n, "normalized")
 #' 
@@ -729,6 +735,12 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' 
 #' @return 
 #' `gg` object from `ggplot`
+#' 
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 ggplot geom_violin geom_point aes_string geom_line
+#' @importFrom ggplot2 ylab theme_bw
+#' @importFrom plotly ggplotly
 #' 
 #' @export
 hoeffDPlot <- function(df, lines = TRUE) {
@@ -741,27 +753,30 @@ hoeffDPlot <- function(df, lines = TRUE) {
     
     ## add the sample names as a column and create a long format of the df
     df <- data.frame(sample = rownames(df), df)
-    df <- pivot_longer(df, cols = 2:ncol(df), names_to = "processing step")
+    df <- tidyr::pivot_longer(df, cols = 2:ncol(df), 
+        names_to = "processing_step")
     
     ## refactor the names according to the supplied order (cols)
-    names_f <- factor(df["processing step"], cols)
-    df["processing step"] <- names_f
+    names_f <- factor(dplyr::pull(df,"processing_step"), cols)
+    df <- dplyr::mutate(df, processing_step = names_f)
 
-    df <- df %>%
-        mutate(x = as.numeric(names_f))
+    df <- dplyr::mutate(df, x = as.numeric(names_f))
 
     df$x_jitter <- jitter(df$x)
     # ## do the actual plotting
-    g <- ggplot(df) + 
-        geom_violin(aes_string(x = "processing step", y = "value"), 
+    g <- ggplot2::ggplot(df) + 
+        ggplot2::geom_violin(
+            ggplot2::aes_string(x = "processing_step", y = "value"), 
             na.rm = TRUE) + 
-        suppressWarnings(geom_point(
-            aes_string(x = "x_jitter", y = "value", color = "processing step",
-                    text = "sample")))
-    if (lines) g <- g + geom_line(
-        aes_string(x = "x_jitter", y = "value", group = "sample"))
-    g <- g + ylab("Hoeffding's D statistic") + theme_bw()
-    ggplotly(g, tooltip = c("text", "y"))
+        suppressWarnings(
+            ggplot2::geom_point(
+                ggplot2::aes_string(x = "x_jitter", y = "value", 
+                    color = "processing_step", text = "sample")))
+    if (lines) g <- g + ggplot2::geom_line(
+        ggplot2::aes_string(x = "x_jitter", y = "value", group = "sample"))
+    g <- g + ggplot2::ylab("Hoeffding's D statistic") + 
+        ggplot2::xlab("processing step") + ggplot2::theme_bw()
+    plotly::ggplotly(g, tooltip = c("text", "y"))
 }
 
 #' @name MAplot
@@ -798,12 +813,18 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
 #' 
 #' tbl <- MAvalues(se, group = "all")
 #' MAplot(tbl, group = "all", plot = "all")
+#' 
+#' @importFrom dplyr pull filter
+#' @importFrom ggplot2 ggplot aes_string geom_hex geom_point facet_wrap
+#' @importFrom ggplot2 theme coord_fixed xlim ylim theme_bw
+#' @importFrom stats formula
 #' 
 #' @export
 MAplot <- function(tbl, group = c("all", colnames(tbl)), 
@@ -815,49 +836,48 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
         stop("plot not in 'all' or 'unique(tbl$name)'")
     }
     
-    
     ## get the number of features (this will govern if points will be plotted
     ## or hexagons)
-    n <- pull(tbl, "Feature")
+    n <- dplyr::pull(tbl, "Feature")
     n <- unique(n)
     n <- length(n)
     
 
-    A <- pull(tbl, "A")
-    M <- pull(tbl, "M")
+    A <- dplyr::pull(tbl, "A")
+    M <- dplyr::pull(tbl, "M")
     x_lim <- c(min(A, na.rm = TRUE), max(A, na.rm = TRUE))
     x_lim <- ifelse(is.infinite(x_lim), NA, x_lim)
     y_lim <- c(min(M, na.rm = TRUE), max(M, na.rm = TRUE))
     y_lim <- ifelse(is.infinite(y_lim), NA, y_lim)
     
     if (!("all" %in% plot)) {
-        tbl <- filter(tbl, tbl[["name"]] %in% plot)
+        tbl <- dplyr::filter(tbl, tbl[["name"]] %in% plot)
     }
     
     ## create a formula depending on the group argument for facet_wrap 
     if (group == "all" | group == "name") {
-        fm <- formula(paste("~", quote(name))) 
+        fm <- stats::formula(paste("~", quote(name))) 
     } else {
-        fm <- formula(paste("~", group, "+", quote(name)))
+        fm <- stats::formula(paste("~", group, "+", quote(name)))
     }
     
     ## do the actual plotting
-    g <- ggplot(tbl, aes_string(x = "A", y = "M")) 
+    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "A", y = "M")) 
     if (n >= 1000) {
-        g <- g + geom_hex()
+        g <- g + ggplot2::geom_hex()
     } else {
-        g <- g + geom_point()
+        g <- g + ggplot2::geom_point()
     }
     
     if (group != "name") {
-        g <- g + facet_wrap(fm) + theme(aspect.ratio = 1)
+        g <- g + ggplot2::facet_wrap(fm) + ggplot2::theme(aspect.ratio = 1)
     } else {
-        g <- g + coord_fixed()
+        g <- g + ggplot2::coord_fixed()
     }
     
-    if (!any(is.na(x_lim))) g <- g + xlim(x_lim)
-    if (!any(is.na(y_lim))) g <- g + ylim(y_lim)
-    g + theme_bw()
+    if (!any(is.na(x_lim))) g <- g + ggplot2::xlim(x_lim)
+    if (!any(is.na(y_lim))) g <- g + ggplot2::ylim(y_lim)
+    g + ggplot2::theme_bw()
 }
 
 #' @name createDfFeature
@@ -923,20 +943,27 @@ createDfFeature <- function(l, feature) {
 #' df <- createDfFeature(l, "feature 1")
 #' featurePlot(df)
 #' 
+#' @importFrom tidyr pivot_longer
+#' @importFrom tibble tibble
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_line xlab ylab
+#' @importFrom ggplot2 theme_bw theme element_text
+#' 
 #' @export
 featurePlot <- function(df) {
     
     ## add a sample column
     if (!is.data.frame(df)) stop("df is not a data.frame")
-    tbl <- tibble(sample = rownames(df), df)
+    tbl <- tibble::tibble(sample = rownames(df), df)
     tbl$sample <- factor(x = tbl$sample, levels = tbl$sample)
-    tbl <- pivot_longer(tbl, cols = 2:ncol(tbl))
+    tbl <- tidyr::pivot_longer(tbl, cols = 2:ncol(tbl))
     
-    ggplot(tbl, aes_string(x = "sample", y = "value")) + 
-        geom_point(aes_string(color = "name")) + 
-        geom_line(aes_string(group = "name", color = "name")) + 
-        xlab("sample") + ylab("value") + 
-        theme_bw() + theme(axis.text.x = element_text(angle = 90))
+    ggplot2::ggplot(tbl, ggplot2::aes_string(x = "sample", y = "value")) + 
+        ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
+        ggplot2::geom_line(ggplot2::aes_string(group = "name", 
+            color = "name")) + 
+        ggplot2::xlab("sample") + ggplot2::ylab("value") + 
+        ggplot2::theme_bw() + 
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 }
 
 #' @name cvFeaturePlot
@@ -966,6 +993,11 @@ featurePlot <- function(df) {
 #' l <- list(x1 = x1, x2 = x2, x3 = x3)
 #' cvFeaturePlot(l, lines = FALSE)
 #' 
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 ggplot geom_violin aes_string geom_point geom_line
+#' @importFrom ggplot2 ylab xlab theme_bw theme
+#' @importFrom plotly ggplotly
 #' @export
 cvFeaturePlot <- function(l, lines = FALSE) {
     
@@ -974,25 +1006,28 @@ cvFeaturePlot <- function(l, lines = FALSE) {
     
     ## create df containing cv values
     df <- data.frame(feature = rownames(l[[1]]), l_cv)
-    df <- pivot_longer(df, cols = 2:ncol(df))
+    df <- tidyr::pivot_longer(df, cols = 2:ncol(df))
     df$name <- factor(df$name, levels = names(l))
     df <- df %>% 
-        mutate(x = as.numeric(as.factor(df$name)))
+        dplyr::mutate(x = as.numeric(as.factor(df$name)))
     
     df$x_jitter <- jitter(df$x)
 
     # ## do the actual plotting
-    g <- ggplot(df) 
+    g <- ggplot2::ggplot(df) 
     if (nrow(df) > 2) g <- g + 
-        geom_violin(aes_string(x = "name", y = "value"), na.rm = TRUE) 
-    g <- g + suppressWarnings(geom_point(
-            aes_string(x = "x_jitter", y = "value", color = "name",
-                                                        text = "feature")))
-    if (lines) g <- g + geom_line(
-        aes_string(x = "x_jitter", y = "value", group = "feature"))
-    g <- g + ylab("coefficient of variation") + xlab("processing step") +
-        theme_bw() + theme(legend.position = "none") 
-    ggplotly(g, tooltip = c("text", "y"))
+        ggplot2::geom_violin(ggplot2::aes_string(x = "name", y = "value"), 
+            na.rm = TRUE) 
+    g <- g + suppressWarnings(
+        ggplot2::geom_point(
+            ggplot2::aes_string(x = "x_jitter", y = "value", color = "name",
+                                                            text = "feature")))
+    if (lines) g <- g + ggplot2::geom_line(
+        ggplot2::aes_string(x = "x_jitter", y = "value", group = "feature"))
+    g <- g + ggplot2::ylab("coefficient of variation") + 
+        ggplot2::xlab("processing step") +
+        ggplot2::theme_bw() + ggplot2::theme(legend.position = "none") 
+    plotly::ggplotly(g, tooltip = c("text", "y"))
 }
 
 ## normalization allows general-purpose adjustment for differences among your 
@@ -1038,6 +1073,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' @return `matrix`
 #'
 #' @importFrom limma normalizeQuantiles
+#' @importFrom stats quantile
 #'  
 #' @export
 normalize <- function(x, 
@@ -1054,7 +1090,7 @@ normalize <- function(x,
     }
     if (method == "quantile division") {
         x_n <- apply(x_n, 2, 
-                function(x) x / quantile(x, probs = probs, na.rm = TRUE))
+                function(x) x / stats::quantile(x, probs = probs, na.rm = TRUE))
     }
     if (method == "quantile") {
         x_n <- limma::normalizeQuantiles(x_n, ties = TRUE)
@@ -1093,7 +1129,6 @@ normalize <- function(x,
 #' @return `matrix`
 #' 
 #' @importFrom vsn vsn2
-#' @import dplyr 
 #' 
 #' @export
 transform <- function(x, method = c("none", "log2", "vsn")) {
@@ -1146,31 +1181,30 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' @return `matrix`
 #' 
 #' @importFrom limma removeBatchEffect
-#' @import dplyr 
+#' @importFrom SummarizedExperiment assay colData
 #' 
 #' @export
 batch <- function(se, 
     method = c("none", "removeBatchEffect (limma)"), batchColumn) {
     
     method <- match.arg(method)
-    a <- assay(se)
-    x_b <- a %>% as.matrix()
+    a <- SummarizedExperiment::assay(se)
+    x_b <- as.matrix(a)
     
     if (method == "removeBatchEffect (limma)") {
-        cD <- colData(se)
+        cD <- SummarizedExperiment::colData(se)
         if (!batchColumn %in% colnames(cD)) {
             stop("batchColumn not in colnames(colData(se))")
         }
         
         batch <- cD[, batchColumn]
-        x_b <- removeBatchEffect(x_b, batch = batch)
+        x_b <- limma::removeBatchEffect(x_b, batch = batch)
     }
     
     rownames(x_b) <- rownames(a)
     colnames(x_b) <- colnames(a)
     
     return(x_b)
-    
 }
 
 #' @name impute
@@ -1215,20 +1249,20 @@ impute <- function(x,
     method <- match.arg(method)
 
     ## convert the data.frame into matrix
-    x_i <- x %>% as.matrix()
+    x_i <- as.matrix(x)
 
     if (method == "BPCA")
-        x_i <- x_i %>% impute_bpca()
+        x_i <- MsCoreUtils::impute_bpca(x = x_i)
     if (method == "kNN")
-        x_i <- x_i %>% impute_knn()
+        x_i <- MsCoreUtils::impute_knn(x = x_i)
     if (method == "MLE")
-        x_i <- x_i %>% impute_mle()
+        x_i <- MsCoreUtils::impute_mle(x = x_i)
     if (method == "Min")
-        x_i <- x_i %>% impute_min()
+        x_i <- MsCoreUtils::impute_min(x = x_i)
     if (method == "MinDet")
-        x_i <- x_i %>% impute.MinDet()
+        x_i <- imputeLCMD::impute.MinDet(dataSet.mvs = x_i)
     if (method == "MinProb")
-        x_i <- x_i %>% impute.MinProb()
+        x_i <- imputeLCMD::impute.MinProb(dataSet.mvs = x_i)
     return(x_i)
 }
 

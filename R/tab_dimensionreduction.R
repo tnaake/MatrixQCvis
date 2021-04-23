@@ -43,6 +43,7 @@
 #' @importFrom vegan metaMDS
 #' @importFrom Rtsne Rtsne
 #' @importFrom umap umap
+#' @importFrom methods formalArgs
 #' 
 #' @return `tbl`
 #' 
@@ -54,36 +55,36 @@ ordination <- function(x,
     
     if (type == "PCA") { ## scale, center
         params <- append(params, list(x = t(x)))
-        d <- do.call(what = prcomp, params)
-        tbl <- as_tibble(d$x)
-        tbl <- tibble(name = rownames(d$x), tbl)
+        d <- do.call(what = stats::prcomp, params)
+        tbl <- tibble::as_tibble(d$x)
+        tbl <- tibble::tibble(name = rownames(d$x), tbl)
     }
     if (type == "PCoA") {
         params <- append(params, list(x = t(x)))
         ## truncate params
-        params <- params[names(params) %in% formalArgs(dist)] 
+        params <- params[names(params) %in% methods::formalArgs(dist)] 
         d <- do.call(what = dist, args = params)
-        d <- pcoa(d)
-        tbl <- as_tibble(d$vectors)
-        tbl <- tibble(name = rownames(d$vectors), tbl)
+        d <- ape::pcoa(d)
+        tbl <- tibble::as_tibble(d$vectors)
+        tbl <- tibble::tibble(name = rownames(d$vectors), tbl)
     }
     if (type == "NMDS") {
         params <- append(params, list(x = t(x)))
         ## truncate params
         params <- params[names(params) %in% formalArgs(dist)] 
-        d <- do.call(what = dist, args = params)
-        d <- metaMDS(d)
-        tbl <- as_tibble(d$points)
-        tbl <- tibble(name = rownames(d$points), tbl)
+        d <- do.call(what = stats::dist, args = params)
+        d <- vegan::metaMDS(d)
+        tbl <- tibble::as_tibble(d$points)
+        tbl <- tibble::tibble(name = rownames(d$points), tbl)
     }
     if (type == "tSNE") { 
         ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims
         params <- append(params, list(X = t(x)))
-        d <- do.call(what = Rtsne, args = params) 
+        d <- do.call(what = Rtsne::Rtsne, args = params) 
         d <- d$Y
         colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
-        tbl <- as_tibble(d)
-        tbl <- tibble(name = colnames(x), tbl)
+        tbl <- tibble::as_tibble(d)
+        tbl <- tibble::tibble(name = colnames(x), tbl)
     }
     if (type == "UMAP") { 
         ## hyperparameters for UMAP: n_neighbors, min_dist, spread
@@ -91,11 +92,11 @@ ordination <- function(x,
         if ("method" %in% names(params)) 
             params <- params[names(params) != "method"]
         params <- append(params, list(d = t(x), method = "naive"))
-        d <- do.call(what = umap, args = params)
+        d <- do.call(what = umap::umap, args = params)
         d <- d$layout
         colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
-        tbl <- as_tibble(d)
-        tbl <- tibble(name = rownames(d), tbl)
+        tbl <- tibble::as_tibble(d)
+        tbl <- tibble::tibble(name = rownames(d), tbl)
     }
     
     return(tbl)
@@ -162,33 +163,34 @@ ordinationPlot <- function(tbl, se,
         tT <- c("text")
     } else {
         cD_cut <- data.frame(name = cD[, "name"], color = cD[, highlight])
-        tbl <- left_join(tbl, cD_cut, by = "name", copy = TRUE)
+        tbl <- dplyr::left_join(tbl, cD_cut, by = "name", copy = TRUE)
         tT <- c("text", "color")
     }
     
     ## use deparse(quote(namesDf)) to convert object name into
     ## character string
-    g <- ggplot(tbl, aes_string(x = x_coord, y = y_coord, 
+    g <- ggplot2::ggplot(tbl, aes_string(x = x_coord, y = y_coord, 
         text = deparse(quote(name)))) 
     
     if (!is.null(explainedVar)) {
-        g <- g + xlab(paste(x_coord, " (", 
+        g <- g + ggplot2::xlab(paste(x_coord, " (", 
             round(explainedVar[[x_coord]]*100, 2), "%)", sep = ""))
-        g <- g + ylab(paste(x_coord, " (", 
+        g <- g + ggplot2::ylab(paste(x_coord, " (", 
             round(explainedVar[[y_coord]]*100, 2), "%)", sep = ""))
     } else {
-        g <- g + xlab(x_coord) + ylab(y_coord) 
+        g <- g + ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) 
     }
     
     if (highlight == "none") {
-        g <- g + geom_point()
+        g <- g + ggplot2::geom_point()
     } else {
-        g <- g + geom_point(aes_string(color = "color"))
+        g <- g + ggplot2::geom_point(aes_string(color = "color"))
     }
     
-    g <- g + coord_fixed(ratio = 1) + theme_classic() + theme(legend.position = "none") 
+    g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() + 
+        ggplot2::theme(legend.position = "none") 
     
-    ggplotly(g, tooltip = tT, height = height) 
+    plotly::ggplotly(g, tooltip = tT, height = height) 
 }
 
 
@@ -226,7 +228,7 @@ ordinationPlot <- function(tbl, se,
 #' @export
 explVar <- function(x, center = TRUE, scale = TRUE) {
     ## PCA (by prcomp) and retrieve the exlained variance for each PC
-    PC <- prcomp(x, center = center, scale = scale)
+    PC <- stats::prcomp(x, center = center, scale = scale)
     explVar <- PC$sdev^2 / sum(PC$sdev^2)
     names(explVar) <- paste("PC", seq_len(ncol(x)), sep = "")
     
@@ -331,15 +333,15 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
     df$values <- df$values * 100
     
     ## plotting
-    g <- ggplot(df, aes_string(x = "PC", y = "values"))  + 
-        geom_point(aes_string(color = "group")) + 
-        geom_line(aes_string(color = "group", group = "group")) +
-        theme_bw() + ylab("explained variance (%)") + 
-        xlab("principal components") +
-        theme(axis.text.x = element_text(angle = 90))
+    g <- ggplot2::ggplot(df, aes_string(x = "PC", y = "values"))  + 
+        ggplot2::geom_point(aes_string(color = "group")) + 
+        ggplot2::geom_line(aes_string(color = "group", group = "group")) +
+        ggplot2::theme_bw() + ggplot2::ylab("explained variance (%)") + 
+        ggplot2::xlab("principal components") +
+        ggplot2::theme(axis.text.x = element_text(angle = 90))
     
     if (is.null(var_perm)) g <- g + 
-        theme(legend.title = element_blank(), legend.position = "none")
+        ggplot2::theme(legend.title = element_blank(), legend.position = "none")
     
     return(g)
 }
@@ -377,11 +379,13 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
     df$PC <- factor(df$PC, levels = df$PC)
     
     ## plotting
-    ggplot(df, aes_string(x = "PC", y = "values")) + 
-        geom_point() + geom_line(aes_string(group = "group")) + 
-        geom_hline(aes(yintercept=0.05), color = "red") +
-        ylab("p-value") + xlab("principal components") + 
-        theme_bw() + theme(axis.text.x = element_text(angle = 90))
+    ggplot2::ggplot(df, aes_string(x = "PC", y = "values")) + 
+        ggplot2::geom_point() + 
+        ggplot2::geom_line(aes_string(group = "group")) + 
+        ggplot2::geom_hline(aes(yintercept=0.05), color = "red") +
+        ggplot2::ylab("p-value") + ggplot2::xlab("principal components") + 
+        ggplot2::theme_bw() + 
+        ggplot2::theme(axis.text.x = element_text(angle = 90))
 }
 
 #' @name tblPCALoadings
@@ -416,9 +420,9 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' @export
 tblPCALoadings <- function(x, params) {
     params <- append(params, list(x = t(x)))
-    d <- do.call(what = prcomp, params)
-    tbl <- as_tibble(d$rotation)
-    tbl <- tibble(name = rownames(d$rotation), tbl)
+    d <- do.call(what = stats::prcomp, params)
+    tbl <- tibble::as_tibble(d$rotation)
+    tbl <- tibble::tibble(name = rownames(d$rotation), tbl)
     return(tbl)
 }
 
@@ -457,10 +461,10 @@ tblPCALoadings <- function(x, params) {
 #' @export
 plotPCALoadings <- function(tbl, x_coord, y_coord) {
     
-    g <- ggplot(tbl, aes_string(text = deparse(quote(name)))) +
-        geom_point(aes_string(x = x_coord, y = y_coord), alpha = 0.4) +
-        xlab(x_coord) + ylab(y_coord) +
-        theme_classic() + theme(legend.position = "none")
+    g <- ggplot2::ggplot(tbl, aes_string(text = deparse(quote(name)))) +
+        ggplot2::geom_point(aes_string(x = x_coord, y = y_coord), alpha = 0.4) +
+        ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) +
+        ggplot2::theme_classic() + ggplot2::theme(legend.position = "none")
 
-    ggplotly(g, tooltip = "name")
+    plotly::ggplotly(g, tooltip = "name")
 }
