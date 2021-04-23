@@ -532,18 +532,18 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             output$plot <- plotly::renderPlotly({
                 shiny::req(input$x)
                 
-                if (id == "PCA") {
+                if (id %in% c("PCA", "PCoA")) {
                     
                     params_l <- shiny::reactiveValuesToList(params())
                     explainedVar <- explVar(assay(), 
-                        center = params_l$center, scale = params_l$scale)
+                        params = params_l, type = id)
                     ordinationPlot(tbl_vals(), se = se(), 
                         highlight = input$highlight, input$x, input$y, 
                         explainedVar = explainedVar, 
                         height = innerWidth() * 3 / 5)
-                    
+
                 } else {
-                    
+
                     ordinationPlot(tbl_vals(), se = se(), 
                         highlight = input$highlight, input$x, input$y, 
                         explainedVar = NULL, 
@@ -551,7 +551,7 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
 
                 }
             })
-            
+
             output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste(type, "_", input$x, "_", input$y, "_", 
@@ -602,7 +602,9 @@ screePlotServer <- function(id, assay, center, scale) {
         function(input, output, session) {
             
             var_x <- shiny::reactive({
-                explVar(assay(), center = center(), scale = scale())
+                explVar(assay(), 
+                    params = list(center = center(), scale = scale()), 
+                    type = "PCA")
             })
             
             if (id == "PCA") {

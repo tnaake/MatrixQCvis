@@ -17,7 +17,8 @@
 #' `vegan::metaMDS` (NMDS), `Rtsne::Rtsne` (tSNE), and `umap::umap` (UMAP).
 #' For the function `umap::umap` the method is set to `naive`. 
 #' 
-#' @param x `matrix`, containing no missing values
+#' @param x `matrix`, containing no missing values, samples are in columns and
+#' features are in rows
 #' @param type `character`, specifying the type/method to use for 
 #' dimensionality reduction. One of `PCA`, `PCoA`, `NMDS`, `tSNE`, or `UMAP`. 
 #' @param params `list`, arguments/parameters given to the functions 
@@ -38,8 +39,7 @@
 #'
 #' @author Thomas Naake
 #'
-#' @importFrom stats prcomp
-#' @importFrom ape pcoa
+#' @importFrom stats prcomp dist cmdscale
 #' @importFrom vegan metaMDS
 #' @importFrom Rtsne Rtsne
 #' @importFrom umap umap
@@ -62,11 +62,12 @@ ordination <- function(x,
     if (type == "PCoA") {
         params <- append(params, list(x = t(x)))
         ## truncate params
-        params <- params[names(params) %in% methods::formalArgs(dist)] 
-        d <- do.call(what = dist, args = params)
-        d <- ape::pcoa(d)
-        tbl <- tibble::as_tibble(d$vectors)
-        tbl <- tibble::tibble(name = rownames(d$vectors), tbl)
+        params <- params[names(params) %in% methods::formalArgs(stats::dist)] 
+        d <- do.call(what = stats::dist, args = params)
+        d <- cmdscale(d, k = ncol(x) - 1, eig = FALSE)
+        colnames(d) <- paste("Axis.", seq_len(ncol(d)), sep = "")
+        tbl <- tibble::as_tibble(d)
+        tbl <- tibble::tibble(name = rownames(d), tbl)
     }
     if (type == "NMDS") {
         params <- append(params, list(x = t(x)))
@@ -197,41 +198,70 @@ ordinationPlot <- function(tbl, se,
 
 #' @name explVar
 #'
-#' @title Retrieve the explained variance for each principal component
+#' @title Retrieve the explained variance for each principal component and axis
 #'
 #' @description
 #' The function `explVar` calculates the proportion of explained variance for
-#' each principal component (PC). 
+#' each principal component (PC, `type = "PCA"`) and axis (`type = "PCoA"`). 
 #' 
 #' @details 
 #' `explVar` uses the function `prcomp` from the `stats` package to retrieve
-#' the explained standard deviation per PC. 
+#' the explained standard deviation per PC (`type = "PCA"`) and the function 
+#' `cmdscale` from the `stats` package to retrieve the explained variation 
+#' based on eigenvalues per Axis (`type = "PCoA"`).
 #' 
-#' @param x `matrix`, containing no missing values (`NA`)
-#' @param center `logical`, indicating whether the variables should be shifted 
-#' to be zero centered
-#' @param scale `logical`, indicating whether the variables should be shifted
-#' to be zero centered
+#' @param x `matrix`, containing no missing values (`NA`), samples in columns
+#' and features in rows
+#' @param params `list`, containing the parameters for PCA and PCoA. For 
+#' `type = "PCA"` these are `center` of type `logical` 
+#' (indicating whether the variables should be shifted to be zero centered) and
+#' `scale` of type `logical`(indicating whether the variables should be scaled
+#' that they have a standard variation of 1). For `type = "PCoA"`, this 
+#' is `method` of type `character` (indicating the method for distance 
+#' calculation). 
+#' @param type `character`, one of `"PCA"` or `"PCoA"`
 #' 
 #' @return `numeric` vector with the proportion of explained variance for each 
-#' PC
+#' PC or Axis
 #' 
 #' @examples
 #' x <- matrix(1:100, nrow = 10, ncol = 10, 
 #'     dimnames = list(1:10, paste("sample", 1:10)))
 #' set.seed(1)
 #' x <- x + rnorm(100)
-#' explVar(x = x, center = TRUE, scale = TRUE)
-#'
-#' @author Thomas
+#' explVar(x = x, params = list(center = TRUE, scale = TRUE), type = "PCA")
+#' explVar(x = x, params = list(method = "euclidean"), type = "PCoA")
+#' 
+#' @author Thomas Naake
+#' 
+#' @importFrom stats prcomp dist cmdscale
 #'
 #' @export
-explVar <- function(x, center = TRUE, scale = TRUE) {
-    ## PCA (by prcomp) and retrieve the exlained variance for each PC
-    PC <- stats::prcomp(x, center = center, scale = scale)
-    explVar <- PC$sdev^2 / sum(PC$sdev^2)
-    names(explVar) <- paste("PC", seq_len(ncol(x)), sep = "")
-    
+explVar <- function(x, params, type = c("PCA", "PCoA")) {
+
+    type <- match.arg(type)
+
+    if (type == "PCA") {
+
+        ## PCA (by prcomp) and retrieve the exlained variance for each PC
+        params <- append(params, list(x = t(x)))
+        PC <- do.call(what = stats::prcomp, params)
+        explVar <- PC$sdev^2 / sum(PC$sdev^2)
+        names(explVar) <- paste("PC", seq_len(ncol(x)), sep = "")    
+    }
+
+    if (type == "PCoA") {
+
+        params <- append(params, list(x = t(x)))
+        ## truncate params
+        params <- params[names(params) %in% methods::formalArgs(stats::dist)]
+        d <- do.call(what = stats::dist, params)
+        cmd <- stats::cmdscale(d, k = ncol(x) - 1, eig = TRUE)
+        explVar <- cmd$eig / sum(cmd$eig)
+        explVar <- explVar[-length(explVar)]
+        names(explVar) <- paste("Axis.", seq_len(ncol(x) - 1), sep = "")
+    }
+
     return(explVar)
 }
 
@@ -257,7 +287,7 @@ explVar <- function(x, center = TRUE, scale = TRUE) {
 #' be employed and the observed variance will be compared to the permuted 
 #' variance.
 #' 
-#' @param x `matrix` or `data.frame`
+#' @param x `matrix` or `data.frame`, samples in columns and features in rows
 #' @param n `numeric`, number of permutation rounds
 #' @param center `logical`, passed to the function `explVar`
 #' @param scale `logical`, passed to the function `explVar`
@@ -277,11 +307,12 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
     if (n < 1) stop("n has to be greater than 0")
     
     var_perm <- lapply(seq_len(n), function(i) {
-        ## permute across the samples
-        x_perm <- apply(x, 2, sample)
+        ## permute features across the samples
+        x_perm <- apply(x, 1, sample)
         
         ## PCA and retrieve the explained variance for each PC
-        explVar(x_perm, center = center, scale = scale)
+        explVar(x_perm, params = list(center = center, scale = scale), 
+            type = "PCA")
     })
     
     ## create a matrix (rbind the list elements)
@@ -309,7 +340,8 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' 
 #' @examples 
 #' x <- matrix(1:100, ncol = 10)
-#' var_x <- explVar(x = x, center = TRUE, scale = TRUE)
+#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE), 
+#'     type = "PCA")
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVar(var_x = var_x, var_perm = var_perm)
 #' 
@@ -363,7 +395,8 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' 
 #' @examples
 #' x <- matrix(1:100, ncol = 10)
-#' var_x <- explVar(x = x, center = TRUE, scale = TRUE)
+#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE), 
+#'     type = "PCA")
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVarPvalue(var_x = var_x, var_perm = var_perm)
 #' 

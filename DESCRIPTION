@@ -31,7 +31,6 @@ Depends:
 	plotly,
 	shiny (>= 1.6)
 Imports:
-	ape,
 	ComplexHeatmap,
 	dplyr,
 	ggplot2,

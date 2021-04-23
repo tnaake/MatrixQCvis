@@ -35,7 +35,9 @@ test_that("ordination", {
     
     pca_r <- stats::prcomp(t(x), center = TRUE, scale = FALSE)$x 
     pca_r <- tibble::as_tibble(pca_r)
-    pcoa_r <- ape::pcoa(dist(t(x), method = "euclidean"))$vectors
+    pcoa_r <- cmdscale(dist(t(x), method = "euclidean"), k = ncol(x) - 1, 
+        eig = FALSE)
+    colnames(pcoa_r) <- paste("Axis.", seq_len(99), sep = "")
     pcoa_r <- tibble::as_tibble(pcoa_r)
     nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points 
     nmds_r <- tibble::as_tibble(nmds_r)
@@ -123,24 +125,39 @@ test_that("explVar", {
     set.seed(1)
     x <- x + rnorm(100)
     
-    varExpl <- explVar(x, center = TRUE, scale = TRUE)
+    params <- list(center = TRUE, scale = TRUE, method = "euclidean")
+    varExpl_pca <- explVar(x, params = params, type = "PCA")
+    varExpl_pcoa <- explVar(x, params = params, type = "PCoA")
     
-    expect_error(explVar(NA, center = TRUE, scale = TRUE), 
+    expect_error(explVar(NA, params = params, type = "PCA"), 
         "cannot rescale a constant/zero column to unit variance")
-    suppressWarnings(expect_error(explVar(1:10, center = TRUE, scale = TRUE), 
-        "argument must be coercible to non-negative integer"))
+    expect_error(explVar(NA, params = params, type = "PCoA"), 
+        "missing value where TRUE/FALSE needed")
+    suppressWarnings(expect_error(explVar(1:10, params = params, type = "PCA"), 
+        "cannot rescale a constant/zero column to unit variance"))
     expect_error(
-        explVar(matrix(1, nrow = 10, ncol = 10), center = TRUE, scale = TRUE), 
+        explVar(matrix(1, nrow = 10, ncol = 10), params = params, type = "PCA"), 
         "cannot rescale a constant/zero column to unit variance")
-    expect_error(explVar(x, center = "", scale = TRUE), 
+    expect_error(
+        explVar(x, params = list(center = "", scale = TRUE), type = "PCA"), 
         "length of 'center' must equal the number of columns")
-    expect_error(explVar(x, center = TRUE, scale = ""), 
+    expect_error(
+        explVar(x, params = list(center = TRUE, scale = ""), type = "PCA"), 
         "length of 'scale' must equal the number of columns")
-    expect_equal(as.numeric(varExpl), 
-        c(9.270864e-01, 2.547226e-02, 2.125255e-02, 1.018831e-02, 7.511592e-03,
-          5.043427e-03, 2.596257e-03, 6.542124e-04, 1.949534e-04, 1.130608e-31),
+    expect_error(
+        explVar(x, params = list(center = TRUE, scale = ""), type = "PCA"), 
+        "length of 'scale' must equal the number of columns")
+    expect_equal(as.numeric(varExpl_pca), 
+        c(9.992575e-01, 2.675309e-04, 2.275137e-04, 1.158747e-04, 5.881982e-05,
+            4.652981e-05, 1.865835e-05, 6.885796e-06, 6.705589e-07,
+            2.006033e-34),
         tolerance = 1e-07)
-    expect_equal(names(varExpl), paste("PC", 1:10, sep = ""))
+    expect_equal(as.numeric(varExpl_pcoa), 
+        c(9.992597e-01, 2.673699e-04, 2.267327e-04, 1.145103e-04, 5.908631e-05,
+            4.653893e-05, 1.855159e-05, 6.844296e-06, 6.848357e-07),
+        tolerance = 1e-07)
+    expect_equal(names(varExpl_pca), paste("PC", 1:10, sep = ""))
+    expect_equal(names(varExpl_pcoa), paste("Axis.", 1:9, sep = ""))
     
 })
 
@@ -175,7 +192,8 @@ test_that("plotPCAVar", {
         dimnames = list(1:10, paste("sample", 1:10)))
     set.seed(1)
     x <- x + rnorm(100)
-    var_x <- explVar(x, center = TRUE, scale = TRUE)
+    var_x <- explVar(x, params = list(center = TRUE, scale = TRUE), 
+        type = "PCA")
     var_perm <- permuteExplVar(x, n = 100, center = TRUE, scale = TRUE)
     g <- plotPCAVar(var_x, var_perm)
     
@@ -192,7 +210,8 @@ test_that("plotPCAVarPvalue", {
                 dimnames = list(1:10, paste("sample", 1:10)))
     set.seed(1)
     x <- x + rnorm(100)
-    var_x <- explVar(x, center = TRUE, scale = TRUE)
+    var_x <- explVar(x, params = list(center = TRUE, scale = TRUE), 
+        type = "PCA")
     var_perm <- permuteExplVar(x, n = 100, center = TRUE, scale = TRUE)
     g <- plotPCAVarPvalue(var_x, var_perm)
     
