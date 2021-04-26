@@ -13,7 +13,7 @@ tblPCALoadings(x, params)
 `stats::prcomp`}
 }
 \value{
-`tibble`
+`tbl`
 }
 \description{
 The function `tblPCALoadings` returns a `tibble` with loadings values for the
@@ -24,6 +24,7 @@ The function `tblPCALoadings` acccesses the list entry `rotation` of the
 `prcomp` object.
 }
 \examples{
+set.seed(1)
 x <- matrix(rnorm(1:10000), ncol = 100)
 rownames(x) <- paste("feature", 1:nrow(x))
 colnames(x) <- paste("sample", 1:ncol(x))

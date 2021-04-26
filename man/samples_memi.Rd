@@ -11,10 +11,10 @@ samples_memi(se)
 \item{se}{`SummarizedExperiment` object}
 }
 \value{
-`tibble`
+`tbl` with number of measured/missing features per sample
 }
 \description{
-`samples_memi` returns a `tibble` with 
+`samples_memi` returns a `tbl` with 
 the number of measured/missing
 features of samples. The function will take as input a 
 `SummarizedExperiment` object and will access its `assay()` slot

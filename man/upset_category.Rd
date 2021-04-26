@@ -21,8 +21,11 @@ encoded by `NA`}
 \description{
 The function `upset_category` displays the frequency of measured values per
 feature with respect to class/sample type to assess difference in
-occurences. Internally, the measured values per sample are obtained via
-the `measured_category` function: this function will
+occurrences. Internally, the measured values per sample are obtained via
+the `measured_category` function: this function will access the number
+of measured/missing values per category and feature. From this, a binary 
+`tbl` will be created specifying if the feature is present/missing, which
+will be given to the `upset` function from the `UpSetR` package.
 }
 \examples{
 ## create se

@@ -18,14 +18,13 @@ values per sample. Missing values are encoded as `NA`.}
 \item{...}{additional parameters passed to `geom_histogram`, e.g. `binwidth`.}
 }
 \value{
-`gg` object from `ggplot2`
+`plotly`
 }
 \description{
 The function `hist_feature_category` creates histogram
 plots for each sample type in `se`.
 }
 \examples{
-
 ## create se
 a <- matrix(1:100, nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))

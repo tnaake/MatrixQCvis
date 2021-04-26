@@ -2,7 +2,7 @@
 % Please edit documentation in R/tab_values.R
 \name{impute}
 \alias{impute}
-\title{Impute missing values in a `data.frame`, `tibble`, `matrix`}
+\title{Impute missing values in a `data.frame`, `tbl`, `matrix`}
 \usage{
 impute(x, method = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb"))
 }
@@ -19,7 +19,7 @@ features in rows}
 \description{
 The function `impute` imputes missing values based on one of the following 
 principles: Bayesian missing value imputation (`BPCA`), k-nearest 
-neighbor averaging (`KNN`), Malimum likelihood-based imputation method using
+neighbor averaging (`kNN`), Malimum likelihood-based imputation method using
 the EM algorithm (`MLE`), replacement by the smallest non-missing value
 in the data (`Min`), replacement by the minimal value observed as
 the q-th quantile (`MinDet`, default `q = 0.01`), and replacement by
@@ -55,6 +55,10 @@ sample. `MinProb` is a MNAR imputation method.
 x <- matrix(1:100, nrow = 10, ncol = 10, 
     dimnames = list(1:10, paste("sample", 1:10)))
 x[c(1, 5, 8), 1:5] <- NA
+
 impute(x, method = "kNN")
+impute(x, method = "Min")
+impute(x, method = "MinDet")
+impute(x, method = "MinProb")
 
 }

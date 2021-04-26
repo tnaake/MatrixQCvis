@@ -7,7 +7,7 @@
 barplot_samples_memi(tbl, measured = TRUE)
 }
 \arguments{
-\item{tbl}{`tibble` object}
+\item{tbl}{`tbl` object}
 
 \item{measured}{`logical`, should the number of measured or missing values
 be plotted}
@@ -18,7 +18,7 @@ be plotted}
 \description{
 `barplot_samples_memi` plots the number of measured/missing
 features of samples as a barplot. The function will take as input the 
-returned `tibble` of `samples_memi`.
+returned `tbl` of `samples_memi`.
 }
 \examples{
 ## create se
@@ -27,10 +27,10 @@ a <- matrix(1:100, nrow = 10, ncol = 10,
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
-    rowData = featData, colData = sample)
+    rowData = rD, colData = cD)
 
 ## create the data.frame with information on number of measured/missing
 ## values

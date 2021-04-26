@@ -15,7 +15,7 @@ ordinationPlot(
 )
 }
 \arguments{
-\item{tbl}{`tibble` as obtained by the function `ordination`}
+\item{tbl}{`tbl` as obtained by the function `ordination`}
 
 \item{se}{`SummarizedExperiment`}
 
@@ -36,8 +36,8 @@ contains the explained variance per principal component (names of
 }
 \description{
 The function `ordinationPlot` creates a dimension reduction plot. 
-The function takes as input the `tibble` object obtained 
-from the `ordination` function. The `tibble` contains transformed
+The function takes as input the `tbl` object obtained 
+from the `ordination` function. The `tbl` contains transformed
 values by one of the ordination methods.
 }
 \details{

@@ -22,7 +22,7 @@ of coefficient of variation values per list entry of `l`.
 \details{
 `lines = TRUE` will connect the points belonging to the same feature with a 
 line. If there are less than two features, the violin plot will not be
-plotted.
+plotted. The violin plots will be ordered according to the order in `l`
 }
 \examples{
 x1 <- matrix(1:100, ncol = 10, nrow = 10, 

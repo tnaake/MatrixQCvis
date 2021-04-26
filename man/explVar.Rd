@@ -2,12 +2,14 @@
 % Please edit documentation in R/tab_dimensionreduction.R
 \name{explVar}
 \alias{explVar}
-\title{Retrieve the explained variance for each principal component and axis}
+\title{Retrieve the explained variance for each principal component (PCA) or
+axis (PCoA)}
 \usage{
 explVar(x, params, type = c("PCA", "PCoA"))
 }
 \arguments{
-\item{x}{`matrix`, containing no missing values (`NA`)}
+\item{x}{`matrix`, containing no missing values (`NA`), samples in columns
+and features in rows}
 
 \item{params}{`list`, containing the parameters for PCA and PCoA. For 
 `type = "PCA"` these are `center` of type `logical` 

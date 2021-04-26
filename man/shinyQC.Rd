@@ -12,7 +12,8 @@ shinyQC(se, app_server = FALSE)
 \item{app_server}{`logical` (set to `TRUE` if run under a server environment)}
 }
 \value{
-`list` with matrices
+`shiny` application, `SummarizedExperiment` upon exiting the 
+`shiny` application
 }
 \description{
 The shiny application allows to explore -omics
@@ -46,11 +47,10 @@ library(dplyr)
 library(SummarizedExperiment)
 
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
+set.seed(1)
+a <- matrix(rnorm(100, mean = 10, sd = 2), nrow = 10, ncol = 10, 
             dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
-set.seed(1)
-a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)

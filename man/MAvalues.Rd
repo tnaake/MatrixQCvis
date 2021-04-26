@@ -9,16 +9,20 @@ MAvalues(se, log2 = TRUE, group = c("all", colnames(colData(se))))
 \arguments{
 \item{se}{`SummarizedExperiment`}
 
-\item{log2}{`logical`}
+\item{log2}{`logical`, specifies if values re `log2` transformed prior to
+calculating M and A values. If the values are already transformed, `log2` 
+should be set to `FALSE`.}
 
 \item{group}{`character`, either `"all"` or one of `colnames(colData(se))`}
 }
 \value{
-`tibble`
+`tbl` with columns `Feature`, `name` (sample name), `A`, `M` and
+additional columns of `colData(se)`
 }
 \description{
-THe function `MAvalues` will create MA values as input for the function 
-`MAplot`. `M` and `A` are specified relative to specified samples which 
+The function `MAvalues` will create MA values as input for the function 
+`MAplot` and `hoeffDValues`. 
+`M` and `A` are specified relative to specified samples which 
 is determined by the `group` argument. In case of `group == "all"`, all 
 samples (expect the specified one) are taken for the reference calculation.
 In case of `group != "all"` will use the samples belonging to the same group
@@ -26,15 +30,14 @@ given in `colnames(colData(se))` expect the specified one.
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
-a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
+            dimnames = list(1:1000, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
-MAvalues(se, group = "all")
+MAvalues(se, log2 = FALSE, group = "all")
 
 }

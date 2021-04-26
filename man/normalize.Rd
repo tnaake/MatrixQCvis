@@ -10,7 +10,8 @@ normalize(x, method = c("none", "sum", "quantile division", "quantile"), probs)
 \item{x}{`data.frame`, `tibble`, or `matrix` with samples in columns and 
 features in rows}
 
-\item{method}{`character`}
+\item{method}{`character`, one of `"none"`, `"sum"`, `"quantile division"`, 
+`"quantile"`}
 
 \item{probs}{`numeric`, ranging between `[0, 1)`. `probs` is used as the 
 divisor for quantile division in `method = "quantile division"`}
@@ -28,7 +29,8 @@ Quantile normalization is performed by using the `normalizeQuantiles`
 function from `limma`.
 }
 \details{
-Internal usage in `shinyQC`.
+Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
+`x` is returned as is (pass-through).
 }
 \examples{
 x <- matrix(1:100, nrow = 10, ncol = 10, 

@@ -27,7 +27,7 @@ log2 values}
 violin plot is created}
 }
 \value{
-`gg`
+`gg` object from `ggplot2`
 }
 \description{
 The function `create_boxplot` creates

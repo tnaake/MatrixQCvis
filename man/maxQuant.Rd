@@ -31,6 +31,6 @@ The argument `type` will specify if the `iBAQ` or `LFQ` values are taken.
 }
 \examples{
 file <- "path/to/maxQuant/object"
-\donttest{maxQuant(file = file, sheetName = NULL)}
+\donttest{maxQuant(file = file, type = "iBAQ", sheetName = NULL)}
 
 }

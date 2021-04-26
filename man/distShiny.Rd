@@ -7,7 +7,8 @@
 distShiny(x, method = "euclidean")
 }
 \arguments{
-\item{x}{`matrix` or `data.frame`}
+\item{x}{`matrix` or `data.frame` with samples in columns and features in 
+rows}
 
 \item{method}{`character`, method for distance calculation}
 }

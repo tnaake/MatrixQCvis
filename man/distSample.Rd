@@ -11,7 +11,7 @@ distSample(d, se, label = "name", title = "raw")
 
 \item{se}{`SummarizedExperiment`}
 
-\item{label}{`character`, refers to a column}
+\item{label}{`character`, refers to a column in `colData(se)`}
 
 \item{title}{`character`}
 }
@@ -28,16 +28,17 @@ Internal use in `shinyQC`
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
+a <- matrix(1:100, nrow = 10, ncol = 10,
             dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-a_i <- a \%>\% impute(., method = "MinDet")
-cD <- data.frame(name = colnames(a_i), 
+a_i <- impute(a, method = "MinDet")
+cD <- data.frame(name = colnames(a_i),
     type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a_i))
-se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD, colData = cD)
+se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD,
+    colData = cD)
 
 dist <- distShiny(a_i)
 distSample(dist, se, label = "type", title = "imputed")

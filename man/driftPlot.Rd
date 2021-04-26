@@ -38,7 +38,7 @@ The function `driftPlot` aggregates the (count/intensity) values from the
 (count/intensity) values. `driftPlot` then visualizes these aggregated values 
 and adds a trend line (using either LOESS or a linear model) from 
 (a subset of) the aggregated values. The subset is specified by the 
-arguments `category` and `level`
+arguments `category` and `level`.
 }
 \details{
 The x-values are sorted according to the `orderCategory` argument: The 
@@ -48,17 +48,16 @@ Internal usage in `shinyQC`.
 }
 \examples{
 #' ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-    dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
-a <- a + rnorm(100)
-cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+a <- matrix(rnorm(1000), nrow = 10, ncol = 100, 
+    dimnames = list(1:10, paste("sample", 1:100)))
+a[c(1, 5, 8), 1:5] <- NA
+cD <- data.frame(name = colnames(a), type = c(rep("1", 50), rep("2", 50)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
     rowData = rD, colData = cD)
 
 driftPlot(se, aggregation = "sum", category = "type", 
-    orderCategory = "name", level = "1", method = "loess")
+    orderCategory = "type", level = "1", method = "loess")
 
 }

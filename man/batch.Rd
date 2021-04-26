@@ -5,14 +5,18 @@
 \title{Remove batch effects from (count/intensity) values of a 
 `SummarizedExperiment`}
 \usage{
-batch(se, method = c("none", "removeBatchEffect (limma)"), batchColumn)
+batch(
+  se,
+  method = c("none", "removeBatchEffect (limma)"),
+  batchColumn = colnames(colData(se))
+)
 }
 \arguments{
 \item{se}{`SummarizedExperiment`, `tibble`, or `matrix`}
 
 \item{method}{`character`, one of `"none"` or `"removeBatchEffect"`}
 
-\item{batchColumn}{`character`, one of}
+\item{batchColumn}{`character`, one of `colnames(colData(se))`}
 }
 \value{
 `matrix`
@@ -24,13 +28,22 @@ or no batch effect correction method (pass-through,
 `none`).
 }
 \details{
-Internal use in `shinyQC`.
+The column `batchColumn` in `colData(se)` contains the information on the 
+batch identity. Internal use in `shinyQC`.
 }
 \examples{
-x <- matrix(1:1000, nrow = 100, ncol = 10, 
-        dimnames = list(1:100, paste("sample", 1:10)))
-transform(x, "none")
-transform(x, "log2")
-transform(x, "vsn")
+## create se
+a <- matrix(1:100, nrow = 10, ncol = 10, 
+            dimnames = list(1:10, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
+set.seed(1)
+a <- a + rnorm(100)
+cD <- data.frame(name = colnames(a), 
+    type = c(rep("1", 5), rep("2", 5)), batch = rep(c(1, 2), 5))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+    rowData = rD, colData = cD)
+
+batch(se, method = "removeBatchEffect (limma)", batchColumn = "batch")
 
 }

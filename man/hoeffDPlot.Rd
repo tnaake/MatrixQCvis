@@ -14,38 +14,38 @@ Hoeffding's D statistics}
 connected}
 }
 \value{
-`gg` object from `ggplot`
+`gg` object from `ggplot2`
 }
 \description{
 The function `hoeffDPlot` creates via `ggplot` a violin plot per factor,
 a jitter plot of the data points and (optionally) connects the points
-via lines.
+via lines. `hoeffDPlot` uses the `plotly` package to make the figure
+interactive.
 }
 \details{
 The function `hoeffDPlot` will create the violin plot and jitter plot 
-according to the specified order given to the function (`...`). `hoeffDPlot`
-will thus internally refactor the names of the supplied lists according
-to the order.
+according to the specified order given by the colnames of `df`. `hoeffDPlot`
+will thus internally refactor the `colnames` of the supplied `data.frame` 
+according to the order of the `colnames`.
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
-a <- a + rnorm(100)
+a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
+            dimnames = list(1:1000, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
     rowData = rD, colData = cD)
 
-tbl <- MAvalues(se)
+tbl <- MAvalues(se, log2 = FALSE, group = "all")
 hd_r <- hoeffDValues(tbl, "raw")
 
 ## normalized values
 se_n <- se
 assay(se_n) <- normalize(a, "sum")
-tbl_n <- MAvalues(se_n, group = "all")
+tbl_n <- MAvalues(se_n, log2 = FALSE, group = "all")
 hd_n <- hoeffDValues(tbl_n, "normalized")
 
 df <- data.frame(raw = hd_r, normalized = hd_n)

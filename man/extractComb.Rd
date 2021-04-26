@@ -9,7 +9,7 @@ extractComb(se, combination, measured = TRUE, category = "type")
 \arguments{
 \item{se}{`SummarizedExperiment`}
 
-\item{combination}{`character`}
+\item{combination}{`character`, refers to factors in `category`}
 
 \item{measured}{`logical`}
 
@@ -19,7 +19,16 @@ extractComb(se, combination, measured = TRUE, category = "type")
 `character`
 }
 \description{
-The function `extractComb` extracts the features that are
+The function `extractComb` extracts the features that match a
+`combination` depending if the features was measured or missing. The function
+will return the sets that match the `combination`, thus, the function 
+might be useful when answering questions about which features are 
+measured/missing under certain combinations (e.g. sample types or 
+experimental conditions).
+}
+\details{
+The function `extractComb` uses the `make_comb_mat` function from 
+`ComplexHeatmap` package.
 }
 \examples{
 

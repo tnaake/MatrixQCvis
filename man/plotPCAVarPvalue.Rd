@@ -12,7 +12,7 @@ plotPCAVarPvalue(var_x, var_perm)
 \item{var_perm}{`matrix`, variances obtained by permutation}
 }
 \value{
-gg object from `ggplot`
+`gg` object from `ggplot`
 }
 \description{
 The function `plotPCAVarPvalue` plots the p-values of significances of 

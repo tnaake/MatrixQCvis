@@ -8,7 +8,8 @@ PCoA, NMDS, UMAP and tSNE}
 ordination(x, type = c("PCA", "PCoA", "NMDS", "tSNE", "UMAP"), params = list())
 }
 \arguments{
-\item{x}{`matrix`, containing no missing values}
+\item{x}{`matrix`, containing no missing values, samples are in columns and
+features are in rows}
 
 \item{type}{`character`, specifying the type/method to use for 
 dimensionality reduction. One of `PCA`, `PCoA`, `NMDS`, `tSNE`, or `UMAP`.}
@@ -29,7 +30,7 @@ Uniform Manifold Approimation and Projection (UMAP).
 }
 \details{
 The function `ordination` is a wrapper around the following 
-functions `stats::prcomp` (PCA), `ape::pcoa` (PCoA), 
+functions `stats::prcomp` (PCA), `stats::cmdscale` (PCoA), 
 `vegan::metaMDS` (NMDS), `Rtsne::Rtsne` (tSNE), and `umap::umap` (UMAP).
 For the function `umap::umap` the method is set to `naive`.
 }

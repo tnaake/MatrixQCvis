@@ -11,7 +11,7 @@ plotCV(df)
 coefficients of variation}
 }
 \value{
-`gg`
+`gg` object from `ggplot2`
 }
 \description{
 The function `plotCV` displays the coefficient of variation values of 

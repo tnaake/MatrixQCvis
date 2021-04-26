@@ -18,22 +18,23 @@ ECDF(se, sample = colnames(se), group = c("all", colnames(colData(se))))
 }
 \description{
 The function `ECDF` creates a plot of the empirical cumulative distribution
-function of a specified sample and an outgroup.
+function of a specified sample and an outgroup (reference). The reference
+is specified by the `group` argument. The row-wise (feature) mean values of
+the reference are calculated after excluding the specified `sample`.
 }
 \details{
 Internal use in `shinyQC`.
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-    dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
-a <- a + rnorm(100)
-sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-featData <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+a <- matrix(rnorm(1000), nrow = 100, ncol = 10, 
+    dimnames = list(1:100, paste("sample", 1:10)))
+a[c(1, 5, 8), 1:5] <- NA
+cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+rD <- data.frame(spectra = rownames(a))
+se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
-ECDF(se, "sample 1", group = "all")
+ECDF(se, sample = "sample 1", group = "all")
 
 }

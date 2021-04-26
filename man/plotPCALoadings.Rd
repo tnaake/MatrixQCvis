@@ -7,7 +7,7 @@
 plotPCALoadings(tbl, x_coord, y_coord)
 }
 \arguments{
-\item{tbl}{`tibble` as obtained by the function `ordination`}
+\item{tbl}{`tbl` as obtained by the function `ordination`}
 
 \item{x_coord}{`character`, column name of `tbl` that stores x coordinates}
 
@@ -21,7 +21,8 @@ The function `plotPCALoadings` creates a loadings plot of the features.
 }
 \details{
 The function takes as input the output of the function `tblPlotPCALoadings`.
-It uses the `ggplotly` function from `plotly` to create an interactive plot.
+It uses the `ggplotly` function from `plotly` to create an interactive 
+`plotly` plot.
 }
 \examples{
 x <- matrix(rnorm(1:10000), ncol = 100)

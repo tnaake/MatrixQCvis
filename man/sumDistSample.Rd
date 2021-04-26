@@ -12,7 +12,7 @@ sumDistSample(d, title = "raw")
 \item{title}{`character` specifying the title to be added to the plot}
 }
 \value{
-`gg` object from `ggplot`
+`gg` object from `ggplot2`
 }
 \description{
 The function `sumDistSample` creates a plot showing the sum of distance of a 

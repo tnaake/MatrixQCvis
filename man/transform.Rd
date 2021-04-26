@@ -2,7 +2,7 @@
 % Please edit documentation in R/tab_values.R
 \name{transform}
 \alias{transform}
-\title{Transform the (count/intensity) values of a `data.frame`, `tibble` or
+\title{Transform the (count/intensity) values of a `data.frame`, `tbl` or
 `matrix`}
 \usage{
 transform(x, method = c("none", "log2", "vsn"))
@@ -18,7 +18,7 @@ features in rows}
 }
 \description{
 The function `transform` transforms the (count/intensity) values of a 
-`data.frame`, `tibble` or `matrix`. It uses either `log2`, variance 
+`data.frame`, `tbl` or `matrix`. It uses either `log2`, variance 
 stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 `none`). The object
 `x` has the samples in the columns and the features in the rows.

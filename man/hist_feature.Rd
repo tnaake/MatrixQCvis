@@ -21,7 +21,7 @@ as `NA`.}
 }
 \description{
 The function `hist_compound` creates a histogram with the number
-of measured values per feature
+of measured values per feature.
 }
 \examples{
 x <- matrix(c(c(1, 1, 1), c(1, NA, 1), c(1, NA, 1), 

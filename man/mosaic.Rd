@@ -27,11 +27,10 @@ https://stackoverflow.com/questions/21588096/pass-string-to-facet-grid-ggplot2
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
+set.seed(1)
+a <- matrix(rnorm(100), nrow = 10, ncol = 10,
             dimnames = list(1:10, paste("sample", 1:10)))
 a[c(1, 5, 8), 1:5] <- NA
-set.seed(1)
-a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), 
     type = c(rep("1", 5), rep("2", 5)),
     cell_type = c("A", "B"))

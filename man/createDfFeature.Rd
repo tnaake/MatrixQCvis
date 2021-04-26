@@ -25,7 +25,8 @@ The function `createDfFeature` provides the input for the function
 Internal usage in `shinyQC`
 }
 \examples{
-x1 <- matrix(1:100, ncol = 10, nrow = 10, 
+set.seed(1)
+x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
 x2 <- x1 + 5
 x3 <- x2 + 10

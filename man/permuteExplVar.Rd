@@ -7,7 +7,7 @@
 permuteExplVar(x, n = 10, center = TRUE, scale = TRUE)
 }
 \arguments{
-\item{x}{`matrix` or `data.frame`}
+\item{x}{`matrix` or `data.frame`, samples in columns and features in rows}
 
 \item{n}{`numeric`, number of permutation rounds}
 
@@ -37,7 +37,7 @@ variance.
 }
 \examples{
  
-x <- matrix(1:100, nrow = 10, ncol = 10, 
+x <- matrix(1:100, nrow = 10, ncol = 10,
     dimnames = list(1:10, paste("sample", 1:10)))
 permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
 

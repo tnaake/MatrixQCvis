@@ -9,10 +9,10 @@ hoeffDValues(tbl, name = "raw")
 \arguments{
 \item{tbl}{`tibble`, as obtained from the function `MAvalues`}
 
-\item{name}{`character`, name of the returned lists}
+\item{name}{`character`, name of the returned list}
 }
 \value{
-named list of lists
+named list with Hoeffding's D values per sample
 }
 \description{
 The function creates and returns Hoeffding's D statistics values 
@@ -35,18 +35,18 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a,
     rowData = rD, colData = cD)
 
 tbl <- MAvalues(se)
-hd_r <- hoeffDValues(tbl, "raw")
+hoeffDValues(tbl, "raw")
 
 ## normalized values
 se_n <- se
 assay(se_n) <- normalize(a, "sum")
 tbl_n <- MAvalues(se_n, group = "all")
-hd_n <- hoeffDValues(tbl_n, "normalized")
+hoeffDValues(tbl_n, "normalized")
 
 ## transformed values
 se_t <- se
 assay(se_t) <- transform(a, "log2")
 tbl_t <- MAvalues(se_t, group = "all")
-hd_t <- hoeffDValues(tbl_t, "transformed")
+hoeffDValues(tbl_t, "transformed")
 
 }
