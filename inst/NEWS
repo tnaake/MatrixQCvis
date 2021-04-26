@@ -1,3 +1,19 @@
+Changes in version 0.99.4 (2021-04-26)
++ reduce package dependencies 
+  - remove magick
+  - use stats::cmdscale instead of ape::pcoa
+  - remove MsCoreUtils
+  - remove preprocessCore
+  - remove Matrix
++ add explained variance for PCoA
++ add se argument in create_boxplot that allows for ordering the samples
++ use ggplotly for driftPlot
++ allow flexible addition of samples in MA-plot based on a supplied character
+  vector of sample names
++ return SummarizedExperiment when exiting the shiny application
++ add function maxQuant that allows for creation of SummarizedExperiment 
+  objects from maxQuant output (.xlsx files)
+
 Changes in version 0.99.3 (2021-03-18)
 + reduce file size of vignette  by using partial_bundle for plotly figures
 

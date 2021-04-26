@@ -13,7 +13,7 @@
 #' 
 #' @details 
 #' The function `ordination` is a wrapper around the following 
-#' functions `stats::prcomp` (PCA), `ape::pcoa` (PCoA), 
+#' functions `stats::prcomp` (PCA), `stats::cmdscale` (PCoA), 
 #' `vegan::metaMDS` (NMDS), `Rtsne::Rtsne` (tSNE), and `umap::umap` (UMAP).
 #' For the function `umap::umap` the method is set to `naive`. 
 #' 
@@ -64,7 +64,7 @@ ordination <- function(x,
         ## truncate params
         params <- params[names(params) %in% methods::formalArgs(stats::dist)] 
         d <- do.call(what = stats::dist, args = params)
-        d <- cmdscale(d, k = ncol(x) - 1, eig = FALSE)
+        d <- stats::cmdscale(d, k = ncol(x) - 1, eig = FALSE)
         colnames(d) <- paste("Axis.", seq_len(ncol(d)), sep = "")
         tbl <- tibble::as_tibble(d)
         tbl <- tibble::tibble(name = rownames(d), tbl)
@@ -109,15 +109,15 @@ ordination <- function(x,
 #' 
 #' @description 
 #' The function `ordinationPlot` creates a dimension reduction plot. 
-#' The function takes as input the `tibble` object obtained 
-#' from the `ordination` function. The `tibble` contains transformed
+#' The function takes as input the `tbl` object obtained 
+#' from the `ordination` function. The `tbl` contains transformed
 #' values by one of the ordination methods. 
 #' 
 #' @details 
 #' The function `ordinationPlot` is a wrapper for a `ggplot`/`ggplotly` 
 #' expression. 
 #'
-#' @param tbl `tibble` as obtained by the function `ordination`
+#' @param tbl `tbl` as obtained by the function `ordination`
 #' @param se `SummarizedExperiment`
 #' @param highlight `character`, one of `"none"` or `colnames(colData(se))`
 #' @param explainedVar NULL or named `numeric`, if `numeric` `explainedVar` 
@@ -148,6 +148,9 @@ ordination <- function(x,
 #'
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr left_join
+#' @importFrom SummarizedExperiment colData
+#' @importFrom ggplot2 ggplot aes_string xlab ylab geom_point coord_fixed
+#' @importFrom ggplot2 theme_classic theme
 #' 
 #' @return `plotly`
 #' 
@@ -158,7 +161,7 @@ ordinationPlot <- function(tbl, se,
     
     highlight <- match.arg(highlight)
     
-    cD <- colData(se)
+    cD <- SummarizedExperiment::colData(se)
     
     if (highlight == "none") {
         tT <- c("text")
@@ -170,7 +173,7 @@ ordinationPlot <- function(tbl, se,
     
     ## use deparse(quote(namesDf)) to convert object name into
     ## character string
-    g <- ggplot2::ggplot(tbl, aes_string(x = x_coord, y = y_coord, 
+    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = x_coord, y = y_coord, 
         text = deparse(quote(name)))) 
     
     if (!is.null(explainedVar)) {
@@ -185,7 +188,7 @@ ordinationPlot <- function(tbl, se,
     if (highlight == "none") {
         g <- g + ggplot2::geom_point()
     } else {
-        g <- g + ggplot2::geom_point(aes_string(color = "color"))
+        g <- g + ggplot2::geom_point(ggplot2::aes_string(color = "color"))
     }
     
     g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() + 
@@ -198,7 +201,8 @@ ordinationPlot <- function(tbl, se,
 
 #' @name explVar
 #'
-#' @title Retrieve the explained variance for each principal component and axis
+#' @title Retrieve the explained variance for each principal component (PCA) or
+#' axis (PCoA)
 #'
 #' @description
 #' The function `explVar` calculates the proportion of explained variance for
@@ -293,7 +297,7 @@ explVar <- function(x, params, type = c("PCA", "PCoA")) {
 #' @param scale `logical`, passed to the function `explVar`
 #' 
 #' @examples  
-#' x <- matrix(1:100, nrow = 10, ncol = 10, 
+#' x <- matrix(1:100, nrow = 10, ncol = 10,
 #'     dimnames = list(1:10, paste("sample", 1:10)))
 #' permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
 #'
@@ -340,15 +344,18 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' 
 #' @examples 
 #' x <- matrix(1:100, ncol = 10)
-#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE), 
+#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE),
 #'     type = "PCA")
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVar(var_x = var_x, var_perm = var_perm)
-#' 
+#'
 #' @return 
 #' `gg` object from `ggplot`
 #' 
 #' @author Thomas Naake
+#' 
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_line theme_bw
+#' @importFrom ggplot2 ylab xlab theme element_text element_blank
 #'
 #' @export
 plotPCAVar <- function(var_x, var_perm = NULL) {
@@ -365,15 +372,16 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
     df$values <- df$values * 100
     
     ## plotting
-    g <- ggplot2::ggplot(df, aes_string(x = "PC", y = "values"))  + 
-        ggplot2::geom_point(aes_string(color = "group")) + 
-        ggplot2::geom_line(aes_string(color = "group", group = "group")) +
+    g <- ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values"))  + 
+        ggplot2::geom_point(ggplot2::aes_string(color = "group")) + 
+        ggplot2::geom_line(ggplot2::aes_string(color = "group", group = "group")) +
         ggplot2::theme_bw() + ggplot2::ylab("explained variance (%)") + 
         ggplot2::xlab("principal components") +
-        ggplot2::theme(axis.text.x = element_text(angle = 90))
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
     
     if (is.null(var_perm)) g <- g + 
-        ggplot2::theme(legend.title = element_blank(), legend.position = "none")
+        ggplot2::theme(legend.title = ggplot2::element_blank(), 
+            legend.position = "none")
     
     return(g)
 }
@@ -400,7 +408,7 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVarPvalue(var_x = var_x, var_perm = var_perm)
 #' 
-#' @return gg object from `ggplot`
+#' @return `gg` object from `ggplot`
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line geom_hline aes
 #' @importFrom ggplot2 ylab xlab theme_bw theme element_text
@@ -441,6 +449,7 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' `stats::prcomp`
 #' 
 #' @examples 
+#' set.seed(1)
 #' x <- matrix(rnorm(1:10000), ncol = 100)
 #' rownames(x) <- paste("feature", 1:nrow(x))
 #' colnames(x) <- paste("sample", 1:ncol(x))
@@ -449,7 +458,7 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
 #' tblPCALoadings(x, params)
 #'
-#' @return `tibble`
+#' @return `tbl`
 #' 
 #' @author Thomas Naake
 #' 
@@ -459,6 +468,7 @@ tblPCALoadings <- function(x, params) {
     d <- do.call(what = stats::prcomp, params)
     tbl <- tibble::as_tibble(d$rotation)
     tbl <- tibble::tibble(name = rownames(d$rotation), tbl)
+    
     return(tbl)
 }
 
@@ -471,10 +481,11 @@ tblPCALoadings <- function(x, params) {
 #' 
 #' @details 
 #' The function takes as input the output of the function `tblPlotPCALoadings`.
-#' It uses the `ggplotly` function from `plotly` to create an interactive plot.
+#' It uses the `ggplotly` function from `plotly` to create an interactive 
+#' `plotly` plot.
 #' 
 #' 
-#' @param tbl `tibble` as obtained by the function `ordination`
+#' @param tbl `tbl` as obtained by the function `ordination`
 #' @param x_coord `character`, column name of `tbl` that stores x coordinates
 #' @param y_coord `character`, column name of `tbl` that stores y coordinates
 #' 
@@ -493,12 +504,16 @@ tblPCALoadings <- function(x, params) {
 #' @author Thomas Naake
 #' 
 #' @importFrom plotly ggplotly
+#' @importFrom ggplot2 ggplot aes_string geom_point xlab ylab theme_classic
+#' @importFrom ggplot2 theme
 #' 
 #' @export
 plotPCALoadings <- function(tbl, x_coord, y_coord) {
     
-    g <- ggplot2::ggplot(tbl, aes_string(text = deparse(quote(name)))) +
-        ggplot2::geom_point(aes_string(x = x_coord, y = y_coord), alpha = 0.4) +
+    g <- ggplot2::ggplot(tbl, 
+            ggplot2::aes_string(text = deparse(quote(name)))) +
+        ggplot2::geom_point(ggplot2::aes_string(x = x_coord, y = y_coord), 
+            alpha = 0.4) +
         ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) +
         ggplot2::theme_classic() + ggplot2::theme(legend.position = "none")
 
