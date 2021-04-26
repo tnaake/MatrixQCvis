@@ -103,7 +103,6 @@ tag_keepAlive <- function() {
 #' 
 #' @title Sidebar UI for normalization, transformation, and batch correction  
 #' 
-#' 
 #' @description 
 #' The module defines the UI in the sidebar for the data manipulation 
 #' (normlization, transformation, and batch correction). 
@@ -148,7 +147,6 @@ sidebar_assayUI <- function() {
             condition = "input.batch == 'removeBatchEffect (limma)'",
             shiny::uiOutput("batchCol"))
         )
-    
 }
 
 #' @name sidebar_imputationUI

@@ -1,17 +1,17 @@
-#' @name hist_sample
+#' @name hist_sample_num
 #'
 #' @title Return the number of a category
 #'
 #' @description `hist_sample_num` returns the number of a category 
-#' (e.g. sample types) as a `tibble`.
-#' The function will retrieve first a column in `colData(se)`. 
-#' The function will return a `tibble` containing the numerical 
+#' (e.g. sample types) as a `tbl`.
+#' The function will retrieve first the column `category` in `colData(se)`. 
+#' The function will return a `tbl` containing the numerical 
 #' values of the quantities.
 #'
 #' @param se `SummarizedExperiment` object
 #' @param category `character`, corresponding to a column in `colData(se)`
 #'
-#' @return `tibble`
+#' @return `tbl`
 #' 
 #' @examples 
 #' ## create se
@@ -20,7 +20,7 @@
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 4), rep("2", 6)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
@@ -28,6 +28,7 @@
 #' hist_sample_num(se, category = "type")
 #' 
 #' @importFrom tibble tibble
+#' @importFrom SummarizedExperiment colData
 #' 
 #' @export
 hist_sample_num <- function(se, category = "type") { 
@@ -46,9 +47,9 @@ hist_sample_num <- function(se, category = "type") {
 #' @title Plot a histogram of the number of a category
 #'
 #' @description `hist_sample` plots the number of a category (e.g. sample types)
-#' as a histogram. It use the returned `tibble` from `hist_sample_num`.
+#' as a histogram. It use the returned `tbl` from `hist_sample_num`.
 #'
-#' @param tbl `tibble` as returned by `hist_sample_num`
+#' @param tbl `tbl` as returned by `hist_sample_num`
 #' @param category `character`, x-axis label of the plot 
 #'
 #' @return `gg` object from `ggplot2`
@@ -60,7 +61,7 @@ hist_sample_num <- function(se, category = "type") {
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 4), rep("2", 6)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
@@ -105,11 +106,10 @@ hist_sample <- function(tbl, category = "type") {
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#' set.seed(1)
+#' a <- matrix(rnorm(100), nrow = 10, ncol = 10,
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
-#' set.seed(1)
-#' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), 
 #'     type = c(rep("1", 5), rep("2", 5)),
 #'     cell_type = c("A", "B"))
@@ -121,11 +121,15 @@ hist_sample <- function(tbl, category = "type") {
 #' 
 #' @importFrom rlang := .data
 #' @importFrom dplyr group_by summarise mutate ungroup n
+#' @importFrom SummarizedExperiment colData
+#' @importFrom ggplot2 ggplot aes_string geom_bar geom_text position_stack
+#' @importFrom ggplot2 facet_grid scale_fill_brewer theme_bw ylab
+#' @importFrom ggplot2 scale_y_continuous theme element_text
 #' 
 #' @export
 mosaic <- function(se, f1, f2) {
     
-    df <- colData(se) %>% 
+    df <- SummarizedExperiment::colData(se) %>% 
         as.data.frame() %>% 
         dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) %>% 
         dplyr::summarise(count = dplyr::n()) %>%
@@ -155,10 +159,10 @@ mosaic <- function(se, f1, f2) {
             colour = "black") +
         ggplot2::geom_text(ggplot2::aes_string(label = "prop_percent"), 
             angle = 90, position = ggplot2::position_stack(vjust = 0.5)) +
-        ggplot2::facet_grid(~f1_labs, scales = "free_x", space = "free_x") +
+        ggplot2::facet_grid(~ f1_labs, scales = "free_x", space = "free_x") +
         ggplot2::scale_fill_brewer() + ggplot2::theme_bw() + 
         ggplot2::ylab("proportion (%)") + 
-        ggplot2::scale_y_continuous(labels= function(x) x*100) +
+        ggplot2::scale_y_continuous(labels = function(x) x * 100) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 }
 

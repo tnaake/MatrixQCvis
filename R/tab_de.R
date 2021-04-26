@@ -4,7 +4,8 @@
 #' 
 #' @description 
 #' The function `volcanoPlot` creates a volcano plot. On the y-axis the
-#' -log(p-values) are displayed, on the x-axis the fold changes/differences.
+#' -log10(p-values) are displayed, while on the x-axis the fold 
+#' changes/differences are displayed.
 #' The output of the function `volcanoPlot` differs depending on the
 #' `type` parameter. For `type == "ttest"`, the fold changes are plotted;
 #' for `type == "proDA"`, the  differences are plotted. 
@@ -24,13 +25,13 @@
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' a_i <- impute(a, method = "MinDet")
-#' sample <- data.frame(sample = colnames(a), 
-#'                                 type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
+#' cD <- data.frame(sample = colnames(a), 
+#'     type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
-#'                                 rowData = featData, colData = sample)
+#'                                 rowData = rD, colData = cD)
 #' se_i <- SummarizedExperiment::SummarizedExperiment(assay = a_i, 
-#'                                 rowData = featData, colData = sample)
+#'                                 rowData = rD, colData = cD)
 #' 
 #' ## create model and contrast matrix
 #' modelMatrix_expr <- stats::formula("~ 0 + type")
@@ -46,17 +47,23 @@
 #' df_ttest <- limma::topTable(fit, n = Inf, adjust = "fdr", p = 0.05)
 #' df_ttest <- cbind(name = rownames(df_ttest), df_ttest)
 #' 
+#' ## plot
+#' volcanoPlot(df_ttest, type = "ttest")
+#' 
 #' ## proDA
 #' fit <- proDA::proDA(a, design = modelMatrix)
 #' df_proDA <- proDA::test_diff(fit = fit, contrast = contrast_expr,
 #'                       sort_by = "adj_pval")
-#' 
+#'                       
 #' ## plot
-#' volcanoPlot(df_ttest, type = "ttest")
+#' volcanoPlot(df_proDA, type = "proDA")
 #' 
 #' @importFrom limma makeContrasts eBayes topTable
 #' @importFrom stats model.matrix
 #' @importFrom proDA proDA test_diff
+#' @importFrom dplyr `%>%`
+#' @importFrom ggplot2 ggplot aes_string geom_point ylab xlab theme_bw
+#' @importFrom plotly ggplotly style
 #' 
 #' @return `plotly`
 #' 
@@ -65,6 +72,7 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     
     type <- match.arg(type)
     if (type == "ttest") {
+        
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$P.Value))
         p <- ggplot2::ggplot(df, aes_string(x = "logFC", y = "log10pvalue")) + 
@@ -80,9 +88,11 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     }
     
     if (type == "proDA") {
+        
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$pval))
-        p <- ggplot2::ggplot(df, aes_string(x = "diff", y = "log10pvalue")) + 
+        p <- ggplot2::ggplot(df, 
+                ggplot2::aes_string(x = "diff", y = "log10pvalue")) + 
             ggplot2::geom_point() + 
             ggplot2::ylab("-log10(p-value)") + 
             ggplot2::xlab("difference") + 

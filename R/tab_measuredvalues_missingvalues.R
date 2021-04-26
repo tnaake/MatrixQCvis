@@ -3,14 +3,14 @@
 #' @title Create tibble containing number of measured/missing features 
 #' of samples
 #'
-#' @description `samples_memi` returns a `tibble` with 
+#' @description `samples_memi` returns a `tbl` with 
 #' the number of measured/missing
 #' features of samples. The function will take as input a 
 #' `SummarizedExperiment` object and will access its `assay()` slot
 #'
 #' @param se `SummarizedExperiment` object
 #' 
-#' @return `tibble`
+#' @return `tbl` with number of measured/missing features per sample
 #' 
 #' @examples 
 #' ## create se
@@ -29,6 +29,8 @@
 #' samples_memi(se)
 #' 
 #' @importFrom rlang .data
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr group_by summarise
 #' 
 #' @export
 samples_memi <- function(se) {
@@ -50,9 +52,9 @@ samples_memi <- function(se) {
 #'
 #' @description `barplot_samples_memi` plots the number of measured/missing
 #' features of samples as a barplot. The function will take as input the 
-#' returned `tibble` of `samples_memi`. 
+#' returned `tbl` of `samples_memi`. 
 #'
-#' @param tbl `tibble` object
+#' @param tbl `tbl` object
 #' @param measured `logical`, should the number of measured or missing values
 #' be plotted
 #' 
@@ -65,10 +67,10 @@ samples_memi <- function(se) {
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
-#'     rowData = featData, colData = sample)
+#'     rowData = rD, colData = cD)
 #'
 #' ## create the data.frame with information on number of measured/missing
 #' ## values
@@ -110,7 +112,7 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
 #'
 #' @description 
 #' The function `hist_compound` creates a histogram with the number
-#' of measured values per feature
+#' of measured values per feature.
 #'
 #' @param x `matrix` containing intensities. Missing values are encoded 
 #' as `NA`.
@@ -127,6 +129,9 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
 #' colnames(x) <- c("A_1", "A_2", "A_3", "B_1", "B_2", "B_3")
 #' hist_feature(x, binwidth = 1)
 #' 
+#' @importFrom tibble tibble
+#' @importFrom ggplot2 ggplot geom_histogram xlab ylab ggtitle theme_bw
+#' @importFrom plotly ggplotly
 #' @export
 hist_feature <- function(x, measured = TRUE, ...) { 
     
@@ -145,13 +150,15 @@ hist_feature <- function(x, measured = TRUE, ...) {
     val <- tibble::tibble(values = val)
     
     ## plotting
-    p <- ggplot2::ggplot(val, aes_string(x = "values")) + 
+    g <- ggplot2::ggplot(val, aes_string(x = "values")) + 
         ggplot2::geom_histogram(...) + 
         ggplot2::xlab(x_lab) + 
         ggplot2::ylab("number of samples") + 
         ggplot2::ggtitle(title) + 
         ggplot2::theme_bw()
-    plotly::ggplotly(p)
+    g <- plotly::ggplotly(g)
+    
+    return(g)
 }
 
 ## measurement statuses
@@ -165,10 +172,10 @@ hist_feature <- function(x, measured = TRUE, ...) {
 #' @title Obtain the number of measured intensities per sample type
 #' 
 #' @description 
-#' The function `measured_category` creates a `tibble` with
+#' The function `measured_category` creates a `tbl` with
 #' the number of measured values per feature. 0 means that there were only 
 #' missing values (`NA`) for the feature and sample type. 
-#' `measured_category` will return a `tibble` where columns are the 
+#' `measured_category` will return a `tbl` where columns are the 
 #' unique sample types and rows are the features as in `assay(se)`.
 #' 
 #' @details 
@@ -179,22 +186,25 @@ hist_feature <- function(x, measured = TRUE, ...) {
 #' (`measured = TRUE`) or missing values (`measured = FALSE`) be taken
 #' @param category `character`, corresponds to a column name in `colData(se)`
 #' 
-#' @return `tibble`
+#' @return `tbl` with number of measured/mising features per `category` type
 #' 
-#' @examples 
+#' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#' set.seed(1)
+#' a <- matrix(rnorm(100), nrow = 10, ncol = 10,
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
-#' set.seed(1)
-#' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a,
 #'     rowData = rD, colData = cD)
-#' 
+#'
 #' measured_category(se, measured = TRUE, category = "type")
-#' 
+#'
+#' @importFrom dplyr `%>%`
+#' @importFrom SummarizedExperiment assay colData
+#' @importFrom tibble as_tibble
+#'
 #' @export
 measured_category <- function(se, measured = TRUE, category = "type") {
     
@@ -206,14 +216,14 @@ measured_category <- function(se, measured = TRUE, category = "type") {
     ## sample category levels
     samp <- cD[[category]]
     samp_u <- unique(samp)
-    
+
     ## create the data.frame to store the values, the `data.frame` has the
     ## dimensions: nrow(a)/number of features as in a and number of 
     ## unique sample types
-    tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u), 
-                                    dimnames = list(rownames(a), samp_u)) %>% 
+    tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u),
+                            dimnames = list(rownames(a), samp_u)) %>%
         tibble::as_tibble(rownames = "feature")
-    
+
     ## iterate through the columns and write to the respective column if 
     ## the feature was measured in (at least) one sample of this type
     for (i in seq_along(samp_u)) {
@@ -245,10 +255,9 @@ measured_category <- function(se, measured = TRUE, category = "type") {
 #' @param category `character`, corresponding to a column in `colData(se)`
 #' @param... additional parameters passed to `geom_histogram`, e.g. `binwidth`.
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return `plotly`
 #'
 #' @examples
-#' 
 #' ## create se
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'             dimnames = list(1:10, paste("sample", 1:10)))
@@ -262,6 +271,11 @@ measured_category <- function(se, measured = TRUE, category = "type") {
 #' 
 #' hist_feature_category(se, measured = TRUE, category = "type")
 #' 
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes_string geom_histogram facet_grid ggtitle
+#' @importFrom ggplot2 xlab ylab theme_bw theme
+#' @importFrom plotly ggplotly
+#'
 #' @export
 hist_feature_category <- function(se, measured = TRUE, 
     category = "type", ...) {
@@ -299,8 +313,11 @@ hist_feature_category <- function(se, measured = TRUE,
 #' @description 
 #' The function `upset_category` displays the frequency of measured values per
 #' feature with respect to class/sample type to assess difference in
-#' occurences. Internally, the measured values per sample are obtained via
-#' the `measured_category` function: this function will 
+#' occurrences. Internally, the measured values per sample are obtained via
+#' the `measured_category` function: this function will access the number
+#' of measured/missing values per category and feature. From this, a binary 
+#' `tbl` will be created specifying if the feature is present/missing, which
+#' will be given to the `upset` function from the `UpSetR` package.
 #'
 #' @param se `SummarizedExperiment`,
 #'  containing the intensity values in `assay(se)`, missing values are
@@ -345,10 +362,19 @@ upset_category <- function(se, category = "type", ...) {
 #' @title Obtain the features that are present in a specified set
 #'
 #' @description
-#' The function `extractComb` extracts the features that are 
+#' The function `extractComb` extracts the features that match a
+#' `combination` depending if the features was measured or missing. The function
+#' will return the sets that match the `combination`, thus, the function 
+#' might be useful when answering questions about which features are 
+#' measured/missing under certain combinations (e.g. sample types or 
+#' experimental conditions).
+#' 
+#' @details 
+#' The function `extractComb` uses the `make_comb_mat` function from 
+#' `ComplexHeatmap` package.
 #'
 #' @param se `SummarizedExperiment`
-#' @param combination `character`
+#' @param combination `character`, refers to factors in `category`
 #' @param measured `logical`
 #' @param category `character`, corresponding to a column name in `colData(se)`
 #'

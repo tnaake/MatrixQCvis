@@ -99,7 +99,7 @@ biocrates <- function(file, sheetName = NULL, ...) {
 #' 
 #' @examples
 #' file <- "path/to/maxQuant/object"
-#' \donttest{maxQuant(file = file, sheetName = NULL)}
+#' \donttest{maxQuant(file = file, type = "iBAQ", sheetName = NULL)}
 #' 
 #' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...)
 #'

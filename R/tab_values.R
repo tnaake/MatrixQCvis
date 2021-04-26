@@ -5,7 +5,7 @@
 #' @description
 #' The function `create_boxplot` creates 
 #' 
-#' @details 
+#' @details
 #' Internal usage in `shinyQC`.
 #'
 #' @param se `SummarizedExperiment` containing the (count/intensity) values in
@@ -32,12 +32,12 @@
 #' create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
 #'     violin = FALSE)
 #' 
-#' @return `gg`
+#' @return `gg` object from `ggplot2`
 #' 
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer 
 #' @importFrom tibble as_tibble
-#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment assay colData
 #' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
 #' 
@@ -97,7 +97,7 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
 #' (count/intensity) values. `driftPlot` then visualizes these aggregated values 
 #' and adds a trend line (using either LOESS or a linear model) from 
 #' (a subset of) the aggregated values. The subset is specified by the 
-#' arguments `category` and `level`
+#' arguments `category` and `level`.
 #' 
 #' @details 
 #' The x-values are sorted according to the `orderCategory` argument: The 
@@ -119,18 +119,17 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
 #' 
 #' @examples 
 #' #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'     dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
-#' a <- a + rnorm(100)
-#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' a <- matrix(rnorm(1000), nrow = 10, ncol = 100, 
+#'     dimnames = list(1:10, paste("sample", 1:100)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 50), rep("2", 50)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
 #' driftPlot(se, aggregation = "sum", category = "type", 
-#'     orderCategory = "name", level = "1", method = "loess")
+#'     orderCategory = "type", level = "1", method = "loess")
 #' 
 #' @importFrom dplyr across left_join summarise starts_with
 #' @importFrom tidyr pivot_longer 
@@ -244,6 +243,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
 #' cv(x)
 #' 
 #' @importFrom stats sd
+#' 
 #' @export
 cv <- function(x, name = "raw") {
     
@@ -288,7 +288,7 @@ cv <- function(x, name = "raw") {
 #' df <- data.frame(cv1, cv2, cv3, cv4)
 #' plotCV(df)
 #' 
-#' @return `gg`
+#' @return `gg` object from `ggplot2`
 #' 
 #' @importFrom tibble tibble
 #' @importFrom tidyr pivot_longer
@@ -318,7 +318,9 @@ plotCV <- function(df) {
 #'
 #' @description
 #' The function `ECDF` creates a plot of the empirical cumulative distribution
-#' function of a specified sample and an outgroup. 
+#' function of a specified sample and an outgroup (reference). The reference
+#' is specified by the `group` argument. The row-wise (feature) mean values of
+#' the reference are calculated after excluding the specified `sample`.
 #'
 #' @details 
 #' Internal use in `shinyQC`.
@@ -329,16 +331,15 @@ plotCV <- function(df) {
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'     dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
-#' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' a <- matrix(rnorm(1000), nrow = 100, ncol = 10, 
+#'     dimnames = list(1:100, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 #' 
-#' ECDF(se, "sample 1", group = "all")
+#' ECDF(se, sample = "sample 1", group = "all")
 #' 
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom stats ks.test
@@ -413,7 +414,8 @@ ECDF <- function(se, sample = colnames(se),
 #' @details 
 #' Internal use in `shinyQC`.
 #'
-#' @param x `matrix` or `data.frame`
+#' @param x `matrix` or `data.frame` with samples in columns and features in 
+#' rows
 #' @param method `character`, method for distance calculation
 #'
 #' @examples
@@ -446,32 +448,33 @@ distShiny <- function(x, method = "euclidean") {
 #'
 #' @param d `matrix` containing distances, obtained from `distShiny`
 #' @param se `SummarizedExperiment`
-#' @param label `character`, refers to a column 
+#' @param label `character`, refers to a column in `colData(se)`
 #' @param title `character`
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#' a <- matrix(1:100, nrow = 10, ncol = 10,
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' a_i <- a %>% impute(., method = "MinDet")
-#' cD <- data.frame(name = colnames(a_i), 
+#' a_i <- impute(a, method = "MinDet")
+#' cD <- data.frame(name = colnames(a_i),
 #'     type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a_i))
-#' se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD, colData = cD)
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD,
+#'     colData = cD)
 #' 
 #' dist <- distShiny(a_i)
 #' distSample(dist, se, label = "type", title = "imputed")
 #'
 #' @return `plotly`
 #'
-
 #' @importFrom SummarizedExperiment colData
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
 #' @importFrom grDevices hcl.colors
 #' @importFrom stats setNames
+#'
 #' @export
 distSample <- function(d, se, label = "name", title = "raw") {
 
@@ -518,12 +521,13 @@ distSample <- function(d, se, label = "name", title = "raw") {
 #' 
 #' sumDistSample(dist, title = "raw")
 #' 
-#' @return `gg` object from `ggplot`
+#' @return `gg` object from `ggplot2`
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
 #' @importFrom ggplot2 xlab ylab theme_bw
 #' @importFrom tibble tibble
 #' @importFrom plotly ggplotly
+#'
 #' @export
 sumDistSample <- function(d, title = "raw") {
     d_sum <- rowSums(d) 
@@ -534,7 +538,10 @@ sumDistSample <- function(d, title = "raw") {
         ggplot2::ggtitle(title) +
         ggplot2::xlab("sum of distances") + ggplot2::ylab("") + 
         ggplot2::theme_bw()
-    plotly::ggplotly(g, tooltip = c("x", "y"))
+    
+    g <- plotly::ggplotly(g, tooltip = c("x", "y"))
+    
+    return(g)
 }
 
 #' @name MAvalues
@@ -542,31 +549,34 @@ sumDistSample <- function(d, title = "raw") {
 #' @title Create values (M and A) for MA plot
 #'
 #' @description 
-#' THe function `MAvalues` will create MA values as input for the function 
-#' `MAplot`. `M` and `A` are specified relative to specified samples which 
+#' The function `MAvalues` will create MA values as input for the function 
+#' `MAplot` and `hoeffDValues`. 
+#' `M` and `A` are specified relative to specified samples which 
 #' is determined by the `group` argument. In case of `group == "all"`, all 
 #' samples (expect the specified one) are taken for the reference calculation.
 #' In case of `group != "all"` will use the samples belonging to the same group
 #' given in `colnames(colData(se))` expect the specified one. 
 #'
 #' @param se `SummarizedExperiment`
-#' @param log2 `logical`
+#' @param log2 `logical`, specifies if values re `log2` transformed prior to
+#' calculating M and A values. If the values are already transformed, `log2` 
+#' should be set to `FALSE`.
 #' @param group `character`, either `"all"` or one of `colnames(colData(se))`
 #'
-#' @return `tibble`
+#' @return `tbl` with columns `Feature`, `name` (sample name), `A`, `M` and
+#' additional columns of `colData(se)`
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
-#' a <- a + rnorm(100)
-#' sample <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
-#' featData <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment(assay = a, rowData = featData, colData = sample)
+#' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
+#'             dimnames = list(1:1000, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 #' 
-#' MAvalues(se, group = "all")
+#' MAvalues(se, log2 = FALSE, group = "all")
 #' 
 #' @importFrom dplyr pull left_join
 #' @importFrom SummarizedExperiment assay colData
@@ -575,43 +585,43 @@ sumDistSample <- function(d, title = "raw") {
 #' 
 #' @export
 MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
-    
+
     ## check arguments group
     group <- match.arg(group)
-    
+
     ## retrieve the assay and colData entries
     a <- SummarizedExperiment::assay(se)
     cd <- SummarizedExperiment::colData(se)
     cd <- as.data.frame(cd)
-    
-    if (ncol(a) < 2) 
+
+    if (ncol(a) < 2)
         stop("MAplot needs more than one samples")
-    
+
     ## take logarithm of assay values if the values are not transformed yet
     if (log2) a <- log2(a)
-    
-    A <- M <- matrix(NA, nrow = nrow(a), ncol = ncol(a), 
+
+    A <- M <- matrix(NA, nrow = nrow(a), ncol = ncol(a),
         dimnames = list(rownames(a), colnames(a)))
     
     ## calculate sample-wise the values (iterate through the columns)
     for (i in colnames(a)) {
-        
-        ## get indices 
+
+        ## get indices
         inds_l <- colnames(a) == i
         inds_nl <- !inds_l
-        
+
         ## truncate the indices based on the group (only use the group for the 
         ## comparison and the "outgroup")
         if (group != "all") {
             g <- cd[cd[, "name"] == i, group]
             inds_nl <- inds_nl & cd[, group] == g
         }
-        
+
         rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
         M[, inds_l] <- a[, inds_l] - rM
         A[, inds_l] <- 0.5 * (a[, inds_l] + rM)
     }
-    
+
     ## combine the data and add additional information from 
     A_l <- tibble::as_tibble(A) 
     A_l <- tibble::add_column(Feature = rownames(A), .data = A_l, .before = 1)  
@@ -620,10 +630,10 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     M_l <- as_tibble(M)
     M_l <- tibble::add_column(Feature = rownames(M), M_l, .before = 1)
     M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
-    
+
     tbl <- tibble::tibble(A_l, M = dplyr::pull(M_l, "M")) 
     tbl <- dplyr::left_join(x = tbl, y = cd, by = c("name"))
-    
+
     return(tbl)
 }
 
@@ -634,13 +644,13 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' @description 
 #' The function creates and returns Hoeffding's D statistics values 
 #' from MA values.   
-#' 
+#'
 #' @details 
 #' The function uses the function `hoeffd` from the `Hmisc` package to 
 #' calculate the values.
-#' 
+#'
 #' @param tbl `tibble`, as obtained from the function `MAvalues`
-#' @param name `character`, name of the returned lists
+#' @param name `character`, name of the returned list
 #' 
 #' @examples
 #' ## create se
@@ -655,25 +665,25 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #'     rowData = rD, colData = cD)
 #' 
 #' tbl <- MAvalues(se)
-#' hd_r <- hoeffDValues(tbl, "raw")
+#' hoeffDValues(tbl, "raw")
 #' 
 #' ## normalized values
 #' se_n <- se
 #' assay(se_n) <- normalize(a, "sum")
 #' tbl_n <- MAvalues(se_n, group = "all")
-#' hd_n <- hoeffDValues(tbl_n, "normalized")
+#' hoeffDValues(tbl_n, "normalized")
 #' 
 #' ## transformed values
 #' se_t <- se
 #' assay(se_t) <- transform(a, "log2")
 #' tbl_t <- MAvalues(se_t, group = "all")
-#' hd_t <- hoeffDValues(tbl_t, "transformed")
+#' hoeffDValues(tbl_t, "transformed")
 #' 
 #' @importFrom Hmisc hoeffd
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr mutate group_by summarise pull
 #'
-#' @return named list of lists
+#' @return named list with Hoeffding's D values per sample
 #' 
 #' @export
 hoeffDValues <- function(tbl, name = "raw") {
@@ -712,13 +722,14 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' @description 
 #' The function `hoeffDPlot` creates via `ggplot` a violin plot per factor,
 #' a jitter plot of the data points and (optionally) connects the points
-#' via lines. 
+#' via lines. `hoeffDPlot` uses the `plotly` package to make the figure
+#' interactive.
 #' 
 #' @details 
 #' The function `hoeffDPlot` will create the violin plot and jitter plot 
-#' according to the specified order given to the function (`...`). `hoeffDPlot`
-#' will thus internally refactor the names of the supplied lists according
-#' to the order. 
+#' according to the specified order given by the colnames of `df`. `hoeffDPlot`
+#' will thus internally refactor the `colnames` of the supplied `data.frame` 
+#' according to the order of the `colnames`. 
 #' 
 #' @param df `data.frame` containing one or multiple columns containing the 
 #' Hoeffding's D statistics
@@ -727,23 +738,22 @@ hoeffDValues <- function(tbl, name = "raw") {
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
-#' a <- a + rnorm(100)
+#' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
+#'             dimnames = list(1:1000, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
-#' tbl <- MAvalues(se)
+#' tbl <- MAvalues(se, log2 = FALSE, group = "all")
 #' hd_r <- hoeffDValues(tbl, "raw")
 #' 
 #' ## normalized values
 #' se_n <- se
 #' assay(se_n) <- normalize(a, "sum")
-#' tbl_n <- MAvalues(se_n, group = "all")
+#' tbl_n <- MAvalues(se_n, log2 = FALSE, group = "all")
 #' hd_n <- hoeffDValues(tbl_n, "normalized")
 #' 
 #' df <- data.frame(raw = hd_r, normalized = hd_n)
@@ -751,7 +761,7 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' hoeffDPlot(df, lines = FALSE)
 #' 
 #' @return 
-#' `gg` object from `ggplot`
+#' `gg` object from `ggplot2`
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
@@ -821,23 +831,22 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' or `"all"`
 #'
 #' @return 
-#' `gg` object from `ggplot`
+#' `gg` object from `ggplot2`
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
-#' a <- a + rnorm(100)
+#' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10,
+#'             dimnames = list(1:1000, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a,
 #'     rowData = rD, colData = cD)
-#' 
-#' tbl <- MAvalues(se, group = "all")
+#'
+#' tbl <- MAvalues(se, log2 = FALSE, group = "all")
 #' MAplot(tbl, group = "all", plot = "all")
-#' 
+#'
 #' @importFrom dplyr pull filter
 #' @importFrom ggplot2 ggplot aes_string geom_hex geom_point facet_wrap
 #' @importFrom ggplot2 theme coord_fixed xlim ylim theme_bw
@@ -917,7 +926,8 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 #' @return `data.frame`
 #' 
 #' @examples 
-#' x1 <- matrix(1:100, ncol = 10, nrow = 10, 
+#' set.seed(1)
+#' x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
 #'     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
 #' x2 <- x1 + 5
 #' x3 <- x2 + 10
@@ -934,25 +944,25 @@ createDfFeature <- function(l, feature) {
     return(df)
 }
 
-#' 
 #' @name featurePlot
-#' 
+#'
 #' @title Create a plot of (count/intensity) values over the samples
-#' 
-#' @description 
-#' The function `featurePlot` creates a plot of (count/intensity) values for 
-#' different data processing steps (referring to columns in the `data.frame`) 
+#'
+#' @description
+#' The function `featurePlot` creates a plot of (count/intensity) values for
+#' different data processing steps (referring to columns in the `data.frame`)
 #' over the different samples (referring to rows in the `data.frame`).
 #' 
-#' @details 
+#' @details
 #' Internal usage in `shinyQC`.
 #' 
 #' @param df `data.frame`
 #' 
-#' @return `gg`
+#' @return `gg` object from `ggplot2`
 #' 
 #' @examples 
-#' x1 <- matrix(1:100, ncol = 10, nrow = 10, 
+#' set.seed(1)
+#' x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
 #'     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
 #' x2 <- x1 + 5
 #' x3 <- x2 + 10
@@ -995,7 +1005,7 @@ featurePlot <- function(df) {
 #' @details 
 #' `lines = TRUE` will connect the points belonging to the same feature with a 
 #' line. If there are less than two features, the violin plot will not be
-#' plotted. 
+#' plotted. The violin plots will be ordered according to the order in `l`
 #'  
 #' @param l `list` containing matrices
 #' @param lines `logical`
@@ -1075,11 +1085,13 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' function from `limma`.
 #' 
 #' @details
-#' Internal usage in `shinyQC`.
+#' Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
+#' `x` is returned as is (pass-through).
 #' 
 #' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
 #' features in rows
-#' @param method `character`
+#' @param method `character`, one of `"none"`, `"sum"`, `"quantile division"`, 
+#' `"quantile"`
 #' @param probs `numeric`, ranging between `[0, 1)`. `probs` is used as the 
 #' divisor for quantile division in `method = "quantile division"`
 #'
@@ -1107,7 +1119,7 @@ normalize <- function(x,
         x_n <- apply(x_n, 2, function(x) x / sum(x, na.rm = TRUE))
     }
     if (method == "quantile division") {
-        x_n <- apply(x_n, 2, 
+        x_n <- apply(x_n, 2,
                 function(x) x / stats::quantile(x, probs = probs, na.rm = TRUE))
     }
     if (method == "quantile") {
@@ -1121,12 +1133,12 @@ normalize <- function(x,
 
 #' @name transform
 #'
-#' @title Transform the (count/intensity) values of a `data.frame`, `tibble` or
+#' @title Transform the (count/intensity) values of a `data.frame`, `tbl` or
 #' `matrix` 
 #'
 #' @description
 #' The function `transform` transforms the (count/intensity) values of a 
-#' `data.frame`, `tibble` or `matrix`. It uses either `log2`, variance 
+#' `data.frame`, `tbl` or `matrix`. It uses either `log2`, variance 
 #' stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 #' `none`). The object
 #' `x` has the samples in the columns and the features in the rows.
@@ -1184,19 +1196,28 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' `none`).
 #'
 #' @details 
-#' Internal use in `shinyQC`.
+#' The column `batchColumn` in `colData(se)` contains the information on the 
+#' batch identity. Internal use in `shinyQC`.
 #' 
 #' @param se `SummarizedExperiment`, `tibble`, or `matrix`
 #' @param method `character`, one of `"none"` or `"removeBatchEffect"`
-#' @param batchColumn `character`, one of 
+#' @param batchColumn `character`, one of `colnames(colData(se))`
 #'
 #' @examples
-#' x <- matrix(1:1000, nrow = 100, ncol = 10, 
-#'         dimnames = list(1:100, paste("sample", 1:10)))
-#' transform(x, "none")
-#' transform(x, "log2")
-#' transform(x, "vsn")
-#'
+#' ## create se
+#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#'             dimnames = list(1:10, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' set.seed(1)
+#' a <- a + rnorm(100)
+#' cD <- data.frame(name = colnames(a), 
+#'     type = c(rep("1", 5), rep("2", 5)), batch = rep(c(1, 2), 5))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
+#' 
+#' batch(se, method = "removeBatchEffect (limma)", batchColumn = "batch")
+#' 
 #' @return `matrix`
 #' 
 #' @importFrom limma removeBatchEffect
@@ -1204,8 +1225,9 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' 
 #' @export
 batch <- function(se, 
-    method = c("none", "removeBatchEffect (limma)"), batchColumn) {
-    
+    method = c("none", "removeBatchEffect (limma)"), 
+    batchColumn = colnames(colData(se))) {
+
     method <- match.arg(method)
     a <- SummarizedExperiment::assay(se)
     x_b <- as.matrix(a)
@@ -1228,20 +1250,19 @@ batch <- function(se,
 
 #' @name impute
 #' 
-#' @title Impute missing values in a `data.frame`, `tibble`, `matrix`
+#' @title Impute missing values in a `data.frame`, `tbl`, `matrix`
 #' 
 #' @description 
 #' The function `impute` imputes missing values based on one of the following 
 #' principles: Bayesian missing value imputation (`BPCA`), k-nearest 
-#' neighbor averaging (`KNN`), Malimum likelihood-based imputation method using
+#' neighbor averaging (`kNN`), Malimum likelihood-based imputation method using
 #' the EM algorithm (`MLE`), replacement by the smallest non-missing value
 #' in the data (`Min`), replacement by the minimal value observed as
 #' the q-th quantile (`MinDet`, default `q = 0.01`), and replacement by
 #' random draws from a Gaussian distribution centred to a minimal value 
-#' (`MinProb`). 
+#' (`MinProb`).
 #' 
-#' @details 
-#' 
+#' @details
 #' `BPCA` wrapper for `pcaMethods::pca` with `methods = "bpca"`. `BPCA` is a
 #' missing at random (MAR) imputation method. 
 #' 
@@ -1275,7 +1296,11 @@ batch <- function(se,
 #' x <- matrix(1:100, nrow = 10, ncol = 10, 
 #'     dimnames = list(1:10, paste("sample", 1:10)))
 #' x[c(1, 5, 8), 1:5] <- NA
+#' 
 #' impute(x, method = "kNN")
+#' impute(x, method = "Min")
+#' impute(x, method = "MinDet")
+#' impute(x, method = "MinProb")
 #' 
 #' @return `matrix`
 #' 
