@@ -1,3 +1,6 @@
+Changes in version 0.99.5 (2021-04-27)
++ reduce file size of vignette by using partial_bundle for driftPlot
+
 Changes in version 0.99.4 (2021-04-26)
 + reduce package dependencies 
   - remove magick
@@ -15,7 +18,7 @@ Changes in version 0.99.4 (2021-04-26)
   objects from maxQuant output (.xlsx files)
 
 Changes in version 0.99.3 (2021-03-18)
-+ reduce file size of vignette  by using partial_bundle for plotly figures
++ reduce file size of vignette by using partial_bundle for plotly figures
 
 Changes in version 0.99.2 (2021-03-18)
 + reduce resolution of images in vignette to reduce file size 

@@ -51,12 +51,14 @@
 #' volcanoPlot(df_ttest, type = "ttest")
 #' 
 #' ## proDA
+#' \donttest{
 #' fit <- proDA::proDA(a, design = modelMatrix)
 #' df_proDA <- proDA::test_diff(fit = fit, contrast = contrast_expr,
-#'                       sort_by = "adj_pval")
-#'                       
+#'         sort_by = "adj_pval")
+#' 
 #' ## plot
 #' volcanoPlot(df_proDA, type = "proDA")
+#' }
 #' 
 #' @importFrom limma makeContrasts eBayes topTable
 #' @importFrom stats model.matrix

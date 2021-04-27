@@ -462,8 +462,8 @@ Here, we are interested in observing if there is a trend/drift for
 samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
 ```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-driftPlot(se, aggregation = "median", category = "type",
-          orderCategory = "type", level = "Type_1", method = "loess")
+partial_bundle(driftPlot(se, aggregation = "median", category = "type",
+          orderCategory = "type", level = "Type_1", method = "loess"))
 ```
 
 
