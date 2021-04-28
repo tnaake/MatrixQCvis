@@ -1,3 +1,6 @@
+Changes in version 0.99.7 (2021-04-28)
++ add version number of dependencies in Description file
+
 Changes in version 0.99.6 (2021-04-27)
 + add MatrixQCvis to Watched Tags on the Bioconductor support site
 
