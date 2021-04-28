@@ -1,3 +1,6 @@
+Changes in version 0.99.8 (2021-04-28)
++ set required version for S4Vectors to >= 0.29.15
+
 Changes in version 0.99.7 (2021-04-28)
 + add version number of dependencies in Description file
 
