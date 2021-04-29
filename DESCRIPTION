@@ -61,6 +61,7 @@ Imports:
 Suggests:
 	BiocGenerics (>= 0.37.4),
 	BiocStyle (>= 2.19.2),
+	hexbin (>= 1.28.2),
 	knitr (>= 1.33),
 	testthat (>= 3.0.2)
 biocViews: Visualization, GUI, DimensionReduction, Metabolomics, Proteomics
