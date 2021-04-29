@@ -865,19 +865,19 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             
             ## create MA values: se, log2, group
             vals_r <- shiny::reactive({
-                log2_se <- if (any(SummarizedExperiment::assay(se()) < 0)) {
-                    FALSE 
+                if (any(SummarizedExperiment::assay(se()) < 0, na.rm = TRUE)) {
+                    log2_se <- FALSE 
                 } else {
-                    TRUE
+                    log2_se <- TRUE
                 }
                 MAvalues(se(), log2_se, input$groupMA)}) %>%
                     shiny::bindCache(se(), input$groupMA, cache = "session")
             
             vals_n <- shiny::reactive({
-                log2_se <- if (any(SummarizedExperiment::assay(se_n()) < 0)) {
-                    FALSE 
+                if (any(SummarizedExperiment::assay(se_n()) < 0, na.rm = TRUE)) {
+                    log2_se <- FALSE
                 } else {
-                    TRUE
+                    log2_se <- TRUE
                 }
                 MAvalues(se_n(), log2_se, input$groupMA)}) %>%
                     shiny::bindCache(se_n(), input$groupMA, cache = "session")
