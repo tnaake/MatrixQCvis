@@ -1,3 +1,7 @@
+Changes in version 0.99.9 (2021-04-29)
++ add hexbin in Suggests
++ fix bug in MAplot that plot is displayed properly
+
 Changes in version 0.99.8 (2021-04-28)
 + set required version for S4Vectors to >= 0.29.15
 
