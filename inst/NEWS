@@ -1,3 +1,6 @@
+Changes in version 0.99.10 (2021-05-06)
++ bump version to trigger building
+
 Changes in version 0.99.9 (2021-04-29)
 + add hexbin in Suggests
 + fix bug in MAplot that plot is displayed properly
