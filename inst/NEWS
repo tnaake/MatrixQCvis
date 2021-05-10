@@ -1,3 +1,9 @@
+Changes in version 0.99.11 (2021-05-10)
++ rename function normalize to normalizeAssay
++ rename function transform to transformAssay
++ rename function batch to batchCorrectionAssay
++ rename function impute to imputeAssay
+
 Changes in version 0.99.10 (2021-05-06)
 + bump version to trigger building
 
