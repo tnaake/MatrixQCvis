@@ -39,13 +39,13 @@ hoeffDValues(tbl, "raw")
 
 ## normalized values
 se_n <- se
-assay(se_n) <- normalize(a, "sum")
+assay(se_n) <- normalizeAssay(a, "sum")
 tbl_n <- MAvalues(se_n, group = "all")
 hoeffDValues(tbl_n, "normalized")
 
 ## transformed values
 se_t <- se
-assay(se_t) <- transform(a, "log2")
+assay(se_t) <- transformAssay(a, "log2")
 tbl_t <- MAvalues(se_t, group = "all")
 hoeffDValues(tbl_t, "transformed")
 

@@ -24,7 +24,7 @@
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' a_i <- impute(a, method = "MinDet")
+#' a_i <- imputeAssay(a, method = "MinDet")
 #' cD <- data.frame(sample = colnames(a), 
 #'     type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))

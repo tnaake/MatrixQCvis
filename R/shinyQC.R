@@ -339,7 +339,7 @@ shinyQC <- function(se, app_server = FALSE) {
         shiny::req(a(), input$normalization)
         ## input$normalization is either "none", "sum", "quantile division",
         ## "quantile"
-        normalize(a(), method = input$normalization, probs = input$quantile)
+        normalizeAssay(a(), method = input$normalization, probs = input$quantile)
     })
     
     output$quantDiv <- shiny::renderUI({
@@ -353,7 +353,7 @@ shinyQC <- function(se, app_server = FALSE) {
         shiny::req(input$transformation, a_n())
         
         ## input$transformation is either "none", "log2", or "vsn"
-        transform(a_n(), method = input$transformation)
+        transformAssay(a_n(), method = input$transformation)
     })
     
     ## reactive expression for data transformation, returns a matrix with
@@ -362,7 +362,8 @@ shinyQC <- function(se, app_server = FALSE) {
         shiny::req(input$batch, a_t()) 
         
         ## input$batch is either "none" or "removeBatchEffect (limma)"
-        batch(se_r_t(), method = input$batch, batchColumn = input$batchCol)
+        batchCorrectionAssay(se_r_t(), method = input$batch, 
+            batchColumn = input$batchCol)
     })
     
     output$batchCol <- shiny::renderUI({
@@ -387,7 +388,7 @@ shinyQC <- function(se, app_server = FALSE) {
         shiny::req(input$imputation, a_b())
         if (missingValue) {
             ## impute missing values of  the data.frame with transformed values
-            impute(a_b(), input$imputation)    
+            imputeAssay(a_b(), input$imputation)    
         } else {
             a_b()
         }

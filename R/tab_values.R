@@ -458,7 +458,7 @@ distShiny <- function(x, method = "euclidean") {
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
-#' a_i <- impute(a, method = "MinDet")
+#' a_i <- imputeAssay(a, method = "MinDet")
 #' cD <- data.frame(name = colnames(a_i),
 #'     type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a_i))
@@ -669,13 +669,13 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' 
 #' ## normalized values
 #' se_n <- se
-#' assay(se_n) <- normalize(a, "sum")
+#' assay(se_n) <- normalizeAssay(a, "sum")
 #' tbl_n <- MAvalues(se_n, group = "all")
 #' hoeffDValues(tbl_n, "normalized")
 #' 
 #' ## transformed values
 #' se_t <- se
-#' assay(se_t) <- transform(a, "log2")
+#' assay(se_t) <- transformAssay(a, "log2")
 #' tbl_t <- MAvalues(se_t, group = "all")
 #' hoeffDValues(tbl_t, "transformed")
 #' 
@@ -752,7 +752,7 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' 
 #' ## normalized values
 #' se_n <- se
-#' assay(se_n) <- normalize(a, "sum")
+#' assay(se_n) <- normalizeAssay(a, "sum")
 #' tbl_n <- MAvalues(se_n, log2 = FALSE, group = "all")
 #' hd_n <- hoeffDValues(tbl_n, "normalized")
 #' 
@@ -1071,12 +1071,12 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 ## each variable)
 
 
-#' @name normalize
+#' @name normalizeAssay
 #'
 #' @title Normalize a data sets (reduce technical sample effects)
 #'
 #' @description
-#' The function `normalize` performs normalization by sum of the 
+#' The function `normalizeAssay` performs normalization by sum of the 
 #' (count/intensity) values per sample or quantile division per sample
 #' or by quantile normalization (adjusting the distributions that they become
 #' identical in statistical distributions). The divisor for quantile division
@@ -1088,17 +1088,16 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
 #' `x` is returned as is (pass-through).
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
-#' features in rows
+#' @param a `matrix` with samples in columns and features in rows
 #' @param method `character`, one of `"none"`, `"sum"`, `"quantile division"`, 
 #' `"quantile"`
 #' @param probs `numeric`, ranging between `[0, 1)`. `probs` is used as the 
 #' divisor for quantile division in `method = "quantile division"`
 #'
 #' @examples
-#' x <- matrix(1:100, nrow = 10, ncol = 10, 
+#' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'         dimnames = list(1:10, paste("sample", 1:10)))
-#' normalize(x, "sum")
+#' normalizeAssay(a, "sum")
 #' 
 #' @return `matrix`
 #'
@@ -1106,39 +1105,38 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' @importFrom stats quantile
 #'  
 #' @export
-normalize <- function(x, 
+normalizeAssay <- function(a, 
     method = c("none", "sum", "quantile division", "quantile"), probs) {
     
+    if (!is.matrix(a)) stop ("a is not a matrix")
     method <- match.arg(method)
     
-    x_n <- x %>% as.matrix()
-    if (method == "none") {
-        x_n <- x_n
-    }
+    a_n <- a
+
     if (method == "sum") {
-        x_n <- apply(x_n, 2, function(x) x / sum(x, na.rm = TRUE))
+        a_n <- apply(a_n, 2, function(x) x / sum(x, na.rm = TRUE))
     }
     if (method == "quantile division") {
-        x_n <- apply(x_n, 2,
+        a_n <- apply(a_n, 2,
                 function(x) x / stats::quantile(x, probs = probs, na.rm = TRUE))
     }
     if (method == "quantile") {
-        x_n <- limma::normalizeQuantiles(x_n, ties = TRUE)
+        a_n <- limma::normalizeQuantiles(a_n, ties = TRUE)
     }
     
-    rownames(x_n) <- rownames(x)
-    colnames(x_n) <- colnames(x)
-    return(x_n)
+    rownames(a_n) <- rownames(a)
+    colnames(a_n) <- colnames(a)
+    return(a_n)
 }
 
-#' @name transform
+#' @name transformAssay
 #'
 #' @title Transform the (count/intensity) values of a `data.frame`, `tbl` or
 #' `matrix` 
 #'
 #' @description
-#' The function `transform` transforms the (count/intensity) values of a 
-#' `data.frame`, `tbl` or `matrix`. It uses either `log2`, variance 
+#' The function `transformAssay` transforms the (count/intensity) values of a 
+#' `matrix`. It uses either `log2`, variance 
 #' stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 #' `none`). The object
 #' `x` has the samples in the columns and the features in the rows.
@@ -1146,52 +1144,50 @@ normalize <- function(x,
 #' @details 
 #' Internal use in `shinyQC`.
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
-#' features in rows
+#' @param a `matrix` with samples in columns and features in rows
 #' @param method `character`, one of `"none"`, `"log2"` or `"vsn"`
 #'
 #' @examples
-#' x <- matrix(1:1000, nrow = 100, ncol = 10, 
+#' a <- matrix(1:1000, nrow = 100, ncol = 10, 
 #'         dimnames = list(1:100, paste("sample", 1:10)))
-#' transform(x, "none")
-#' transform(x, "log2")
-#' transform(x, "vsn")
+#' transformAssay(a, "none")
+#' transformAssay(a, "log2")
+#' transformAssay(a, "vsn")
 #'
 #' @return `matrix`
 #' 
 #' @importFrom vsn vsn2
 #' 
 #' @export
-transform <- function(x, method = c("none", "log2", "vsn")) {
+transformAssay <- function(a, method = c("none", "log2", "vsn")) {
     
+    if (!is.matrix(a)) stop("a is not a matrix")
     method <- match.arg(method)
-    
-    x_t <- x %>% as.matrix()
-    
-    # if (method == "none") {
-    #     x_t <- x
-    # }
+
+    a_t <- a
+
     if (method == "vsn") {
-        x_t <- vsn2(x_t)
-        x_t <- x_t@hx
+        a_t <- vsn2(a_t)
+        a_t <- a_t@hx
     }
     if (method == "log2") {
-        x_t <- log2(x_t)
+        a_t <- log2(a_t)
     }
     
-    rownames(x_t) <- rownames(x) 
-    colnames(x_t) <- colnames(x)
-    return(x_t)
+    rownames(a_t) <- rownames(a) 
+    colnames(a_t) <- colnames(a)
+    return(a_t)
 }
 
-#' @name batch
+#' @name batchCorrectionAssay
 #'
 #' @title Remove batch effects from (count/intensity) values of a 
 #' `SummarizedExperiment`
 #'
 #' @description
-#' The function `batch` removes the batch effect of (count/intensity) values of 
-#' a `SummarizedExperiment`. It uses either the `removeBatchEffect` function 
+#' The function `batchCorrectionAssay` removes the batch effect of 
+#' (count/intensity) values of a `SummarizedExperiment`. 
+#' It uses either the `removeBatchEffect` function 
 #' or no batch effect correction method (pass-through, 
 #' `none`).
 #'
@@ -1199,7 +1195,7 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' The column `batchColumn` in `colData(se)` contains the information on the 
 #' batch identity. Internal use in `shinyQC`.
 #' 
-#' @param se `SummarizedExperiment`, `tibble`, or `matrix`
+#' @param se `SummarizedExperiment`
 #' @param method `character`, one of `"none"` or `"removeBatchEffect"`
 #' @param batchColumn `character`, one of `colnames(colData(se))`
 #'
@@ -1216,7 +1212,8 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
-#' batch(se, method = "removeBatchEffect (limma)", batchColumn = "batch")
+#' batchCorrectionAssay(se, method = "removeBatchEffect (limma)", 
+#'                             batchColumn = "batch")
 #' 
 #' @return `matrix`
 #' 
@@ -1224,13 +1221,13 @@ transform <- function(x, method = c("none", "log2", "vsn")) {
 #' @importFrom SummarizedExperiment assay colData
 #' 
 #' @export
-batch <- function(se, 
+batchCorrectionAssay <- function(se, 
     method = c("none", "removeBatchEffect (limma)"), 
     batchColumn = colnames(colData(se))) {
 
     method <- match.arg(method)
     a <- SummarizedExperiment::assay(se)
-    x_b <- as.matrix(a)
+    a_b <- as.matrix(a)
     
     if (method == "removeBatchEffect (limma)") {
         cD <- SummarizedExperiment::colData(se)
@@ -1239,18 +1236,18 @@ batch <- function(se,
         }
         
         batch <- cD[, batchColumn]
-        x_b <- limma::removeBatchEffect(x_b, batch = batch)
+        a_b <- limma::removeBatchEffect(a_b, batch = batch)
     }
     
-    rownames(x_b) <- rownames(a)
-    colnames(x_b) <- colnames(a)
+    rownames(a_b) <- rownames(a)
+    colnames(a_b) <- colnames(a)
     
-    return(x_b)
+    return(a_b)
 }
 
-#' @name impute
+#' @name imputeAssay
 #' 
-#' @title Impute missing values in a `data.frame`, `tbl`, `matrix`
+#' @title Impute missing values in a `matrix`
 #' 
 #' @description 
 #' The function `impute` imputes missing values based on one of the following 
@@ -1261,7 +1258,7 @@ batch <- function(se,
 #' the q-th quantile (`MinDet`, default `q = 0.01`), and replacement by
 #' random draws from a Gaussian distribution centred to a minimal value 
 #' (`MinProb`).
-#' 
+#'
 #' @details
 #' `BPCA` wrapper for `pcaMethods::pca` with `methods = "bpca"`. `BPCA` is a
 #' missing at random (MAR) imputation method. 
@@ -1287,20 +1284,19 @@ batch <- function(se,
 #' from a Gaussion distribution with the mean set to the minimal value of a 
 #' sample. `MinProb` is a MNAR imputation method.
 #' 
-#' @param x `data.frame`, `tibble`, or `matrix` with samples in columns and 
-#' features in rows
+#' @param a `matrix` with samples in columns and features in rows
 #' @param method `character`, one of `"BPCA"`, `"kNN"`, `"MLE`, `"Min"`, 
 #' `"MinDet"`, or `"MinProb"`
-#' 
+#'
 #' @examples
-#' x <- matrix(1:100, nrow = 10, ncol = 10, 
+#' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'     dimnames = list(1:10, paste("sample", 1:10)))
-#' x[c(1, 5, 8), 1:5] <- NA
+#' a[c(1, 5, 8), 1:5] <- NA
 #' 
-#' impute(x, method = "kNN")
-#' impute(x, method = "Min")
-#' impute(x, method = "MinDet")
-#' impute(x, method = "MinProb")
+#' imputeAssay(a, method = "kNN")
+#' imputeAssay(a, method = "Min")
+#' imputeAssay(a, method = "MinDet")
+#' imputeAssay(a, method = "MinProb")
 #' 
 #' @return `matrix`
 #' 
@@ -1309,50 +1305,51 @@ batch <- function(se,
 #' @importFrom pcaMethods pca completeObs
 #' 
 #' @export
-impute <- function(x, 
+imputeAssay <- function(a,
     method = c("BPCA", "kNN", "MLE", "Min", "MinDet", "MinProb")) {
 
+    if (!is.matrix(a)) stop("a is not a matrix")
     method <- match.arg(method)
 
     ## convert the data.frame into matrix
-    x_i <- as.matrix(x)
+    a_i <- as.matrix(a)
 
     if (method == "BPCA") {
-        n_samp <- ncol(x_i)
+        n_samp <- ncol(a_i)
         ## expects a matrix with features in cols, samples in rows
-        res <- pcaMethods::pca(t(x_i), method = "bpca", nPcs = (n_samp - 1), 
+        res <- pcaMethods::pca(t(a_i), method = "bpca", nPcs = (n_samp - 1),
                                                             verbose = FALSE)
-        x_i <- pcaMethods::completeObs(res)
-        x_i <- t(x_i)
+        a_i <- pcaMethods::completeObs(res)
+        a_i <- t(a_i)
     }
 
     if (method == "kNN") {
         ## expects a matrix with features in rows, samples in columns
-        x_i <- impute::impute.knn(data = x_i)$data
+        a_i <- impute::impute.knn(data = a_i)$data
     }
 
     if (method == "MLE") {
         ## expects a matrix with features in rows, samples in columns
-        x_i <- imputeLCMD::impute.wrapper.MLE(dataSet.mvs = x_i)
+        a_i <- imputeLCMD::impute.wrapper.MLE(dataSet.mvs = a_i)
     }
         
     if (method == "Min") {
-        min_val <- min(x_i, na.rm = TRUE)
-        x_i[is.na(x_i)] <- min_val
+        min_val <- min(a_i, na.rm = TRUE)
+        a_i[is.na(a_i)] <- min_val
     }
         
     if (method == "MinDet") {
         ## expects a matrix with features in rows, samples in columns
-        x_i <- imputeLCMD::impute.MinDet(dataSet.mvs = x_i, q = 0.01)
+        a_i <- imputeLCMD::impute.MinDet(dataSet.mvs = a_i, q = 0.01)
     }
         
     if (method == "MinProb") {
         ## expects a matrix with features in rows, samples in columns
-        x_i <- imputeLCMD::impute.MinProb(dataSet.mvs = x_i, q = 0.01, 
+        a_i <- imputeLCMD::impute.MinProb(dataSet.mvs = a_i, q = 0.01, 
             tune.sigma = 1)
     }
         
-    return(x_i)
+    return(a_i)
 }
 
 

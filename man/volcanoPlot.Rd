@@ -33,7 +33,7 @@ a <- matrix(1:100, nrow = 10, ncol = 10,
 a[c(1, 5, 8), 1:5] <- NA
 set.seed(1)
 a <- a + rnorm(100)
-a_i <- impute(a, method = "MinDet")
+a_i <- imputeAssay(a, method = "MinDet")
 cD <- data.frame(sample = colnames(a), 
     type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
@@ -60,11 +60,13 @@ df_ttest <- cbind(name = rownames(df_ttest), df_ttest)
 volcanoPlot(df_ttest, type = "ttest")
 
 ## proDA
+\donttest{
 fit <- proDA::proDA(a, design = modelMatrix)
 df_proDA <- proDA::test_diff(fit = fit, contrast = contrast_expr,
-                      sort_by = "adj_pval")
-                      
+        sort_by = "adj_pval")
+
 ## plot
 volcanoPlot(df_proDA, type = "proDA")
+}
 
 }

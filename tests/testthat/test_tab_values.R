@@ -257,119 +257,117 @@ test_that("cvFeaturePlot", {
       "argument is not interpretable as logical")
 })
 
-## function normalize
-test_that("normalize", {
-    x <- SummarizedExperiment::assay(se)
-    x_n <- normalize(x, method = "none")
-    x_s <- normalize(x, method = "sum")
-    x_qd <- normalize(x, method = "quantile division", probs = 0.75)
-    x_q <- normalize(x, method = "quantile")
-    expect_error(normalize(se), 
-        "no method for coercing this S4 class to a vector")
-    expect_error(normalize(x, method = "quantile division"), 
+## function normalizeAssay
+test_that("normalizeAssay", {
+    a <- SummarizedExperiment::assay(se)
+    a_n <- normalizeAssay(a, method = "none")
+    a_s <- normalizeAssay(a, method = "sum")
+    a_qd <- normalizeAssay(a, method = "quantile division", probs = 0.75)
+    a_q <- normalizeAssay(a, method = "quantile")
+    expect_error(normalizeAssay(se), "a is not a matrix")
+    expect_error(normalizeAssay(a, method = "quantile division"), 
         'argument "probs" is missing, with no default')
-    expect_error(normalize(x, "foo"), "'arg' should be one of ")
-    expect_equal(x_n, x)
-    expect_true(is.matrix(x_n))
-    expect_true(is.matrix(x_s))
-    expect_true(is.matrix(x_qd))
-    expect_true(is.matrix(x_q))
-    expect_equal(dim(x_n), dim(x))
-    expect_equal(dim(x_s), dim(x))
-    expect_equal(dim(x_qd), dim(x))
-    expect_equal(dim(x_q), dim(x))
-    expect_equal(rownames(x_n), rownames(x))
-    expect_equal(rownames(x_s), rownames(x))
-    expect_equal(rownames(x_qd), rownames(x))
-    expect_equal(rownames(x_q), rownames(x))
-    expect_equal(colnames(x_n), colnames(x))
-    expect_equal(colnames(x_s), colnames(x))
-    expect_equal(colnames(x_qd), colnames(x))
-    expect_equal(colnames(x_q), colnames(x))
+    expect_error(normalizeAssay(a, "foo"), "'arg' should be one of ")
+    expect_equal(a_n, a)
+    expect_true(is.matrix(a_n))
+    expect_true(is.matrix(a_s))
+    expect_true(is.matrix(a_qd))
+    expect_true(is.matrix(a_q))
+    expect_equal(dim(a_n), dim(a))
+    expect_equal(dim(a_s), dim(a))
+    expect_equal(dim(a_qd), dim(a))
+    expect_equal(dim(a_q), dim(a))
+    expect_equal(rownames(a_n), rownames(a))
+    expect_equal(rownames(a_s), rownames(a))
+    expect_equal(rownames(a_qd), rownames(a))
+    expect_equal(rownames(a_q), rownames(a))
+    expect_equal(colnames(a_n), colnames(a))
+    expect_equal(colnames(a_s), colnames(a))
+    expect_equal(colnames(a_qd), colnames(a))
+    expect_equal(colnames(a_q), colnames(a))
 })
 
-## function transform
-test_that("transform", {
-    x <- SummarizedExperiment::assay(se)
-    x_n <- transform(x, method = "none")
-    x_l <- transform(x, method = "log2")
-    x_v <- transform(x, method = "vsn")
+## function transformAssay
+test_that("transformAssay", {
+    a <- SummarizedExperiment::assay(se)
+    a_n <- transformAssay(a, method = "none")
+    a_l <- transformAssay(a, method = "log2")
+    a_v <- transformAssay(a, method = "vsn")
     
-    expect_error(transform(se), 
-        "no method for coercing this S4 class to a vector")
-    expect_error(transform(x, "foo"), "'arg' should be one of ")
-    expect_equal(x_n, x)
-    expect_true(is.matrix(x_n))
-    expect_true(is.matrix(x_l))
-    expect_true(is.matrix(x_v))
-    expect_equal(dim(x_n), dim(x))
-    expect_equal(dim(x_l), dim(x))
-    expect_equal(dim(x_v), dim(x))
-    expect_equal(rownames(x_n), rownames(x))
-    expect_equal(rownames(x_l), rownames(x))
-    expect_equal(rownames(x_v), rownames(x))
-    expect_equal(colnames(x_n), colnames(x))
-    expect_equal(colnames(x_l), colnames(x))
-    expect_equal(colnames(x_v), colnames(x))
+    expect_error(transformAssay(se), "a is not a matrix")
+    expect_error(transformAssay(a, "foo"), "'arg' should be one of ")
+    expect_equal(a_n, a)
+    expect_true(is.matrix(a_n))
+    expect_true(is.matrix(a_l))
+    expect_true(is.matrix(a_v))
+    expect_equal(dim(a_n), dim(a))
+    expect_equal(dim(a_l), dim(a))
+    expect_equal(dim(a_v), dim(a))
+    expect_equal(rownames(a_n), rownames(a))
+    expect_equal(rownames(a_l), rownames(a))
+    expect_equal(rownames(a_v), rownames(a))
+    expect_equal(colnames(a_n), colnames(a))
+    expect_equal(colnames(a_l), colnames(a))
+    expect_equal(colnames(a_v), colnames(a))
 })
 
-## function batch
-test_that("batch", {
-  a <- matrix(1:1000, nrow = 100, ncol = 10, 
-      dimnames = list(1:100, paste("sample", 1:10)))
-  se_b <- se
-  SummarizedExperiment::assay(se_b) <- a
-  x_n <- batch(se_b, method = "none")
-  x_l <- batch(se_b, method = "removeBatchEffect (limma)", batchColumn = "type")
-  
-  expect_error(batch(a), 
-      "unable to find an inherited method for function")
-  expect_error(batch(se_b, "foo"), "'arg' should be one of ")
-  expect_error(batch(se_b, "removeBatchEffect (limma)", "foo"),
-      "batchColumn not in")
-  expect_equal(x_n, a)
-  expect_true(is.matrix(x_n))
-  expect_true(is.matrix(x_l))
-  expect_equal(dim(x_n), dim(a))
-  expect_equal(dim(x_l), dim(a))
-  expect_equal(rownames(x_n), rownames(a))
-  expect_equal(rownames(x_l), rownames(a))
-  expect_equal(colnames(x_n), colnames(a))
-  expect_equal(colnames(x_l), colnames(a))
-})
-
-## function impute
-test_that("impute", {
-    x <- SummarizedExperiment::assay(se)
-    x_bpca <- impute(x, "BPCA")
-    x_knn <- impute(x, "kNN")
-    x_min <- impute(x, "Min")
-    x_mindet <- impute(x, "MinDet")
-    x_minprob <- impute(x, "MinProb")
+## function batchCorrectionAssay
+test_that("batchCorrectionAssay", {
+    a <- matrix(1:1000, nrow = 100, ncol = 10, 
+        dimnames = list(1:100, paste("sample", 1:10)))
+    se_b <- se
+    SummarizedExperiment::assay(se_b) <- a
+    a_n <- batchCorrectionAssay(se_b, method = "none")
+    a_l <- batchCorrectionAssay(se_b, method = "removeBatchEffect (limma)", 
+        batchColumn = "type")
     
-    expect_error(impute(se), 
-        "no method for coercing this S4 class to a vector")
-    expect_error(impute(se, "foo"), "'arg' should be one of")
-    expect_true(is.matrix(x_bpca))
-    expect_true(is.matrix(x_knn))
-    expect_true(is.matrix(x_min))
-    expect_true(is.matrix(x_mindet))
-    expect_true(is.matrix(x_minprob))
-    expect_equal(dim(x_bpca), dim(x))
-    expect_equal(dim(x_knn), dim(x))
-    expect_equal(dim(x_min), dim(x))
-    expect_equal(dim(x_mindet), dim(x))
-    expect_equal(dim(x_minprob), dim(x))
-    expect_equal(rownames(x_bpca), rownames(x))
-    expect_equal(rownames(x_knn), rownames(x))
-    expect_equal(rownames(x_min), rownames(x))
-    expect_equal(rownames(x_mindet), rownames(x))
-    expect_equal(rownames(x_minprob), rownames(x))
-    expect_equal(colnames(x_bpca), colnames(x))
-    expect_equal(colnames(x_knn), colnames(x))
-    expect_equal(colnames(x_min), colnames(x))
-    expect_equal(colnames(x_mindet), colnames(x))
-    expect_equal(colnames(x_minprob), colnames(x))
+    expect_error(batchCorrectionAssay(a), 
+        "unable to find an inherited method for function")
+    expect_error(batchCorrectionAssay(se_b, "foo"), "'arg' should be one of ")
+    expect_error(batchCorrectionAssay(se_b, "removeBatchEffect (limma)", "foo"),
+        "batchColumn not in")
+    expect_equal(a_n, a)
+    expect_true(is.matrix(a_n))
+    expect_true(is.matrix(a_l))
+    expect_equal(dim(a_n), dim(a))
+    expect_equal(dim(a_l), dim(a))
+    expect_equal(rownames(a_n), rownames(a))
+    expect_equal(rownames(a_l), rownames(a))
+    expect_equal(colnames(a_n), colnames(a))
+    expect_equal(colnames(a_l), colnames(a))
+})
+
+## function imputeAssay
+test_that("imputeAssay", {
+    a <- SummarizedExperiment::assay(se)
+    a_bpca <- imputeAssay(a, "BPCA")
+    a_knn <- imputeAssay(a, "kNN")
+    a_min <- imputeAssay(a, "Min")
+    a_mindet <- imputeAssay(a, "MinDet")
+    a_minprob <- imputeAssay(a, "MinProb")
+    
+    expect_error(imputeAssay(se), "a is not a matrix")
+    expect_error(imputeAssay(se, "foo"), "a is not a matrix")
+    expect_true(is.matrix(a_bpca))
+    expect_true(is.matrix(a_knn))
+    expect_true(is.matrix(a_min))
+    expect_true(is.matrix(a_mindet))
+    expect_true(is.matrix(a_minprob))
+    expect_equal(dim(a_bpca), dim(a))
+    expect_equal(dim(a_knn), dim(a))
+    expect_equal(dim(a_min), dim(a))
+    expect_equal(dim(a_mindet), dim(a))
+    expect_equal(dim(a_minprob), dim(a))
+    expect_equal(rownames(a_bpca), rownames(a))
+    expect_equal(rownames(a_knn), rownames(a))
+    expect_equal(rownames(a_min), rownames(a))
+    expect_equal(rownames(a_mindet), rownames(a))
+    expect_equal(rownames(a_minprob), rownames(a))
+    expect_equal(colnames(a_bpca), colnames(a))
+    expect_equal(colnames(a_knn), colnames(a))
+    expect_equal(colnames(a_min), colnames(a))
+    expect_equal(colnames(a_mindet), colnames(a))
+    expect_equal(colnames(a_minprob), colnames(a))
 })
 
 

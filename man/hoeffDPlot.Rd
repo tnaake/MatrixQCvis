@@ -44,7 +44,7 @@ hd_r <- hoeffDValues(tbl, "raw")
 
 ## normalized values
 se_n <- se
-assay(se_n) <- normalize(a, "sum")
+assay(se_n) <- normalizeAssay(a, "sum")
 tbl_n <- MAvalues(se_n, log2 = FALSE, group = "all")
 hd_n <- hoeffDValues(tbl_n, "normalized")
 

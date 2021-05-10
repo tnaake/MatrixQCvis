@@ -491,11 +491,11 @@ normalization), transformed values (using `vsn`), batch corrected values
 ```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 a <- assay(se)
 se_t <- se
-a_n <- a %>% normalize(., "sum")
-a_t <- a_n %>% transform(., "vsn")
+a_n <- a %>% normalizeAssay(., "sum")
+a_t <- a_n %>% transformAssay(., "vsn")
 assay(se_t) <- a_t
-a_b <- se_t %>% batch(., method = "none")
-a_i <- a_b %>% impute(., "MinDet")
+a_b <- se_t %>% batchCorrectionAssay(., method = "none")
+a_i <- a_b %>% imputeAssay(., "MinDet")
 
 ## calculate cv values
 cv_r <- cv(a, "raw")
@@ -813,9 +813,9 @@ t-tests (from the `limma` package):
 The output will be:
 ```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 a <- assay(se)
-a_n <- a %>% normalize(., "none")
-a_t <- a_n %>% transform(., "none")
-a_i <- a_t %>% impute(., "MinDet")
+a_n <- a %>% normalizeAssay(., "none")
+a_t <- a_n %>% transformAssay(., "none")
+a_i <- a_t %>% imputeAssay(., "MinDet")
 
 fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
