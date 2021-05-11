@@ -450,6 +450,7 @@ distShiny <- function(x, method = "euclidean") {
 #' @param se `SummarizedExperiment`
 #' @param label `character`, refers to a column in `colData(se)`
 #' @param title `character`
+#' @param ... further arguments passed to `ComplexHeatmap::Heatmap`
 #'
 #' @examples
 #' ## create se
@@ -466,7 +467,8 @@ distShiny <- function(x, method = "euclidean") {
 #'     colData = cD)
 #' 
 #' dist <- distShiny(a_i)
-#' distSample(dist, se, label = "type", title = "imputed")
+#' distSample(dist, se, label = "type", title = "imputed", 
+#'     show_row_names = TRUE)
 #'
 #' @return `plotly`
 #'
@@ -476,7 +478,7 @@ distShiny <- function(x, method = "euclidean") {
 #' @importFrom stats setNames
 #'
 #' @export
-distSample <- function(d, se, label = "name", title = "raw") {
+distSample <- function(d, se, label = "name", title = "raw", ...) {
 
     
     ## create the annotation, use here the colData, get the column label in 
@@ -487,11 +489,23 @@ distSample <- function(d, se, label = "name", title = "raw") {
     colnames(df) <- label
     l <- list(stats::setNames(grDevices::hcl.colors(n = length(val_u)), val_u))
     names(l) <- label
-    ha <- ComplexHeatmap::HeatmapAnnotation(df = df, col = l)
     
-    Heatmap(d, name = "distances",
-        top_annotation = ha, column_title = title,
-        show_row_names = TRUE, show_column_names = FALSE)
+    ## set default arguments for ComplexHeatmap::Heatmap
+    top_annotation <- ComplexHeatmap::HeatmapAnnotation(df = df, col = l)
+    show_column_names <- FALSE
+    args_default <- list(matrix = d, 
+        clustering_distance_rows = function(x) as.dist(x),
+        top_annotation = top_annotation,
+        name = "distances", column_title = title,
+        show_column_names = show_column_names)
+
+    ## write the ellipsis to args
+    args <- list(...)
+    args_default[names(args)] <- args
+    
+    ## call the ComplexHeatmap::Heatmap function
+    do.call(what = ComplexHeatmap::Heatmap, args = args_default)
+    
     # @importFrom heatmaply heatmaply
     ## define the row annotation
     ##row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
@@ -766,7 +780,7 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
 #' @importFrom ggplot2 ggplot geom_violin geom_point aes_string geom_line
-#' @importFrom ggplot2 ylab theme_bw
+#' @importFrom ggplot2 ylab theme_bw theme
 #' @importFrom plotly ggplotly
 #' 
 #' @export
@@ -802,7 +816,8 @@ hoeffDPlot <- function(df, lines = TRUE) {
     if (lines) g <- g + ggplot2::geom_line(
         ggplot2::aes_string(x = "x_jitter", y = "value", group = "sample"))
     g <- g + ggplot2::ylab("Hoeffding's D statistic") + 
-        ggplot2::xlab("processing step") + ggplot2::theme_bw()
+        ggplot2::xlab("processing step") + ggplot2::theme_bw() +
+        ggplot2::theme(legend.position = "none")
     plotly::ggplotly(g, tooltip = c("text", "y"))
 }
 

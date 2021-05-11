@@ -4,7 +4,7 @@
 \alias{distSample}
 \title{Create a heatmap using distance information between samples}
 \usage{
-distSample(d, se, label = "name", title = "raw")
+distSample(d, se, label = "name", title = "raw", ...)
 }
 \arguments{
 \item{d}{`matrix` containing distances, obtained from `distShiny`}
@@ -14,6 +14,8 @@ distSample(d, se, label = "name", title = "raw")
 \item{label}{`character`, refers to a column in `colData(se)`}
 
 \item{title}{`character`}
+
+\item{...}{further arguments passed to `ComplexHeatmap::Heatmap`}
 }
 \value{
 `plotly`
@@ -41,6 +43,7 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a_i, rowData = rD,
     colData = cD)
 
 dist <- distShiny(a_i)
-distSample(dist, se, label = "type", title = "imputed")
+distSample(dist, se, label = "type", title = "imputed", 
+    show_row_names = TRUE)
 
 }
