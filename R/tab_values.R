@@ -538,7 +538,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' @return `gg` object from `ggplot2`
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
-#' @importFrom ggplot2 xlab ylab theme_bw
+#' @importFrom ggplot2 xlab ylab theme_bw theme element_blank
 #' @importFrom tibble tibble
 #' @importFrom plotly ggplotly
 #'
@@ -547,11 +547,14 @@ sumDistSample <- function(d, title = "raw") {
     d_sum <- rowSums(d) 
     tbl <- tibble::tibble(name = names(d_sum), distance = d_sum)
     g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "distance", y = "name")) + 
-        ggplot2::geom_point() + 
-        ggplot2::geom_segment(ggplot2::aes_string(xend = 0, yend = "name")) + 
+        ggplot2::geom_point(size = 0.5) + 
+        ggplot2::geom_segment(ggplot2::aes_string(xend = 0, yend = "name"), 
+            size = 0.1) + 
         ggplot2::ggtitle(title) +
         ggplot2::xlab("sum of distances") + ggplot2::ylab("") + 
-        ggplot2::theme_bw()
+        ggplot2::theme_bw() + 
+        ggplot2::theme(panel.grid.major.y = ggplot2::element_blank(),
+                        panel.grid.minor.y = ggplot2::element_blank())
     
     g <- plotly::ggplotly(g, tooltip = c("x", "y"))
     
