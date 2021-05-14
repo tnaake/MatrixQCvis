@@ -475,7 +475,7 @@ distShiny <- function(x, method = "euclidean") {
 #' @importFrom SummarizedExperiment colData
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
 #' @importFrom grDevices hcl.colors
-#' @importFrom stats setNames
+#' @importFrom stats setNames as.dist
 #'
 #' @export
 distSample <- function(d, se, label = "name", title = "raw", ...) {
@@ -494,7 +494,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
     top_annotation <- ComplexHeatmap::HeatmapAnnotation(df = df, col = l)
     show_column_names <- FALSE
     args_default <- list(matrix = d, 
-        clustering_distance_rows = function(x) as.dist(x),
+        clustering_distance_rows = function(x) stats::as.dist(x),
         top_annotation = top_annotation,
         name = "distances", column_title = title,
         show_column_names = show_column_names)
