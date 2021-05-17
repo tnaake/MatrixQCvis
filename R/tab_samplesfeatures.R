@@ -35,6 +35,7 @@ hist_sample_num <- function(se, category = "type") {
 
     ## retrieve the sample type
     df <- SummarizedExperiment::colData(se)[[category]]
+    df[is.na(df)] <- "NA"
     
     ## retrieve the number of samples per sample type
     tab <- table(df)
