@@ -1,3 +1,6 @@
+Changes in version 0.99.12 (2021-05-18)
++ replace xlsx by openxlsx
+
 Changes in version 0.99.11 (2021-05-10)
 + rename function normalize to normalizeAssay
 + rename function transform to transformAssay

@@ -4,12 +4,13 @@
 \alias{biocrates}
 \title{Convert Biocrates xlsx output to `SummarizedExperiment` object}
 \usage{
-biocrates(file, sheetName = NULL, ...)
+biocrates(file, sheet, ...)
 }
 \arguments{
 \item{file}{`character`}
 
-\item{sheetName}{`character`, given to `read.xslx`}
+\item{sheet}{`character` or `numeric`, the name or index of the sheet to 
+read data from}
 
 \item{...}{additional parameters given to `read.xslx`}
 }
@@ -21,8 +22,8 @@ The function `biocrates` will create a `SummarizedExperiment` from a
 Biocrates xlsx file. 
 The function `biocrates` takes as input the path to a .xlsx file 
 (Biocrates output) and additional parameters given to the `read.xlsx` 
-function from the `xlsx` package (e.g. specifying the sheet name by
-`sheetName` or the sheet index by `sheetIndex`).
+function from the `openxlsx` package (e.g. specifying the sheet name or index
+by `sheet`).
 }
 \details{
 The column "Sample Identification" has to contain unique identifiers
@@ -30,6 +31,6 @@ The column "Sample Identification" has to contain unique identifiers
 }
 \examples{
 file <- "path/to/biocrates/object"
-\donttest{biocrates(file = file, sheetName = NULL)}
+\donttest{biocrates(file = file, sheet = 1)}
 
 }

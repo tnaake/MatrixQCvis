@@ -24,14 +24,14 @@
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
-#' 
+#'
 #' hist_sample_num(se, category = "type")
-#' 
+#'
 #' @importFrom tibble tibble
 #' @importFrom SummarizedExperiment colData
-#' 
+#'
 #' @export
-hist_sample_num <- function(se, category = "type") { 
+hist_sample_num <- function(se, category = "type") {
 
     ## retrieve the sample type
     df <- SummarizedExperiment::colData(se)[[category]]

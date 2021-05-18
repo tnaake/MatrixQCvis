@@ -7,34 +7,35 @@
 #' Biocrates xlsx file. 
 #' The function `biocrates` takes as input the path to a .xlsx file 
 #' (Biocrates output) and additional parameters given to the `read.xlsx` 
-#' function from the `xlsx` package (e.g. specifying the sheet name by
-#' `sheetName` or the sheet index by `sheetIndex`).
+#' function from the `openxlsx` package (e.g. specifying the sheet name or index
+#' by `sheet`).
 #' 
 #' @details 
 #' The column "Sample Identification" has to contain unique identifiers
 #' (no duplications).
 #' 
 #' @param file `character`
-#' @param sheetName `character`, given to `read.xslx`
+#' @param sheet `character` or `numeric`, the name or index of the sheet to 
+#' read data from
 #' @param ... additional parameters given to `read.xslx`
 #' 
 #' @examples
 #' file <- "path/to/biocrates/object"
-#' \donttest{biocrates(file = file, sheetName = NULL)}
+#' \donttest{biocrates(file = file, sheet = 1)}
 #' 
-#' @usage biocrates(file, sheetName = NULL, ...)
+#' @usage biocrates(file, sheet, ...)
 #'
 #' @return 
 #' `SummarizedExperiment` object
 #' 
 #' @export
 #' 
-#' @importFrom xlsx read.xlsx
+#' @importFrom openxlsx read.xlsx
 #' @importFrom dplyr select
 #' @importFrom SummarizedExperiment SummarizedExperiment
-biocrates <- function(file, sheetName = NULL, ...) {
+biocrates <- function(file, sheet, ...) {
     
-    xls <- xlsx::read.xlsx(file, header = TRUE, ...)
+    xls <- openxlsx::read.xlsx(file, colnames = TRUE, sheet = sheet, ...)
     
     ## colnames is in the first row, assign and remove the first row
     colnames(xls) <- xls[1, ]
@@ -86,35 +87,36 @@ biocrates <- function(file, sheetName = NULL, ...) {
 #' MaxQuant xlsx file. 
 #' The function `maxQuant` takes as input the path to a .xlsx file 
 #' (MaxQuant output) and additional parameters given to the `read.xlsx` 
-#' function from the `xlsx` package (e.g. specifying the sheet name by
-#' `sheetName` or the sheet index by `sheetIndex`).
+#' function from the `openxlsx` package (e.g. specifying the sheet name or index 
+#' by `sheet`).
 #' 
 #' @details 
 #' The argument `type` will specify if the `iBAQ` or `LFQ` values are taken. 
 #' 
 #' @param file `character`
-#' @param sheetName `character`, given to `read.xslx`
 #' @param type `character`, either `iBAQ` or `LFQ`
+#' @param sheet `character` or `numeric`, the name or index of the sheet to 
+#' read data from
 #' @param ... additional parameters given to `read.xslx`
-#' 
+#'
 #' @examples
 #' file <- "path/to/maxQuant/object"
-#' \donttest{maxQuant(file = file, type = "iBAQ", sheetName = NULL)}
-#' 
-#' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...)
+#' \donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
+#'
+#' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheet, ...)
 #'
 #' @return 
 #' `SummarizedExperiment` object
-#' 
+#'
 #' @export
 #' 
-#' @importFrom xlsx read.xlsx
+#' @importFrom openxlsx read.xlsx
 #' @importFrom SummarizedExperiment SummarizedExperiment
-maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...) {
+maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
     
     type <- match.arg(type)
     
-    xls <- xlsx::read.xlsx(file, header = TRUE, ...)
+    xls <- openxlsx::read.xlsx(file, header = TRUE, sheet = sheet, ...)
     
     ## names of proteins is in the first col, assign and remove the first col
     rownames(xls) <- xls[, 1]
@@ -123,12 +125,12 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...) {
     ## find the columns that contain the metabolites
     inds_samp <- grep(pattern = type, colnames(xls))
     cols_samp <- colnames(xls)[inds_samp]
-    
+
     ## remove the column that only contains type
     inds_samp <- inds_samp[cols_samp != type]
     cols_samp <- cols_samp[cols_samp != type]
-    
-    ## create rowData 
+
+    ## create rowData
     rD <- data.frame(feature = rownames(xls))
     if ("Majority.protein.IDs" %in% colnames(xls))
         rD$Majority_protein_ids <- xls[, "Majority.protein.IDs"]

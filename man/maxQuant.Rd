@@ -4,14 +4,15 @@
 \alias{maxQuant}
 \title{Convert MaxQuant xlsx output to `SummarizedExperiment` object}
 \usage{
-maxQuant(file, type = c("iBAQ", "LFQ"), sheetName = NULL, ...)
+maxQuant(file, type = c("iBAQ", "LFQ"), sheet, ...)
 }
 \arguments{
 \item{file}{`character`}
 
 \item{type}{`character`, either `iBAQ` or `LFQ`}
 
-\item{sheetName}{`character`, given to `read.xslx`}
+\item{sheet}{`character` or `numeric`, the name or index of the sheet to 
+read data from}
 
 \item{...}{additional parameters given to `read.xslx`}
 }
@@ -23,14 +24,14 @@ The function `maxQuant` will create a `SummarizedExperiment` from a
 MaxQuant xlsx file. 
 The function `maxQuant` takes as input the path to a .xlsx file 
 (MaxQuant output) and additional parameters given to the `read.xlsx` 
-function from the `xlsx` package (e.g. specifying the sheet name by
-`sheetName` or the sheet index by `sheetIndex`).
+function from the `openxlsx` package (e.g. specifying the sheet name or index 
+by `sheet`).
 }
 \details{
 The argument `type` will specify if the `iBAQ` or `LFQ` values are taken.
 }
 \examples{
 file <- "path/to/maxQuant/object"
-\donttest{maxQuant(file = file, type = "iBAQ", sheetName = NULL)}
+\donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
 
 }
