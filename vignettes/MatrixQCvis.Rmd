@@ -47,11 +47,11 @@ class and enables thus the facile integration into existing workflows.
 
 `MatrixQCvis` is especially addressed to analyze the quality of proteomics and 
 metabolomics data sets that are characterized by missing values as it 
-allows for imputation of missing values and differential expression analysis 
+allows the user for imputation of missing values and differential expression analysis 
 using the `proDA` package [@Ahlmann2019]. Besides this, `MatrixQCvis` is 
 extensible to other type of data(e.g. transcriptomics count data) that can be 
 represented as a `SummarizedExperiment` object. 
-Furthermore, the `shiny` application allows for simple differential 
+Furthermore, the `shiny` application facilitates simple differential 
 expression analysis using either moderated t-tests (from the `limma` package,
 @Ritchie2015) or Wald tests (from the `proDA` package, @Ahlmann2019).
 
@@ -110,7 +110,7 @@ interest (accessible by `rowData`) and information on the samples
 
 If there is more than one experimental data set (`assay`)
 stored in the `SummarizedExperiment` object, a select option will appear in the 
-sidebar allowing for selecting the `assay`. 
+sidebar allowing the user to select the `assay`. 
 
 Here, we will generate a `SummarizedExperiment` object with synthetic 
 quantitative information on proteins and use this object, `se`, to showcase the 
@@ -189,7 +189,7 @@ In the following, the vignette will be (mainly) described from the point of view
 of a `SummarizedExperiment` containing missing values. 
 
 ## Sidebar
-The sidebar allows to exclude (e.g. in the case of identified outliers)
+The sidebar enables the user to exclude (e.g. in the case of identified outliers)
 and select samples (e.g. in the case if there is interest for a specific 
 sample type). Samples are excluded/selected by entering the sample name 
 in the input field and pressing `Enter` on the keyboard or by clicking 
@@ -199,7 +199,7 @@ option is set to `"select"` at least three samples have to be selected for
 the selection to take place. 
 
 In addition, in the tabs `Values`, 
-`Dimension Reduction`, and `DE`, the sidebars allows for 
+`Dimension Reduction`, and `DE`, the sidebars allows the user for 
 
  - normalization: currently the methods `sum`, `quantile divion`, `quantile`
    and `none`, i.e. no normalization, are supported;
@@ -244,7 +244,7 @@ The tab `Samples` gives general information on the number of samples in the
 `se` object. 
 
 ## Histogram
-The first panel shows a barplot and allows to display the number of 
+The first panel shows a barplot and displays the number of 
 samples per sample type, treatment, etc. As an example, if we want to display
 how many samples are in `se` for the different `type`s (`type` is a 
 column name in `colData(se)` and any column in `colData(se)` can be selected), 
@@ -421,9 +421,9 @@ create_boxplot(se, orderCategory = "name", title = "raw", log2 = FALSE,
 This panel shows a trend line for aggregated values to 
 indicate drifts/trends in data acquisition. It
 shows the sum- or median-aggregated values (specified in
-`Select aggregation`). The plot allows to display trends in data
+`Select aggregation`). The plot displays trends in data
 acquisition that originate e.g. from differences in instrument 
-sensitivity. The panel allows to display aggregated values for 
+sensitivity. The panel displays aggregated values for 
 raw (`raw`), normalized 
 (`normalized`), normalized+transformed (`transformed`), 
 normalized+transformed+batch corrected (`batch corrected`), and
@@ -447,7 +447,7 @@ calculate the trend line. If we want to calculate the trend line of
 aggregated values of all samples belonging to the type `QC`, we select
 `QC` in the drop-down menu. 
 
-The panel allows for further customization after expanding the collapsed box.
+The panel allows the users for further customization after expanding the collapsed box.
 The data input is selected in the drop-down menu under `Select data input`.
 The smoothing method (either LOESS or linear model) is selected in the drop-down
 menu under `Select smoothing method`. The aggregation method is selected 
@@ -518,7 +518,7 @@ and normalized+transformed+batch corrected+imputed (`imputed`) values
 (`imputed` will only be shown if there are missing
 values in the `SummarizedExperiment`). 
 The sd and mean are calculated feature-wise from the values of the respective 
-data set. The plot allows to visualize if there is a dependence of the sd on 
+data set. The plot allows the user to visualize if there is a dependence of the sd on 
 the mean. The red line depicts the running median estimator (window-width 10%). 
 In case of sd-mean independence, the running median should be approximately 
 horizontal.
@@ -571,8 +571,8 @@ missing values in the `SummarizedExperiment`).
 `F(A, M)` is the joint cumulative distribution function (CDF) of `A` and `M`, 
 and `G` and `H` are marginal CDFs. The higher the value of `D`, the more 
 dependent are `A` and `M`. The `D` values are connected for the same 
-samples along the different data sets (when `lines` is selected), allowing to 
-track the influence of 
+samples along the different data sets (when `lines` is selected), enabling the
+user to track the influence of 
 normalization, transformation, batch correction (and imputation) methods on the 
 `D` values. 
 
@@ -721,7 +721,7 @@ The different dimensions of the transformed data can be displayed by changing
 the values in the drop-down menus for the x-axis and y-axis.  
 
 # DE
-This tab allows to test for differential expression between conditions. 
+This tab enables the user to test for differential expression between conditions. 
 
 Currently, two methods/tests are implemented for calculating differential 
 expression between conditions: moderated t-tests from `limma` and the
