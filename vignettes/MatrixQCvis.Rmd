@@ -1,5 +1,5 @@
 ---
-title: "MatrixQCvis: Interactive exploration of proteomics and metabolomics data quality"
+title: "MatrixQCvis: shiny-based interactive data quality exploration of omics data"
 author:
  - name: Thomas Naake and Wolfgang Huber
    mail: thomas.naake@embl.de, thomasnaake@googlemail.com, wolfgang.huber@embl.de
@@ -11,9 +11,9 @@ output:
         toc_float: true
 bibliography: MatrixQCvis-citations.bib
 vignette: >
-    %\VignetteIndexEntry{QC for metabolomics and proteomics data}
+    %\VignetteIndexEntry{Shiny-based interactive data quality exploration of omics data}
     %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteKeywords{Mass Spectrometry, MS, Metabolomics, Proteomics, Visualization, QC}
+    %\VignetteKeywords{Mass Spectrometry, MS, Metabolomics, Proteomics, Transcriptomics, Visualization, QC}
     %\VignettePackage{MatrixQCvis-vignette}
     %\VignetteEncoding{UTF-8}
 ---
