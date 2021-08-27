@@ -35,7 +35,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 biocrates <- function(file, sheet, ...) {
     
-    xls <- openxlsx::read.xlsx(file, colnames = TRUE, sheet = sheet, ...)
+    xls <- openxlsx::read.xlsx(file, sheet = sheet, ...)
     
     ## colnames is in the first row, assign and remove the first row
     colnames(xls) <- xls[1, ]
