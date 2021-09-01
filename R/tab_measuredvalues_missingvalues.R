@@ -112,7 +112,7 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
 #'
 #' @description 
 #' The function `hist_compound` creates a histogram with the number
-#' of measured values per feature.
+#' of measured/missing values per feature.
 #'
 #' @param x `matrix` containing intensities. Missing values are encoded 
 #' as `NA`.
@@ -121,7 +121,7 @@ barplot_samples_memi <- function(tbl, measured = TRUE) {
 #' @param ... additional parameters passed to `geom_histogram`, e.g. 
 #' `binwidth`.
 #'
-#' @return `gg` object from `ggplot2`
+#' @return `plotly` object from `ggplotly`
 #' 
 #' @examples
 #' x <- matrix(c(c(1, 1, 1), c(1, NA, 1), c(1, NA, 1), 
@@ -140,11 +140,11 @@ hist_feature <- function(x, measured = TRUE, ...) {
     if (measured) {
         val <- !is.na(x)   
         title <- "Measured values"
-        x_lab <- "number of measured features"
+        x_lab <- "measured features per feature"
     } else { ## missing
         val <- is.na(x)
         title <- "Missing values"
-        x_lab <- "number of missing features"
+        x_lab <- "missing features per feature"
     }
     val <- rowSums(val)
     val <- tibble::tibble(values = val)
@@ -153,7 +153,7 @@ hist_feature <- function(x, measured = TRUE, ...) {
     g <- ggplot2::ggplot(val, aes_string(x = "values")) + 
         ggplot2::geom_histogram(...) + 
         ggplot2::xlab(x_lab) + 
-        ggplot2::ylab("number of samples") + 
+        ggplot2::ylab("number of features") + 
         ggplot2::ggtitle(title) + 
         ggplot2::theme_bw()
     g <- plotly::ggplotly(g)
@@ -255,7 +255,7 @@ measured_category <- function(se, measured = TRUE, category = "type") {
 #' @param category `character`, corresponding to a column in `colData(se)`
 #' @param... additional parameters passed to `geom_histogram`, e.g. `binwidth`.
 #' 
-#' @return `plotly`
+#' @return `plotly` object from `ggplotly`
 #'
 #' @examples
 #' ## create se
@@ -290,16 +290,16 @@ hist_feature_category <- function(se, measured = TRUE,
     
     if (measured) {
         title <- "Measured values"
-        x_lab <- "number of measured features"
+        x_lab <- "measured features per feature"
     } else {
         title <- "Missing values"
-        x_lab <- "number of missing features"
+        x_lab <- "missing features per feature"
     }
 
     p <- ggplot2::ggplot(tbl_type_l, ggplot2::aes_string(x = "value")) + 
         ggplot2::geom_histogram(ggplot2::aes_string(fill = "name"), ...) +
         ggplot2::facet_grid(. ~ name) + ggplot2::ggtitle(title) + 
-        ggplot2::xlab(x_lab) + ggplot2::ylab("number of samples") +
+        ggplot2::xlab(x_lab) + ggplot2::ylab("number of features") +
         ggplot2::theme_bw() + ggplot2::theme(legend.position = "none")
     plotly::ggplotly(p)
 }
