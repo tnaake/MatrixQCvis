@@ -122,12 +122,12 @@ if (!is.null(params$sample_mosaic_f1)) {
     sample_mosaic_f1 <- params$sample_mosaic_f1
 } else {
     called <- FALSE
-    sample_mosaic_f1 <- colnames(colData(params$se_r))[1]
+    sample_mosaic_f1 <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 if (!is.null(params$sample_mosaic_f2)) {
     sample_mosaic_f2 <- params$sample_mosaic_f2
 } else {
-    sample_mosaic_f2 <- colnames(colData(params$se_r))[1]
+    sample_mosaic_f2 <- colnames(SummarizedExperiment::colData(se_r))[1]
 }
 
 ```
@@ -593,7 +593,7 @@ if (!is.null(params$int_ecdf_label)) {
     int_dist_method <- params$int_dist_method
 } else {
     called <- FALSE
-    int_dist_label <- colnames(colData(se_r))[1]
+    int_dist_label <- colnames(SummarizedExperiment::colData(se_r))[1]
     int_dist_method <- "euclidean"
 }
 ```

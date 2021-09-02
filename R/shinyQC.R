@@ -20,10 +20,13 @@
 #' (currently limited to moderated t-tests and the Wald test).
 #'
 #' @details
-#' `shinyQC` allows to subset the supplied `SummarizedExperiment` object. On
-#' exit of the shiny application, the following objects are returned in a
-#' list: the matrix with (count/intensity) values for `raw`, `normalized`, 
-#' `transformed`, `batch corrected` (and `imputed`). The object will 
+#' `shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
+#' 
+#' On exit of the shiny application (only via the button 
+#' 'Stop and export data set'), the (subsetted) `SummarizedExperiment` 
+#' object is returned
+#' with information on the processing steps (normalization, 
+#' transformation, batch correction and imputation). The object will 
 #' only returned if `app_server = FALSE`.
 #' 
 #' If the `se` argument is omitted the app will load an interface that allows 
@@ -56,8 +59,10 @@
 #' 
 #' @author Thomas Naake
 #' 
-#' @return `shiny` application, `SummarizedExperiment` upon exiting the 
-#' `shiny` application
+#' @return `shiny` application, 
+#' `SummarizedExperiment` upon exiting the `shiny` application (the 
+#' object will be returned only when exiting the application
+#' via the button 'Stop and export data set')
 #'
 #' @export
 shinyQC <- function(se, app_server = FALSE) {

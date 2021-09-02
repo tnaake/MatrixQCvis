@@ -159,7 +159,8 @@ qc <- shinyQC(se)
 ```
 
 The assignment to `qc` or any other object is not mandatory. Upon exiting the
-shiny application via the exit button, `shinyQC` will return a 
+shiny application via the exit button (`Stop and export data set`), 
+`shinyQC` will return a 
 `SummarizedExperiment` object containing the imputed dataset
 that can be in the following further analyzed. 
 
