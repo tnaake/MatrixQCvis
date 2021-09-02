@@ -130,10 +130,10 @@ hist_sample <- function(tbl, category = "type") {
 #' @export
 mosaic <- function(se, f1, f2) {
     
-    df <- SummarizedExperiment::colData(se) %>% 
-        as.data.frame() %>% 
-        dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) %>% 
-        dplyr::summarise(count = dplyr::n()) %>%
+    df <- SummarizedExperiment::colData(se) |> 
+        as.data.frame() |> 
+        dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) |>
+        dplyr::summarise(count = dplyr::n()) |>
         dplyr::mutate(cut.count = sum(.data$count), 
             prop = (.data$count/sum(.data$count)))
     
