@@ -74,7 +74,7 @@ colDataServer <- function(id, se, missingValue) {
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
                 
-                shiny::br()  %>% 
+                shiny::br() |> 
                     shinyhelper::helper(content = helperFile)
             })
             
@@ -308,7 +308,7 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
             output$helperUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                shiny::br() %>% shinyhelper::helper(content = helperFile)
+                shiny::br() |> shinyhelper::helper(content = helperFile)
             })
             
             output$modelMatrixTab <- shiny::renderUI({
@@ -316,7 +316,7 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
                 ## if there is a valid formula return the DataTable
                 if (!is.null(validFormulaMM())) {
                     output$dtMM <- shiny::renderDataTable({
-                        mM <- modelMatrix() %>% as.matrix()
+                        mM <- modelMatrix() |> as.matrix()
                         cbind(rownames(mM), mM)
                     }, options = list(pageLength = 20))
                     shiny::dataTableOutput(ns("dtMM"))
@@ -540,7 +540,7 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                shiny::br() %>% shinyhelper::helper(content = helperFile)
+                shiny::br() |> shinyhelper::helper(content = helperFile)
                 
             })
             
@@ -657,7 +657,7 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                shiny::br()  %>% 
+                shiny::br()  |> 
                     shinyhelper::helper(content = helperFile)
 
             })
@@ -894,7 +894,7 @@ volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast,
                 
                 helperFile <- paste("tabPanel_DE_missingValue_", 
                     missingValue, sep = "")
-                shiny::br()  %>% shinyhelper::helper(content = helperFile)
+                shiny::br() |> shinyhelper::helper(content = helperFile)
             })
             
             output$volcano <- shiny::renderUI({

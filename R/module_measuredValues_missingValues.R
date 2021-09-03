@@ -36,7 +36,7 @@ tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
     }
     
     shiny::tabPanel(title = title,
-        plotly::plotlyOutput(ns("barplotNumber")) %>% 
+        plotly::plotlyOutput(ns("barplotNumber")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot"), "")
     )
@@ -172,7 +172,7 @@ tP_histFeatUI <- function(id) {
     }
     
     shiny::tabPanel(title = "Histogram Features",
-        plotly::plotlyOutput(ns("histFeature")) %>% 
+        plotly::plotlyOutput(ns("histFeature")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot_hist"), ""),
         shiny::uiOutput(outputId = ns("binwidthUI"))
@@ -283,7 +283,7 @@ tP_histFeatCategoryUI <- function(id) {
     }
     
     shiny::tabPanel(title = "Histogram Features along variable",
-        plotly::plotlyOutput(ns("histFeatureCategory")) %>%
+        plotly::plotlyOutput(ns("histFeatureCategory")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot_histFeat"), ""),
         shiny::uiOutput(ns("binwidthCUI")),
@@ -325,20 +325,21 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
         id,
         function(input, output, session) {
             
+            cD <- shiny::reactive(SummarizedExperiment::colData(se()))
+            
             output$categoryHistUI <- shiny::renderUI({
                 shiny::selectInput(
                     inputId = session$ns("categoryHist"),
                     label = "Variable for stratification",
-                    choices = colnames(SummarizedExperiment::colData(se())),
-                    selected = "type")
+                    choices = colnames(cD()), selected = "type")
             })
             
             output$binwidthCUI <- shiny::renderUI({
+                shiny::req(input$categoryHist)
                 sliderInput(session$ns("binwidthC"),
                     label = "Binwidth (# features per sample type): ", 
                     step = 1, min = 1, value = 1,
-                    max = max(as.vector(
-                        table(SummarizedExperiment::colData(se())[[input$categoryHist]]))))
+                    max = max(as.vector(table(cD()[[input$categoryHist]]))))
             })
             
             p_histFeatureCategory <- shiny::reactive({
@@ -360,7 +361,6 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
                     htmlwidgets::saveWidget(p_histFeatureCategory(), file)
                 }
             )
-            
         }
     )
 }
@@ -402,7 +402,7 @@ tP_upSetUI <- function(id) {
     }
     
     tabPanel(title = "UpSet", 
-        shiny::plotOutput(ns("upsetSample")) %>% 
+        shiny::plotOutput(ns("upsetSample")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
         shiny::uiOutput(ns("categoryUpSetUI"))
@@ -507,7 +507,7 @@ tP_setsUI <- function(id) {
     }
     
     shiny::tabPanel(title = "Sets", 
-        shiny::uiOutput(ns("checkboxCategoryUI")) %>% 
+        shiny::uiOutput(ns("checkboxCategoryUI")) |>
             shinyhelper::helper(content = helper_file),
         shiny::textOutput(ns("combinationText"))
     )

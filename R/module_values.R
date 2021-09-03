@@ -115,7 +115,6 @@ tP_boxplotUI <- function(id) {
 #' 
 #' @importFrom shiny moduleServer renderUI
 #' @importFrom shinyhelper helper
-#' @importFrom dplyr `%>%`
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @author Thomas Naake
@@ -128,13 +127,14 @@ boxPlotUIServer <- function(id, missingValue, se) {
         function(input, output, session) {
 
             output$orderCategoryUI <- shiny::renderUI({
+                
                 helperFile <- paste("tabPanel_boxplot_missingValue_", 
                                     missingValue, sep = "")
 
                 shiny::selectInput(inputId = session$ns("orderCategory"), 
                     label = "Select variable to order samples",
                     choices = colnames(SummarizedExperiment::colData(se)), 
-                        selected = "name") %>% 
+                        selected = "name") |> 
                         shinyhelper::helper(content = helperFile)
             })
 
@@ -257,23 +257,22 @@ tP_driftUI <- function(id) {
                 shiny::uiOutput(ns("plotDriftUI")),
                 shiny::downloadButton(outputId = ns("downloadPlot"), "")
             ),
-            shinydashboard::box(width = 6, collapsible = TRUE, 
-                collapsed = FALSE,
-                shiny::uiOutput(ns("categoryUI")),
-                shiny::uiOutput(ns("levelUI")),
-                shiny::uiOutput(ns("dataUI"))
+            shinydashboard::box(width = 12, collapsible = TRUE, 
+                collapsed = FALSE, title = "Parameters",
+                column(6, 
+                    shiny::uiOutput(ns("categoryUI")),
+                    shiny::uiOutput(ns("levelUI")),
+                    shiny::uiOutput(ns("orderCategoryUI"))),
+                column(6,
+                    shiny::selectInput(inputId = ns("aggregation"), 
+                        label = "Select aggregation",
+                        choices = list("sum", "median"), selected = "sum"),
+                    shiny::selectInput(inputId = ns("method"),
+                        label = "Select smoothing method",
+                        choices = list("LOESS" = "loess", "linear model" = "lm"),
+                        selected = "loess"),
+                    shiny::uiOutput(outputId = ns("dataUI")))   
             ),
-            shinydashboard::box(width = 6, collapsible = TRUE,
-                collapsed = TRUE,
-                shiny::selectInput(inputId = ns("aggregation"), 
-                    label = "Select aggregation",
-                    choices = list("sum", "median"), selected = "sum"),
-                shiny::selectInput(inputId = ns("method"),
-                    label = "Select smoothing method",
-                    choices = list("LOESS" = "loess", "linear model" = "lm"),
-                    selected = "loess"),
-                shiny::uiOutput(outputId = ns("orderCategoryUI"))
-            )
         )
     )
 }
@@ -339,26 +338,28 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
                 se
             })
 
+            cD <- shiny::reactive(SummarizedExperiment::colData(se()))
+            
             output$categoryUI <- shiny::renderUI({
                 shiny::selectInput(
                     inputId = session$ns("category"),
                     label = "Select variable",
-                    choices = colnames(colData(se())))
+                    choices = colnames(cD()))
             })
             
             output$levelUI <- shiny::renderUI({
-                shiny::req(se_drift())
+                shiny::req(input$category)
                 shiny::selectInput(
                     inputId = session$ns("levelSel"), 
                     label = "Select level to highlight", 
-                    choices = c("all", unique(SummarizedExperiment::colData(se_drift())[[input$category]])))
+                    choices = c("all", unique(cD()[[input$category]])))
             })
             
             output$orderCategoryUI <- shiny::renderUI({
                 shiny::selectInput(
                     inputId = session$ns("orderCategory"),
                     label = "Select variable to order samples",
-                    choices = colnames(SummarizedExperiment::colData(se())))    
+                    choices = colnames(cD()))    
             })
             
             
@@ -377,7 +378,7 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             output$plotDriftUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_drift_missingValue_", 
                     missingValue, sep = "")
-                plotly::plotlyOutput(outputId = session$ns("plotDrift")) %>%
+                plotly::plotlyOutput(outputId = session$ns("plotDrift")) |>
                     shinyhelper::helper(content = helperFile)
             })
             
@@ -471,7 +472,6 @@ tP_cvUI <- function(id) {
 #' @importFrom shiny downloadHandler
 #' @importFrom shinyhelper helper
 #' @importFrom ggplot2 ggsave
-#' @importFrom dplyr `%>%`
 #' @importFrom plotly plotlyOutput
 #' 
 #' @noRd
@@ -538,7 +538,7 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
             output$cvUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_cv_missingValue_",
                     missingValue, sep = "")
-                shiny::plotOutput(outputId = session$ns("cv")) %>% 
+                shiny::plotOutput(outputId = session$ns("cv")) |> 
                     shinyhelper::helper(content = helperFile)
                 
             })
@@ -651,7 +651,6 @@ tP_meanSdUI <- function() {
 #' 
 #' @importFrom shiny moduleServer renderUI
 #' @importFrom shinyhelper helper
-#' @importFrom dplyr `%>%`
 #' 
 #' @noRd
 meanSdUIServer <- function(id, missingValue) {
@@ -662,7 +661,7 @@ meanSdUIServer <- function(id, missingValue) {
             output$meanSdBatchUI <- shiny::renderUI({
                 helperFile <- paste("tabPanel_meanSd_missingValue_", 
                                                         missingValue, sep = "")
-                box_meanSdUI("meanSdBatch", "batch corrected") %>%
+                box_meanSdUI("meanSdBatch", "batch corrected") |>
                     shinyhelper::helper(content = helperFile)
             })
         }
@@ -827,6 +826,11 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             
             output$MAUI <- shiny::renderUI({
                 
+                ## access the colData slot and add the rownames as a new column to cD
+                ## (will add the column "rowname")
+                cD <- SummarizedExperiment::colData(se()) |> as.data.frame()
+                cD_rn <- tibble::rownames_to_column(cD)
+                
                 helperFile <- paste("tabPanel_MA_missingValue_", 
                                                         missingValue, sep = "")
                 shiny::fluidRow(
@@ -834,17 +838,16 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                         shiny::selectInput(
                             inputId = session$ns("groupMA"), 
                             label = "group",
-                            choices = c("all", 
-                                colnames(SummarizedExperiment::colData(se()))),
+                            choices = c("all", colnames(cD)),
                             selected = "all") 
                     ),
                     shiny::column(6, 
                         shiny::selectInput(
                             inputId = session$ns("plotMA"),
                             label = "plot", multiple = TRUE,
-                            choices = SummarizedExperiment::colData(se())$name) 
+                            choices = cD_rn$rowname) 
                     )
-                ) %>% 
+                ) |> 
                     shinyhelper::helper(content = helperFile)
             })
             
@@ -870,7 +873,7 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                 } else {
                     log2_se <- TRUE
                 }
-                MAvalues(se(), log2_se, input$groupMA)}) %>%
+                MAvalues(se(), log2_se, input$groupMA)}) |>
                     shiny::bindCache(se(), input$groupMA, cache = "session")
             
             vals_n <- shiny::reactive({
@@ -879,19 +882,19 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                 } else {
                     log2_se <- TRUE
                 }
-                MAvalues(se_n(), log2_se, input$groupMA)}) %>%
+                MAvalues(se_n(), log2_se, input$groupMA)}) |>
                     shiny::bindCache(se_n(), input$groupMA, cache = "session")
             
             vals_t <- shiny::reactive({
-                MAvalues(se_t(), FALSE, input$groupMA)}) %>%
+                MAvalues(se_t(), FALSE, input$groupMA)}) |>
                     shiny::bindCache(se_t(), input$groupMA, cache = "session")
             
             vals_b <- shiny::reactive({
-                MAvalues(se_b(), FALSE, input$groupMA)}) %>%
+                MAvalues(se_b(), FALSE, input$groupMA)}) |>
                     shiny::bindCache(se_b(), input$groupMA, cache = "session")
             
             vals_i <- shiny::reactive({
-                MAvalues(se_i(), FALSE, input$groupMA)}) %>%
+                MAvalues(se_i(), FALSE, input$groupMA)}) |>
                     shiny::bindCache(se_i(), input$groupMA, cache = "session")
 
             ## MA plots: MA values, group
@@ -946,15 +949,15 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             )
 
             ## Hoeffding's D values: MA values, title for plot
-            hD_r <- shiny::reactive(hoeffDValues(vals_r(), "raw")) %>%
+            hD_r <- shiny::reactive(hoeffDValues(vals_r(), "raw")) |>
                 shiny::bindCache(vals_r(), cache = "session")
-            hD_n <- shiny::reactive(hoeffDValues(vals_n(),  "normalized")) %>%
+            hD_n <- shiny::reactive(hoeffDValues(vals_n(),  "normalized")) |>
                 shiny::bindCache(vals_n(), cache = "session")
-            hD_t <- shiny::reactive(hoeffDValues(vals_t(), "transformed")) %>%
+            hD_t <- shiny::reactive(hoeffDValues(vals_t(), "transformed")) |>
                 shiny::bindCache(vals_t(), cache = "session")
-            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) %>%
+            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) |>
                 shiny::bindCache(vals_b(), cache = "session")
-            hD_i <- shiny::reactive(hoeffDValues(vals_i(), "imputed")) %>%
+            hD_i <- shiny::reactive(hoeffDValues(vals_i(), "imputed")) |>
                 shiny::bindCache(vals_i(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function
@@ -1022,7 +1025,7 @@ tP_ECDFUI <- function(id) {
     
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "ECDF",
-        shiny::plotOutput(outputId = ns("ECDF")) %>% 
+        shiny::plotOutput(outputId = ns("ECDF")) |> 
             shinyhelper::helper(content = "tabPanel_ecdf"),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
         shiny::fluidRow( 
@@ -1064,6 +1067,7 @@ tP_ECDFUI <- function(id) {
 #' @importFrom shiny downloadHandler renderPlot
 #' @importFrom ggplot2 ggsave
 #' @importFrom SummarizedExperiment colData
+#' @importFrom tibble rownames_to_column
 #'
 #' @author Thomas Naake
 #' 
@@ -1090,11 +1094,15 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             })
             
             output$sampleECDFUI <- shiny::renderUI({
+                
+                cD <- SummarizedExperiment::colData(se()) |> as.data.frame()
+                cD <- tibble::rownames_to_column(cD)
+                
                 shiny::selectInput(
                     inputId = session$ns("sampleECDF"), 
                         label = "Sample", 
-                        choices = SummarizedExperiment::colData(se())$name, 
-                        selected = SummarizedExperiment::colData(se())$name[1])
+                        choices = cD$rowname, 
+                        selected = cD$rowname[1])
             })
             
             output$groupECDFUI <- shiny::renderUI({
@@ -1269,7 +1277,7 @@ distUIServer <- function(id, missingValue) {
                     missingValue, sep = "")
                 
                 fR_distUI(id = session$ns("distRaw"), title = "raw", 
-                    collapsed = FALSE) %>%
+                    collapsed = FALSE) |>
                     shinyhelper::helper(content = helperFile) 
             })
         }
@@ -1403,7 +1411,7 @@ tP_featureUI <- function(id) {
     shiny::tabPanel(title = "Features",
         shinydashboard::box(title = "", width = 12, collapsible = TRUE, 
             collapsed = FALSE,
-            shiny::plotOutput(outputId = ns("Features")) %>% 
+            shiny::plotOutput(outputId = ns("Features")) |> 
                 shinyhelper::helper(content = "tabPanel_Features"),
             shiny::column(4, 
                 shiny::downloadButton(outputId = ns("downloadPlot"), "")),

@@ -127,7 +127,7 @@ histSampleServer <- function(id, se) {
 tP_mosaicSampleUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Mosaic", 
-        shiny::plotOutput(outputId = ns("mosaicSample")) %>% 
+        shiny::plotOutput(outputId = ns("mosaicSample")) |>
             shinyhelper::helper(content = "tabPanel_mosaicSample"),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
         shiny::uiOutput(outputId = ns("mosaicVarUI"))
@@ -164,15 +164,14 @@ mosaicSampleServer <- function(id, se) {
         function(input, output, session) {
 
             output$mosaicVarUI <- shiny::renderUI({
-                
+                cn <- colnames(SummarizedExperiment::colData(se()))
                 shiny::tagList(
                     shiny::selectInput(inputId = session$ns("mosaicf1"), 
                         label = "Categorical variable 1", 
-                        choices = colnames(SummarizedExperiment::colData(se())),
-                        selected = "type"),
+                        choices = cn, selected = "type"),
                     shiny::selectInput(inputId = session$ns("mosaicf2"),
                         label = "Categorical variable 2", 
-                        choices = colnames(SummarizedExperiment::colData(se())),
+                        choices = cn,
                         selected = "type"))
             })
             

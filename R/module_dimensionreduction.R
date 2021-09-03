@@ -67,7 +67,6 @@ coordsUI <- function(df, name = "PC",
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
-#' @importFrom dplyr `%>%`
 #' 
 #' @noRd
 tP_PCAUI <- function(id) {
@@ -75,7 +74,7 @@ tP_PCAUI <- function(id) {
     shiny::tabPanel(title = "PCA", 
         shiny::fluidRow(
             shiny::column(12, 
-                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_PCA"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))
         ),
@@ -128,7 +127,6 @@ tP_PCAUI <- function(id) {
 #' 
 #' @importFrom shiny NS tabPanel fluidRow column uiOutput selectInput
 #' @importFrom shinydashboard box
-#' @importFrom dplyr `%>%`
 #' @importFrom shinyhelper helper
 #' 
 #' @noRd
@@ -138,7 +136,7 @@ tP_PCoAUI <- function(id) {
         shiny::fluidRow(
             shiny::column(12, 
                 plotly::plotlyOutput(outputId = ns("plot"), 
-                                                        height = "auto") %>% 
+                                                        height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_PCoA"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))
             ), 
@@ -189,7 +187,6 @@ tP_PCoAUI <- function(id) {
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
-#' @importFrom dplyr `%>%`
 #' 
 #' @noRd
 tP_NMDSUI <- function(id) {
@@ -197,7 +194,7 @@ tP_NMDSUI <- function(id) {
     shiny::tabPanel(title = "NMDS", 
         shiny::fluidRow(
             shiny::column(12, 
-                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_NMDS"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))), 
         shiny::fluidRow(
@@ -247,7 +244,6 @@ tP_NMDSUI <- function(id) {
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
-#' @importFrom dplyr `%>%`
 #' 
 #' @noRd
 tP_tSNEUI <- function(id) {
@@ -255,7 +251,7 @@ tP_tSNEUI <- function(id) {
     shiny::tabPanel(title = "tSNE", 
         shiny::fluidRow(
             shiny::column(12, 
-                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") %>% 
+                plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_tSNE"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))),
         shiny::fluidRow(
@@ -332,26 +328,25 @@ tSNEUIServer <- function(id, se) {
         id,
         function(input, output, session) {
             
+            cD_n <- reactive(nrow(SummarizedExperiment::colData(se())))
+            
             output$perplexityUI <- shiny::renderUI({
+                req(cD_n())
                 shiny::sliderInput(inputId = session$ns("perplexity"), 
-                    label = "Perplexity", min = 0,
-                    max = ceiling(
-                        (nrow(SummarizedExperiment::colData(se())) - 1) / 3),
-                    value = ceiling(
-                        nrow(SummarizedExperiment::colData(se()))^0.5),
+                    label = "Perplexity", min = 1,
+                    max = ceiling((cD_n() - 1) / 3),
+                    value = ceiling(cD_n()^0.5),
                     step = 1)
             })
             
             output$initialDimsUI <- shiny::renderUI({
+                req(cD_n())
                 shiny::sliderInput(inputId = session$ns("initialDims"),
                     label = "Number of retained dimensions in initial PCA",
-                    min = 1, max = nrow(SummarizedExperiment::colData(se())), 
-                    value = 10, step = 1)
+                    min = 1, max = cD_n(), value = 3, step = 1)
             })
-
         }
     )
-    
 }
 
 
@@ -379,7 +374,6 @@ tSNEUIServer <- function(id, se) {
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
-#' @importFrom dplyr `%>%`
 #' 
 #' @examples
 #' tP_UMAPUI("test")
@@ -391,7 +385,7 @@ tP_umapUI <- function(id) {
         shiny::fluidRow(
             shiny::column(12, 
                 plotly::plotlyOutput(outputId = ns("plot"), 
-                    height = "auto") %>% 
+                    height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_UMAP"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))), 
         shiny::fluidRow(
@@ -506,15 +500,14 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             ## a_ordinationPlot (from PCA, PCoA, or NMDS), i.e. the principal
             ## components or axis (remove the first column = namesDf)
             output$coords <- shiny::renderUI({
+                cn_tbl <- colnames(tbl_vals())[-1]
                 shiny::fluidRow(
                     shiny::column(6,
                         shiny::selectInput(session$ns("x"), label = "x-axis", 
-                            choices = colnames(tbl_vals())[-1],
-                            selected = colnames(tbl_vals())[-1][1])),
+                            choices = cn_tbl, selected = cn_tbl[1])),
                     shiny::column(6,
                         shiny::selectInput(session$ns("y"), label = "y-axis", 
-                            choices = colnames(tbl_vals())[-1],
-                            selected = colnames(tbl_vals())[-1][2]))
+                            choices = cn_tbl, selected = cn_tbl[2]))
                 )
             })
             
