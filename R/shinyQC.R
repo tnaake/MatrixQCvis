@@ -10,6 +10,7 @@
 #' on the number of missing and measured values across features and across
 #' sets (e.g. quality control samples, control, and treatment groups, only
 #' displayed for `SummarizedExperiment` objects that contain missing values).
+#'
 #' `shinyQC` includes functionality to display (count/intensity) values 
 #' across samples (to detect drifts in intensity values during the 
 #' measurement), to display
@@ -20,6 +21,13 @@
 #' (currently limited to moderated t-tests and the Wald test).
 #'
 #' @details
+#' The `se` object should not contain a column `"rowname"` in the `colData`
+#' slot.
+#' 
+#' `rownames(se)` should be set to the corresponding name of features, 
+#' while `colnames(se)` should be set to the sample IDs. 
+#' `rownames(se)` and `colnames(se)` are not allowed to be NULL.
+#' 
 #' `shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
 #' 
 #' On exit of the shiny application (only via the button 
@@ -71,8 +79,23 @@ shinyQC <- function(se, app_server = FALSE) {
     if (has_se) {
         if (!is(se, "SummarizedExperiment")) 
             stop("se is not of class 'SummarizedExperiment'")
-        if (!("name" %in% colnames(SummarizedExperiment::colData(se))))
-            stop("column 'name' not found in colData(se)")
+        if ("rowname" %in% colnames(SummarizedExperiment::colData(se)))
+            stop("colData(se) should not have column 'rowname'")
+        if (is.null(rownames(se))) 
+            stop("rownames(se) is NULL")
+        if (is.null(colnames(se)))
+            stop("colnames(se) is NULL")
+        
+        ## access the assay slot
+        a <- SummarizedExperiment::assay(se)
+        
+        ## access the colData slot and add the rownames as a new column to cD
+        ## (will add the column "rowname")
+        cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+        if (!all(colnames(se) == rownames(cD)))
+            stop("colnames(se) do not match rownames(colData(se))")
+        if (!all(colnames(a) == rownames(cD)))
+            stop("colnames(assay(se)) do not match rownames(colData(se))")
         
         ## retrieve the names of `assays(se)` and return a character for 
         ## choices in the selectInput UI that allows for switching between 
@@ -220,7 +243,7 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @noRd
 .initialize_server <- function(se, input, output, session, 
                                                         missingValue = TRUE) {
-    
+
     output$keepAlive <- shiny::renderText({
         shiny::req(input$keepAlive)
         paste("keep alive", input$keepAlive)
@@ -620,7 +643,7 @@ shinyQC <- function(se, app_server = FALSE) {
     
     fit_proDA <- fitServer("proDA", assay = a_b,
             validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
-            contrastMatrix = contrastMatrix) %>%
+            contrastMatrix = contrastMatrix) |>
         shiny::bindCache(a_b(), modelMatrix(), contrastMatrix(), 
                                                             cache = "session")
     

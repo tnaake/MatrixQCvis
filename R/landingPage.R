@@ -60,6 +60,27 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 shiny::showNotification("invalid SummarizedExperiment supplied", 
                                                                 type = "error")
             } else {
+                
+                if (!is(se2, "SummarizedExperiment")) 
+                    stop("se is not of class 'SummarizedExperiment'")
+                if ("rowname" %in% colnames(SummarizedExperiment::colData(se2)))
+                    stop("colData(se) should not have column 'rowname'")
+                if (is.null(rownames(se2))) 
+                    stop("rownames(se) is NULL")
+                if (is.null(colnames(se2)))
+                    stop("colnames(se) is NULL")
+                
+                ## access the assay slot
+                a <- SummarizedExperiment::assay(se2)
+                
+                ## access the colData slot and add the rownames as a new column to cD
+                ## (will add the column "rowname")
+                cD <- SummarizedExperiment::colData(se2) |> as.data.frame()
+                if (!all(colnames(se) == rownames(cD)))
+                    stop("colnames(se) do not match rownames(colData(se))")
+                if (!all(colnames(a) == rownames(cD)))
+                    stop("colnames(assay(se)) do not match rownames(colData(se))")
+                
                 ## if the launch button was pressed and the se is valid
                 ## load the tabPanel and hide the upload button
                 ## tabPanel for tab "Measured Values"
