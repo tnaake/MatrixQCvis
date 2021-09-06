@@ -669,7 +669,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     A_l <- tibble::add_column(Feature = rownames(A), .data = A_l, .before = 1)  
     A_l <- tidyr::pivot_longer(A_l, cols = 2:ncol(A_l), values_to = "A")
     
-    M_l <- as_tibble(M)
+    M_l <- tibble::as_tibble(M)
     M_l <- tibble::add_column(Feature = rownames(M), M_l, .before = 1)
     M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
 
@@ -910,7 +910,6 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     n <- dplyr::pull(tbl, "Feature")
     n <- unique(n)
     n <- length(n)
-    
 
     A <- dplyr::pull(tbl, "A")
     M <- dplyr::pull(tbl, "M")
@@ -1113,6 +1112,71 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 ## by square root of sd), range scaling (mean-centered and diveded by range of 
 ## each variable)
 
+#' @name batchCorrectionAssay
+#'
+#' @title Remove batch effects from (count/intensity) values of a 
+#' `SummarizedExperiment`
+#'
+#' @description
+#' The function `batchCorrectionAssay` removes the batch effect of 
+#' (count/intensity) values of a `SummarizedExperiment`. 
+#' It uses either the `removeBatchEffect` function 
+#' or no batch effect correction method (pass-through, 
+#' `none`).
+#'
+#' @details 
+#' The column `batchColumn` in `colData(se)` contains the information on the 
+#' batch identity. Internal use in `shinyQC`.
+#' 
+#' @param se `SummarizedExperiment`
+#' @param method `character`, one of `"none"` or `"removeBatchEffect"`
+#' @param batchColumn `character`, one of `colnames(colData(se))`
+#'
+#' @examples
+#' ## create se
+#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#'             dimnames = list(1:10, paste("sample", 1:10)))
+#' a[c(1, 5, 8), 1:5] <- NA
+#' set.seed(1)
+#' a <- a + rnorm(100)
+#' cD <- data.frame(name = colnames(a), 
+#'     type = c(rep("1", 5), rep("2", 5)), batch = rep(c(1, 2), 5))
+#' rD <- data.frame(spectra = rownames(a))
+#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
+#'     rowData = rD, colData = cD)
+#' 
+#' batchCorrectionAssay(se, method = "removeBatchEffect (limma)", 
+#'                             batchColumn = "batch")
+#' 
+#' @return `matrix`
+#' 
+#' @importFrom limma removeBatchEffect
+#' @importFrom SummarizedExperiment assay colData
+#' 
+#' @export
+batchCorrectionAssay <- function(se, 
+                                 method = c("none", "removeBatchEffect (limma)"), 
+                                 batchColumn = colnames(colData(se))) {
+    
+    method <- match.arg(method)
+    a <- SummarizedExperiment::assay(se)
+    a_b <- as.matrix(a)
+    
+    if (method == "removeBatchEffect (limma)") {
+        cD <- SummarizedExperiment::colData(se)
+        if (!batchColumn %in% colnames(cD)) {
+            stop("batchColumn not in colnames(colData(se))")
+        }
+        
+        batch <- cD[, batchColumn]
+        a_b <- limma::removeBatchEffect(a_b, batch = batch)
+    }
+    
+    rownames(a_b) <- rownames(a)
+    colnames(a_b) <- colnames(a)
+    
+    return(a_b)
+}
 
 #' @name normalizeAssay
 #'
@@ -1220,72 +1284,6 @@ transformAssay <- function(a, method = c("none", "log2", "vsn")) {
     rownames(a_t) <- rownames(a) 
     colnames(a_t) <- colnames(a)
     return(a_t)
-}
-
-#' @name batchCorrectionAssay
-#'
-#' @title Remove batch effects from (count/intensity) values of a 
-#' `SummarizedExperiment`
-#'
-#' @description
-#' The function `batchCorrectionAssay` removes the batch effect of 
-#' (count/intensity) values of a `SummarizedExperiment`. 
-#' It uses either the `removeBatchEffect` function 
-#' or no batch effect correction method (pass-through, 
-#' `none`).
-#'
-#' @details 
-#' The column `batchColumn` in `colData(se)` contains the information on the 
-#' batch identity. Internal use in `shinyQC`.
-#' 
-#' @param se `SummarizedExperiment`
-#' @param method `character`, one of `"none"` or `"removeBatchEffect"`
-#' @param batchColumn `character`, one of `colnames(colData(se))`
-#'
-#' @examples
-#' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
-#' set.seed(1)
-#' a <- a + rnorm(100)
-#' cD <- data.frame(name = colnames(a), 
-#'     type = c(rep("1", 5), rep("2", 5)), batch = rep(c(1, 2), 5))
-#' rD <- data.frame(spectra = rownames(a))
-#' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
-#'     rowData = rD, colData = cD)
-#' 
-#' batchCorrectionAssay(se, method = "removeBatchEffect (limma)", 
-#'                             batchColumn = "batch")
-#' 
-#' @return `matrix`
-#' 
-#' @importFrom limma removeBatchEffect
-#' @importFrom SummarizedExperiment assay colData
-#' 
-#' @export
-batchCorrectionAssay <- function(se, 
-    method = c("none", "removeBatchEffect (limma)"), 
-    batchColumn = colnames(colData(se))) {
-
-    method <- match.arg(method)
-    a <- SummarizedExperiment::assay(se)
-    a_b <- as.matrix(a)
-    
-    if (method == "removeBatchEffect (limma)") {
-        cD <- SummarizedExperiment::colData(se)
-        if (!batchColumn %in% colnames(cD)) {
-            stop("batchColumn not in colnames(colData(se))")
-        }
-        
-        batch <- cD[, batchColumn]
-        a_b <- limma::removeBatchEffect(a_b, batch = batch)
-    }
-    
-    rownames(a_b) <- rownames(a)
-    colnames(a_b) <- colnames(a)
-    
-    return(a_b)
 }
 
 #' @name imputeAssay
