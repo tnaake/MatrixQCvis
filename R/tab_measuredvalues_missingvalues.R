@@ -295,10 +295,10 @@ hist_feature_category <- function(se, measured = TRUE,
     
     if (measured) {
         title <- "Measured values"
-        x_lab <- "measured features per feature"
+        x_lab <- "number of measured values per feature"
     } else {
         title <- "Missing values"
-        x_lab <- "missing features per feature"
+        x_lab <- "number of missing values per feature"
     }
 
     p <- ggplot2::ggplot(tbl_type_l, ggplot2::aes_string(x = "value")) + 
