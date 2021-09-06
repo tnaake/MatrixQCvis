@@ -86,9 +86,9 @@ tP_boxplotUI <- function(id) {
             shiny::column(4, shiny::uiOutput(ns("orderCategoryUI")))
         ),
         fR_boxplotUI("boxRaw", "raw", collapsed = FALSE),
+        fR_boxplotUI("boxBatch", "batch corrected", collapsed = TRUE),
         fR_boxplotUI("boxNorm", "normalized", collapsed = TRUE),
         fR_boxplotUI("boxTransf", "transformed", collapsed = TRUE),
-        fR_boxplotUI("boxBatch", "batch corrected", collapsed = TRUE),
         shiny::conditionalPanel("output.missingVals == 'TRUE'", 
             fR_boxplotUI("boxImp", "imputed", collapsed = TRUE))
     )
@@ -307,7 +307,7 @@ tP_driftUI <- function(id) {
 #' @importFrom shinyhelper helper
 #' 
 #' @noRd
-driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
+driftServer <- function(id, se, se_b, se_n, se_t, se_i, missingValue) {
     
     shiny::moduleServer(
         id, 
@@ -316,11 +316,11 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             output$dataUI <- shiny::renderUI({
                 
                 if (missingValue) {
-                    choices_l <- list("raw", "normalized", "transformed", 
-                                        "batch corrected", "imputed")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                        "transformed", "imputed")
                 } else {
-                    choices_l <- list("raw", "normalized", "transformed", 
-                                        "batch corrected")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                        "transformed")
                 }
                 shiny::selectInput(inputId = session$ns("data"),
                     label = "Select data input",
@@ -330,9 +330,9 @@ driftServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             se_drift <- shiny::reactive({
                 shiny::req(input$data)
                 if (input$data == "raw") se <- se()
+                if (input$data == "batch corrected") se <- se_b()
                 if (input$data == "normalized") se <- se_n()
                 if (input$data == "transformed") se <- se_t()
-                if (input$data == "batch corrected") se <- se_b()
                 if (input$data == "imputed") se <- se_i()
                 se
             })
@@ -456,9 +456,9 @@ tP_cvUI <- function(id) {
 #' 
 #' @param id `character`
 #' @param a_r `matrix` and `reactive` value
+#' @param a_b `matrix` and `reactive` value
 #' @param a_n `matrix` and `reactive` value
 #' @param a_t `matrix` and `reactive` value
-#' @param a_b `matrix` and `reactive` value
 #' @param a_i `matrix` and `reactive` value
 #' @param missingValue `logical` (if `FALSE` do not use imputed values)
 #' 
@@ -474,7 +474,7 @@ tP_cvUI <- function(id) {
 #' @importFrom plotly plotlyOutput
 #' 
 #' @noRd
-cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
+cvServer <- function(id, a_r, a_b, a_n, a_t, a_i, missingValue) {
     
     shiny::moduleServer(
         id, 
@@ -485,6 +485,10 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
                 cv(a_r(), name = "raw")
             })
 
+            cv_b <- shiny::reactive({
+                cv(a_b(), name = "batch corrected")
+            })
+
             cv_n <- shiny::reactive({
                 cv(a_n(), name = "normalized")
             })
@@ -493,21 +497,17 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
                 cv(a_t(), name = "transformed")
             })
 
-            cv_b <- shiny::reactive({
-                cv(a_b(), name = "batch corrected")
-            })
-
             cv_i <- shiny::reactive({
                 cv(a_i(), name = "imputed")
             })
             
             output$dataUI <- shiny::renderUI({
                 if (missingValue) {
-                    choices_l <-  c("raw", "normalized", "transformed", 
-                        "batch corrected", "imputed")   
+                    choices_l <-  c("raw", "batch corrected", "normalized",
+                        "transformed", "imputed")
                 } else {
-                    choices_l <- c("raw", "normalized", "transformed",
-                        "batch corrected")
+                    choices_l <- c("raw", "batch corrected", "normalized",
+                        "transformed")
                 }
                 shiny::selectInput(inputId = session$ns("data"), 
                     label = "Data set", choices = choices_l, 
@@ -518,9 +518,9 @@ cvServer <- function(id, a_r, a_n, a_t, a_b, a_i, missingValue) {
             df_cv <- shiny::reactive({
                 df <- data.frame(row.names = colnames(a_r()))
                 if ("raw" %in% input$data) df <- cbind(df, cv_r())
+                if ("batch corrected" %in% input$data) df <- cbind(df, cv_b())
                 if ("normalized" %in% input$data) df <- cbind(df, cv_n())
                 if ("transformed" %in% input$data) df <- cbind(df, cv_t())
-                if ("batch corrected" %in% input$data) df <- cbind(df, cv_b())
                 if ("imputed" %in% input$data) df <- cbind(df, cv_i())
                 df
             })
@@ -615,16 +615,17 @@ box_meanSdUI <- function(id, name) {
 #' @importFrom shiny tabPanel fluidRow uiOutput conditionalPanel
 #' 
 #' @noRd
-tP_meanSdUI <- function() {
+#' ##############################################################################
+tP_meanSdUI <- function(id) {
 
+    ns <- shiny::NS(id)
     shiny::tabPanel(title = "mean-sd plot",
         ## call here the module UIs box_meanSdUI
-        shiny::fluidRow(
-            box_meanSdUI("meanSdTransf", "transformed"),
-            shiny::uiOutput("meanSd-meanSdBatchUI"),
-        shiny::conditionalPanel("output.missingVals == 'TRUE'",  
-            shiny::fluidRow(column = 6,
-                box_meanSdUI("meanSdImp", "imputed")))
+        shiny::fluidRow(width = 12,
+            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            box_meanSdUI("meanSdTransf", "transformed"), 
+            shiny::conditionalPanel("output.missingVals == 'TRUE'",
+                box_meanSdUI("meanSdImp", "imputed"))
         )
     )
 }
@@ -657,12 +658,13 @@ meanSdUIServer <- function(id, missingValue) {
         id, 
         function(input, output, session) {
             
-            output$meanSdBatchUI <- shiny::renderUI({
+            output$helperUI <- shiny::renderUI({
+                
                 helperFile <- paste("tabPanel_meanSd_missingValue_", 
-                                                        missingValue, sep = "")
-                box_meanSdUI("meanSdBatch", "batch corrected") |>
-                    shinyhelper::helper(content = helperFile)
+                                    missingValue, sep = "")
+                shiny::br() |> shinyhelper::helper(content = helperFile)
             })
+            
         }
     )
 }
@@ -702,7 +704,7 @@ meanSdServer <- function(id, assay, type, missingValue) {
         function(input, output, session) {
 
             p_meansd <- shiny::reactive({
-                meanSdPlot(assay(), ranks = TRUE)$gg
+                vsn::meanSdPlot(assay(), ranks = TRUE)$gg
             })
             output$meanSd <- shiny::renderPlot({
                 p_meansd()
@@ -791,12 +793,12 @@ tP_maUI <- function(id) {
 #' @param id `character`
 #' @param se `SummarizedExperiment` object and `reactive` value, containing 
 #' raw values
+#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
+#' batch corrected values
 #' @param se_n `SummarizedExperiment` object and `reactive` value, containing 
 #' normalized values
 #' @param se_t `SummarizedExperiment` object and `reactive` value, containing 
 #' transformed values
-#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
-#' batch corrected values
 #' @param se_i `SummarizedExperiment` object and `reactive` value, containing 
 #' imputed values
 #' @param innerWidth `numeric` and `reactive` value, specifying the width of 
@@ -816,7 +818,7 @@ tP_maUI <- function(id) {
 #' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
-maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth, 
+maServer <-  function(id, se, se_b, se_n, se_t, se_i, innerWidth, 
                                                                 missingValue) {
     
     shiny::moduleServer(
@@ -852,11 +854,11 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             
             output$MAtypeUI <- shiny::renderUI({
                 if (missingValue) {
-                    choices_l <- list("raw", "normalized", "transformed",
-                                        "batch corrected", "imputed")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                        "transformed", "imputed")
                 } else {
-                    choices_l <- list("raw", "normalized", "transformed",
-                                        "batch corrected")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                        "transformed")
                 }
                 
                 shiny::selectInput(
@@ -875,6 +877,10 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                 MAvalues(se(), log2_se, input$groupMA)}) |>
                     shiny::bindCache(se(), input$groupMA, cache = "session")
             
+            vals_b <- shiny::reactive({
+                MAvalues(se_b(), log2_se, input$groupMA)}) |>
+                shiny::bindCache(se_b(), input$groupMA, cache = "session")
+            
             vals_n <- shiny::reactive({
                 if (any(SummarizedExperiment::assay(se_n()) < 0, na.rm = TRUE)) {
                     log2_se <- FALSE
@@ -887,11 +893,7 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             vals_t <- shiny::reactive({
                 MAvalues(se_t(), FALSE, input$groupMA)}) |>
                     shiny::bindCache(se_t(), input$groupMA, cache = "session")
-            
-            vals_b <- shiny::reactive({
-                MAvalues(se_b(), FALSE, input$groupMA)}) |>
-                    shiny::bindCache(se_b(), input$groupMA, cache = "session")
-            
+
             vals_i <- shiny::reactive({
                 MAvalues(se_i(), FALSE, input$groupMA)}) |>
                     shiny::bindCache(se_i(), input$groupMA, cache = "session")
@@ -910,16 +912,16 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
                     ma <- MAplot(vals_r(), group = input$groupMA, 
                         plot = ma_plot)
                 }
+                if (input$MAtype == "batch corrected") {
+                    ma <- MAplot(vals_b(), group = input$groupMA,
+                        plot = ma_plot)
+                }
                 if (input$MAtype == "normalized") {
                     ma <- MAplot(vals_n(), group = input$groupMA,
                         plot = ma_plot)
                 }
                 if (input$MAtype == "transformed") {
                     ma <- MAplot(vals_t(), group = input$groupMA, 
-                        plot = ma_plot)
-                }
-                if (input$MAtype == "batch corrected") {
-                    ma <- MAplot(vals_b(), group = input$groupMA,
                         plot = ma_plot)
                 }
                 if (input$MAtype == "imputed") {
@@ -950,25 +952,24 @@ maServer <-  function(id, se, se_n, se_t, se_b, se_i, innerWidth,
             ## Hoeffding's D values: MA values, title for plot
             hD_r <- shiny::reactive(hoeffDValues(vals_r(), "raw")) |>
                 shiny::bindCache(vals_r(), cache = "session")
+            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) |>
+                shiny::bindCache(vals_b(), cache = "session")
             hD_n <- shiny::reactive(hoeffDValues(vals_n(),  "normalized")) |>
                 shiny::bindCache(vals_n(), cache = "session")
             hD_t <- shiny::reactive(hoeffDValues(vals_t(), "transformed")) |>
                 shiny::bindCache(vals_t(), cache = "session")
-            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) |>
-                shiny::bindCache(vals_b(), cache = "session")
             hD_i <- shiny::reactive(hoeffDValues(vals_i(), "imputed")) |>
                 shiny::bindCache(vals_i(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function
             hoeffD_df <- shiny::reactive({
                 if (missingValue) {
-                    df <- data.frame(raw = hD_r(), normalized = hD_n(), 
-                        transformed = hD_t(), 
-                        `batch corrected` = hD_b(), imputed = hD_i())    
+                    df <- data.frame(raw = hD_r(), `batch corrected` = hD_b(), 
+                        normalized = hD_n(), transformed = hD_t(), 
+                        imputed = hD_i())    
                 } else {
-                    df <- data.frame(raw = hD_r(), normalized = hD_n(), 
-                        transformed = hD_t(), 
-                        `batch corrected` = hD_b())
+                    df <- data.frame(raw = hD_r(), `batch corrected` = hD_b(),
+                        normalized = hD_n(), transformed = hD_t())
                 }
                 df
             })
@@ -1048,13 +1049,13 @@ tP_ECDFUI <- function(id) {
 #' 
 #' @param id `character`
 #' @param se `SummarizedExperiment` object and `reactive` value, containing 
-#' raw values 
+#' raw values
+#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
+#' batch corrected values
 #' @param se_n `SummarizedExperiment` object and `reactive` value, containing 
 #' normalized values
 #' @param se_t `SummarizedExperiment` object and `reactive` value, containing 
 #' transformed values
-#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
-#' batch corrected values
 #' @param se_i `SummarizedExperiment` object and `reactive` value, containing 
 #' imputed values
 #' @param missingValue `logical` (if `FALSE` do not show option for imputed)
@@ -1071,7 +1072,7 @@ tP_ECDFUI <- function(id) {
 #' @author Thomas Naake
 #' 
 #' @noRd
-ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
+ECDFServer <- function(id, se, se_b, se_n, se_t, se_i, missingValue) {
     
     shiny::moduleServer(
         id, 
@@ -1080,11 +1081,11 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             output$typeECDFUI <- shiny::renderUI({
                 
                 if (missingValue) {
-                    choices_l <- list("raw", "normalized", "transformed", 
-                                        "batch corrected", "imputed")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                            "transformed", "imputed")
                 } else {
-                    choices_l <- list("raw", "normalized", "transformed", 
-                                        "batch corrected")
+                    choices_l <- list("raw", "batch corrected", "normalized", 
+                                            "transformed")
                 }
                 shiny::selectInput(inputId = session$ns("typeECDF"), 
                     label = "Data set for the ECDF plot",
@@ -1117,9 +1118,9 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
             p_ecdf <- shiny::reactive({
                 req(input$typeECDF)
                 if (input$typeECDF == "raw") SE <- se()
+                if (input$typeECDF == "batch corrected") SE <- se_b()
                 if (input$typeECDF == "normalized") SE <- se_n()
                 if (input$typeECDF == "transformed") SE <- se_t()
-                if (input$typeECDF == "batch corrected") SE <- se_b()
                 if (input$typeECDF == "imputed") SE <- se_i()
                 ECDF(SE, input$sampleECDF, input$groupECDF)
             })
@@ -1140,8 +1141,6 @@ ECDFServer <- function(id, se, se_n, se_t, se_b, se_i, missingValue) {
         }
     )
 }
-
-
 
 
 ################################################################################
@@ -1218,11 +1217,11 @@ tP_distUI <- function() {
 
     shiny::tabPanel(title = "Distance matrix",
         shiny::uiOutput("distUI-distRawUI"),
+        fR_distUI(id = "distBatch", title = "batch corrected", 
+                  collapsed = TRUE),
         fR_distUI(id = "distNorm", title = "normalized", 
             collapsed = TRUE),
         fR_distUI(id = "distTransf", title = "transformed", 
-            collapsed = TRUE),
-        fR_distUI(id = "distBatch", title = "batch corrected", 
             collapsed = TRUE),
         shiny::conditionalPanel("output.missingVals == 'TRUE'",
             fR_distUI(id = "distImp", title = "imputed", 
@@ -1447,13 +1446,13 @@ tP_featureUI <- function(id) {
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` value
-#' @param assay `matrix` and `reactive` value
-#' @param method `character` and `reactive` value, one of `"euclidean"`, 
-#' `"mannhattan"`, `"canberra"`, or `"minkowski"`
-#' @param label `character` and `reactive` value, specified the annotation of
-#' the `ComplexHeatmap`
-#' @param type `character`
+#' @param se `SummarizedExperiment` object
+#' @param a `matrix` and `reactive` value, containing raw values
+#' @param a_b `matrix` and `reactive` value, containing batch corrected values
+#' @param a_n `matrix` and `reactive` value, containing normalized values
+#' @param a_t `matrix` and `reactive` value, containing transformed values
+#' @param a_i `matrix` and `reactive` value, containing imputed values
+#' @param missingValue `logical` (if `FALSE` do not show option for imputed)
 #' 
 #' @return
 #' `shiny.render.function` expression
@@ -1467,7 +1466,7 @@ tP_featureUI <- function(id) {
 #' @importFrom htmlwidgets saveWidget 
 #'
 #' @noRd
-featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
+featureServer <- function(id, se, a, a_b, a_n, a_t, a_i, missingValue) {
     
     shiny::moduleServer(
         id, 
@@ -1488,11 +1487,11 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
 
             output$dataUI <- shiny::renderUI({
                 if (missingValue) {
-                    choices_l <-  c("raw", "normalized", "transformed", 
-                        "batch.corrected", "imputed")   
+                    choices_l <-  c("raw", "batch.corrected", "normalized", 
+                        "transformed", "imputed")   
                 } else {
-                    choices_l <- c("raw", "normalized", "transformed",
-                        "batch.corrected")
+                    choices_l <- c("raw", "batch.corrected", "normalized", 
+                        "transformed")
                 }
                 shiny::selectInput(inputId = session$ns("data"), 
                     label = "Data set", choices = choices_l, multiple = TRUE, 
@@ -1503,12 +1502,12 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
             l_assays <- shiny::reactive({
                 shiny::req(a_i())
                 if (missingValue) {
-                    l <- list(raw = a(), normalized = a_n(),
-                        transformed = a_t(), `batch.corrected` = a_b(),
+                    l <- list(raw = a(),  `batch.corrected` = a_b(),
+                        normalized = a_n(), transformed = a_t(), 
                         imputed = a_i())
                 } else {
-                    l <- list(raw = a(), normalized = a_n(),
-                        transformed = a_t(), `batch.corrected` = a_b())
+                    l <- list(raw = a(), `batch.corrected` = a_b(), 
+                        normalized = a_n(), transformed = a_t())
                 }
                 l
             })
@@ -1556,13 +1555,9 @@ featureServer <- function(id, se, a, a_n, a_t, a_b, a_i, missingValue) {
                         file)
                 }
             )
-            
-            
         }
     )
 }
-
-
 
 #' @name tP_values_all
 #' 
@@ -1593,7 +1588,7 @@ tP_values_all <- function() {
             tP_boxplotUI(id = "boxUI"),
             tP_driftUI(id = "drift"),
             tP_cvUI(id = "cv"),
-            tP_meanSdUI(),
+            tP_meanSdUI("meanSd"),
             tP_maUI(id = "MA"),
             tP_ECDFUI(id = "ECDF"),
             tP_distUI(),
