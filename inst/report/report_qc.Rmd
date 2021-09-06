@@ -8,9 +8,9 @@ output:
 params:
     missingValue: TRUE
     se_r: NULL
+    se_b: NULL
     se_n: NULL
     se_t: NULL
-    se_b: NULL
     se_i: NULL
     sample_hist: "name"
     sample_mosaic_f1: "name"
@@ -90,14 +90,12 @@ opts_chunk$set(stop_on_error = 1L)
 
 ```{r prepare_se, eval=TRUE, echo=FALSE}
 se_r <- params$se_r
+se_b <- params$se_b
 se_n <- params$se_n
 se_t <- params$se_t
-se_b <- params$se_b
 se_i <- params$se_i
 missingValue <- params$missingValue
 ```
-
-
 
 This is an automatically-produced report from `shinyQC`. The analyzed data
 contains `r nrow(se_r)` features and `r ncol(se_r)` samples. 
@@ -358,12 +356,12 @@ Use the settings
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
 create_boxplot(se_r, orderCategory = int_violin_orderCategory, 
     title = "raw", log2 = int_log, violin = int_violin)
+create_boxplot(se_b, orderCategory = int_violin_orderCategory,
+    title = "batch corrected", log2 = FALSE, violin = int_violin)
 create_boxplot(se_n, orderCategory = int_violin_orderCategory, 
     title = "normalized", log2 = int_log, violin = int_violin)
 create_boxplot(se_t, orderCategory = int_violin_orderCategory,
     title = "transformed", log2 = FALSE, violin = int_violin)
-create_boxplot(se_b, orderCategory = int_violin_orderCategory,
-    title = "batch corrected", log2 = FALSE, violin = int_violin)
 create_boxplot(se_i, orderCategory = int_violin_orderCategory, 
     title = "imputed", log2 = FALSE, violin = int_violin)
 ```
@@ -387,14 +385,14 @@ if (!is.null(params$int_drift_data)) {
     if (int_drift_data == "raw") {
        se_tmp <- se_r
     }
+    if (int_drift_data == "batch corrected") {
+        se_tmp <- se_b
+    }
     if (int_drift_data == "normalized") {
         se_tmp <- se_n
     }
     if (int_drift_data == "transformed") {
         se_tmp <- se_t
-    }
-    if (int_drift_data == "batch corrected") {
-        se_tmp <- se_b
     }
     if (int_drift_data == "imputed") {
         se_tmp <- se_i
@@ -435,19 +433,19 @@ driftPlot(se_tmp, aggregation = int_drift_aggregation,
 
 ```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 a_r <- SummarizedExperiment::assay(se_r)
+a_b <- SummarizedExperiment::assay(se_b)
 a_n <- SummarizedExperiment::assay(se_n)
 a_t <- SummarizedExperiment::assay(se_t)
-a_b <- SummarizedExperiment::assay(se_b)
 a_i <- SummarizedExperiment::assay(se_i)
 
 ## calculate cv values
 cv_r <- cv(a_r, "raw")
+cv_b <- cv(a_b, "batch corrected")
 cv_n <- cv(a_n, "normalized")
 cv_t <- cv(a_t, "transformed")
-cv_b <- cv(a_b, "batch corrected")
 cv_i <- cv(a_i, "imputed")
 
-df <- data.frame(cv_r, cv_n, cv_t, cv_b, cv_i)
+df <- data.frame(cv_r, cv_b, cv_n, cv_t, cv_i)
 plotCV(df)
 ```
 
@@ -456,7 +454,6 @@ plotCV(df)
 
 ```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 vsn::meanSdPlot(a_t)
-vsn::meanSdPlot(a_b)
 vsn::meanSdPlot(a_i)
 ```
 
@@ -493,27 +490,26 @@ Use the settings
 
 ```{r maplot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 tbl_r <- MAvalues(se_r, log2 = TRUE, group = int_ma_group)
+tbl_b <- MAvalues(se_b, log2 = TRUE, group = int_ma_group)
 tbl_n <- MAvalues(se_n, log2 = TRUE, group = int_ma_group)
 tbl_t <- MAvalues(se_t, log2 = FALSE, group = int_ma_group)
 
 if (shiny::isRunning())
   shiny::setProgress(0.5)
 
-
-tbl_b <- MAvalues(se_b, log2 = FALSE, group = int_ma_group)
 tbl_i <- MAvalues(se_i, log2 = FALSE, group = int_ma_group)
  
 if (int_ma_data == "raw") {
     tbl <- tbl_r
+}
+if (int_ma_data == "batch corrected") {
+    tbl <- tbl_b
 }
 if (int_ma_data == "normalized") {
     tbl <- tbl_n
 }
 if (int_ma_data == "transformed") {
     tbl <- tbl_t
-}
-if (int_ma_data == "batch corrected") {
-    tbl <- tbl_b
 }
 if (int_ma_data == "imputed") {
     tbl <- tbl_i
@@ -523,15 +519,15 @@ MAplot(tbl, group = int_ma_group,
     plot = int_ma_plot)
 
 d_r <- hoeffDValues(tbl_r, name = "raw")
+d_b <- hoeffDValues(tbl_b, name = "batch corrected")
 d_n <- hoeffDValues(tbl_n, name = "normalized")
 d_t <- hoeffDValues(tbl_t, name = "transformed")
-d_b <- hoeffDValues(tbl_b, name = "batch corrected")
 
 if (missingValue) {
     d_i <- hoeffDValues(tbl_i, name = "imputed")
-    df <- data.frame(d_r, d_n, d_t, d_b, d_i)  
+    df <- data.frame(d_r, d_b, d_n, d_t, d_i)  
 } else {
-    df <- data.frame(d_r, d_n, d_t, d_b)
+    df <- data.frame(d_r, d_b, d_n, d_t)
 }
 
 hoeffDPlot(df, lines = int_hD_lines)
@@ -553,14 +549,14 @@ if (!is.null(params$int_ecdf_sample)) {
     if (int_ecdf_data == "raw") {
         se_tmp <- se_r
     }
+    if (int_ecdf_data == "batch corrected") {
+        se_tmp <- se_b
+    }
     if (int_ecdf_data == "normalized") {
         se_tmp <- se_n
     }
     if (int_ecdf_data == "transformed") {
         se_tmp <- se_t
-    }
-    if (int_ecdf_data == "batch corrected") {
-        se_tmp <- se_b
     }
     if (int_ecdf_data == "imputed") {
         se_tmp <- se_i
@@ -611,14 +607,18 @@ Use the settings
 
 ```{r distSample, eval=TRUE, echo=FALSE}
 dist_mat_r <- distShiny(a_r, method = int_dist_method)
+dist_mat_b <- distShiny(a_b, method = int_dist_method)
 dist_mat_n <- distShiny(a_n, method = int_dist_method)
 dist_mat_t <- distShiny(a_t, method = int_dist_method)
-dist_mat_b <- distShiny(a_b, method = int_dist_method)
 
 ## plotting
 distSample(d = dist_mat_r, se = se_r,
     label = int_dist_label, title = "raw")
 sumDistSample(dist_mat_r, title = "raw")
+
+distSample(d = dist_mat_b, se = se_b,
+    label = int_dist_label, title = "batch corrected")
+sumDistSample(dist_mat_b, title = "batch corrected")
 
 distSample(d = dist_mat_n, se = se_n,
     label = int_dist_label, title = "normalized")
@@ -627,10 +627,6 @@ sumDistSample(dist_mat_n, title = "normalized")
 distSample(d = dist_mat_t, se = se_t,
     label = int_dist_label, title = "transformed")
 sumDistSample(dist_mat_t, title = "transformed")
-
-distSample(d = dist_mat_b, se = se_b,
-    label = int_dist_label, title = "batch corrected")
-sumDistSample(dist_mat_b, title = "batch corrected")
 
 if (missingValue) {
     dist_mat_i <- distShiny(a_i, method = int_dist_method)
@@ -664,11 +660,11 @@ Use the settings
 
 ```{r features, eval=TRUE, echo=FALSE}
 if (missingValue) {
-    l_assays <- list(raw = a_r, normalized = a_n, 
-      transformed = a_t, batch.corrected = a_b, imputed = a_i)
+    l_assays <- list(raw = a_r, batch.corrected = a_b, normalized = a_n, 
+      transformed = a_t, imputed = a_i)
 } else {
-    l_assays <- list(raw = a_r, normalized = a_n,
-      transformed = a_t, batch.corrected = a_b)
+    l_assays <- list(raw = a_r, batch.corrected = a_b, normalized = a_n,
+      transformed = a_t)
 }
 
 df_feature <- createDfFeature(l_assays, feature = int_feat_selectFeat)
