@@ -703,6 +703,7 @@ shinyQC <- function(se, app_server = FALSE) {
                 params_l <- append(params_l,
                     list(int_log = input[["boxLog"]], 
                         int_violin = input[["violinPlot"]],
+                        int_violin_orderCategory = input[["boxUI-orderCategory"]],
                         int_drift_data = input[["drift-data"]],
                         int_drift_aggregation = input[["drift-aggregation"]],
                         int_drift_category = input[["drift-category"]],
