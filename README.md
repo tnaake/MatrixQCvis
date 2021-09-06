@@ -11,7 +11,9 @@ Visualizations include amongst others bar- and violin plots of the (count/intens
 values, mean vs standard deviation plots, MA plots, empirical cumulative 
 distribution function (ECDF) plots, visualizations of the distances 
 between samples, and multiple 
-types of dimension reduction plots. Furthermore, _MatrixQCvis_ allows for 
+types of dimension reduction plots. 
+
+Furthermore, _MatrixQCvis_ allows for 
 differential expression analysis based on the _limma_ (moderated t-tests) and 
 _proDA_ (Wald tests) packages. _MatrixQCvis_ builds upon the popular 
 Bioconductor _SummarizedExperiment_ S4 class and enables thus the facile 
@@ -22,7 +24,7 @@ can be represented in a _SummarizedExperiment_ object.
 
 ## Installation
 
-Currently, _MatrixQCvis_ is available via `devtools`:
+To install _MatrixQCvis_ from GitHub, install the package via `devtools`:
 ```r 
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
@@ -30,11 +32,42 @@ library(devtools)
 install_github("tnaake/MatrixQCvis")
 ```
 
-_MatrixQCvis_ was submitted to Bioconductor and is currently under review.
+Alternatively, the _MatrixQCvis_ package can also be installed via the 
+Bioconductor project. 
+
+For the release version enter:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("MatrixQCvis")
+```
+
+For the development version enter:
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# the following initializes usage of Bioc devel
+BiocManager::install(version = "devel")
+
+BiocManager::install("MatrixQCvis")
+```
 
 ## Quick start
 
+_MatrixQCvis_ is based on the _SummarizedExperiment_ class. The shiny 
+application can be started with passing a _SummarizedExperiment_ object 
+(in the following denoted as _se_) or without such an object. The 
+second function call will load an interface to load a 
+_SummarizedExperiment_ object stored in a RDS file. 
+
 ```r
-library(MatrixQCvis)
+library("MatrixQCvis")
+
+## initialize the application with passing a SummarizedExperiment object
+shinyQC(se)
+
+## initialize the application without passing a SummarizedExperiment object
 shinyQC()
 ```
