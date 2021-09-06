@@ -118,7 +118,7 @@ tP_modelMatrixUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Model matrix", 
         shiny::fluidRow(width = 12,
-            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12, shiny::uiOutput(ns("helperUI"))),
             shiny::column(width = 12, 
                 shiny::uiOutput(outputId = ns("modelMatrixTab")) 
             )  
