@@ -140,11 +140,11 @@ hist_feature <- function(x, measured = TRUE, ...) {
     if (measured) {
         val <- !is.na(x)   
         title <- "Measured values"
-        x_lab <- "measured features per feature"
+        x_lab <- "number of measured values per feature"
     } else { ## missing
         val <- is.na(x)
         title <- "Missing values"
-        x_lab <- "missing features per feature"
+        x_lab <- "number of missing values per feature"
     }
     val <- rowSums(val)
     val <- tibble::tibble(values = val)
@@ -201,16 +201,21 @@ hist_feature <- function(x, measured = TRUE, ...) {
 #'
 #' measured_category(se, measured = TRUE, category = "type")
 #'
-#' @importFrom dplyr `%>%`
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom tibble as_tibble
 #'
 #' @export
 measured_category <- function(se, measured = TRUE, category = "type") {
     
-    ## retrieve assay and colData from se
+    ## access the assay slot
     a <- SummarizedExperiment::assay(se)
-    cD <- SummarizedExperiment::colData(se)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(assay(se)) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
     
     ## get the sample category levels and create a vector with the unique
     ## sample category levels
@@ -221,7 +226,7 @@ measured_category <- function(se, measured = TRUE, category = "type") {
     ## dimensions: nrow(a)/number of features as in a and number of 
     ## unique sample types
     tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u),
-                            dimnames = list(rownames(a), samp_u)) %>%
+                            dimnames = list(rownames(a), samp_u)) |>
         tibble::as_tibble(rownames = "feature")
 
     ## iterate through the columns and write to the respective column if 
@@ -346,7 +351,9 @@ hist_feature_category <- function(se, measured = TRUE,
 #' @importFrom dplyr select
 #' 
 #' @export
-upset_category <- function(se, category = "type", ...) {
+upset_category <- function(se, category = colnames(colData(se))[1], ...) {
+    
+    category <- match.arg(category, choices = colnames(colData(se)))
     
     ## create data frame with columns as unique sample type
     tbl_type <- measured_category(se, category = category, ...)
@@ -354,7 +361,11 @@ upset_category <- function(se, category = "type", ...) {
     
     tbl_type_binary <- ifelse(tbl_type > 0, 1, 0) 
     tbl_type_binary <- as.data.frame(tbl_type_binary)
-    UpSetR::upset(tbl_type_binary, order.by = "freq", nsets = ncol(tbl_type))
+    if (sum(colSums(tbl_type_binary) > 0) > 1) {
+        return(UpSetR::upset(tbl_type_binary, order.by = "freq", nsets = ncol(tbl_type)))
+    } else {
+        NULL
+    }
 }
 
 #' @name extractComb
