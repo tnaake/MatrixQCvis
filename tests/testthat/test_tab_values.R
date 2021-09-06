@@ -11,6 +11,8 @@ cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
     colData = cD)
+se_error <- se
+colnames(colData(se_error)) <- c("rowname", "type")
 
 ## function create_boxplot
 test_that("create_boxplot", {
@@ -24,7 +26,9 @@ test_that("create_boxplot", {
         title = "test", log2 = TRUE, violin = ""), "invalid argument type")
     expect_error(create_boxplot(se = se, orderCategory = "foo", title = "", 
           log2 = TRUE, violin = TRUE),
-      "should be one of")
+        "should be one of")
+    expect_error(create_boxplot(se = se_error, orderCategory = "rowname"),
+        "Column name `rowname` must not be duplicated")
     expect_is(g, "gg")
 })
 
@@ -48,6 +52,10 @@ test_that("driftPlot", {
   expect_error(driftPlot(se = se, aggregation = "median", category = "type", 
       orderCategory = "type", level = "all", method = "foo"),
       "should be one of")
+  expect_error(driftPlot(se = se_error, aggregation = "median", 
+            category = "type", orderCategory = "type", level = "all", 
+            method = "loess"),
+      "Column name `rowname` must not be duplicated")
 })
 
 ## function cv
@@ -84,6 +92,8 @@ test_that("ECDF", {
     expect_error(ECDF(x, sample_1, "all"), "unable to find an inherited method")
     expect_error(ECDF(se, "", "all"), "'arg' should be one of")
     expect_error(ECDF(se, sample_1, "test"), "'arg' should be one of")
+    expect_error(ECDF(se_error, sample_1, "all"), 
+        "Column name `rowname` must not be duplicated")
     expect_is(g, "gg")
 })
 
@@ -135,6 +145,7 @@ test_that("MAvalues", {
         name = rep(colnames(se)[1:3], 2),
         A = c(4.149180, 5.535751, 5.785051, 4.144537, 5.534471, 5.785192),
         M = c( -6.044885, 2.274541, 3.770344, -6.061178, 2.278427, 3.782751),
+        name.y = rep(colnames(se)[1:3], 2),
         type = "1")
     ma <- MAvalues(se = se, group = "all")
     
@@ -143,8 +154,10 @@ test_that("MAvalues", {
     expect_error(MAvalues(se, log2 = TRUE, group = ""), "'arg' should be one of")
     expect_error(MAvalues(se, log2 = "", group = "all"), 
         "argument is not interpretable as logical")
+    expect_error(MAvalues(se_error, log2 = TRUE, group = "all"), 
+        "Column name `rowname` must not be duplicated")
     expect_true(is.data.frame(ma))
-    expect_equal(dim(ma), c(1000, 5))
+    expect_equal(dim(ma), c(1000, 6))
     expect_true(is.character(ma$Feature))
     expect_true(is.character(ma$name))
     expect_true(is.numeric(ma$A))
@@ -321,7 +334,7 @@ test_that("batchCorrectionAssay", {
     a_l <- batchCorrectionAssay(se_b, method = "removeBatchEffect (limma)", 
         batchColumn = "type")
     
-    expect_error(batchCorrectionAssay(a), 
+    expect_error(batchCorrectionAssay(a, "removeBatchEffect (limma)"), 
         "unable to find an inherited method for function")
     expect_error(batchCorrectionAssay(se_b, "foo"), "'arg' should be one of ")
     expect_error(batchCorrectionAssay(se_b, "removeBatchEffect (limma)", "foo"),

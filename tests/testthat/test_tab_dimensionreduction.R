@@ -88,6 +88,8 @@ test_that("ordinationPlot", {
     rD <- data.frame(spectra = rownames(a))
     se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
         rowData = rD, colData = cD)
+    se_error <- se
+    colnames(SummarizedExperiment::colData(se_error))[1] <- "rowname"
     
     ## create the data.frame containing the transformed values
     parameters <- list("center" = TRUE, "scale" = FALSE)
@@ -112,6 +114,8 @@ test_that("ordinationPlot", {
         "unable to find an inherited method for function")
     expect_error(ordinationPlot(tbl = tbl, se = se, highlight = "foo"), 
         "should be one of")
+    expect_error(ordinationPlot(tbl = tbl, se = se_error, highlight = "none"), 
+        "Column name `rowname` must not be duplicated")
     expect_is(g, "plotly")
 })
 
@@ -249,4 +253,3 @@ test_that("plotPCALoadings", {
     expect_error(plotPCALoadings(tbl, "foo", "PC2"), "object 'foo' not found")
     expect_error(plotPCALoadings(tbl, "PC1", "foo"), "object 'foo' not found")
 })
-

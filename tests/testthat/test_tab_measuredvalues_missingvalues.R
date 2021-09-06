@@ -112,12 +112,22 @@ test_that("upset_category", {
     expect_error(upset_category(NULL, category = "type"),
         "unable to find an inherited method for function")
     expect_error(upset_category(se, category = "foo"),
-        "argument of length 0")
-    expect_error(upset_category(se, category = "type", measured = FALSE),
-        "'x' must be an array of at least two dimensions")
+        "should be one of ")
+    expect_equal(upset_category(se, category = "type", measured = FALSE), NULL)
     expect_error(upset_category(se, category = "type", measured = ""),
         "argument is not interpretable as logical")
     expect_is(g, "upset")
+    
+    se <- SummarizedExperiment(
+        assays = list(counts = matrix(100 * runif(100 * 8), 100, 8)),
+        colData = DataFrame(sample = paste0("S", 1:8),
+                            type = sample(LETTERS[1:2], 8, replace = TRUE),
+                            name = paste0("S", 1:8))
+    )
+    assay(se)[5, 1] <- NA
+    g <- upset_category(se, category = "type", measured = FALSE)
+    expect_equal(g, NULL)
+    
 })
 
 ## function extractComb
