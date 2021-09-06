@@ -161,12 +161,20 @@ ordinationPlot <- function(tbl, se,
     
     highlight <- match.arg(highlight)
     
-    cD <- SummarizedExperiment::colData(se)
+    ## access the assay slot
+    a <- SummarizedExperiment::assay(se)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(assay(se)) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
     
     if (highlight == "none") {
         tT <- c("text")
     } else {
-        cD_cut <- data.frame(name = cD[, "name"], color = cD[, highlight])
+        cD_cut <- data.frame(name = cD[, "rowname"], color = cD[, highlight])
         tbl <- dplyr::left_join(tbl, cD_cut, by = "name", copy = TRUE)
         tT <- c("text", "color")
     }
