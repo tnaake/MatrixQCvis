@@ -17,11 +17,11 @@ as `NA`.}
 `binwidth`.}
 }
 \value{
-`gg` object from `ggplot2`
+`plotly` object from `ggplotly`
 }
 \description{
 The function `hist_compound` creates a histogram with the number
-of measured values per feature.
+of measured/missing values per feature.
 }
 \examples{
 x <- matrix(c(c(1, 1, 1), c(1, NA, 1), c(1, NA, 1), 

@@ -12,8 +12,10 @@ shinyQC(se, app_server = FALSE)
 \item{app_server}{`logical` (set to `TRUE` if run under a server environment)}
 }
 \value{
-`shiny` application, `SummarizedExperiment` upon exiting the 
-`shiny` application
+`shiny` application, 
+`SummarizedExperiment` upon exiting the `shiny` application (the 
+object will be returned only when exiting the application
+via the button 'Stop and export data set')
 }
 \description{
 The shiny application allows to explore -omics
@@ -23,6 +25,7 @@ specified within the `SummarizedExperiment` object). It gives information
 on the number of missing and measured values across features and across
 sets (e.g. quality control samples, control, and treatment groups, only
 displayed for `SummarizedExperiment` objects that contain missing values).
+
 `shinyQC` includes functionality to display (count/intensity) values 
 across samples (to detect drifts in intensity values during the 
 measurement), to display
@@ -33,10 +36,20 @@ it includes functionality to perform differential expression analysis
 (currently limited to moderated t-tests and the Wald test).
 }
 \details{
-`shinyQC` allows to subset the supplied `SummarizedExperiment` object. On
-exit of the shiny application, the following objects are returned in a
-list: the matrix with (count/intensity) values for `raw`, `normalized`, 
-`transformed`, `batch corrected` (and `imputed`). The object will 
+The `se` object should not contain a column `"rowname"` in the `colData`
+slot.
+
+`rownames(se)` should be set to the corresponding name of features, 
+while `colnames(se)` should be set to the sample IDs. 
+`rownames(se)` and `colnames(se)` are not allowed to be NULL.
+
+`shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
+
+On exit of the shiny application (only via the button 
+'Stop and export data set'), the (subsetted) `SummarizedExperiment` 
+object is returned
+with information on the processing steps (normalization, 
+transformation, batch correction and imputation). The object will 
 only returned if `app_server = FALSE`.
 
 If the `se` argument is omitted the app will load an interface that allows 

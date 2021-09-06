@@ -18,7 +18,7 @@ values per sample. Missing values are encoded as `NA`.}
 \item{...}{additional parameters passed to `geom_histogram`, e.g. `binwidth`.}
 }
 \value{
-`plotly`
+`plotly` object from `ggplotly`
 }
 \description{
 The function `hist_feature_category` creates histogram

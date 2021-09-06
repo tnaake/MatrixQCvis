@@ -4,7 +4,7 @@
 \alias{upset_category}
 \title{UpSet plot to display measures values across sample types}
 \usage{
-upset_category(se, category = "type", ...)
+upset_category(se, category = colnames(colData(se))[1], ...)
 }
 \arguments{
 \item{se}{`SummarizedExperiment`,
