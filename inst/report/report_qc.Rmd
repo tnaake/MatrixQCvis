@@ -25,6 +25,7 @@ params:
     miv_upset_category: NULL
     int_log: TRUE
     int_violin: TRUE
+    int_violin_orderCategory: NULL
     int_drift_data: "raw"
     int_drift_aggregation: "median"
     int_drift_category: "name"
@@ -84,7 +85,7 @@ BiocStyle::markdown()
 ```{r env, include=FALSE, echo=FALSE, cache=FALSE}
 library("knitr")
 opts_chunk$set(stop_on_error = 1L)
-suppressPackageStartupMessages(library("MatrixQCvis"))
+##suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
 ```{r prepare_se, eval=TRUE, echo=FALSE}
@@ -316,7 +317,7 @@ if (!is.null(params$miv_upset_category)) {
 
 `r if (missingValue) {paste("- *Variable for stratification =* ", mev_upset_category, ".", sep = " ")}`
 
-```{r upset_miv, eval=params$missingValue, echo=FALSE}
+```{r upset_miv, eval=missingValue, echo=FALSE}
 upset_category(se_r, category = miv_upset_category, measured = FALSE)
 ```
 
@@ -330,15 +331,17 @@ if (shiny::isRunning())
 ## Boxplot/Violin plot
 
 ```{r boxplot_prepare, eval=TRUE,echo=FALSE, message=FALSE, warning=FALSE}
-if (!is.null(params$int_violin)) {
+if (!is.null(params$int_violin_orderCategory)) {
     called <- TRUE
     int_box_type <- int_violin <- params$int_violin
+    int_violin_orderCategory <- params$int_violin_orderCategory
     int_log <- params$int_log
     int_violin <- if (int_violin == "violin") TRUE else FALSE
     int_log <- if (int_log == "log2") TRUE else FALSE
 } else {
     called <- FALSE
     int_violin <- TRUE
+    int_violin_orderCategory <- colnames(SummarizedExperiment::colData(se_r))[1]
     int_log <- FALSE
     int_box_type <- "violin"
 }
@@ -348,20 +351,21 @@ if (!is.null(params$int_violin)) {
 
 Use the settings 
 
-- *Display log2 values? = * `r int_log` and 
-- *Type of display = * `r int_box_type`.
+- *Display log2 values? = * `r int_log`, 
+- *Type of display = * `r int_box_type`, and
+- *Select variable to order samples* = `r int_violin_orderCategory`.
 
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
-create_boxplot(SummarizedExperiment::assay(se_r), title = "raw",
-    log2 = int_log, violin = int_violin)
-create_boxplot(SummarizedExperiment::assay(se_n), title = "normalized",
-    log2 = int_log, violin = int_violin)
-create_boxplot(SummarizedExperiment::assay(se_t), title = "transformed",
-    log2 = FALSE, violin = int_violin)
-create_boxplot(SummarizedExperiment::assay(se_b), title = "batch corrected",
-    log2 = FALSE, violin = int_violin)
-create_boxplot(SummarizedExperiment::assay(se_i), title = "imputed",
-    log2 = FALSE, violin = int_violin)
+create_boxplot(se_r, orderCategory = int_violin_orderCategory, 
+    title = "raw", log2 = int_log, violin = int_violin)
+create_boxplot(se_n, orderCategory = int_violin_orderCategory, 
+    title = "normalized", log2 = int_log, violin = int_violin)
+create_boxplot(se_t, orderCategory = int_violin_orderCategory,
+    title = "transformed", log2 = FALSE, violin = int_violin)
+create_boxplot(se_b, orderCategory = int_violin_orderCategory,
+    title = "batch corrected", log2 = FALSE, violin = int_violin)
+create_boxplot(se_i, orderCategory = int_violin_orderCategory, 
+    title = "imputed", log2 = FALSE, violin = int_violin)
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
@@ -713,7 +717,8 @@ Use the settings
 ```{r PCA, eval=TRUE, echo=FALSE}
 tbl <- ordination(a_i, type = "PCA",
     params = list(center = dr_pca_center, scale = dr_pca_scale))
-explainedVar <- explVar(x = a_i, center = dr_pca_center, scale = dr_pca_scale)
+explainedVar <- explVar(x = a_i, 
+    params = list(center = dr_pca_center, scale = dr_pca_scale))
 ordinationPlot(tbl = tbl, se = se_r, highlight = dr_pca_highlight,
     explainedVar = explainedVar, x_coord = dr_pca_x, y_coord = dr_pca_y)
 ```
@@ -861,7 +866,7 @@ if (!is.null(params$dr_umap_highlight)) {
 } else {
     called <- FALSE
     dr_umap_min_dist = 0.1
-    dr_umap_n_neighbors = 15
+    dr_umap_n_neighbors = min(15, ncol(se_r))
     dr_umap_spread = 1
     dr_umap_highlight = "none"
     dr_umap_x = "X1"
