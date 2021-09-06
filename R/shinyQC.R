@@ -288,9 +288,9 @@ shinyQC <- function(se, app_server = FALSE) {
         mode = input[["select-mode"]])})
     
     ## create SummarizedExperiment objects with updated assays
+    se_r_b <- shiny::reactive({updateSE(se = se_r(), assay = a_b())})
     se_r_n <- shiny::reactive({updateSE(se = se_r(), assay = a_n())})
     se_r_t <- shiny::reactive({updateSE(se = se_r(), assay = a_t())})
-    se_r_b <- shiny::reactive({updateSE(se = se_r(), assay = a_b())})
     se_r_i <- shiny::reactive({updateSE(se = se_r(), assay = a_i())})
     
     ## TAB: Samples
@@ -362,36 +362,13 @@ shinyQC <- function(se, app_server = FALSE) {
     a <- shiny::reactive({assay(se_r())})
     
     ## reactive expression for data transformation, returns a matrix with
-    ## normalized values
-    a_n <- shiny::reactive({
-        shiny::req(a(), input$normalization)
-        ## input$normalization is either "none", "sum", "quantile division",
-        ## "quantile"
-        normalizeAssay(a(), method = input$normalization, probs = input$quantile)
-    })
-    
-    output$quantDiv <- shiny::renderUI({
-        shiny::sliderInput("quantile", label = "Quantile",
-            min = 0, max = 1, value = 0.75)
-    })
-    
-    ## reactive expression for data transformation, returns a matrix with
-    ## transformed values
-    a_t <- shiny::reactive({
-        shiny::req(input$transformation, a_n())
-        
-        ## input$transformation is either "none", "log2", or "vsn"
-        transformAssay(a_n(), method = input$transformation)
-    })
-    
-    ## reactive expression for data transformation, returns a matrix with
     ## transformed values
     a_b <- shiny::reactive({
-        shiny::req(input$batch, a_t()) 
+        shiny::req(input$batch, a()) 
         
         ## input$batch is either "none" or "removeBatchEffect (limma)"
-        batchCorrectionAssay(se_r_t(), method = input$batch, 
-            batchColumn = input$batchCol)
+        batchCorrectionAssay(se_r(), method = input$batch, 
+                             batchColumn = input$batchCol)
     })
     
     output$batchCol <- shiny::renderUI({
@@ -410,15 +387,39 @@ shinyQC <- function(se, app_server = FALSE) {
         }
     })
     
+    ## reactive expression for data transformation, returns a matrix with
+    ## normalized values
+    a_n <- shiny::reactive({
+        shiny::req(a_b(), input$normalization)
+        ## input$normalization is either "none", "sum", "quantile division",
+        ## "quantile"
+        normalizeAssay(a_b(), method = input$normalization, 
+            probs = input$quantile)
+    })
+    
+    output$quantDiv <- shiny::renderUI({
+        shiny::sliderInput("quantile", label = "Quantile",
+            min = 0, max = 1, value = 0.75)
+    })
+    
+    ## reactive expression for data transformation, returns a matrix with
+    ## transformed values
+    a_t <- shiny::reactive({
+        shiny::req(input$transformation, a_n())
+        
+        ## input$transformation is either "none", "log2", or "vsn"
+        transformAssay(a_n(), method = input$transformation)
+    })
+    
     ## reactive expression for data imputation, returns a matrix with
     ## imputed values
     a_i <- shiny::reactive({
-        shiny::req(input$imputation, a_b())
+        shiny::req(input$imputation, a_t())
         if (missingValue) {
             ## impute missing values of  the data.frame with transformed values
-            imputeAssay(a_b(), input$imputation)    
+            imputeAssay(a_t(), input$imputation)    
         } else {
-            a_b()
+            a_t()
         }
     })
     
@@ -429,15 +430,15 @@ shinyQC <- function(se, app_server = FALSE) {
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "raw")
+    boxPlotServer("boxBatch", se = se_r_b, 
+        orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
+        boxLog = function() FALSE,
+        violin = shiny::reactive(input$violinPlot), type = "transformed")
     boxPlotServer("boxNorm", se = se_r_n, 
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "normalized")
     boxPlotServer("boxTransf", se = se_r_t, 
-        orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
-        boxLog = function() FALSE,
-        violin = shiny::reactive(input$violinPlot), type = "transformed")
-    boxPlotServer("boxBatch", se = se_r_b, 
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = function() FALSE,
         violin = shiny::reactive(input$violinPlot), type = "transformed")
@@ -447,43 +448,41 @@ shinyQC <- function(se, app_server = FALSE) {
         violin = shiny::reactive(input$violinPlot), type = "imputed")
         
     ## drift
-    driftServer("drift", se = se_r, se_n = se_r_n, se_t = se_r_t, 
-        se_b = se_r_b, se_i = se_r_i, missingValue = missingValue)
+    driftServer("drift", se = se_r, se_b = se_r_b, se_n = se_r_n,
+        se_t = se_r_t, se_i = se_r_i, missingValue = missingValue)
     
     ## coefficient of variation
-    cvServer("cv", a_r = a, a_n = a_n, a_t = a_t, a_b = a_b, a_i = a_i,
+    cvServer("cv", a_r = a, a_b = a_b, a_n = a_n, a_t = a_t, a_i = a_i,
         missingValue = missingValue)
     
     ## mean-sd plot
     meanSdUIServer("meanSd", missingValue = missingValue)
     meanSdServer("meanSdTransf", assay = a_t, type = "transformed")
-    meanSdServer("meanSdBatch", assay = a_b, type = "batch corrected")
     meanSdServer("meanSdImp", assay = a_i, type = "imputed")
     
     ## MA plot
-    maServer("MA", se = se_r, se_n = se_r_n, se_t = se_r_t,
-        se_b = se_r_b, se_i = se_r_i, 
-        innerWidth = shiny::reactive(input$innerWidth),
+    maServer("MA", se = se_r, se_b = se_r_b, se_n = se_r_n, se_t = se_r_t,
+        se_i = se_r_i, innerWidth = shiny::reactive(input$innerWidth),
         missingValue = missingValue)
     
     ## ECDF
-    ECDFServer("ECDF", se = se_r, se_n = se_r_n, se_t = se_r_t,
-        se_b = se_r_b, se_i = se_r_i, missingValue = missingValue)
+    ECDFServer("ECDF", se = se_r, se_b = se_r_b, se_n = se_r_n,
+        se_t = se_r_t, se_i = se_r_i, missingValue = missingValue)
     
     ## distances
     distUIServer("distUI", missingValue = missingValue)
     distServer("distUI-distRaw", se = se_r, assay = a,
         method = shiny::reactive(input$methodDistMat), 
         label = shiny::reactive(input$groupDist), type = "raw")
+    distServer("distBatch", se = se_r, assay = a_b,
+        method = shiny::reactive(input$methodDistMat), 
+        label = shiny::reactive(input$groupDist), type = "batch corrected")
     distServer("distNorm", se = se_r, assay = a_n,
         method = shiny::reactive(input$methodDistMat), 
         label = shiny::reactive(input$groupDist), type = "normalized")
     distServer("distTransf", se = se_r, assay = a_t, 
         method = shiny::reactive(input$methodDistMat),
         label = shiny::reactive(input$groupDist), type = "transformed")
-    distServer("distBatch", se = se_r, assay = a_b,
-        method = shiny::reactive(input$methodDistMat), 
-        label = shiny::reactive(input$groupDist), type = "batch corrected")
     distServer("distImp", se = se_r, assay = a_i,
         method = shiny::reactive(input$methodDistMat), 
         label = shiny::reactive(input$groupDist), type = "imputed")
@@ -494,7 +493,7 @@ shinyQC <- function(se, app_server = FALSE) {
     })
     
     ## Features
-    featureServer("features", se = se, a = a, a_n = a_n, a_t = a_t, a_b = a_b,
+    featureServer("features", se = se, a = a, a_b = a_b, a_n = a_n, a_t = a_t,
         a_i = a_i, missingValue = missingValue)
     
     ## TAB: Dimension reduction
@@ -641,10 +640,10 @@ shinyQC <- function(se, app_server = FALSE) {
         validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
         contrastMatrix = contrastMatrix)
     
-    fit_proDA <- fitServer("proDA", assay = a_b,
+    fit_proDA <- fitServer("proDA", assay = a_t,
             validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
             contrastMatrix = contrastMatrix) |>
-        shiny::bindCache(a_b(), modelMatrix(), contrastMatrix(), 
+        shiny::bindCache(a_t(), modelMatrix(), contrastMatrix(), 
                                                             cache = "session")
     
     ## create data.frame with the test results
@@ -676,8 +675,8 @@ shinyQC <- function(se, app_server = FALSE) {
 
                 params_l = list(
                     missingValue = missingValue,
-                    se_r = se_r(), se_n = se_r_n(), se_t = se_r_t(),
-                    se_b = se_r_b(), se_i = se_r_i(),
+                    se_r = se_r(), se_b = se_r_b(), se_n = se_r_n(),
+                    se_t = se_r_t(), se_i = se_r_i(),
                     sample_hist = input[["Sample_hist-typeHist"]],
                     sample_mosaic_f1 = input[["Sample_mosaic-mosaicf1"]],
                     sample_mosaic_f2 = input[["Sample_mosaic-mosaicf2"]])
@@ -767,9 +766,9 @@ shinyQC <- function(se, app_server = FALSE) {
         shiny::stopApp({
             se <- se_r_i()
             S4Vectors::metadata(se) <- list(
+                "batch corrected" = input$batch,
                 "normalized" = input$normalization,
-                "transformation" = input$transformation,
-                "batch corrected" = input$batch)
+                "transformation" = input$transformation)
 
             if (missingValue) {
                 S4Vectors::metadata(se)[["imputation"]] <- input$imputation
