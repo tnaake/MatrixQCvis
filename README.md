@@ -44,7 +44,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("MatrixQCvis")
 ```
 
-For the [development](http://bioconductor.org/packages/release/bioc/html/MatrixQCvis.html) 
+For the [development](http://bioconductor.org/packages/devel/bioc/html/MatrixQCvis.html) 
 version enter:
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
