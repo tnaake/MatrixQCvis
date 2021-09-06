@@ -133,8 +133,7 @@ boxPlotUIServer <- function(id, missingValue, se) {
 
                 shiny::selectInput(inputId = session$ns("orderCategory"), 
                     label = "Select variable to order samples",
-                    choices = colnames(SummarizedExperiment::colData(se)), 
-                        selected = "name") |> 
+                    choices = colnames(SummarizedExperiment::colData(se))) |> 
                         shinyhelper::helper(content = helperFile)
             })
 

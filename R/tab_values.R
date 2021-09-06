@@ -36,7 +36,7 @@
 #' 
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer 
-#' @importFrom tibble as_tibble
+#' @importFrom tibble as_tibble rownames_to_column
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
@@ -45,11 +45,19 @@
 create_boxplot <- function(se, orderCategory = colnames(colData(se)), 
     title = "", log2 = TRUE, violin = FALSE) {
 
+    
     ## match arguments for order
     orderCategory <- match.arg(orderCategory)
 
     ## access the assay slot
     a <- SummarizedExperiment::assay(se)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(assay(se)) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
 
     ## pivot_longer will create the columns name (containing the colnames of a)
     ## and value (containing the actual values)
@@ -63,9 +71,8 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
     ## order alphabetically: combine the levels of the orderCategory and add 
     ## the name (to secure that the levels are unique)
     ## add another column for the x_values
-    a_l <- dplyr::left_join(x = a_l, 
-        y = SummarizedExperiment::colData(se)[, c("name", orderCategory)], 
-        by = "name", copy = TRUE)
+    a_l <- dplyr::left_join(x = a_l, y = cD, 
+        by = c("name" = "rowname"), copy = TRUE)
     a_o <- paste(a_l[[orderCategory]], a_l[["name"]])
     a_o_u <- unique(a_o)
     a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
@@ -80,10 +87,10 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
         g <- g + ggplot2::geom_violin()
     }
     
-    g <- g + ggplot2::scale_x_discrete(labels = unique(a_l[["name"]])[order(a_o_u)])
+    g <- g + 
+        ggplot2::scale_x_discrete(labels = unique(a_l[["name"]])[order(a_o_u)])
     g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) + 
         ggplot2::ggtitle(title) + ggplot2::xlab("samples")
-
 }
 
 
@@ -139,7 +146,7 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
 #' @importFrom ggplot2 scale_color_manual scale_x_discrete xlab ylab theme
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly style 
-#' @importFrom tibble as_tibble
+#' @importFrom tibble as_tibble rownames_to_column
 #' @importFrom rlang .data
 #' 
 #' @export
@@ -154,8 +161,15 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     level <- match.arg(level)
     method <- match.arg(method)
     
+    ## access the assay slot
     a <- SummarizedExperiment::assay(se)
-    cD <- SummarizedExperiment::colData(se)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(a) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
     
     a <- tibble::as_tibble(a) 
     a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
@@ -169,7 +183,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         dplyr::across(dplyr::starts_with("value"), FUN, na.rm = TRUE))
 
     ## join with cD
-    tb <- dplyr::left_join(a_l, cD, by = "name", copy = TRUE)
+    tb <- dplyr::left_join(a_l, cD, by = c("name" = "rowname"), copy = TRUE)
     df <- as.data.frame(tb)
 
     df <- data.frame(df, col_ggplot_points = "all")
@@ -216,7 +230,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90), 
             legend.position = "none")
     g <- plotly::ggplotly(g, tooltip = c("text"))
-    g %>% plotly::style(hoveron = "fills", traces = 2)
+    g |> plotly::style(hoveron = "fills", traces = 2)
 }
 
 
@@ -345,6 +359,7 @@ plotCV <- function(df) {
 #' @importFrom stats ks.test
 #' @importFrom ggplot2 ggplot aes_string stat_ecdf theme_bw xlab ylab
 #' @importFrom ggplot2 ggtitle theme element_blank
+#' @importFrom tibble rownames_to_column
 #' 
 #' @return `gg` object from `ggplot2`
 #' 
@@ -356,10 +371,15 @@ ECDF <- function(se, sample = colnames(se),
     sample <- match.arg(sample)
     group <- match.arg(group)
     
-    ## obtain assay and colData from SummarizedExperiment object for 
-    ## further use 
+    ## access the assay slot
     a <- SummarizedExperiment::assay(se)
-    cd <- SummarizedExperiment::colData(se)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(a) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
     
     df <- data.frame(value = a[, sample], type = sample)
     
@@ -371,8 +391,8 @@ ECDF <- function(se, sample = colnames(se),
     ## truncate the indices based on the group (only use the group for the 
     ## comparison and the "outgroup")
     if (group != "all") {
-        g <- cd[cd[, "name"] == sample, group]
-        inds_nl <- inds_nl & cd[, group] == g
+        g <- cD[cD[, "rowname"] == sample, group]
+        inds_nl <- inds_nl & cD[, group] == g
     }
     
     rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
@@ -597,7 +617,7 @@ sumDistSample <- function(d, title = "raw") {
 #' 
 #' @importFrom dplyr pull left_join
 #' @importFrom SummarizedExperiment assay colData
-#' @importFrom tibble as_tibble add_column tibble
+#' @importFrom tibble as_tibble add_column tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
 #' 
 #' @export
@@ -606,10 +626,15 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     ## check arguments group
     group <- match.arg(group)
 
-    ## retrieve the assay and colData entries
+    ## access the assay slot
     a <- SummarizedExperiment::assay(se)
-    cd <- SummarizedExperiment::colData(se)
-    cd <- as.data.frame(cd)
+    
+    ## access the colData slot and add the rownames as a new column to cD
+    ## (will add the column "rowname")
+    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    if (!all(colnames(a) == rownames(cD)))
+        stop("colnames(assay(se)) do not match rownames(colData(se))")
+    cD <- tibble::rownames_to_column(cD)
 
     if (ncol(a) < 2)
         stop("MAplot needs more than one samples")
@@ -630,8 +655,8 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
         ## truncate the indices based on the group (only use the group for the 
         ## comparison and the "outgroup")
         if (group != "all") {
-            g <- cd[cd[, "name"] == i, group]
-            inds_nl <- inds_nl & cd[, group] == g
+            g <- cD[cD[, "rowname"] == i, group]
+            inds_nl <- inds_nl & cD[, group] == g
         }
 
         rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
@@ -649,7 +674,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
 
     tbl <- tibble::tibble(A_l, M = dplyr::pull(M_l, "M")) 
-    tbl <- dplyr::left_join(x = tbl, y = cd, by = c("name"))
+    tbl <- dplyr::left_join(x = tbl, y = cD, by = c("name" = "rowname"))
 
     return(tbl)
 }
@@ -1053,7 +1078,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
     df <- data.frame(feature = rownames(l[[1]]), l_cv)
     df <- tidyr::pivot_longer(df, cols = 2:ncol(df))
     df$name <- factor(df$name, levels = names(l))
-    df <- df %>% 
+    df <- df |> 
         dplyr::mutate(x = as.numeric(as.factor(df$name)))
     
     df$x_jitter <- jitter(df$x)

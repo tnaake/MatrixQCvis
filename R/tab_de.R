@@ -63,7 +63,6 @@
 #' @importFrom limma makeContrasts eBayes topTable
 #' @importFrom stats model.matrix
 #' @importFrom proDA proDA test_diff
-#' @importFrom dplyr `%>%`
 #' @importFrom ggplot2 ggplot aes_string geom_point ylab xlab theme_bw
 #' @importFrom plotly ggplotly style
 #' 
@@ -112,7 +111,7 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
     name_text <- paste("name:", df$name)
     
     ## return 
-    pp %>% 
+    pp |>
         plotly::style(pp, text = paste0(name_text, "</br></br>",  pvalue_text,
                                 "</br>", fc_text, "</br>", log10_text))
 }
