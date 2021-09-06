@@ -35,7 +35,8 @@ install_github("tnaake/MatrixQCvis")
 Alternatively, the _MatrixQCvis_ package can also be installed via the 
 Bioconductor project. 
 
-For the release version enter:
+For the (release)(http://bioconductor.org/packages/release/bioc/html/MatrixQCvis.html) 
+version enter:
 
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -43,7 +44,8 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("MatrixQCvis")
 ```
 
-For the development version enter:
+For the (development)(http://bioconductor.org/packages/release/bioc/html/MatrixQCvis.html) 
+version enter:
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
