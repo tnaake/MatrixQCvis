@@ -432,7 +432,7 @@ shinyQC <- function(se, app_server = FALSE) {
         violin = shiny::reactive(input$violinPlot), type = "raw")
     boxPlotServer("boxBatch", se = se_r_b, 
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
-        boxLog = function() FALSE,
+        boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "transformed")
     boxPlotServer("boxNorm", se = se_r_n, 
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
