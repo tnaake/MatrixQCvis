@@ -72,18 +72,18 @@ tP_boxplotUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Boxplot/Violin plot",
         shiny::fluidRow(
-            shiny::column(4, 
+            shiny::column(6, 
                 shiny::radioButtons(inputId = "boxLog",
                     label = HTML("Display log2 values? <br>
-                        (only for 'raw' and 'normalized')"),
+                        (only for 'raw', 'batch corrected' and 'normalized')"),
                     choices = list("no log2", "log2"),
                     selected = "no log2")),
-            shiny::column(4, 
+            shiny::column(3, 
                 shiny::radioButtons(inputId = "violinPlot",
                     label = "Type of display", 
                     choices = list("boxplot", "violin"), 
                      selected = "boxplot")),
-            shiny::column(4, shiny::uiOutput(ns("orderCategoryUI")))
+            shiny::column(3, shiny::uiOutput(ns("orderCategoryUI")))
         ),
         fR_boxplotUI("boxRaw", "raw", collapsed = FALSE),
         fR_boxplotUI("boxBatch", "batch corrected", collapsed = TRUE),
@@ -604,18 +604,19 @@ box_meanSdUI <- function(id, name) {
 #' `tP_meanSdUI` returns the HTML code for the tab-pane 'mean-sd plot'. 
 #' Internal function for `shinyQC`.
 #' 
+#' @param id `character`
+#'
 #' @return 
 #' `shiny.tag` with HTML content
 #'
 #' @author Thomas Naake
 #' 
 #' @examples 
-#' tP_meanSdUI()
+#' tP_meanSdUI("")
 #' 
 #' @importFrom shiny tabPanel fluidRow uiOutput conditionalPanel
 #' 
 #' @noRd
-#' ##############################################################################
 tP_meanSdUI <- function(id) {
 
     ns <- shiny::NS(id)
@@ -704,6 +705,7 @@ meanSdServer <- function(id, assay, type, missingValue) {
         function(input, output, session) {
 
             p_meansd <- shiny::reactive({
+                req(assay())
                 vsn::meanSdPlot(assay(), ranks = TRUE)$gg
             })
             output$meanSd <- shiny::renderPlot({
@@ -878,6 +880,11 @@ maServer <-  function(id, se, se_b, se_n, se_t, se_i, innerWidth,
                     shiny::bindCache(se(), input$groupMA, cache = "session")
             
             vals_b <- shiny::reactive({
+                if (any(SummarizedExperiment::assay(se_b()) < 0, na.rm = TRUE)) {
+                    log2_se <- FALSE 
+                } else {
+                    log2_se <- TRUE
+                }
                 MAvalues(se_b(), log2_se, input$groupMA)}) |>
                 shiny::bindCache(se_b(), input$groupMA, cache = "session")
             
