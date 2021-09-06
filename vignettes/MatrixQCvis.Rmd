@@ -106,7 +106,8 @@ transcripts, peptides, proteins, or metabolites) and the columns represent the
 samples. The 
 `SummarizedExperiment` object stores also information on the features of 
 interest (accessible by `rowData`) and information on the samples
-(accessible by `colData`). 
+(accessible by `colData`). The name of samples and features will be accessed
+from `colnames(se)` and `rownames(se)`, respectively.
 
 If there is more than one experimental data set (`assay`)
 stored in the `SummarizedExperiment` object, a select option will appear in the 
@@ -202,16 +203,16 @@ the selection to take place.
 In addition, in the tabs `Values`, 
 `Dimension Reduction`, and `DE`, the sidebars allows the user for 
 
- - normalization: currently the methods `sum`, `quantile divion`, `quantile`
-   and `none`, i.e. no normalization, are supported;
- - transformation: currently the methods `log2`, `vsn` 
-   (variance stabilizing normalization/transformation, @Huber2002), and `none`, i.e.
-   no transformation, are supported;
  - batch correction: currently the methods `removeBatchEffect` from the `limma`
    package [@Ritchie2015] and `none`, i.e. no batch correction, are supported.
    It is highly advised to consult the dimension reduction plots before 
    performing any batch correction. Batch correction should not be done based 
    solely on (count/intensity) value distributions (boxplots/violin plots);
+ - normalization: currently the methods `sum`, `quantile divion`, `quantile`
+   and `none`, i.e. no normalization, are supported;
+ - transformation: currently the methods `log2`, `vsn` 
+   (variance stabilizing normalization/transformation, @Huber2002), and `none`, i.e.
+   no transformation, are supported;
  - imputation (only for `SummarizedExperiment` containing missing values): 
    currently the methods `BPCA`, `KNN`, `MLE`, `Min`, `MinDet`, 
    and `MinProb` are supported (see also @Lazar2016 for a review on 
@@ -230,9 +231,9 @@ If the supplied `SummarizedExperiment` contains missing values, the
 `SummarizedExperiment` with batch corrected values is returned.
 
 The `metadata` slot contains information about the method of 
+ - the batch correction,
  - the normalization,
- - the transformation,
- - the batch correction, and
+ - the transformation, and
  - the imputation of (count/intensity) values (if the supplied 
    `SummarizedExperiment` contains missing values).
 
@@ -395,19 +396,20 @@ The tab `Values` will take a closer look on the `assay` slot of the
 
 ## Boxplot/Violin plot
 
-This panel shows the (count/intensity) values for raw (`raw`), normalized 
-(`normalized`), normalized+transformed (`transformed`), 
-normalized+transformed+batch corrected (`batch corrected`), and
-normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) 
+This panel shows the (count/intensity) values for raw (`raw`), 
+batch corrected (`batch corrected`), batch corrected+normalized (`normalized`),
+batch corrected+normalized+transformed (`transformed`), and
+batch corrected+normalized+transformed+imputed (`imputed`) (count/intensity) 
 values (imputation of missing values, `imputed` will only be shown if there are 
 missing values in the `SummarizedExperiment`). As already mentioned, the 
-different methods for normalization, transformation, batch correction (and 
+different methods for batch correction, normalization, transformation (and 
 imputation) are specified in 
 the side panel.
 
-For visualization purposes only, the (count/intensity) values for the raw and 
-normalized data sets can be `log2` transformed (see the radio buttons in
-`Display log2 values? (only for 'raw' and 'normalized')`).
+For visualization purposes only, the (count/intensity) values for the raw,
+batch corrected and normalized data sets can be `log2` transformed (see the 
+radio buttons in
+`Display log2 values? (only for 'raw', 'batch corrected' and 'normalized')`).
 
 The type of visualization (boxplot or violin plot) can be specified by 
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
@@ -425,13 +427,12 @@ shows the sum- or median-aggregated values (specified in
 `Select aggregation`). The plot displays trends in data
 acquisition that originate e.g. from differences in instrument 
 sensitivity. The panel displays aggregated values for 
-raw (`raw`), normalized 
-(`normalized`), normalized+transformed (`transformed`), 
-normalized+transformed+batch corrected (`batch corrected`), and
-normalized+transformed+batch corrected+imputed (`imputed`) (count/intensity) values 
+raw (`raw`), batch corrected (`batch corrected`), batch corrected+normalized 
+(`normalized`), batch corrected+normalized+transformed (`transformed`), and
+batch corrected+normalized+transformed+imputed (`imputed`) (count/intensity) values 
 (imputation of missing values, `imputed` will only be shown if there are missing
 values in the `SummarizedExperiment`). 
-The different methods for normalization, transformation, batch correction (and 
+The different methods for batch correction, normalization, transformation (and 
 imputation) are specified in the sidebar panel. 
 
 The smoothing is calculated from the 
@@ -471,11 +472,12 @@ partial_bundle(driftPlot(se, aggregation = "median", category = "type",
 ## Coefficient of variation
 
 This panel shows the coefficient of variation values for raw (`raw`),
-normalized (`normalized`), normalized+transformed+batch corrected 
-(`transformed`), and normalized+transformed+batch corrected+imputed (`imputed`) 
+batch corrected (`batch corrected`), batch corrected+normalized (`normalized`),
+batch corrected+normalized+transformed (`transformed`), and 
+batch corrected+normalized+transformed+imputed (`imputed`) 
 (count/intensity) values (imputation of missing values, `imputed` will only be shown 
 if there are missing values in the `SummarizedExperiment`) among the samples. 
-The different methods for normalization, transformation, batch correction 
+The different methods for batch corrected, normalization, transformation,
 (and imputation) are specified in the sidebar panel. 
 
 The panel displays the coefficient of variation values from the samples of the
@@ -492,20 +494,21 @@ normalization), transformed values (using `vsn`), batch corrected values
 ```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
 a <- assay(se)
 se_t <- se
-a_n <- a %>% normalizeAssay(., "sum")
-a_t <- a_n %>% transformAssay(., "vsn")
+a_b <- batchCorrectionAssay(se, method = "none")
+a_n <- normalizeAssay(a_b, "sum")
+a_t <- transformAssay(a_n, "vsn")
 assay(se_t) <- a_t
-a_b <- se_t %>% batchCorrectionAssay(., method = "none")
-a_i <- a_b %>% imputeAssay(., "MinDet")
+
+a_i <- imputeAssay(a_t, "MinDet")
 
 ## calculate cv values
 cv_r <- cv(a, "raw")
+cv_b <- cv(a_b, "batch corrected")
 cv_n <- cv(a_n, "normalized")
 cv_t <- cv(a_t, "transformed")
-cv_b <- cv(a_b, "batch corrected")
 cv_i <- cv(a_i, "imputed")
  
-df <- data.frame(cv_r, cv_n, cv_t, cv_b, cv_i)
+df <- data.frame(cv_r, cv_b, cv_n, cv_t, cv_i)
 plotCV(df)
 ```
 
@@ -513,9 +516,8 @@ plotCV(df)
 ## Mean-sd plot
 
 The panel shows the three mean-sd (standard deviation) plots for
-normalized+transformed (`transformed`), 
-normalized+transformed+batch corrected (`batch corrected`),
-and normalized+transformed+batch corrected+imputed (`imputed`) values
+batch corrected+normalized+transformed (`transformed`)
+and batch corrected+normalized+transformed+imputed (`imputed`) values
 (`imputed` will only be shown if there are missing
 values in the `SummarizedExperiment`). 
 The sd and mean are calculated feature-wise from the values of the respective 
@@ -541,9 +543,9 @@ The values are defined as follows
  - $M =  I_i−I_j$ ,
  
  where $I_i$ and $I_j$  are transformed values. 
- In the case of `raw` or `normalized` the values are `log2`-transformed 
- prior to calculating `A` and `M`. In case of `transformed`,
- `batch corrected`, or `imputed` the values are taken as they are 
+ In the case of `raw`, `batch corrected`, or `normalized` the values are
+ `log2`-transformed prior to calculating `A` and `M`. In case of `transformed`
+ or `imputed` the values are taken as they are 
  (N.B. when the transformation method is set to `none` the values are not 
  `log2`-transformed).
    
@@ -564,8 +566,8 @@ The underlying data set can be selected by the drop-down menu
 (`Data set for the MA plot`).
 
 In the second part of the panel, the Hoeffding's D statistic values are 
-visualized for the different data sets `raw`, `normalized`, `transformed`, 
-`batch corrected`, and `imputed` (`imputed` will only be shown if there are
+visualized for the different data sets `raw`, `batch corrected`, `normalized`,
+`transformed`, and `imputed` (`imputed` will only be shown if there are
 missing values in the `SummarizedExperiment`).
 
 `D` is a measure of the distance between `F(A, M)` and `G(A)H(M)`, where 
@@ -573,9 +575,8 @@ missing values in the `SummarizedExperiment`).
 and `G` and `H` are marginal CDFs. The higher the value of `D`, the more 
 dependent are `A` and `M`. The `D` values are connected for the same 
 samples along the different data sets (when `lines` is selected), enabling the
-user to track the influence of 
-normalization, transformation, batch correction (and imputation) methods on the 
-`D` values. 
+user to track the influence of batch corrected, normalization, 
+transformation (and imputation) methods on the `D` values. 
 
 The MA plot using the raw values and `group = "all"` will look like the 
 following (`plot` = "Sample_1-1"`):
@@ -609,12 +610,13 @@ ECDF(se, "Sample_1-1", group = "all")
 ## Distance matrix
 On the left, the panel depicts heatmaps of distances between samples for 
 the data sets of
-raw (`raw`), normalized (`normalized`), normalized+transformed 
-(`transformed`), normalized+transformed+batch corrected (`batch corrected`)
-and normalized+transformed+imputed (`imputed`, `imputed` will only be shown if 
-there are missing values in the `SummarizedExperiment`).
-The annotation of the heatmaps can be adjusted by the drop-down
-menu `annotation`.
+raw (`raw`), batch corrected (`batch corrected`), 
+batch corrected+normalized (`normalized`), 
+batch corrected+normalized+transformed (`transformed`), and 
+batch corrected+normalized+transformed+imputed (`imputed`, 
+`imputed` will only be shown if there are missing values in the 
+`SummarizedExperiment`). The annotation of the heatmaps can be adjusted by 
+the drop-down menu `annotation`.
 
 On the right panel the sum of distances to other samples is depicted.
 
@@ -635,8 +637,8 @@ The feature to be displayed is selected via the drop-down menu
 **Select feature**. 
 
 ```{r featurePlot, eval=TRUE, echo=FALSE}
-l_assays <- list(raw = a, normalized = a_n, transformed = a_t,
-   `batch.corrected` = a_b, imputed = a_i)
+l_assays <- list(raw = a, `batch.corrected` = a_b, normalized = a_n, 
+   transformed = a_t, imputed = a_i)
 df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
 featurePlot(df_feature)
 ```

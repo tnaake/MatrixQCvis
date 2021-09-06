@@ -117,7 +117,7 @@ test_that("box_meanSdUI", {
 
 ## tP_meanSdUI
 test_that("tP_meanSdUI", {
-    expect_is(tP_meanSdUI(), "shiny.tag")
+    expect_is(tP_meanSdUI(""), "shiny.tag")
 })
 
 ## meanSdUIServer
