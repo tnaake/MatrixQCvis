@@ -191,7 +191,7 @@ validFormulaMMServer <- function(id, expr, action, se) {
 #' library(SummarizedExperiment)
 #' 
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
+#' a <- matrix(1:100, nrow = 10, ncol = 10,
 #'             dimnames = list(1:10, paste("sample", 1:10)))
 #' a[c(1, 5, 8), 1:5] <- NA
 #' set.seed(1)

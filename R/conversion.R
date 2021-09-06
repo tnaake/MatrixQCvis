@@ -116,7 +116,7 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
     
     type <- match.arg(type)
     
-    xls <- openxlsx::read.xlsx(file, header = TRUE, sheet = sheet, ...)
+    xls <- openxlsx::read.xlsx(file, sheet = sheet, ...)
     
     ## names of proteins is in the first col, assign and remove the first col
     rownames(xls) <- xls[, 1]
