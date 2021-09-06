@@ -1,3 +1,13 @@
+Changes in version 1.1.2 (2021-09-06)
++ take sample IDs for shinyQC from colnames(se)
++ take feature IDs for shinyQC from rownames(se)
++ fix error in report.Rmd (change input for 
+  create_boxplot to se)
+
+Changes in version 1.1.1 (2021-08-27)
++ fix bug in biocrates and maxQuant function
+
+
 Changes in version 0.99.12 (2021-05-18)
 + replace xlsx by openxlsx
 
