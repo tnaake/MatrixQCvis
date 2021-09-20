@@ -23,7 +23,7 @@
 tag_loadMessage <- function() {
     l <- shiny::tagList(
         ##
-        shiny::tags$head(tags$script("
+        shiny::tags$head(shiny::tags$script("
             $(document).on('shiny:connected', function(e) {
                 Shiny.onInputChange('innerWidth', window.innerWidth);
             });
@@ -32,7 +32,7 @@ tag_loadMessage <- function() {
             });
         ")),
         ## loading panel when app busy
-        shiny::tags$head(tags$style(type="text/css", "
+        shiny::tags$head(shiny::tags$style(type="text/css", "
                 #loadmessage {
                     position: fixed;
                     top: 0px;
@@ -48,7 +48,7 @@ tag_loadMessage <- function() {
                 }
         ")),
         shiny::conditionalPanel(condition = "$('html').hasClass('shiny-busy')",
-            tags$div("Loading...",id = "loadmessage"))      
+            shiny::tags$div("Loading...",id = "loadmessage"))      
     )
     return(l)
 }
