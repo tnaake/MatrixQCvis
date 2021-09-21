@@ -127,7 +127,7 @@ sidebar_assayUI <- function() {
         
         ## select type of batch correction
         shiny::selectInput(inputId = "batch",
-            label = strong("Batch correction method"),
+            label = shiny::strong("Batch correction method"),
             choices = c("none", "removeBatchEffect (limma)"), 
             selected = "none"),
         shiny::conditionalPanel(
@@ -145,7 +145,7 @@ sidebar_assayUI <- function() {
 
         ## select type of transformation
         shiny::selectInput(inputId = "transformation",
-            label = strong("Transformation method"),
+            label = shiny::strong("Transformation method"),
             choices = c("none", "log2", "vsn"), selected = "none")
         )
 }
