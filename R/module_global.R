@@ -125,15 +125,6 @@ sidebar_assayUI <- function() {
     shiny::conditionalPanel(
         condition = "input.tabs == 'Dimension Reduction' | input.tabs == 'Values'",
         
-        ## select type of batch correction
-        shiny::selectInput(inputId = "batch",
-            label = shiny::strong("Batch correction method"),
-            choices = c("none", "removeBatchEffect (limma)"), 
-            selected = "none"),
-        shiny::conditionalPanel(
-            condition = "input.batch == 'removeBatchEffect (limma)'",
-            shiny::uiOutput("batchCol")),
-        
         ## select type of normalization
         shiny::selectInput(inputId = "normalization",
             label = shiny::strong("Normalization method"),
@@ -142,6 +133,15 @@ sidebar_assayUI <- function() {
         shiny::conditionalPanel(
             condition = "input.normalization == 'quantile division'",
             shiny::uiOutput("quantDiv")),
+        
+        ## select type of batch correction
+        shiny::selectInput(inputId = "batch",
+            label = shiny::strong("Batch correction method"),
+            choices = c("none", "removeBatchEffect (limma)"), 
+            selected = "none"),
+        shiny::conditionalPanel(
+            condition = "input.batch == 'removeBatchEffect (limma)'",
+            shiny::uiOutput("batchCol")),
 
         ## select type of transformation
         shiny::selectInput(inputId = "transformation",

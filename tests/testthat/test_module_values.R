@@ -61,18 +61,18 @@ test_that("driftServer", {
         output <- new.env()
         session <- new.env()
         se <- new.env()
-        se_b <- new.env()
         se_n <- new.env()
+        se_b <- new.env()
         se_t <- new.env()
         se_i <- new.env()
         dataType <- new.env()
         aggregation <- new.env()
         method <- new.env()
         
-        out <- driftServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t, 
+        out <- driftServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t, 
             se_i = se_i, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- driftServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t, 
+        out <- driftServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t, 
             se_i = se_i, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })
@@ -96,15 +96,15 @@ test_that("cvServer", {
         output <- new.env()
         session <- new.env()
         a_r <- new.env()
-        a_b <- new.env()
         a_n <- new.env()
+        a_b <- new.env()
         a_t <- new.env()
         a_i <- new.env()
         
-        out <- cvServer("", a_r = a_r, a_b = a_b, a_n = a_n, a_t = a_t,
+        out <- cvServer("", a_r = a_r, a_n = a_n, a_b = a_b, a_t = a_t,
             a_i = a_i, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- cvServer("", a_r = a_r, a_b = a_b, a_n = a_n, a_t = a_t,
+        out <- cvServer("", a_r = a_r, a_n = a_n, a_b = a_b, a_t = a_t,
             a_i = a_i, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })
@@ -164,16 +164,16 @@ test_that("maServer", {
         output <- new.env()
         session <- new.env()
         se <- new.env()
-        se_b <- new.env()
         se_n <- new.env()
+        se_b <- new.env()
         se_t <- new.env()
         se_i <- new.env()
         innerWidth <- new.env()
         
-        out <- maServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t,
+        out <- maServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t,
             se_i = se_i, innerWidth = innerWidth, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- maServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t,
+        out <- maServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t,
             se_i = se_i, innerWidth = innerWidth, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })
@@ -191,15 +191,15 @@ test_that("ECDFServer", {
         output <- new.env()
         session <- new.env()
         se <- new.env()
-        se_b <- new.env()
         se_n <- new.env()
+        se_b <- new.env()
         se_t <- new.env()
         se_i <- new.env()
         
-        out <- ECDFServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t,
+        out <- ECDFServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t,
             se_i = se_i, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- ECDFServer("", se = se, se_b = se_b, se_n = se_n, se_t = se_t,
+        out <- ECDFServer("", se = se, se_n = se_n, se_b = se_b, se_t = se_t,
             se_i = se_i, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })
@@ -241,15 +241,15 @@ test_that("featureServer", {
         session <- new.env()
         se <- reactive(se)
         a <- reactive(assay(se))
-        a_b <- new.env()
         a_n <- new.env()
+        a_b <- new.env()
         a_t <- new.env()
         a_i <- new.env()
         
-        out <- featureServer(id = "", se = se, a = a, a_b = a_b, a_n = a_n,
+        out <- featureServer(id = "", se = se, a = a, a_n = a_n, a_b = a_b,
             a_t = a_t, a_i = a_i, missingValue = TRUE)
         expect_is(out, "shiny.render.function")
-        out <- featureServer(id = "", se = se, a = a, a_b = a_b, a_n = a_n, 
+        out <- featureServer(id = "", se = se, a = a, a_n = a_n, a_b = a_b, 
             a_t = a_t, a_i = a_i, missingValue = FALSE)
         expect_is(out, "shiny.render.function")
     })
