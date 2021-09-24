@@ -53,11 +53,11 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
     a <- SummarizedExperiment::assay(se)
     
     ## access the colData slot and add the rownames as a new column to cD
-    ## (will add the column "rowname")
+    ## (will add the column "x5at1t1g161asy")
     cD <- SummarizedExperiment::colData(se) |> as.data.frame()
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
+    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
 
     ## pivot_longer will create the columns name (containing the colnames of a)
     ## and value (containing the actual values)
@@ -72,7 +72,7 @@ create_boxplot <- function(se, orderCategory = colnames(colData(se)),
     ## the name (to secure that the levels are unique)
     ## add another column for the x_values
     a_l <- dplyr::left_join(x = a_l, y = cD, 
-        by = c("name" = "rowname"), copy = TRUE)
+        by = c("name" = "x5at1t1g161asy"), copy = TRUE)
     a_o <- paste(a_l[[orderCategory]], a_l[["name"]])
     a_o_u <- unique(a_o)
     a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
@@ -165,11 +165,11 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     a <- SummarizedExperiment::assay(se)
     
     ## access the colData slot and add the rownames as a new column to cD
-    ## (will add the column "rowname")
+    ## (will add the column "x5at1t1g161asy")
     cD <- SummarizedExperiment::colData(se) |> as.data.frame()
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(a) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
+    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
     
     a <- tibble::as_tibble(a) 
     a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
@@ -183,7 +183,8 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         dplyr::across(dplyr::starts_with("value"), FUN, na.rm = TRUE))
 
     ## join with cD
-    tb <- dplyr::left_join(a_l, cD, by = c("name" = "rowname"), copy = TRUE)
+    tb <- dplyr::left_join(a_l, cD, 
+        by = c("name" = "x5at1t1g161asy"), copy = TRUE)
     df <- as.data.frame(tb)
 
     df <- data.frame(df, col_ggplot_points = "all")
@@ -375,11 +376,11 @@ ECDF <- function(se, sample = colnames(se),
     a <- SummarizedExperiment::assay(se)
     
     ## access the colData slot and add the rownames as a new column to cD
-    ## (will add the column "rowname")
+    ## (will add the column "x5at1t1g161asy")
     cD <- SummarizedExperiment::colData(se) |> as.data.frame()
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(a) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
+    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
     
     df <- data.frame(value = a[, sample], type = sample)
     
@@ -391,7 +392,7 @@ ECDF <- function(se, sample = colnames(se),
     ## truncate the indices based on the group (only use the group for the 
     ## comparison and the "outgroup")
     if (group != "all") {
-        g <- cD[cD[, "rowname"] == sample, group]
+        g <- cD[cD[, "x5at1t1g161asy"] == sample, group]
         inds_nl <- inds_nl & cD[, group] == g
     }
     
@@ -630,11 +631,11 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     a <- SummarizedExperiment::assay(se)
     
     ## access the colData slot and add the rownames as a new column to cD
-    ## (will add the column "rowname")
+    ## (will add the column "x5at1t1g161asy")
     cD <- SummarizedExperiment::colData(se) |> as.data.frame()
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
+    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
 
     if (ncol(a) < 2)
         stop("MAplot needs more than one samples")
@@ -655,7 +656,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
         ## truncate the indices based on the group (only use the group for the 
         ## comparison and the "outgroup")
         if (group != "all") {
-            g <- cD[cD[, "rowname"] == i, group]
+            g <- cD[cD[, "x5at1t1g161asy"] == i, group]
             inds_nl <- inds_nl & cD[, group] == g
         }
 
@@ -674,7 +675,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
 
     tbl <- tibble::tibble(A_l, M = dplyr::pull(M_l, "M")) 
-    tbl <- dplyr::left_join(x = tbl, y = cD, by = c("name" = "rowname"))
+    tbl <- dplyr::left_join(x = tbl, y = cD, by = c("name" = "x5at1t1g161asy"))
 
     return(tbl)
 }
