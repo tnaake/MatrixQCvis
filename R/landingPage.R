@@ -94,7 +94,6 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 shinyjs::show("tabPanelSE")
                 shinyjs::show("sidebarPanelSE")
                 shinyjs::hide("uploadSE")
-                if (!app_server) shinyjs::show("sidebarStop")
                 FUN(SE = se2, MISSINGVALUE = missingValue2)
             }
         }, ignoreNULL = TRUE, ignoreInit = TRUE)

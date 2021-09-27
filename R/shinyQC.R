@@ -27,8 +27,7 @@
 #' 
 #' `shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
 #' 
-#' On exit of the shiny application (only via the button 
-#' 'Stop and export data set'), the (subsetted) `SummarizedExperiment` 
+#' On exit of the shiny application, the (subsetted) `SummarizedExperiment` 
 #' object is returned
 #' with information on the processing steps (normalization, 
 #' transformation, batch correction and imputation). The object will 
@@ -65,15 +64,11 @@
 #' @author Thomas Naake
 #' 
 #' @return `shiny` application, 
-#' `SummarizedExperiment` upon exiting the `shiny` application (the 
-#' object will be returned only when exiting the application
-#' via the button 'Stop and export data set')
+#' `SummarizedExperiment` upon exiting the `shiny` application
 #'
 #' @export
 shinyQC <- function(se, app_server = FALSE) {
 
-   e1 <- new.env(parent = emptyenv())
-    
     has_se <- !missing(se)
     if (has_se) {
         if (!is(se, "SummarizedExperiment")) 
@@ -102,6 +97,21 @@ shinyQC <- function(se, app_server = FALSE) {
         se <- NULL
     }
 
+    ## create environment to store the modified SummarizedExperiment object 
+    ## into, on exiting the shiny application return the object stored in
+    ## env_se$se_return (this will be NULL in case there was no 
+    ## SummarizedExperiment loaded yet or a modified version of the 
+    ## SummarizedExperiment depending on the user input in the shiny 
+    ## environment)
+    env_se <- new.env(parent = emptyenv())
+    env_se$se_return <- NULL
+    
+    on.exit(expr = if (!app_server) {
+        return(invisible(env_se$se_return))
+    })
+    
+    ## define the values of the host, set to 0.0.0.0 in the server mode, that 
+    ## other clients can connect to the host, otherwise set to localhost 
     if (app_server) {
         host <- getOption("shiny.host", "0.0.0.0")
     } else {
@@ -130,14 +140,10 @@ shinyQC <- function(se, app_server = FALSE) {
                     ## create sidebar for tab 'DE' (input for model 
                     ## matrix/contrasts) sidebar_UI()
                     sidebar_DEUI(), 
-                    ## sidebar for excluding samples from se_r, generating 
-                    ## report and exporting data set
+                    ## sidebar for excluding samples from se_r and generating 
+                    ## report
                     sidebar_excludeSampleUI(id = "select"), 
                     sidebar_reportUI(),
-                    shinyjs::hidden(
-                        shiny::div(id = "sidebarStop",
-                            sidebar_stopUI(app_server = app_server))
-                    ),
                     ## sidebar for selecting assay in multi-assay 
                     ## SummarizedExperiment
                     sidebar_selectAssayUI(choicesAssaySE = choicesAssaySE)
@@ -170,8 +176,7 @@ shinyQC <- function(se, app_server = FALSE) {
         ),
         shiny::div(id = "uploadSE", 
             shiny::uiOutput("allPanels")
-        ), ###########################################################
-
+        )
     )))
 
     ## define server function
@@ -180,7 +185,8 @@ shinyQC <- function(se, app_server = FALSE) {
         if (!has_se) {
             FUN <- function(SE, MISSINGVALUE) {
                 .initialize_server(se = SE, input = input, output = output, 
-                    session = session, missingValue = MISSINGVALUE, envir = e1)
+                    session = session, missingValue = MISSINGVALUE, 
+                    envir = env_se)
             }
             landingPage(FUN, input = input, output = output, session = session, 
                 app_server = app_server)
@@ -194,9 +200,9 @@ shinyQC <- function(se, app_server = FALSE) {
                 target = "Measured Values", position = "after")
             shinyjs::show("tabPanelSE")
             shinyjs::show("sidebarPanelSE")
-            if (!app_server) shinyjs::show("sidebarStop")
             .initialize_server(se = se, input = input, output = output, 
-                session = session, missingValue = missingValue, envir = e1)
+                session = session, missingValue = missingValue,
+                envir = env_se)
         }
         
     } ## end of server
@@ -205,27 +211,7 @@ shinyQC <- function(se, app_server = FALSE) {
     ## run the app
     app <- list(ui = ui, server = server)
     
-    # e1 <- new.env()
-    e1$se_return <- NULL
-    on.exit(expr = if (!app_server) {
-        print(environmentName(environment()))
-        #rm(se_return, envir = globalenv())
-        
-            #if (exists("se_return", envir = .GlobalEnv) rm("se_return", envir = .GlobalEnv)
-        return(e1$se_return)
-    })
-    
     shiny::runApp(app, host = host, launch.browser = !app_server, port = 3838)
-    
-    # shiny::shinyApp(ui = ui, server = server,
-    #     options = list(host = host, launch.browser = !app_server, port = 3838))#,
-        # onStart = function() {
-        #     cat("hello")
-        #     onStop(function() {
-        #         function() return(NULL)
-        #     })
-    #})
-    
 }
 
 #' @name .initialize_server
@@ -241,7 +227,11 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @param input `shiny` input object
 #' @param output `shiny` output object
 #' @param session `shiny` session object
-#' 
+#' @param missingValue `logical`, specifying if the `SummarizedExperiment` 
+#' object contains missing values in the assay slot
+#' @param envir `environment`, `environment` to store the modified 
+#' `SummarizedExperiment` object into
+#'
 #' @return 
 #' Observers and reactive server expressions for all app elements
 #' 
@@ -251,7 +241,7 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @importFrom shinyhelper observe_helpers
 #' @importFrom shiny renderText req outputOptions reactive observe sliderInput
 #' @importFrom shiny updateCheckboxInput renderUI observeEvent showModal 
-#' @importFrom shiny modalDialog withProgress stopApp downloadHandler
+#' @importFrom shiny modalDialog withProgress downloadHandler
 #' @importFrom shiny reactiveValues bindCache
 #' 
 #' @author Thomas Naake
@@ -260,14 +250,17 @@ shinyQC <- function(se, app_server = FALSE) {
 .initialize_server <- function(se, input, output, session, 
                                     missingValue = TRUE, envir = new.env()) {
     
+    if (!is.logical(missingValue)) stop("missingValue has to be logical")
+    if (!is(envir, "environment")) stop("envir has to be of class environment")
+
     output$keepAlive <- shiny::renderText({
         shiny::req(input$keepAlive)
         paste("keep alive", input$keepAlive)
     })
-    
+
     output$missingVals <- shiny::renderText({missingValue})
     shiny::outputOptions(output, "missingVals", suspendWhenHidden = FALSE)
-    
+
     ## create server to select assay in multi-assay se
     output$lengthAssays <- shiny::renderText({
         if (length(SummarizedExperiment::assays(se)) > 1) {
@@ -778,7 +771,8 @@ shinyQC <- function(se, app_server = FALSE) {
         }
     )
 
-    #shiny::observeEvent(se_r_i(), {
+    ## assign the se_r_i SummarizedExperiment to the environment envir
+    ## (this object will be returned when exiting shinyQC)
     observe({
         se <- se_r_i()
         S4Vectors::metadata(se) <- list(
@@ -789,9 +783,7 @@ shinyQC <- function(se, app_server = FALSE) {
         if (missingValue) {
             S4Vectors::metadata(se)[["imputation"]] <- input$imputation
         }
-        ###print(environmentName(parent.env(environment())))
-        assign("se_return", se, envir = envir) ## environment()/parent.frame()
-        ##se_return <<- se
+        assign("se_return", se, envir = envir)
         
     })
 }

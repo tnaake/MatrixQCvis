@@ -330,39 +330,6 @@ sidebar_reportUI <- function() {
     shiny::downloadButton("report", "Generate report")
 }
 
-
-#' @name sidebar_stopUI
-#' 
-#' @title Sidebar UI for stopping the app from running 
-#' 
-#' @description 
-#' The module defines the UI in the sidebar for stopping the `shiny` 
-#' application. Upon execution, this will also trigger the export of the 
-#' modified data set.
-#' 
-#' @details 
-#' Internal function for `shinyQC`.
-#' 
-#' @param app_server `logical`
-#' 
-#' @return `shiny.tag.list` with HTML content
-#' 
-#' @author Thomas Naake
-#' 
-#' @examples
-#' app_server <- TRUE
-#' sidebar_stopUI(app_server)
-#' 
-#' @importFrom shiny conditionalPanel actionButton
-#' 
-#' @noRd
-sidebar_stopUI <- function(app_server) {
-    if (!app_server) 
-        shiny::conditionalPanel(condition = "input.tabs != 'DE'",
-            shiny::actionButton("stop", "Stop and export data set")
-        )
-}
-
 #' @name sidebar_selectAssayUI
 #' 
 #' @title Sidebar UI for selecting the assay in multi-assay 
