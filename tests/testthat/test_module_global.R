@@ -58,14 +58,6 @@ test_that("sidebar_reportUI", {
     expect_is(sidebar_reportUI(), "shiny.tag")
 })
 
-## sidebar_stopUI
-test_that("sidebar_stopUI", {
-    app_server <- FALSE
-    expect_is(sidebar_stopUI(app_server), "shiny.tag")
-    app_server <- TRUE
-    expect_true(is.null(sidebar_stopUI(app_server)))
-})
-
 ## function sidebar_selectAssayUI
 test_that("sidebar_selectAssayUI", {
     expect_is(sidebar_selectAssayUI(choicesAssaySE = 1:2), "shiny.tag")
