@@ -13,9 +13,7 @@ shinyQC(se, app_server = FALSE)
 }
 \value{
 `shiny` application, 
-`SummarizedExperiment` upon exiting the `shiny` application (the 
-object will be returned only when exiting the application
-via the button 'Stop and export data set')
+`SummarizedExperiment` upon exiting the `shiny` application
 }
 \description{
 The shiny application allows to explore -omics
@@ -36,21 +34,18 @@ it includes functionality to perform differential expression analysis
 (currently limited to moderated t-tests and the Wald test).
 }
 \details{
-The `se` object should not contain a column `"rowname"` in the `colData`
-slot.
-
 `rownames(se)` should be set to the corresponding name of features, 
 while `colnames(se)` should be set to the sample IDs. 
 `rownames(se)` and `colnames(se)` are not allowed to be NULL.
 
 `shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
 
-On exit of the shiny application (only via the button 
-'Stop and export data set'), the (subsetted) `SummarizedExperiment` 
+On exit of the shiny application, the (subsetted) `SummarizedExperiment` 
 object is returned
 with information on the processing steps (normalization, 
 transformation, batch correction and imputation). The object will 
-only returned if `app_server = FALSE`.
+only returned if `app_server = FALSE` and if the function call is assigned
+to an object, e.g. `tmp <- shinyQC(se)`. 
 
 If the `se` argument is omitted the app will load an interface that allows 
 for data upload.

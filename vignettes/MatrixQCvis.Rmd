@@ -160,10 +160,11 @@ qc <- shinyQC(se)
 ```
 
 The assignment to `qc` or any other object is not mandatory. Upon exiting the
-shiny application via the exit button (`Stop and export data set`), 
-`shinyQC` will return a 
+shiny application, `shinyQC` will return a 
 `SummarizedExperiment` object containing the imputed dataset
-that can be in the following further analyzed. 
+that can be in the following further analyzed. The object will only be 
+returned if the function call was assigned to an object, e.g. 
+`qc <- shinyQC(se)`.
 
 Now, we will have a closer look on the user interface of the Shiny 
 application. 
@@ -224,8 +225,8 @@ rendering there is the possibility to open or to save the report. The
 report will take all values as set in the `shinyQC` application - if the 
 plot was not called yet, default values will be taken for the rendering. 
    
-By clicking on `Stop and export data set` the shiny application is 
-exited and a `SummarizedExperiment` is returned to the `qc` object.
+By exiting the shiny application, a `SummarizedExperiment` object 
+is returned to the `qc` object.
 If the supplied `SummarizedExperiment` contains missing values, the 
 `SummarizedExperiment` with imputed values is returned, otherwise the
 `SummarizedExperiment` with batch corrected values is returned.

@@ -31,7 +31,8 @@
 #' object is returned
 #' with information on the processing steps (normalization, 
 #' transformation, batch correction and imputation). The object will 
-#' only returned if `app_server = FALSE`.
+#' only returned if `app_server = FALSE` and if the function call is assigned
+#' to an object, e.g. `tmp <- shinyQC(se)`. 
 #' 
 #' If the `se` argument is omitted the app will load an interface that allows 
 #' for data upload.
