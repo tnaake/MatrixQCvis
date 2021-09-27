@@ -1,3 +1,11 @@
+Changes in version 1.1.3 (2021-09-22)
++ shift batch correction in between of normalization and transformation
++ add column "x5at1t1g161asy" instead of "rowname" (default) for 
+  rownames_to_column
++ remove the stop button and return the modified SummarizedExperiment
+  object when stopping the shiny application, the SummarizedExperiment
+  will be returned only when the function call is assigned to an object
+
 Changes in version 1.1.2 (2021-09-06)
 + take sample IDs for shinyQC from colnames(se)
 + take feature IDs for shinyQC from rownames(se)
@@ -6,7 +14,6 @@ Changes in version 1.1.2 (2021-09-06)
 
 Changes in version 1.1.1 (2021-08-27)
 + fix bug in biocrates and maxQuant function
-
 
 Changes in version 0.99.12 (2021-05-18)
 + replace xlsx by openxlsx
