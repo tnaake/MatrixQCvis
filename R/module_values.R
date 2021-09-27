@@ -62,7 +62,7 @@ fR_boxplotUI <- function(id, name, collapsed) {
 #' tP_boxplotUI("test")
 #' 
 #' @importFrom shiny NS tabPanel fluidRow column conditionalPanel
-#' @importFrom shiny uiOutput selectInput radioButtons
+#' @importFrom shiny uiOutput selectInput radioButtons HTML
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
 #' 
@@ -74,7 +74,7 @@ tP_boxplotUI <- function(id) {
         shiny::fluidRow(
             shiny::column(6, 
                 shiny::radioButtons(inputId = "boxLog",
-                    label = HTML("Display log2 values? <br>
+                    label = shiny::HTML("Display log2 values? <br>
                         (only for 'raw', 'normalized' and 'batch corrected')"),
                     choices = list("no log2", "log2"),
                     selected = "no log2")),
