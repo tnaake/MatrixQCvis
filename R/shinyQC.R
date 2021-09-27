@@ -72,6 +72,8 @@
 #' @export
 shinyQC <- function(se, app_server = FALSE) {
 
+   e1 <- new.env(parent = emptyenv())
+    
     has_se <- !missing(se)
     if (has_se) {
         if (!is(se, "SummarizedExperiment")) 
@@ -178,7 +180,7 @@ shinyQC <- function(se, app_server = FALSE) {
         if (!has_se) {
             FUN <- function(SE, MISSINGVALUE) {
                 .initialize_server(se = SE, input = input, output = output, 
-                    session = session, missingValue = MISSINGVALUE)
+                    session = session, missingValue = MISSINGVALUE, envir = e1)
             }
             landingPage(FUN, input = input, output = output, session = session, 
                 app_server = app_server)
@@ -194,18 +196,24 @@ shinyQC <- function(se, app_server = FALSE) {
             shinyjs::show("sidebarPanelSE")
             if (!app_server) shinyjs::show("sidebarStop")
             .initialize_server(se = se, input = input, output = output, 
-                session = session, missingValue = missingValue)
+                session = session, missingValue = missingValue, envir = e1)
         }
         
     } ## end of server
 
-    on.exit(expr = if (!app_server) {
-        return(se_return)
-    })
-
+    
     ## run the app
     app <- list(ui = ui, server = server)
     
+    # e1 <- new.env()
+    e1$se_return <- NULL
+    on.exit(expr = if (!app_server) {
+        print(environmentName(environment()))
+        #rm(se_return, envir = globalenv())
+        
+            #if (exists("se_return", envir = .GlobalEnv) rm("se_return", envir = .GlobalEnv)
+        return(e1$se_return)
+    })
     
     shiny::runApp(app, host = host, launch.browser = !app_server, port = 3838)
     
@@ -250,7 +258,7 @@ shinyQC <- function(se, app_server = FALSE) {
 #' 
 #' @noRd
 .initialize_server <- function(se, input, output, session, 
-                                                        missingValue = TRUE) {
+                                    missingValue = TRUE, envir = new.env()) {
     
     output$keepAlive <- shiny::renderText({
         shiny::req(input$keepAlive)
@@ -770,7 +778,8 @@ shinyQC <- function(se, app_server = FALSE) {
         }
     )
 
-    shiny::observeEvent(se_r_i(), {
+    #shiny::observeEvent(se_r_i(), {
+    observe({
         se <- se_r_i()
         S4Vectors::metadata(se) <- list(
             "normalized" = input$normalization,
@@ -781,8 +790,8 @@ shinyQC <- function(se, app_server = FALSE) {
             S4Vectors::metadata(se)[["imputation"]] <- input$imputation
         }
         ###print(environmentName(parent.env(environment())))
-        assign("se_return", se, pos = -1, inherits = FALSE)
+        assign("se_return", se, envir = envir) ## environment()/parent.frame()
         ##se_return <<- se
-        ##rm(se_return, envir = as.environment(1))
+        
     })
 }
