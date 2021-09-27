@@ -12,7 +12,7 @@ rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
     colData = cD)
 se_error <- se
-colnames(colData(se_error)) <- c("rowname", "type")
+colnames(colData(se_error)) <- c("x5at1t1g161asy", "type")
 
 ## function create_boxplot
 test_that("create_boxplot", {
@@ -27,8 +27,8 @@ test_that("create_boxplot", {
     expect_error(create_boxplot(se = se, orderCategory = "foo", title = "", 
           log2 = TRUE, violin = TRUE),
         "should be one of")
-    expect_error(create_boxplot(se = se_error, orderCategory = "rowname"),
-        "Column name `rowname` must not be duplicated")
+    expect_error(create_boxplot(se = se_error, orderCategory = "x5at1t1g161asy"),
+        "Column name `x5at1t1g161asy` must not be duplicated")
     expect_is(g, "gg")
 })
 
@@ -55,7 +55,7 @@ test_that("driftPlot", {
   expect_error(driftPlot(se = se_error, aggregation = "median", 
             category = "type", orderCategory = "type", level = "all", 
             method = "loess"),
-      "Column name `rowname` must not be duplicated")
+      "Column name `x5at1t1g161asy` must not be duplicated")
 })
 
 ## function cv
@@ -93,7 +93,7 @@ test_that("ECDF", {
     expect_error(ECDF(se, "", "all"), "'arg' should be one of")
     expect_error(ECDF(se, sample_1, "test"), "'arg' should be one of")
     expect_error(ECDF(se_error, sample_1, "all"), 
-        "Column name `rowname` must not be duplicated")
+        "Column name `x5at1t1g161asy` must not be duplicated")
     expect_is(g, "gg")
 })
 
@@ -155,7 +155,7 @@ test_that("MAvalues", {
     expect_error(MAvalues(se, log2 = "", group = "all"), 
         "argument is not interpretable as logical")
     expect_error(MAvalues(se_error, log2 = TRUE, group = "all"), 
-        "Column name `rowname` must not be duplicated")
+        "Column name `x5at1t1g161asy` must not be duplicated")
     expect_true(is.data.frame(ma))
     expect_equal(dim(ma), c(1000, 6))
     expect_true(is.character(ma$Feature))
