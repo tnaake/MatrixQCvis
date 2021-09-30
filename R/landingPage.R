@@ -63,8 +63,6 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 
                 if (!is(se2, "SummarizedExperiment")) 
                     stop("se is not of class 'SummarizedExperiment'")
-                if ("rowname" %in% colnames(SummarizedExperiment::colData(se2)))
-                    stop("colData(se) should not have column 'rowname'")
                 if (is.null(rownames(se2))) 
                     stop("rownames(se) is NULL")
                 if (is.null(colnames(se2)))
