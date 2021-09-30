@@ -90,10 +90,18 @@ library(MatrixQCvis)
 
 The most important function to assess the data quality is the `shinyQC` function
 and its most important argument is `se`. `shinyQC` expects a `SummarizedExperiment` 
-object. One requirement for the `SummarizedExperiment` object is that 
-it contains the column `"name"` in `colData(se)`, storing the names of the 
-samples. If the `SummarizedExperiment` object does not contain this column,
-`shinyQC` will stop and throw an error.
+object. 
+
+The `shinyQC` function sets the following requirements to the 
+`SummarizedExperiment` object `se`:
+ - `rownames(se)` are not allowed to be `NULL` and have to be set to the 
+   feature names,
+ - `colnames(se)` are not allowed to be `NULL` and have to be set to the 
+   sample names,
+ - `colnames(se)`, `colnames(assay(se))` and `rownames(colData(se))` all have 
+    to be identical.
+ 
+ If these requirements are not met, `shinyQC` will stop and throw an error.
 
 Alternatively, a `SummarizedExperiment` object can also be loaded from within 
 `shinyQC` (when no `se` object is supplied to `shinyQC`).
