@@ -55,6 +55,11 @@ BiocManager::install(version = "devel")
 BiocManager::install("MatrixQCvis")
 ```
 
+The version at the Bioconductor development branch and the code in the Github repository 
+are places where we publicly disclose our development process and users are 
+supposed to refer to the Bioconductor releae version as the authoritative version for 
+use.
+
 ## Quick start
 
 _MatrixQCvis_ is based on the _SummarizedExperiment_ class. The shiny 
