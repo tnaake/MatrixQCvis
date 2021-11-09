@@ -33,8 +33,13 @@
 #' @export
 hist_sample_num <- function(se, category = "type") {
 
+    cD <- SummarizedExperiment::colData(se)
+    category <- match.arg(category, choices = colnames(cD))
+    colnames(cD) <- make.names(colnames(cD))
+    category <- make.names(category)
+    
     ## retrieve the sample type
-    df <- SummarizedExperiment::colData(se)[[category]]
+    df <- cD[[category]]
     df[is.na(df)] <- "NA"
     
     ## retrieve the number of samples per sample type
@@ -130,7 +135,14 @@ hist_sample <- function(tbl, category = "type") {
 #' @export
 mosaic <- function(se, f1, f2) {
     
-    df <- SummarizedExperiment::colData(se) |> 
+    cD <- SummarizedExperiment::colData(se)
+    f1 <- match.arg(f1, choices = colnames(cD))
+    f2 <- match.arg(f2, choices = colnames(cD))
+    colnames(cD) <- make.names(colnames(cD))
+    f1 <- make.names(f1)
+    f2 <- make.names(f2)
+    
+    df <- cD |> 
         as.data.frame() |> 
         dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) |>
         dplyr::summarise(count = dplyr::n()) |>
