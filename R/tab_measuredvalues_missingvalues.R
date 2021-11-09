@@ -202,6 +202,7 @@ hist_feature <- function(x, measured = TRUE, ...) {
 #' @export
 measured_category <- function(se, measured = TRUE, category = "type") {
     
+    category <- match.arg(category, choices = colnames(colData(se)))
     category <- make.names(category)
     
     ## access the assay slot
@@ -408,6 +409,8 @@ upset_category <- function(se, category = colnames(colData(se))[1], ...) {
 #' 
 #' @export
 extractComb <- function(se, combination, measured = TRUE, category = "type") {
+    
+    category <- match.arg(category, choices = colnames(colData(se)))
     
     ## obtain the number of measured samples per type and create a binary matrix
     tbl <- measured_category(se = se, measured = measured, category = category)
