@@ -160,6 +160,7 @@ ordinationPlot <- function(tbl, se,
     explainedVar = NULL, x_coord, y_coord, height = 600) {
     
     highlight <- match.arg(highlight)
+    highlight <- make.names(highlight)
     
     ## access the assay slot
     a <- SummarizedExperiment::assay(se)
@@ -167,6 +168,7 @@ ordinationPlot <- function(tbl, se,
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "rowname")
     cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    colnames(cD) <- make.names(colnames(cD))
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(assay(se)) do not match rownames(colData(se))")
     cD <- tibble::rownames_to_column(cD)
