@@ -1,3 +1,8 @@
+Changes in version 1.3.1 (2021-11-09)
++ use make.names for character vectors and colnames(colData(se)) in the
+  functions for dimension reduction plot, drift plot, ECDF plot, mosaic plot,
+  features along variable histogram, UpSet plot
+
 Changes in version 1.1.3 (2021-09-30)
 + shift batch correction in between of normalization and transformation
 + add column "x5at1t1g161asy" instead of "rowname" (default) for 

@@ -33,8 +33,8 @@ test_that("mosaic", {
     
     expect_error(mosaic(NULL, "sample", "type"), 
         "unable to find an inherited method for function")
-    expect_error(mosaic(se, "foo", "type"), "Problem with ")
-    expect_error(mosaic(se, "sample", "foo"), "Problem with ")
+    expect_error(mosaic(se, "foo", "type"), "'arg' should be one of ")
+    expect_error(mosaic(se, "sample", "foo"), "'arg' should be one of ")
     expect_is(g, "gg")
 }) 
 

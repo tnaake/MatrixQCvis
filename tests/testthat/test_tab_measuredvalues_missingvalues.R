@@ -79,9 +79,9 @@ test_that("measured_category", {
     expect_true(tibble::is_tibble(mc_f))
     expect_equal(dim(mc_t), c(10, 3))
     expect_equal(dim(mc_f), c(10, 3))
-    expect_equal(
-        dim(measured_category(se = se, measured = TRUE, category = "foo")), 
-        c(10, 1))
+    expect_error(
+        measured_category(se = se, measured = TRUE, category = "foo"), 
+        "'arg' should be one of ")
     expect_error(
         measured_category(se = NULL, measured = TRUE, category = "type"),
         "unable to find an inherited method for function")
@@ -102,7 +102,7 @@ test_that("hist_feature_category", {
             binwidth = 2), "argument is not interpretable as logical")
     expect_error(
         hist_feature_category(se, measured = TRUE, category = "foo", 
-            binwidth = 2), "Can't subset columns that don't exist")
+            binwidth = 2), "'arg' should be one of ")
     expect_is(g, "plotly")
 })
 
@@ -156,7 +156,7 @@ test_that("extractComb", {
     expect_error(
         extractComb(se = se, combination = "1", measured = TRUE, 
             category = "foo"), 
-        "not find columns which are logical or only contain 0 or 1")
+        "'arg' should be one of ")
     expect_error(
         extractComb(se = NULL, combination = "1", measured = TRUE, 
             category = "type"), 
