@@ -492,7 +492,7 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
         function(input, output, session) {
             contrastMatrix <- shiny::reactive({
                 if (!is.null(validExprContrast())) {
-                    makeContrasts(contrasts = validExprContrast(), 
+                    limma::makeContrasts(contrasts = validExprContrast(), 
                         levels = modelMatrix())
                 }
             })
