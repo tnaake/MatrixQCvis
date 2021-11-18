@@ -1250,7 +1250,7 @@ batchCorrectionAssay <- function(se,
 #'
 #' @description
 #' The function `transformAssay` transforms the (count/intensity) values of a 
-#' `matrix`. It uses either `log2`, variance 
+#' `matrix`. It uses either `log`, `log2`, variance 
 #' stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 #' `none`). The object
 #' `x` has the samples in the columns and the features in the rows.
@@ -1259,12 +1259,13 @@ batchCorrectionAssay <- function(se,
 #' Internal use in `shinyQC`.
 #' 
 #' @param a `matrix` with samples in columns and features in rows
-#' @param method `character`, one of `"none"`, `"log2"` or `"vsn"`
+#' @param method `character`, one of `"none"`, `"log"`, `"log2"` or `"vsn"`
 #'
 #' @examples
 #' a <- matrix(1:1000, nrow = 100, ncol = 10, 
 #'         dimnames = list(1:100, paste("sample", 1:10)))
 #' transformAssay(a, "none")
+#' transformAssay(a, "log")
 #' transformAssay(a, "log2")
 #' transformAssay(a, "vsn")
 #'
@@ -1273,19 +1274,22 @@ batchCorrectionAssay <- function(se,
 #' @importFrom vsn vsn2
 #' 
 #' @export
-transformAssay <- function(a, method = c("none", "log2", "vsn")) {
+transformAssay <- function(a, method = c("none", "log", "log2", "vsn")) {
     
     if (!is.matrix(a)) stop("a is not a matrix")
     method <- match.arg(method)
 
     a_t <- a
 
-    if (method == "vsn") {
-        a_t <- vsn2(a_t)
-        a_t <- a_t@hx
+    if (method == "log") {
+        a_t <- log(a_t)
     }
     if (method == "log2") {
         a_t <- log2(a_t)
+    }
+    if (method == "vsn") {
+        a_t <- vsn2(a_t)
+        a_t <- a_t@hx
     }
     
     rownames(a_t) <- rownames(a) 

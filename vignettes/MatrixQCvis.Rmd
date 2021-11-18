@@ -219,7 +219,7 @@ In addition, in the tabs `Values`,
    It is highly advised to consult the dimension reduction plots before 
    performing any batch correction. Batch correction should not be done based 
    solely on (count/intensity) value distributions (boxplots/violin plots);
- - transformation: currently the methods `log2`, `vsn` 
+ - transformation: currently the methods `log`, `log2`, `vsn` 
    (variance stabilizing normalization/transformation, @Huber2002), and `none`, i.e.
    no transformation, are supported;
  - imputation (only for `SummarizedExperiment` containing missing values): 
@@ -550,7 +550,7 @@ The values are defined as follows
  - $A = \frac{1}{2} \cdot (I_i + I_j)$ and 
  - $M =  I_i−I_j$ ,
  
-where $I_i$ and $I_j$  are transformed values. 
+where $I_i$ and $I_j$  are per definition `log2`-transformed values. 
 In the case of `raw`, `normalized`, or `batch corrected` the values are
 `log2`-transformed prior to calculating `A` and `M`. In case of `transformed`
 or `imputed` the values are taken as they are 

@@ -419,7 +419,7 @@ shinyQC <- function(se, app_server = FALSE) {
     a_t <- shiny::reactive({
         shiny::req(input$transformation, a_b())
         
-        ## input$transformation is either "none", "log2", or "vsn"
+        ## input$transformation is either "none", "log", "log2", or "vsn"
         transformAssay(a_b(), method = input$transformation)
     })
     

@@ -146,7 +146,7 @@ sidebar_assayUI <- function() {
         ## select type of transformation
         shiny::selectInput(inputId = "transformation",
             label = shiny::strong("Transformation method"),
-            choices = c("none", "log2", "vsn"), selected = "none")
+            choices = c("none", "log", "log2", "vsn"), selected = "none")
         )
 }
 
