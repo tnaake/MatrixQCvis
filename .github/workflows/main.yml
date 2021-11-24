@@ -177,8 +177,8 @@ jobs:
           remotes::install_local(dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = TRUE, upgrade = TRUE)
           ## Manually install required packages
           BiocManager::install("SummarizedExperiment", ask = FALSE, update = FALSE)
-          BiocManager::install("magick", ask = FALSE, update = FALSE)
-          BiocManager::install("statmod", ask = FALSE, update = FALSE)
+          BiocManager::install("magick", ask = FALSE, update = FALSE, dependencies = TRUE)
+          BiocManager::install("statmod", ask = FALSE, update = FALSE, dependencies = TRUE)
           # BiocManager::install(c("devtools", "usethis"), dependencies = TRUE, ask = FALSE, update = FALSE)
           ## For running the checks
           message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
