@@ -272,7 +272,7 @@ e.g. how many samples (in %) are there for `type` against `treatment`. Again,
 `colData(se)` can be selected. 
 The figure will tell us that `se` contains the different types/treatments in a
 balanced manner:
-```{r mosaic, eval=TRUE, echo=FALSE}
+```{r mosaic, eval=TRUE, echo=FALSE, crop=NULL}
 mosaic(se = se, f1 = "type", f2 = "treatment")
 ```
 
@@ -367,7 +367,7 @@ the `upset` function from the `UpSetR` package).
 Presence is defined by a feature being measured in at least one sample of a 
 set.
 
-```{r upsetmeasured, eval=TRUE, echo=FALSE}
+```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL}
 upset_category(se, category = "type", measured = TRUE) 
 ```
 
@@ -375,7 +375,7 @@ upset_category(se, category = "type", measured = TRUE)
 Absence is defined by a feature with only missing values (i.e. no measured 
 values) of a set.
 
-```{r upsetmissing, eval=TRUE, echo=FALSE}
+```{r upsetmissing, eval=TRUE, echo=FALSE, crop=NULL}
 upset_category(se, category = "type", measured = FALSE)
 ```
 
@@ -423,7 +423,7 @@ The type of visualization (boxplot or violin plot) can be specified by
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
-```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
 create_boxplot(se, orderCategory = "name", title = "raw", log2 = FALSE, 
                violin = TRUE)
 ```
@@ -499,7 +499,7 @@ Here, we shows the plot of coefficient of variation values from the
 raw values (as obtained by `assay(se)`), normalized values (using `sum` 
 normalization), transformed values (using `vsn`), batch corrected values
 (using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
-```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, crop=NULL}
 a <- assay(se)
 a_n <- normalizeAssay(a, "sum")
 se_n <- MatrixQCvis:::updateSE(se = se, assay = a_n)
@@ -535,7 +535,7 @@ In case of sd-mean independence, the running median should be approximately
 horizontal.
 
 For the transformed values, the mean-sd plot will look like
-```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE}
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
 vsn::meanSdPlot(assay(se_t))
 ```
 
@@ -588,7 +588,7 @@ transformation (and imputation) methods on the `D` values.
 
 The MA plot using the raw values and `group = "all"` will look like the 
 following (`plot` = "Sample_1-1"`):
-```{r maplot, eval=TRUE, echo = FALSE, show=FALSE}
+```{r maplot, eval=TRUE, echo = FALSE, show=FALSE, crop=NULL}
 tbl <- MAvalues(se, group = "all")
 MAplot(tbl, group = "all", plot = "Sample_1-1")
 ```
@@ -610,7 +610,7 @@ the drop-down menu `Group`.
 
 The ECDF plot for the sample `"Sample_1-1"`, `group = "all"`, and the 
 raw values (as obtained by `assay(se)`) will look like:
-```{r ecdf, eval=TRUE, echo=FALSE}
+```{r ecdf, eval=TRUE, echo=FALSE, crop=NULL}
 ECDF(se, "Sample_1-1", group = "all")
 ```
 
@@ -644,7 +644,7 @@ processing steps.
 The feature to be displayed is selected via the drop-down menu 
 **Select feature**. 
 
-```{r featurePlot, eval=TRUE, echo=FALSE}
+```{r featurePlot, eval=TRUE, echo=FALSE, crop=NULL}
 l_assays <- list(raw = a, normalized = a_n, `batch.corrected` = a_b,
    transformed = a_t, imputed = a_i)
 df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
