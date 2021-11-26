@@ -260,7 +260,7 @@ samples per sample type, treatment, etc. As an example, if we want to display
 how many samples are in `se` for the different `type`s (`type` is a 
 column name in `colData(se)` and any column in `colData(se)` can be selected), 
 this panel will show the following output:
-```{r hist_sample, eval=TRUE, echo=FALSE}
+```{r hist_sample, eval=TRUE, echo=FALSE, crop=NULL}
 tbl <- hist_sample_num(se = se, category = "type")
 partial_bundle(hist_sample(tbl, category = "type"))
 ```
@@ -291,7 +291,7 @@ The plot shows the number of measured or missing values per sample
 in the data set (depending on the selected tab). For example for the tab
 `Measured Values`, the plot will look like
 
-```{r samples_memi, eval=TRUE, echo=FALSE}
+```{r samples_memi, eval=TRUE, echo=FALSE, crop=NULL}
 tbl <- samples_memi(se) 
 partial_bundle(barplot_samples_memi(tbl, measured = TRUE))
 ```
@@ -319,7 +319,7 @@ features for which only one feature was measured.
 denote the number of features with complete observations (i.e. the number 
 of features for which the feature was quantified in all samples).
 
-```{r hist_feature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r hist_feature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
 partial_bundle(hist_feature(assay(se), measured = TRUE))
 ```
 
@@ -336,7 +336,7 @@ denote the number of features with completely missing observations
 (i.e. the number of features for which no feature was quantified in all 
 samples).
 
-```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
 partial_bundle(hist_feature(assay(se), measured = FALSE))
 ```
 
@@ -347,7 +347,7 @@ The plot in this panel can be read accordingly to the one in the panel
 (e.g. it shows the distribution of measured/missing values among the sample 
 types).
 
-```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
 partial_bundle(hist_feature_category(se, measured = TRUE, category = "type"))
 ```
 
@@ -471,7 +471,7 @@ selected level (and the sample name).
 Here, we are interested in observing if there is a trend/drift for 
 samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
-```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
 partial_bundle(driftPlot(se, aggregation = "median", category = "type",
           orderCategory = "type", level = "Type_1", method = "loess"))
 ```
@@ -630,7 +630,7 @@ On the right panel the sum of distances to other samples is depicted.
 
 The distance matrix and sum of distances (for raw values, as obtained by
 `assay(se)`) will look like:
-```{r distSampe, eval=TRUE, echo=FALSE}
+```{r distSampe, eval=TRUE, echo=FALSE, crop=NULL}
 a <- assay(se)
 dist_mat <- distShiny(a)
 distSample(dist_mat, se, "type")
@@ -655,7 +655,7 @@ The second plot shows the coefficient of variation of the values for all feature
 in the data set along the data processing steps. The features of same 
 identity can be connected by lines by clicking on `lines`. 
 
-```{r cvFeaturePlot, eval=TRUE, echo=FALSE}
+```{r cvFeaturePlot, eval=TRUE, echo=FALSE, crop=NULL}
 partial_bundle(cvFeaturePlot(l_assays, lines = FALSE))
 ```
 
@@ -842,7 +842,7 @@ expression analysis. In the case of moderated t-tests, the plot shows the
 log fold changes between the specified contrasts against the p-values. 
 Using the afore-mentioned specification for the model matrix and the 
 contrast matrix, the plot will look like:
-```{r volcano, eval=TRUE, echo=FALSE}
+```{r volcano, eval=TRUE, echo=FALSE, crop=NULL}
 partial_bundle(volcanoPlot(tT, type = "ttest"))
 ```
 

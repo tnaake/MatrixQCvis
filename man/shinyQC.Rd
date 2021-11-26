@@ -37,12 +37,13 @@ it includes functionality to perform differential expression analysis
 `rownames(se)` should be set to the corresponding name of features, 
 while `colnames(se)` should be set to the sample IDs. 
 `rownames(se)` and `colnames(se)` are not allowed to be NULL.
+`colnames(se)`, `colnames(assay(se))` and `rownames(colData(se))` all have 
+to be identical.
 
 `shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
 
 On exit of the shiny application, the (subsetted) `SummarizedExperiment` 
-object is returned
-with information on the processing steps (normalization, 
+object is returned with information on the processing steps (normalization, 
 transformation, batch correction and imputation). The object will 
 only returned if `app_server = FALSE` and if the function call is assigned
 to an object, e.g. `tmp <- shinyQC(se)`. 

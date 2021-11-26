@@ -5,19 +5,19 @@
 \title{Transform the (count/intensity) values of a `data.frame`, `tbl` or
 `matrix`}
 \usage{
-transformAssay(a, method = c("none", "log2", "vsn"))
+transformAssay(a, method = c("none", "log", "log2", "vsn"))
 }
 \arguments{
 \item{a}{`matrix` with samples in columns and features in rows}
 
-\item{method}{`character`, one of `"none"`, `"log2"` or `"vsn"`}
+\item{method}{`character`, one of `"none"`, `"log"`, `"log2"` or `"vsn"`}
 }
 \value{
 `matrix`
 }
 \description{
 The function `transformAssay` transforms the (count/intensity) values of a 
-`matrix`. It uses either `log2`, variance 
+`matrix`. It uses either `log`, `log2`, variance 
 stabilizing normalisation (`vsn`) or no transformation method (pass-through,
 `none`). The object
 `x` has the samples in the columns and the features in the rows.
@@ -29,6 +29,7 @@ Internal use in `shinyQC`.
 a <- matrix(1:1000, nrow = 100, ncol = 10, 
         dimnames = list(1:100, paste("sample", 1:10)))
 transformAssay(a, "none")
+transformAssay(a, "log")
 transformAssay(a, "log2")
 transformAssay(a, "vsn")
 
