@@ -70,11 +70,9 @@ biocrates <- function(file, sheet, ...) {
     a[a == 0] <- NA
     rownames(a) <- cD[["name"]]
 
-    ## create SummarizedExperiment
-    se <- SummarizedExperiment::SummarizedExperiment(assays = t(a), 
+    ## create SummarizedExperiment and return
+    SummarizedExperiment::SummarizedExperiment(assays = t(a), 
         rowData = rD, colData = cD)
-    
-    return(se)
 }
 
 
@@ -122,7 +120,7 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
     rownames(xls) <- xls[, 1]
     xls <- xls[, -1]
     
-    ## find the columns that contain the metabolites
+    ## find the columns that contain the features
     inds_samp <- grep(pattern = type, colnames(xls))
     cols_samp <- colnames(xls)[inds_samp]
 
@@ -139,16 +137,16 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
     if ("Peptide.counts..razor.unique." %in% colnames(xls))
         rD$Peptide_counts_razor_unique <- xls[, "Peptide.counts..razor.unique."]
     if ("Peptide.counts..unique." %in% colnames(xls))
-        rD$Peptide_counts_unique <- xls[, "Peptide.counts..unique." ]
+        rD$Peptide_counts_unique <- xls[, "Peptide.counts..unique."]
     if ("Protein.names" %in% colnames(xls)) 
         rD$Protein_names <- xls[, "Protein.names"]
-    if ("Gene.names" %in% colnames(xls)) rD$Gene_name <- xls[, "Gene.names" ]
+    if ("Gene.names" %in% colnames(xls)) rD$Gene_name <- xls[, "Gene.names"]
     if ("Fasta.headers" %in% colnames(xls)) 
-        rD$Fasta_header <- xls[, "Fasta.headers" ]
+        rD$Fasta_header <- xls[, "Fasta.headers"]
     if ("Count" %in% colnames(xls)) rD$Count <- xls[, "Count"]
     if ("Number.of.proteins" %in% colnames(xls)) 
         rD$Number_of_proteins <- xls[, "Number.of.proteins"]
-    if ("Peptides"  %in% colnames(xls)) rD$Peptides <- xls[, "Peptides" ]
+    if ("Peptides"  %in% colnames(xls)) rD$Peptides <- xls[, "Peptides"]
     if ("Razor...unique.peptides" %in% colnames(xls))
         rD$Razor_unique_peptides <- xls[, "Razor...unique.peptides"]
     if ("Unique.peptides" %in% colnames(xls))
@@ -200,9 +198,94 @@ maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
     mode(a) <- "numeric"
     a[a == 0] <- NA
     
-    ## create SummarizedExperiment
-    se <- SummarizedExperiment::SummarizedExperiment(assays = a, 
+    ## create SummarizedExperiment and return
+    SummarizedExperiment::SummarizedExperiment(assays = a, 
         rowData = rD, colData = cD)
+}
+
+#' @name spectronaut
+#' 
+#' @title Convert Spectronaut xlsx output to `SummarizedExperiment` object
+#' 
+#' @description 
+#' The function `spectronaut` will create a `SummarizedExperiment` from a
+#' Spectronaut xlsx file. 
+#' The function `spectronaut` takes as input the path to a .xlsx file 
+#' (Spectronaut output).
+#' 
+#' @details 
+#' The function requires that the intensity values are stored in the sheet
+#' `sheetIntensities` and the sample annotations in the sheet
+#' `sheetAnnotation`.
+#' 
+#' The sample names are taken from the column `"SAMPLE_IDs"` from the 
+#' sheet `sheetAnnotation`.
+#' 
+#' @param file `character`
+#' @param sheetIntensities `character` or `numeric`, name or index of the 
+#' sheet where the intensities are stored
+#' @param sheetAnnotation `character` or `numeric`, name or index of the 
+#' sheet where the annotations are stored 
+#' @param ... additional parameters given to `read.xslx`
+#'
+#' @examples
+#' file <- "path/to/spectronaut/object"
+#' \donttest{spectronaut(file = file, sheetIntensitities = 1, 
+#'     sheetAnnotation = 2, ...)}
+#' 
+#' @usage spectronaut(file, sheetIntensities, sheetAnnotation, ...)
+#'
+#' @return 
+#' `SummarizedExperiment` object
+#'
+#' @export
+#' 
+#' @importFrom openxlsx read.xlsx
+#' @importFrom SummarizedExperiment SummarizedExperiment
+spectronaut <- function(file, sheetIntensities = 1, sheetAnnotation = 2, ...) {
     
-    return(se)
+    xls <- openxlsx::read.xlsx(file, sheet = sheetIntensities, ...)
+    cD <- openxlsx::read.xlsx(file, sheet = sheetAnnotation, ...)
+    
+    ## get the name of the samples
+    samps <- cD[, "Sample_IDs"]
+    samps <- make.names(samps)
+    
+    ## names of proteins is in the first col, assign and remove the first col
+    if ("PG.ProteinGroups" %in% colnames(xls))
+        rownames(xls) <- xls[, "PG.ProteinGroups"]
+    else 
+        stop("column 'PG ProteinGroups' not present in file")
+
+    ## find the columns that contain the metabolites
+    colnames(xls) <- make.names(colnames(xls))
+    a <- dplyr::select(xls, samps)
+
+    ## create rowData
+    rD <- data.frame(feature = rownames(xls))
+    if ("PG.Molecularweight" %in% colnames(xls))
+        rD$PG_Molecularweight <- xls[, "PG.Molecularweight"]
+    if ("PG.Genes" %in% colnames(xls))
+        rD$PG_Genes <- xls[, "PG.Genes"]
+    if ("PG.CellularComponent"  %in% colnames(xls))
+        rD$PG_CellularComponent <- xls[, "PG.CellularComponent"]
+    if ("PG.BiologicalProcess" %in% colnames(xls)) 
+        rD$PG_BiologicalProcess <- xls[, "PG.BiologicalProcess"]
+    if ("PG.MolecularFunction" %in% colnames(xls)) 
+        rD$PG_MolecularFunction <- xls[, "PG.MolecularFunction"]
+    rownames(rD) <- rD[["feature"]]
+
+    ## create colData
+    colnames(cD)[colnames(cD) == "Sample_IDs"] <- "name"
+    cD$name <- samps
+    rownames(cD) <- cD[["name"]]
+
+    ## create assay, set values of 0 to NA
+    a <- as.matrix(a)
+    mode(a) <- "numeric"
+    a[a == 0] <- NA
+
+    ## create SummarizedExperiment
+    SummarizedExperiment::SummarizedExperiment(assays = a, 
+        rowData = rD, colData = cD)
 }
