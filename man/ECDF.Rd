@@ -23,7 +23,18 @@ is specified by the `group` argument. The row-wise (feature) mean values of
 the reference are calculated after excluding the specified `sample`.
 }
 \details{
-Internal use in `shinyQC`.
+Internal use in `shinyQC`. 
+
+The function `ECDF` uses the `ks.test` function from `stats` to perform
+a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov test is run 
+with the alternative `"two.sided"`
+(null hypothesis is that the true distribution function of the `sample` is
+equal to the hypothesized distribution function of the `group`).
+
+The `exact` argument in `ks.test` is set to `NULL`, meaning that an exact
+p-value is computed if the product of the sample sizes is less than 10000 
+of `sample` and `group`. Otherwise, asymptotic distributions are used whose
+approximations might be inaccurate in low sample sizes.
 }
 \examples{
 ## create se

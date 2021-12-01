@@ -341,7 +341,18 @@ plotCV <- function(df) {
 #' the reference are calculated after excluding the specified `sample`.
 #'
 #' @details 
-#' Internal use in `shinyQC`.
+#' Internal use in `shinyQC`. 
+#' 
+#' The function `ECDF` uses the `ks.test` function from `stats` to perform
+#' a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov test is run 
+#' with the alternative `"two.sided"`
+#' (null hypothesis is that the true distribution function of the `sample` is
+#' equal to the hypothesized distribution function of the `group`).
+#' 
+#' The `exact` argument in `ks.test` is set to `NULL`, meaning that an exact
+#' p-value is computed if the product of the sample sizes is less than 10000 
+#' of `sample` and `group`. Otherwise, asymptotic distributions are used whose
+#' approximations might be inaccurate in low sample sizes.
 #' 
 #' @param se `SummarizedExperiment` object
 #' @param sample `character`, name of the sample to compare against the group
@@ -404,15 +415,17 @@ ECDF <- function(se, sample = colnames(se),
     rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
     df_group <- data.frame(value = rM, type = "group")
     
+    ## remove from df that contains the sample values and from df_group the 
+    ## features that have in any of df/df_group NA values
     inds <- !(is.na(df_group$value) |  is.na(df$value))
     df <- df[inds, ]
     df_group <- df_group[inds, ]
     
-    ## create ECDF of data (taken from https://rpubs.com/mharris/KSplot)
+    ## calculate KS statistic of data
     value_s <- df$value
     value_g <- df_group$value
-    
-    ks_test <- stats::ks.test(value_s, value_g, exact = TRUE)
+    ks_test <- stats::ks.test(x = value_s, y = value_g, exact = NULL, 
+        alternative = "two.sided")
     
     ## bind together
     df <- rbind(df, df_group)

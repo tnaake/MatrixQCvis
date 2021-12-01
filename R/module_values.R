@@ -1095,7 +1095,7 @@ ECDFServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
                     choices_l <- list("raw", "normalized", "batch corrected",
                                             "transformed")
                 }
-                shiny::selectInput(inputId = session$ns("typeECDF"), 
+                shiny::selectInput(inputId = session$ns("typeECDF"),
                     label = "Data set for the ECDF plot",
                     choices = choices_l,
                     selected = "raw")
@@ -1123,14 +1123,20 @@ ECDFServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
             })
             
             ## ECDF plots: se, sample, group
-            p_ecdf <- shiny::reactive({
+            se_sel <- shiny::reactive({
                 req(input$typeECDF)
                 if (input$typeECDF == "raw") SE <- se()
                 if (input$typeECDF == "normalized") SE <- se_n()
                 if (input$typeECDF == "batch corrected") SE <- se_b()
                 if (input$typeECDF == "transformed") SE <- se_t()
                 if (input$typeECDF == "imputed") SE <- se_i()
-                ECDF(SE, input$sampleECDF, input$groupECDF)
+                SE
+            })
+            
+            p_ecdf <- shiny::reactive({
+                req(se_sel())
+                ECDF(se = se_sel(), sample = input$sampleECDF, 
+                    group = input$groupECDF)
             })
             
             output$ECDF <- shiny::renderPlot({
