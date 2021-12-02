@@ -3,8 +3,12 @@ Type: Package
 Title: Shiny-based interactive data-quality exploration for omics data
 Version: 1.3.1
 Date: 2021-12-01
-Authors@R: c(person("Thomas", "Naake", role = c("aut", "cre"), email = "thomasnaake@googlemail.com"),
-             person("Wolfgang", "Huber", role = c("aut"), email = "wolfgang.huber@embl.de"))
+Authors@R: c(person("Thomas", "Naake", role = c("aut", "cre"), 
+		email = "thomasnaake@googlemail.com",
+		comment = c(ORCID = "0000-0001-7917-5580")),
+    person("Wolfgang", "Huber", role = c("aut"), 
+		email = "wolfgang.huber@embl.de",
+		comment = c(ORCID = "0000-0002-0474-2218")))
 VignetteBuilder: knitr
 Description: 
 	Data quality assessment is an integral part of preparatory data analysis 
