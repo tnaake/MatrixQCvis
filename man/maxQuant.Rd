@@ -9,12 +9,14 @@ maxQuant(file, type = c("iBAQ", "LFQ"), sheet, ...)
 \arguments{
 \item{file}{`character`}
 
-\item{type}{`character`, either `iBAQ` or `LFQ`}
+\item{intensity}{`character`, either `"iBAQ"` or `"LFQ"`}
 
 \item{sheet}{`character` or `numeric`, the name or index of the sheet to 
 read data from}
 
-\item{...}{additional parameters given to `read.xslx`}
+\item{type}{`character`, either `"txt"` or `"xlsx"`}
+
+\item{...}{additional parameters given to `read.xslx` (for `type = "xlsx"`)}
 }
 \value{
 `SummarizedExperiment` object
@@ -28,10 +30,13 @@ function from the `openxlsx` package (e.g. specifying the sheet name or index
 by `sheet`).
 }
 \details{
-The argument `type` will specify if the `iBAQ` or `LFQ` values are taken.
+The argument `intensity` will specify if the `iBAQ` or `LFQ` values are taken. 
+
+The argument `type` will specify if the data is loaded from `txt` or `xlsx`
+files.
 }
 \examples{
-file <- "path/to/maxQuant/object"
+file <- "path/to/maxQuant/object.txt"
 \donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
 
 }

@@ -1,3 +1,6 @@
+Changes in version 1.3.1 (2-21-12-09)
++ add import of txt and xlsx files for function maxQuant
+
 Changes in version 1.3.1 (2021-12-01)
 + use make.names for character vectors and colnames(colData(se)) in the
   functions for dimension reduction plot, drift plot, ECDF plot, mosaic plot,

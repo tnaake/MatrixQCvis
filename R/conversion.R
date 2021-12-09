@@ -89,16 +89,20 @@ biocrates <- function(file, sheet, ...) {
 #' by `sheet`).
 #' 
 #' @details 
-#' The argument `type` will specify if the `iBAQ` or `LFQ` values are taken. 
+#' The argument `intensity` will specify if the `iBAQ` or `LFQ` values are taken. 
+#' 
+#' The argument `type` will specify if the data is loaded from `txt` or `xlsx`
+#' files.
 #' 
 #' @param file `character`
-#' @param type `character`, either `iBAQ` or `LFQ`
+#' @param intensity `character`, either `"iBAQ"` or `"LFQ"`
 #' @param sheet `character` or `numeric`, the name or index of the sheet to 
 #' read data from
-#' @param ... additional parameters given to `read.xslx`
+#' @param type `character`, either `"txt"` or `"xlsx"`
+#' @param ... additional parameters given to `read.xslx` (for `type = "xlsx"`)
 #'
 #' @examples
-#' file <- "path/to/maxQuant/object"
+#' file <- "path/to/maxQuant/object.txt"
 #' \donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
 #'
 #' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheet, ...)
@@ -110,90 +114,103 @@ biocrates <- function(file, sheet, ...) {
 #' 
 #' @importFrom openxlsx read.xlsx
 #' @importFrom SummarizedExperiment SummarizedExperiment
-maxQuant <- function(file, type = c("iBAQ", "LFQ"), sheet, ...) {
+maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet, 
+    type = c("txt", "xlsx"), ...) {
     
+    intensity <- match.arg(intensity)
     type <- match.arg(type)
     
-    xls <- openxlsx::read.xlsx(file, sheet = sheet, ...)
+    if (type == "xlsx")
+        f <- openxlsx::read.xlsx(file, sheet = sheet, ...)
+    if (type == "txt")
+        f <- read.table(file, sep = "\t", dec = ".", header = TRUE)
     
     ## names of proteins is in the first col, assign and remove the first col
-    rownames(xls) <- xls[, 1]
-    xls <- xls[, -1]
+    rownames(f) <- f[, 1]
+    f <- f[, -1]
     
     ## find the columns that contain the features
-    inds_samp <- grep(pattern = type, colnames(xls))
-    cols_samp <- colnames(xls)[inds_samp]
+    cols <- colnames(f)
+    inds_samp <- grep(pattern = intensity, cols)
+    cols_samp <- cols[inds_samp]
 
-    ## remove the column that only contains type
-    inds_samp <- inds_samp[cols_samp != type]
-    cols_samp <- cols_samp[cols_samp != type]
+    ## remove the column that only contains "intensity"
+    inds_samp <- inds_samp[cols_samp != intensity]
+    cols_samp <- cols_samp[cols_samp != intensity]
 
     ## create rowData
-    rD <- data.frame(feature = rownames(xls))
-    if ("Majority.protein.IDs" %in% colnames(xls))
-        rD$Majority_protein_ids <- xls[, "Majority.protein.IDs"]
-    if ("Peptide.counts..all." %in% colnames(xls))
-        rD$Peptide_counts_all <- xls[, "Peptide.counts..all."]
-    if ("Peptide.counts..razor.unique." %in% colnames(xls))
-        rD$Peptide_counts_razor_unique <- xls[, "Peptide.counts..razor.unique."]
-    if ("Peptide.counts..unique." %in% colnames(xls))
-        rD$Peptide_counts_unique <- xls[, "Peptide.counts..unique."]
-    if ("Protein.names" %in% colnames(xls)) 
-        rD$Protein_names <- xls[, "Protein.names"]
-    if ("Gene.names" %in% colnames(xls)) rD$Gene_name <- xls[, "Gene.names"]
-    if ("Fasta.headers" %in% colnames(xls)) 
-        rD$Fasta_header <- xls[, "Fasta.headers"]
-    if ("Count" %in% colnames(xls)) rD$Count <- xls[, "Count"]
-    if ("Number.of.proteins" %in% colnames(xls)) 
-        rD$Number_of_proteins <- xls[, "Number.of.proteins"]
-    if ("Peptides"  %in% colnames(xls)) rD$Peptides <- xls[, "Peptides"]
-    if ("Razor...unique.peptides" %in% colnames(xls))
-        rD$Razor_unique_peptides <- xls[, "Razor...unique.peptides"]
-    if ("Unique.peptides" %in% colnames(xls))
-        rD$Unique_peptides <- xls[, "Unique.peptides"]
-    if ("Sequence.coverage...." %in% colnames(xls))
-        rD$Sequence_coverage <- xls[, "Sequence.coverage...."]
-    if ("Unique...razor.sequence.coverage...." %in% colnames(xls))
-        rD$Unique_razor_sequence_coverage <- xls[, "Unique...razor.sequence.coverage...."]
-    if ("Unique.sequence.coverage...." %in% colnames(xls))
-        rD$Unique_sequence_coverage <- xls[, "Unique.sequence.coverage...."]
-    if ("Mol..weight..kDa." %in% colnames(xls))
-        rD$Mol_weight_kDa <- xls[, "Mol..weight..kDa."]
-    if ("Sequence.length" %in% colnames(xls))
-        rD$Sequence_length <- xls[, "Sequence.length"]
-    if ("Sequence.lengths" %in% colnames(xls))
-        rD$Sequence_lengths <- xls[, "Sequence.lengths"]
-    if ("Q.value" %in% colnames(xls)) rD$Q_value <- xls[, "Q.value"]
-    if ("Only.identified.by.site" %in% colnames(xls))
-        rD$Only_identified_by_site <- xls[, "Only.identified.by.site"]
-    if ("Reverse" %in% colnames(xls)) rD$Reverse <- xls[, "Reverse"]
-    if ("Potential.contaminant" %in% colnames(xls))
-        rD$Potential_contaminant <- xls[, "Potential.contaminant"]
-    if ("id" %in% colnames(xls)) rD$id <- xls[, "id"]
-    if ("Peptide.IDs" %in% colnames(xls)) rD$Peptide_IDs <- xls[, "Peptide.IDs"]
-    if ("Peptide.is.razor" %in% colnames(xls))
-        rD$Peptide_is_razor <- xls[, "Peptide.is.razor"]
-    if ("Mod..peptide.IDs" %in% colnames(xls))
-        rD$Mod_peptide_IDs <- xls[, "Mod..peptide.IDs"]
-    if ("Evidence.IDs" %in% colnames(xls))
-        rD$Evidence_IDs <- xls[, "Evidence.IDs"]
-    if ("MS.MS.IDs" %in% colnames(xls)) rD$MS_MS_IDs <- xls[, "MS.MS.IDs"]
-    if ("Best.MS.MS" %in% colnames(xls)) rD$Best_MS_MS <- xls[, "Best.MS.MS"]
-    if ("Oxidation..M..site.IDs" %in% colnames(xls))
-        rD$Oxidation_M_site_IDs <- xls[, "Oxidation..M..site.IDs"]
-    if ("Oxidation..M..site.positions" %in% colnames(xls))
-        rD$Oxidation_M_site_positions <- xls[, "Oxidation..M..site.positions"]
+    rD <- data.frame(feature = rownames(f))
+    if ("Best.MS.MS" %in% cols) rD$Best_MS_MS <- f[, "Best.MS.MS"]
+    if ("Charges" %in% cols) rD$Charges <- f[, "Charges"]
+    if ("Count" %in% cols) rD$Count <- f[, "Count"]
+    if ("Evidence.IDs" %in% cols)
+        rD$Evidence_IDs <- f[, "Evidence.IDs"]
+    if ("Fasta.headers" %in% cols) rD$Fasta_header <- f[, "Fasta.headers"]
+    if ("Gene.names" %in% cols) rD$Gene_name <- f[, "Gene.names"]
+    if ("id" %in% cols) rD$id <- f[, "id"]
+    if ("Length" %in% cols) rD$Length <- f[, "Length"]
+    if ("Majority.protein.IDs" %in% cols)
+        rD$Majority_protein_ids <- f[, "Majority.protein.IDs"]
+    if ("Mass" %in% cols) rD$Mass <- f[, "Mass"]
+    if ("Missed.cleavages" %in% cols) 
+        rD$Missed_cleavages <- f[, "Missed.cleavages"]
+    if ("Mod..peptide.IDs" %in% cols)
+        rD$Mod_peptide_IDs <- f[, "Mod..peptide.IDs"]
+    if ("Mol..weight..kDa." %in% cols)
+        rD$Mol_weight_kDa <- f[, "Mol..weight..kDa."]
+    if ("MS.MS.IDs" %in% cols) rD$MS_MS_IDs <- f[, "MS.MS.IDs"]
+    if ("Number.of.proteins" %in% cols) 
+        rD$Number_of_proteins <- f[, "Number.of.proteins"]
+    if ("Only.identified.by.site" %in% cols)
+        rD$Only_identified_by_site <- f[, "Only.identified.by.site"]
+    if ("Oxidation..M..site.IDs" %in% cols)
+        rD$Oxidation_M_site_IDs <- f[, "Oxidation..M..site.IDs"]
+    if ("Oxidation..M..site.positions" %in% cols)
+        rD$Oxidation_M_site_positions <- f[, "Oxidation..M..site.positions"]
+    if ("Peptide.counts..all." %in% cols)
+        rD$Peptide_counts_all <- f[, "Peptide.counts..all."]
+    if ("Peptide.counts..razor.unique." %in% cols)
+        rD$Peptide_counts_razor_unique <- f[, "Peptide.counts..razor.unique."]
+    if ("Peptide.counts..unique." %in% cols)
+        rD$Peptide_counts_unique <- f[, "Peptide.counts..unique."]
+    if ("Peptides"  %in% cols) rD$Peptides <- f[, "Peptides"]
+    if ("Peptide.IDs" %in% cols) rD$Peptide_IDs <- f[, "Peptide.IDs"]
+    if ("Peptide.is.razor" %in% cols)
+        rD$Peptide_is_razor <- f[, "Peptide.is.razor"]
+    if ("Potential.contaminant" %in% cols)
+        rD$Potential_contaminant <- f[, "Potential.contaminant"]
+    if ("Protein.names" %in% cols) rD$Protein_names <- f[, "Protein.names"]
+    if ("Proteins" %in% cols) rD$Proteins <- f[, "Proteins"]
+    if ("Q.value" %in% cols) rD$Q_value <- f[, "Q.value"]
+    if ("Razor...unique.peptides" %in% cols)
+        rD$Razor_unique_peptides <- f[, "Razor...unique.peptides"]
+    if ("Reverse" %in% cols) rD$Reverse <- f[, "Reverse"]
+    if ("Sequence" %in% cols) rD$Sequence <- f[, "Sequence"]
+    if ("Sequence.coverage...." %in% cols)
+        rD$Sequence_coverage <- f[, "Sequence.coverage...."]
+    if ("Sequence.length" %in% cols)
+        rD$Sequence_length <- f[, "Sequence.length"]
+    if ("Sequence.lengths" %in% cols)
+        rD$Sequence_lengths <- f[, "Sequence.lengths"]
+    if ("Unique.peptides" %in% cols) 
+        rD$Unique_peptides <- f[, "Unique.peptides"]
+    if ("Unique..Proteins." %in% cols) 
+        rD$Unique_Proteins <- f[, "Unique..Proteins."]
+    if ("Unique...razor.sequence.coverage...." %in% cols)
+        rD$Unique_razor_sequence_coverage <- f[, "Unique...razor.sequence.coverage...."]
+    if ("Unique.sequence.coverage...." %in% cols)
+        rD$Unique_sequence_coverage <- f[, "Unique.sequence.coverage...."]
     rownames(rD) <- rD[["feature"]]
 
     ## create colData
     cD <- data.frame(name = cols_samp)
-    name_cut <- gsub(paste0("^", type), "", cD$name)
+    name_cut <- gsub(paste0("^", intensity), "", cD$name)
     name_cut <- gsub("^[. _]", "", name_cut)
     cD$name_cut <- name_cut
     rownames(cD) <- cD[["name"]]
     
     ## create assay, set values of 0 to NA
-    a <- xls[, cols_samp]
+    a <- f[, cols_samp]
     a <- as.matrix(a)
     mode(a) <- "numeric"
     a[a == 0] <- NA
