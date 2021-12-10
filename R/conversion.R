@@ -103,9 +103,7 @@ biocrates <- function(file, sheet, ...) {
 #'
 #' @examples
 #' file <- "path/to/maxQuant/object.txt"
-#' \donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
-#'
-#' @usage maxQuant(file, type = c("iBAQ", "LFQ"), sheet, ...)
+#' \donttest{maxQuant(file = file, intensity = "iBAQ", type = "txt")}
 #'
 #' @return 
 #' `SummarizedExperiment` object
@@ -113,6 +111,7 @@ biocrates <- function(file, sheet, ...) {
 #' @export
 #' 
 #' @importFrom openxlsx read.xlsx
+#' @importFrom utils read.table
 #' @importFrom SummarizedExperiment SummarizedExperiment
 maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet, 
     type = c("txt", "xlsx"), ...) {
@@ -123,7 +122,7 @@ maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet,
     if (type == "xlsx")
         f <- openxlsx::read.xlsx(file, sheet = sheet, ...)
     if (type == "txt")
-        f <- read.table(file, sep = "\t", dec = ".", header = TRUE)
+        f <- utils::read.table(file, sep = "\t", dec = ".", header = TRUE)
     
     ## names of proteins is in the first col, assign and remove the first col
     rownames(f) <- f[, 1]
