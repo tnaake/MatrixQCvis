@@ -193,7 +193,7 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
             
             ## create the actual plot
             p_boxplot <- shiny::reactive({
-                create_boxplot(se = se(), orderCategory = orderCategory(), 
+                createBoxplot(se = se(), orderCategory = orderCategory(), 
                     title = "", log2 = logValues(), 
                     violin = vP())
             })

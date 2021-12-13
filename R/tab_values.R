@@ -1,9 +1,10 @@
-#' @name create_boxplot
+#' @name createBoxplot
 #'
 #' @title Create a boxplot of (count/intensity) values per sample
 #'
 #' @description
-#' The function `create_boxplot` creates 
+#' The function `create_boxplot` creates a boxplot per sample for the 
+#' intensity/count values.
 #' 
 #' @details
 #' Internal usage in `shinyQC`.
@@ -29,7 +30,7 @@
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
-#' create_boxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
+#' createBoxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
 #'     violin = FALSE)
 #' 
 #' @return `gg` object from `ggplot2`
@@ -42,7 +43,7 @@
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
 #' 
 #' @export
-create_boxplot <- function(se, orderCategory = colnames(colData(se)), 
+createBoxplot <- function(se, orderCategory = colnames(colData(se)), 
     title = "", log2 = TRUE, violin = FALSE) {
 
     

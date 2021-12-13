@@ -291,9 +291,9 @@ The plot shows the number of measured or missing values per sample
 in the data set (depending on the selected tab). For example for the tab
 `Measured Values`, the plot will look like
 
-```{r samples_memi, eval=TRUE, echo=FALSE, crop=NULL}
-tbl <- samples_memi(se) 
-partial_bundle(barplot_samples_memi(tbl, measured = TRUE))
+```{r samplesMeasuredMissing, eval=TRUE, echo=FALSE, crop=NULL}
+tbl <- samplesMeasuredMissing(se) 
+partial_bundle(barplotSamplesMeasuredMissing(tbl, measured = TRUE))
 ```
 
 In this case, the samples show approximately the same number of measured features,
@@ -319,8 +319,8 @@ features for which only one feature was measured.
 denote the number of features with complete observations (i.e. the number 
 of features for which the feature was quantified in all samples).
 
-```{r hist_feature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(hist_feature(assay(se), measured = TRUE))
+```{r histFeature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeature(assay(se), measured = TRUE))
 ```
 
 ### Missing Variables
@@ -336,8 +336,8 @@ denote the number of features with completely missing observations
 (i.e. the number of features for which no feature was quantified in all 
 samples).
 
-```{r hist_feature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(hist_feature(assay(se), measured = FALSE))
+```{r histFeature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeature(assay(se), measured = FALSE))
 ```
 
 ## Histogram Features along variable
@@ -347,8 +347,8 @@ The plot in this panel can be read accordingly to the one in the panel
 (e.g. it shows the distribution of measured/missing values among the sample 
 types).
 
-```{r hist_feature_category, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(hist_feature_category(se, measured = TRUE, category = "type"))
+```{r histFeatureCategory, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeatureCategory(se, measured = TRUE, category = "type"))
 ```
 
 ## UpSet
@@ -368,7 +368,7 @@ Presence is defined by a feature being measured in at least one sample of a
 set.
 
 ```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL}
-upset_category(se, category = "type", measured = TRUE) 
+upsetCategory(se, category = "type", measured = TRUE) 
 ```
 
 ### Missing Values
@@ -376,7 +376,7 @@ Absence is defined by a feature with only missing values (i.e. no measured
 values) of a set.
 
 ```{r upsetmissing, eval=TRUE, echo=FALSE, crop=NULL}
-upset_category(se, category = "type", measured = FALSE)
+upsetCategory(se, category = "type", measured = FALSE)
 ```
 
 ## Sets
@@ -424,7 +424,7 @@ selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
-create_boxplot(se, orderCategory = "name", title = "raw", log2 = FALSE, 
+createBoxplot(se, orderCategory = "name", title = "raw", log2 = FALSE, 
                violin = TRUE)
 ```
 

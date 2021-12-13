@@ -14,20 +14,20 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
 se_error <- se
 colnames(colData(se_error)) <- c("x5at1t1g161asy", "type")
 
-## function create_boxplot
-test_that("create_boxplot", {
-    g <- create_boxplot(se)
+## function createBoxplot
+test_that("createBoxplot", {
+    g <- createBoxplot(se)
     
-    expect_error(create_boxplot(SummarizedExperiment::assay(se)), 
+    expect_error(createBoxplot(SummarizedExperiment::assay(se)), 
         "unable to find an inherited method for function")
-    expect_error(create_boxplot(se = se, orderCategory = "name", 
+    expect_error(createBoxplot(se = se, orderCategory = "name", 
         title =  "test", log2 = "", violin = TRUE), "not interpretable as logical")
-    expect_error(create_boxplot(se = se, orderCategory = "name",
+    expect_error(createBoxplot(se = se, orderCategory = "name",
         title = "test", log2 = TRUE, violin = ""), "invalid argument type")
-    expect_error(create_boxplot(se = se, orderCategory = "foo", title = "", 
+    expect_error(createBoxplot(se = se, orderCategory = "foo", title = "", 
           log2 = TRUE, violin = TRUE),
         "should be one of")
-    expect_error(create_boxplot(se = se_error, orderCategory = "x5at1t1g161asy"),
+    expect_error(createBoxplot(se = se_error, orderCategory = "x5at1t1g161asy"),
         "Column name `x5at1t1g161asy` must not be duplicated")
     expect_is(g, "gg")
 })

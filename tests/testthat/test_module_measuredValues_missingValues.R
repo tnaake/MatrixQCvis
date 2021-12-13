@@ -10,35 +10,38 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
     colData = cD)
 
 
-## tP_barplotMeMiSampleUI
-test_that("tP_barplotMeMiSampleUI", {
-    expect_is(tP_barplotMeMiSampleUI("MeV_number", title = "test"), "shiny.tag")
-    expect_is(tP_barplotMeMiSampleUI("MiV_number", title = "test"), "shiny.tag")
+## tP_barplotMeasuredMissingSampleUI
+test_that("tP_barplotMeasuredMissingSampleUI", {
+    expect_is(tP_barplotMeasuredMissingSampleUI("MeasuredValues_number", 
+        title = "test"), "shiny.tag")
+    expect_is(tP_barplotMeasuredMissingSampleUI("MissingValues_number", 
+        title = "test"), "shiny.tag")
 })
 
-## sampleMeMiServer
-test_that("sampleMeMiServer", {
-    shiny::testServer(sampleMeMiServer, {
+## sampleMeasuredMissingServer
+test_that("sampleMeasuredMissingServer", {
+    shiny::testServer(sampleMeasuredMissingServer, {
         input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
 
-        out <- sampleMeMiServer("", se = se)
+        out <- sampleMeasuredMissingServer("", se = se)
         expect_is(out, "reactive")
     })
 })
 
-## barplotMeMiSampleServer
-test_that("barplotMeMiSampleServer", {
-    shiny::testServer(barplotMeMiSampleServer, {
+## barplotMeasuredMissingSampleServer
+test_that("barplotMeasuredMissingSampleServer", {
+    shiny::testServer(barplotMeasuredMissingSampleServer, {
 
         input <- new.env()
         output <- new.env()
         session <- new.env()
-        samples_memi <- new.env()
+        samplesMeasuredMissing <- new.env()
 
-        out <- barplotMeMiSampleServer("", samples_memi = samples_memi,
+        out <- barplotMeasuredMissingSampleServer("", 
+            samplesMeasuredMissing = samplesMeasuredMissing,
             measured = TRUE)
         expect_is(out, "shiny.render.function")
     })
@@ -46,8 +49,8 @@ test_that("barplotMeMiSampleServer", {
 
 ## tP_histFeatUI
 test_that("tP_histFeatUI", {
-    expect_is(tP_histFeatUI("MeV"), "shiny.tag")
-    expect_is(tP_histFeatUI("MiV"), "shiny.tag")
+    expect_is(tP_histFeatUI("MeasuredValues"), "shiny.tag")
+    expect_is(tP_histFeatUI("MissingValues"), "shiny.tag")
 })
 
 ## histFeatServer
@@ -67,8 +70,8 @@ test_that("histFeatServer", {
 
 ## tP_histFeatCategoryUI
 test_that("tP_histFeatCategoryUI", {
-    expect_is(tP_histFeatCategoryUI("MeV"), "shiny.tag")
-    expect_is(tP_histFeatCategoryUI("MiV"), "shiny.tag")
+    expect_is(tP_histFeatCategoryUI("MeasuredValues"), "shiny.tag")
+    expect_is(tP_histFeatCategoryUI("MissingValues"), "shiny.tag")
 })
 
 ## histFeatCategoryServer
@@ -87,8 +90,8 @@ test_that("histFeatCategoryServer", {
 
 ## tP_upSetUI
 test_that("tP_upSetUI", {
-    expect_is(tP_upSetUI("MeV"), "shiny.tag")
-    expect_is(tP_upSetUI("MiV"), "shiny.tag")
+    expect_is(tP_upSetUI("MeasuredValues"), "shiny.tag")
+    expect_is(tP_upSetUI("MissingValues"), "shiny.tag")
 })
 
 ## upSetServer
@@ -107,8 +110,8 @@ test_that("upSetServer", {
 
 ## tP_setsUI
 test_that("tP_setsUI", {
-    expect_is(tP_setsUI("MeV"), "shiny.tag")
-    expect_is(tP_setsUI("MiV"), "shiny.tag")
+    expect_is(tP_setsUI("MeasuredValues"), "shiny.tag")
+    expect_is(tP_setsUI("MissingValues"), "shiny.tag")
 })
 
 ## setsServer
@@ -125,14 +128,14 @@ test_that("setsServer", {
     })
 })
 
-## tP_meV_all
-test_that("tP_meV_all", {
-    expect_is(tP_meV_all(), "shiny.tag")
+## tP_measuredValues_all
+test_that("tP_measuredValues_all", {
+    expect_is(tP_measuredValues_all(), "shiny.tag")
 })
 
-## tP_miV_all
-test_that("tP_miV_all", {
-    expect_is(tP_miV_all(), "shiny.tag")
+## tP_missingValues_all
+test_that("tP_missingValues_all", {
+    expect_is(tP_missingValues_all(), "shiny.tag")
 })
 
 

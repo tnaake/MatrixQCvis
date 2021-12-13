@@ -195,11 +195,12 @@ shinyQC <- function(se, app_server = FALSE) {
         } else {
             missingValue <- missingValuesSE(se)
             ## tabPanel for tab "Measured Values"
-            if (missingValue) shiny::insertTab(inputId = "tabs", tP_meV_all(),
-                target = "Samples", position = "after")
+            if (missingValue) shiny::insertTab(inputId = "tabs", 
+                tP_measuredValues_all(), target = "Samples", position = "after")
             ## tabPanel for tab "Missing Values"
-            if (missingValue) shiny::insertTab(inputId = "tabs", tP_miV_all(),
-                target = "Measured Values", position = "after")
+            if (missingValue) shiny::insertTab(inputId = "tabs", 
+                tP_missingValues_all(), target = "Measured Values", 
+                position = "after")
             shinyjs::show("tabPanelSE")
             shinyjs::show("sidebarPanelSE")
             .initialize_server(se = se, input = input, output = output, 
@@ -311,11 +312,12 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## TAB: Measured values and Missing values
     ## barplot number of measured/missing features per sample
-    samples_memi_tbl <- sampleMeMiServer("MeMiTbl", se = se_r)
-    barplotMeMiSampleServer("MeV_number", samples_memi = samples_memi_tbl, 
-                                                            measured = TRUE)
-    barplotMeMiSampleServer("MiV_number", samples_memi = samples_memi_tbl, 
-                                                            measured = FALSE)
+    samplesMeasuredMissingTbl <- sampleMeasuredMissingServer("MeMiTbl", 
+                                                            se = se_r)
+    barplotMeasuredMissingSampleServer("MeV_number", 
+        samplesMeasuredMissing = samplesMeasuredMissingTbl, measured = TRUE)
+    barplotMeasuredMissingSampleServer("MiV_number", 
+        samplesMeasuredMissing = samplesMeasuredMissingTbl, measured = FALSE)
     
     ## sync input[["MeV-categoryHist"]] with input[["MeV-categoryUpSet"]]
     shiny::observe({

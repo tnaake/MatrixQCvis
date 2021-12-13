@@ -4,8 +4,13 @@
 \alias{maxQuant}
 \title{Convert MaxQuant xlsx output to `SummarizedExperiment` object}
 \usage{
-maxQuant(file, intensity = c("iBAQ", "LFQ"), sheet, type = c("txt", "xlsx"), 
-    ...)
+maxQuant(
+  file,
+  intensity = c("iBAQ", "LFQ"),
+  sheet,
+  type = c("txt", "xlsx"),
+  ...
+)
 }
 \arguments{
 \item{file}{`character`}
@@ -38,6 +43,6 @@ files.
 }
 \examples{
 file <- "path/to/maxQuant/object.txt"
-\donttest{maxQuant(file = file, type = "iBAQ", sheet = 1)}
+\donttest{maxQuant(file = file, intensity = "iBAQ", type = "txt")}
 
 }

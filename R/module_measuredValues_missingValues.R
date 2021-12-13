@@ -1,4 +1,4 @@
-#' @name tP_barplotMeMiSampleUI
+#' @name tP_barplotMeasuredMissingSampleUI
 #' 
 #' @title Tab panel UI for tab panel 'Number of Features'
 #' 
@@ -18,20 +18,20 @@
 #' @author Thomas Naake
 #' 
 #' @examples
-#' tP_barPlotMeMiSampleUI("test")
+#' tP_barPlotMeasuredMissingSampleUI("test")
 #' 
 #' @importFrom shiny NS tabPanel downloadButton
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
 #' 
 #' @noRd
-tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
+tP_barplotMeasuredMissingSampleUI <- function(id, title = "Number of measured features") {
     ns <- shiny::NS(id)
     
-    if (id == "MeV_number") {
+    if (id == "MeasuredValues_number") {
         helper_file <- "tabPanel_barNumberFeature_measured"
     }
-    if (id == "MiV_number") {
+    if (id == "MissingValues_number") {
         helper_file <- "tabPanel_barNumberFeature_missing"
     }
     
@@ -42,7 +42,7 @@ tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
     )
 }
 
-#' @name sampleMeMiServer
+#' @name sampleMeasuredMissingServer
 #' 
 #' @title Module for server expressions of tab panel 'Number of features'
 #' 
@@ -64,14 +64,14 @@ tP_barplotMeMiSampleUI <- function(id, title = "Number of measured features") {
 #' @importFrom shiny moduleServer reactive
 #' 
 #' @noRd
-sampleMeMiServer <- function(id, se) {
+sampleMeasuredMissingServer <- function(id, se) {
     
     shiny::moduleServer(
         id, 
         function(input, output, session) {
             
             shiny::reactive({
-                samples_memi(se())
+                samplesMeasuredMissing(se())
             })
             
         }
@@ -79,7 +79,7 @@ sampleMeMiServer <- function(id, se) {
 }
 
 
-#' @name barplotMeMiSampleServer
+#' @name barplotMeasuredMissinSampleServer
 #' 
 #' @title Module for server expressions of tab panel 'Number of features'
 #' 
@@ -91,7 +91,7 @@ sampleMeMiServer <- function(id, se) {
 #' Internal function for `shinyQC`.
 #' 
 #' @param id `character`
-#' @param samples_memi `tibble` and `reactive` value
+#' @param samplesMeasuredMissing `tibble` and `reactive` value
 #' @param measured `logical`
 #' 
 #' @return
@@ -104,14 +104,16 @@ sampleMeMiServer <- function(id, se) {
 #' @importFrom htmlwidgets saveWidget
 #' 
 #' @noRd
-barplotMeMiSampleServer <- function(id, samples_memi, measured = TRUE) {
+barplotMeasuredMissingSampleServer <- function(id, samplesMeasuredMissing,
+    measured = TRUE) {
     
     shiny::moduleServer(
         id, 
         function(input, output, session) {
             
             p_barplotNumber <- shiny::reactive({
-                barplot_samples_memi(samples_memi(), measured = measured)
+                barplotSamplesMeasuredMissing(samplesMeasuredMissing(), 
+                    measured = measured)
             })
             
             output$barplotNumber <- plotly::renderPlotly({
@@ -164,10 +166,10 @@ barplotMeMiSampleServer <- function(id, samples_memi, measured = TRUE) {
 tP_histFeatUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeV") {
+    if (id == "MeasuredValues") {
         helper_file <-  "tabPanel_histFeature_measured"
     } 
-    if (id == "MiV") {
+    if (id == "MissingValues") {
         helper_file <- "tabPanel_histFeature_missing"
     }
     
@@ -220,13 +222,13 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
                     max = ncol(se()), value = 1, step = 1)
             })
             
-            p_hist_feature <- shiny::reactive({
-                hist_feature(assay(), binwidth = input$binwidth, 
+            p_histFeature <- shiny::reactive({
+                histFeature(assay(), binwidth = input$binwidth, 
                     measured = measured)
             })
             
             output$histFeature <- plotly::renderPlotly({
-                p_hist_feature()
+                p_histFeature()
             })
             
             output$downloadPlot_hist <- shiny::downloadHandler(
@@ -235,7 +237,7 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
                                                 measured, ".html", sep = "")
                 },
                 content = function(file) {
-                    htmlwidgets::saveWidget(p_hist_feature(), file)
+                    htmlwidgets::saveWidget(p_histFeature(), file)
                 }
             )
         }
@@ -275,10 +277,10 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
 tP_histFeatCategoryUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeV") {
+    if (id == "MeasuredValues") {
         helper_file <- "tabPanel_histFeatureSample_measured"
     }
-    if (id == "MiV") {
+    if (id == "MissingValues") {
         helper_file <- "tabPanel_histFeatureSample_missing"
     }
     
@@ -343,7 +345,7 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
             })
             
             p_histFeatureCategory <- shiny::reactive({
-                hist_feature_category(se(), binwidth = input$binwidthC, 
+                histFeatureCategory(se(), binwidth = input$binwidthC, 
                     measured = measured, category = input$categoryHist)
             })
             
@@ -394,10 +396,10 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
 tP_upSetUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeV") {
+    if (id == "MeasuredValues") {
         helper_file <- "tabPanel_upSet_measured"
     } 
-    if (id == "MiV") {
+    if (id == "MissingValues") {
         helper_file <- "tabPanel_upSet_missing"
     }
     
@@ -449,7 +451,7 @@ upSetServer <- function(id, se, measured = TRUE) {
             })
             
             p_upset <- shiny::reactive({
-                upset_category(se(), category = input$categoryUpSet, 
+                upsetCategory(se(), category = input$categoryUpSet, 
                     measured = measured)
             })
             
@@ -460,7 +462,7 @@ upSetServer <- function(id, se, measured = TRUE) {
             
             output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
-                    paste("Upset_measured_", measured, ".pdf", sep = "")
+                    paste("upSet_measured_", measured, ".pdf", sep = "")
                 },
                 content = function(file) {
                     ggplot2::ggsave(file, p_upset(), device = "pdf")
@@ -499,10 +501,10 @@ upSetServer <- function(id, se, measured = TRUE) {
 tP_setsUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeV") {
+    if (id == "MeasuredValues") {
         helper_file <- "tabPanel_sets_measured"
     } 
-    if (id == "MiV") {
+    if (id == "MissingValues") {
         helper_file <- "tabPanel_sets_missing"
     }
     
@@ -556,7 +558,7 @@ setsServer <- function(id, se, measured = TRUE) {
 }
 
 
-#' @name tP_meV_all
+#' @name tP_measuredValues_all
 #' 
 #' @title Tab panel UI for tab panel 'Measured Values'
 #' 
@@ -564,8 +566,8 @@ setsServer <- function(id, se, measured = TRUE) {
 #' The module defines the UI for the tab panel 'Measured Values'.
 #' 
 #' @details 
-#' `tP_meV_all` returns the HTML code for the tab-pane 'Measured Values'. 
-#' Internal function for `shinyQC`.
+#' `tP_measuredValues_all` returns the HTML code for the tab-pane 
+#' 'Measured Values'. Internal function for `shinyQC`.
 #' 
 #' @return 
 #' `shiny.tag` with HTML content
@@ -573,26 +575,26 @@ setsServer <- function(id, se, measured = TRUE) {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' tP_meV_all()
+#' tP_measuredValues_all()
 #' 
 #' @importFrom shiny tabPanel 
 #' @importFrom shinydashboard tabBox
 #' 
 #' @noRd 
-tP_meV_all <- function() {
+tP_measuredValues_all <- function() {
     shiny::tabPanel("Measured Values",
         shinydashboard::tabBox(title = "", width = 12,
-            tP_barplotMeMiSampleUI(id = "MeV_number", 
+            tP_barplotMeasuredMissingSampleUI(id = "MeasuredValues_number", 
                 title = "Number of features"),
-            tP_histFeatUI(id = "MeV"),
-            tP_histFeatCategoryUI(id = "MeV"),
-            tP_upSetUI(id = "MeV"),
-            tP_setsUI(id = "MeV")
+            tP_histFeatUI(id = "MeasuredValues"),
+            tP_histFeatCategoryUI(id = "MeasuredValues"),
+            tP_upSetUI(id = "MeasuredValues"),
+            tP_setsUI(id = "MeasuredValues")
         )
     )    
 }
 
-#' @name tP_miV_all
+#' @name tP_missingValues_all
 #' 
 #' @title Tab panel UI for tab panel 'Missing Values'
 #' 
@@ -600,8 +602,8 @@ tP_meV_all <- function() {
 #' The module defines the UI for the tab panel 'Missing Values'.
 #' 
 #' @details 
-#' `tP_miV_all` returns the HTML code for the tab-pane 'Missing Values'. 
-#' Internal function for `shinyQC`.
+#' `tP_missingValues_all` returns the HTML code for the tab-pane 
+#' 'Missing Values'. Internal function for `shinyQC`.
 #' 
 #' @return 
 #' `shiny.tag` with HTML content
@@ -609,21 +611,21 @@ tP_meV_all <- function() {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' tP_miV_all()
+#' tP_missingValues_all()
 #' 
 #' @importFrom shiny tabPanel 
 #' @importFrom shinydashboard tabBox
 #' 
 #' @noRd
-tP_miV_all <- function() {
+tP_missingValues_all <- function() {
         shiny::tabPanel("Missing Values",
             shinydashboard::tabBox(title = "", width = 12,
-                tP_barplotMeMiSampleUI(id = "MiV_number",
+                tP_barplotMeasuredMissingSampleUI(id = "MissingValues_number",
                     title = "Number of features"),
-                tP_histFeatUI(id = "MiV"),
-                tP_histFeatCategoryUI(id = "MiV"),
-                tP_upSetUI(id = "MiV"),
-                tP_setsUI(id = "MiV")
+                tP_histFeatUI(id = "MissingValues"),
+                tP_histFeatCategoryUI(id = "MissingValues"),
+                tP_upSetUI(id = "MissingValues"),
+                tP_setsUI(id = "MissingValues")
             )
         )
 }

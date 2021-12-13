@@ -29,6 +29,12 @@ experimental conditions).
 \details{
 The function `extractComb` uses the `make_comb_mat` function from 
 `ComplexHeatmap` package.
+
+Presence is defined by a feature being measured in at least one sample of a 
+set.
+
+Absence is defined by a feature with only missing values (i.e. no measured 
+values) of a set.
 }
 \examples{
 

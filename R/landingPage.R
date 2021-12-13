@@ -84,10 +84,11 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 ## tabPanel for tab "Measured Values"
                 missingValue2 <- missingValuesSE(se2)
                 if (missingValue2) shiny::insertTab(inputId = "tabs", 
-                    tP_meV_all(), target = "Samples", position = "after")
+                    tP_measuredValues_all(), target = "Samples", 
+                    position = "after")
                 ## tabPanel for tab "Missing Values"
                 if (missingValue2) shiny::insertTab(inputId = "tabs", 
-                    tP_miV_all(), target = "Measured Values", 
+                    tP_missingValues_all(), target = "Measured Values", 
                     position = "after")
                 shinyjs::show("tabPanelSE")
                 shinyjs::show("sidebarPanelSE")
