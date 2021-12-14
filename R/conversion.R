@@ -213,6 +213,7 @@ maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet,
     a <- as.matrix(a)
     mode(a) <- "numeric"
     a[a == 0] <- NA
+    colnames(a) <- cD[["name"]]
     
     ## create SummarizedExperiment and return
     SummarizedExperiment::SummarizedExperiment(assays = a, 
