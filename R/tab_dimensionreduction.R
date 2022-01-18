@@ -189,7 +189,7 @@ ordinationPlot <- function(tbl, se,
     if (!is.null(explainedVar)) {
         g <- g + ggplot2::xlab(paste(x_coord, " (", 
             round(explainedVar[[x_coord]]*100, 2), "%)", sep = ""))
-        g <- g + ggplot2::ylab(paste(x_coord, " (", 
+        g <- g + ggplot2::ylab(paste(y_coord, " (", 
             round(explainedVar[[y_coord]]*100, 2), "%)", sep = ""))
     } else {
         g <- g + ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) 

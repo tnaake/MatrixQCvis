@@ -529,14 +529,16 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                     explainedVar <- explVar(assay(), 
                         params = params_l, type = id)
                     ordinationPlot(tbl_vals(), se = se(), 
-                        highlight = input$highlight, input$x, input$y, 
+                        highlight = input$highlight, 
+                        x_coord = input$x, y_coord = input$y,
                         explainedVar = explainedVar, 
                         height = innerWidth() * 3 / 5)
 
                 } else {
 
                     ordinationPlot(tbl_vals(), se = se(), 
-                        highlight = input$highlight, input$x, input$y, 
+                        highlight = input$highlight, 
+                        x_coord = input$x, y_coord = input$y, 
                         explainedVar = NULL, 
                         height = innerWidth() * 3 / 5)
 
