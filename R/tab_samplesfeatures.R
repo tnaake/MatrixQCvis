@@ -157,11 +157,11 @@ mosaic <- function(se, f1, f2) {
     }
     
     df <- dplyr::mutate(df, 
-            prop_percent = paste(round(.data$prop, 1)*100, "%", sep = ""))
+            prop_percent = paste(round(.data$prop*100, 1), "%", sep = ""))
     df <- dplyr::ungroup(df)
     
     ## create label for facet (contains the proportion of f1 on total samples)
-    sample_percent <- round(df$cut.count / ncol(se) * 100, 2) 
+    sample_percent <- round(df$cut.count / ncol(se) * 100, 1) 
     
     df$f1_labs <- paste0(df[[f1]], " (", sample_percent, "%)")
     
