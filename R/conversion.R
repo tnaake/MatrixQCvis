@@ -38,7 +38,7 @@ biocrates <- function(file, sheet, ...) {
     xls <- openxlsx::read.xlsx(file, sheet = sheet, ...)
     
     ## colnames is in the first row, assign and remove the first row
-    colnames(xls) <- xls[1, ]
+    colnames(xls) <- make.names(xls[1, ])
     xls <- xls[-1, ]
     
     ## find the columns that contain the metabolites, row 1 contains class,
@@ -59,7 +59,7 @@ biocrates <- function(file, sheet, ...) {
     ## rename column "Sample Identification" to "name" and move to the beginning
     ## of cD
     cD <- xls[inds_name, seq_len(min(which(inds_met)) - 1)]
-    cD <- data.frame(name = cD[, "Sample Identification"], cD)
+    cD <- data.frame(name = cD[, "Sample.Identification"], cD)
     cD <- dplyr::select(cD, -c("Sample.Identification"))
     rownames(cD) <- cD[["name"]]
     
