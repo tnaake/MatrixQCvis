@@ -543,10 +543,10 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
     ## write the ellipsis to args
     args <- list(...)
     args_default[names(args)] <- args
-    
+
     ## call the ComplexHeatmap::Heatmap function
     do.call(what = ComplexHeatmap::Heatmap, args = args_default)
-    
+
     # @importFrom heatmaply heatmaply
     ## define the row annotation
     ##row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
