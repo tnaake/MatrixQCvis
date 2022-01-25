@@ -1,4 +1,7 @@
-Changes in version 1.3.2 (2-21-12-09)
+Changes in version 1.3.3 (2021-01-25)
++ harmonize clustering method in distShiny for columns/rows
+
+Changes in version 1.3.2 (2021-12-09)
 + add import of txt and xlsx files for function maxQuant
 + change rounding in mosaic that the plot shows more detailed numbers
 
