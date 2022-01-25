@@ -535,6 +535,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
     show_column_names <- FALSE
     args_default <- list(matrix = d, 
         clustering_distance_rows = function(x) stats::as.dist(x),
+        clustering_distance_columns = function(x) stats::as.dist(x),
         top_annotation = top_annotation,
         name = "distances", column_title = title,
         show_column_names = show_column_names)
