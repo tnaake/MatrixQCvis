@@ -735,13 +735,13 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' assay(se_n) <- normalizeAssay(a, "sum")
 #' tbl_n <- MAvalues(se_n, group = "all")
 #' hoeffDValues(tbl_n, "normalized")
-#' 
+#'
 #' ## transformed values
 #' se_t <- se
 #' assay(se_t) <- transformAssay(a, "log2")
 #' tbl_t <- MAvalues(se_t, group = "all")
 #' hoeffDValues(tbl_t, "transformed")
-#' 
+#'
 #' @importFrom Hmisc hoeffd
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr mutate group_by summarise pull
@@ -753,10 +753,10 @@ hoeffDValues <- function(tbl, name = "raw") {
     
     ## create a wide tibble with the samples as columns and features as rows 
     ## for A and M values
-    A <- tidyr::pivot_wider(tbl, id_cols = c("Feature", "name"), 
-        values_from = "A")
-    M <- tidyr::pivot_wider(tbl, id_cols = c("Feature", "name"), 
-        values_from = "M")
+    A <- tidyr::pivot_wider(tbl, id_cols = "Feature", values_from = "A", 
+        names_from = "name")
+    M <- tidyr::pivot_wider(tbl, id_cols = "Feature", values_from = "M", 
+        names_from = "name")
     
     ## create the D statistic between M and A values, 
     ## only return these comparisons (not A vs. A and M vs. M, i.e. index 
