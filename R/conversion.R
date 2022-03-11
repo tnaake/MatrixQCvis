@@ -41,9 +41,13 @@ biocrates <- function(file, sheet, ...) {
     colnames(xls) <- make.names(xls[1, ])
     xls <- xls[-1, ]
     
+    ## take the columns until Choline
+    xls <- xls[, seq(1, which(colnames(xls) == "Choline"))]
+    
     ## find the columns that contain the metabolites, row 1 contains class,
-    ## row 2 contains LOD (is NA for columns not containing the metabolites)
-    inds_met <- !is.na(xls[2, ])
+    ## row 2 contains LOD (row 1 and 2 is NA for columns not containing the 
+    ## metabolites)
+    inds_met <- !is.na(xls[1, ])
     ## set the first TRUE value to FALSE since it contains the label of the row
     inds_met[which(inds_met)[1]] <- FALSE
     
