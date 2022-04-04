@@ -255,19 +255,19 @@ test_that("featurePlot", {
 
 ## function cvFeaturePlot
 test_that("cvFeaturePlot", {
-  x1 <- matrix(1:100, ncol = 10, nrow = 10, 
-               dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
-  x2 <- x1 + 5
-  x3 <- x2 + 10
+    x1 <- matrix(1:100, ncol = 10, nrow = 10, 
+        dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+    x2 <- x1 + 5
+    x3 <- x2 + 10
+
+    l <- list(x1 = x1, x2 = x2, x3 = x3)
   
-  l <- list(x1 = x1, x2 = x2, x3 = x3)
-  
-  expect_is(cvFeaturePlot(l = l, lines = FALSE), "plotly")
-  expect_is(cvFeaturePlot(l = l, lines = TRUE), "plotly")
-  expect_error(cvFeaturePlot(l = NULL, lines = TRUE), 
-      "subset columns that don't exist")
-  expect_error(cvFeaturePlot(l = l, lines = "foo"), 
-      "argument is not interpretable as logical")
+    expect_is(cvFeaturePlot(l = l, lines = FALSE), "plotly")
+    expect_is(cvFeaturePlot(l = l, lines = TRUE), "plotly")
+    expect_error(cvFeaturePlot(l = NULL, lines = TRUE), 
+        "Can't subset columns")
+    expect_error(cvFeaturePlot(l = l, lines = "foo"), 
+        "argument is not interpretable as logical")
 })
 
 ## function normalizeAssay
