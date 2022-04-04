@@ -1,3 +1,6 @@
+Changes in version 1.2.3 (2022-04-04)
++ fix error message in unit test for cvFeaturePlot after updating packages
+
 Changes in version 1.1.2 (2021-09-06)
 + take sample IDs for shinyQC from colnames(se)
 + take feature IDs for shinyQC from rownames(se)
