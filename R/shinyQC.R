@@ -299,12 +299,6 @@ shinyQC <- function(se, app_server = FALSE) {
         selection = input[["select-excludeSamples"]], 
         mode = input[["select-mode"]])})
     
-    ## create SummarizedExperiment objects with updated assays
-    se_r_n <- shiny::reactive({updateSE(se = se_r(), assay = a_n())})
-    se_r_b <- shiny::reactive({updateSE(se = se_r(), assay = a_b())})
-    se_r_t <- shiny::reactive({updateSE(se = se_r(), assay = a_t())})
-    se_r_i <- shiny::reactive({updateSE(se = se_r(), assay = a_i())})
-    
     ## TAB: Samples
     ## barplot about number for sample type
     histSampleServer("Sample_hist", se = se_r)
@@ -392,18 +386,17 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## reactive expression for data transformation, returns a matrix with
     ## transformed values
-    a_b <- shiny::reactive({
-        shiny::req(input$batch, a_n()) 
-        
-        ## input$batch is either "none" or "removeBatchEffect (limma)"
-        batchCorrectionAssay(se_r_n(), method = input$batch, 
-                                        batchColumn = input$batchCol)
-    })
-    
     output$batchCol <- shiny::renderUI({
         shiny::selectInput("batchCol", 
             label = "Select column containing batch information",
             choices = colnames(SummarizedExperiment::colData(se)))
+    })
+    
+    a_b <- shiny::reactive({
+        shiny::req(input$batch, se_r_n()) 
+        
+        batchCorrectionAssay(se_r_n(), method = input$batch, 
+            batchColumn = input$batchCol)
     })
     
     shiny::observeEvent({shiny::req(input$batch); input$batch}, {
@@ -436,6 +429,12 @@ shinyQC <- function(se, app_server = FALSE) {
             a_t()
         }
     })
+    
+    ## create SummarizedExperiment objects with updated assays
+    se_r_n <- shiny::reactive({updateSE(se = se_r(), assay = a_n())})
+    se_r_b <- shiny::reactive({updateSE(se = se_r(), assay = a_b())})
+    se_r_t <- shiny::reactive({updateSE(se = se_r(), assay = a_t())})
+    se_r_i <- shiny::reactive({updateSE(se = se_r(), assay = a_i())})
     
     ## TAB: Values
     ## boxplots

@@ -278,8 +278,6 @@ test_that("normalizeAssay", {
     a_qd <- normalizeAssay(a, method = "quantile division", probs = 0.75)
     a_q <- normalizeAssay(a, method = "quantile")
     expect_error(normalizeAssay(se), "a is not a matrix")
-    expect_error(normalizeAssay(a, method = "quantile division"), 
-        'argument "probs" is missing, with no default')
     expect_error(normalizeAssay(a, "foo"), "'arg' should be one of ")
     expect_equal(a_n, a)
     expect_true(is.matrix(a_n))

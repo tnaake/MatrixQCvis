@@ -7,7 +7,7 @@
 normalizeAssay(
   a,
   method = c("none", "sum", "quantile division", "quantile"),
-  probs
+  probs = 0.75
 )
 }
 \arguments{
@@ -34,6 +34,9 @@ function from `limma`.
 \details{
 Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
 `x` is returned as is (pass-through).
+
+If `probs` is NULL, `probs` is internally set to "name" if 
+`method = "quantile division"`.
 }
 \examples{
 a <- matrix(1:100, nrow = 10, ncol = 10, 

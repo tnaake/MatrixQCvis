@@ -31,6 +31,9 @@ or no batch effect correction method (pass-through,
 \details{
 The column `batchColumn` in `colData(se)` contains the information on the 
 batch identity. Internal use in `shinyQC`.
+
+If `batchColumn` is NULL, `batchColumn` is internally set to the name
+of the first column in `colData(se)` if `method = "removeBatchEffect (limma)"`.
 }
 \examples{
 ## create se

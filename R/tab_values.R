@@ -1151,6 +1151,9 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
 #' `x` is returned as is (pass-through).
 #' 
+#' If `probs` is NULL, `probs` is internally set to "name" if 
+#' `method = "quantile division"`.
+#' 
 #' @param a `matrix` with samples in columns and features in rows
 #' @param method `character`, one of `"none"`, `"sum"`, `"quantile division"`, 
 #' `"quantile"`
@@ -1169,7 +1172,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #'  
 #' @export
 normalizeAssay <- function(a, 
-    method = c("none", "sum", "quantile division", "quantile"), probs) {
+    method = c("none", "sum", "quantile division", "quantile"), probs = 0.75) {
     
     if (!is.matrix(a)) stop ("a is not a matrix")
     method <- match.arg(method)
@@ -1180,6 +1183,7 @@ normalizeAssay <- function(a,
         a_n <- apply(a_n, 2, function(x) x / sum(x, na.rm = TRUE))
     }
     if (method == "quantile division") {
+        if (is.null(probs)) probs <- 0.75
         a_n <- apply(a_n, 2,
                 function(x) x / stats::quantile(x, probs = probs, na.rm = TRUE))
     }
@@ -1207,6 +1211,9 @@ normalizeAssay <- function(a,
 #' @details 
 #' The column `batchColumn` in `colData(se)` contains the information on the 
 #' batch identity. Internal use in `shinyQC`.
+#' 
+#' If `batchColumn` is NULL, `batchColumn` is internally set to the name
+#' of the first column in `colData(se)` if `method = "removeBatchEffect (limma)"`.
 #' 
 #' @param se `SummarizedExperiment`
 #' @param method `character`, one of `"none"` or `"removeBatchEffect"`
@@ -1243,7 +1250,12 @@ batchCorrectionAssay <- function(se,
     a_b <- as.matrix(a)
     
     if (method == "removeBatchEffect (limma)") {
+        
         cD <- SummarizedExperiment::colData(se)
+        if (is.null(batchColumn)) {
+            batchColumn <- colnames(cD)[1]
+        }
+        
         if (!batchColumn %in% colnames(cD)) {
             stop("batchColumn not in colnames(colData(se))")
         }
