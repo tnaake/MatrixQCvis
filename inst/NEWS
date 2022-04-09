@@ -1,3 +1,6 @@
+Changes in version 1.2.4 (2022-04-09)
++ fix error message in unit test for hist_feature_category after updating packages
+
 Changes in version 1.2.3 (2022-04-04)
 + fix error message in unit test for cvFeaturePlot after updating packages
 

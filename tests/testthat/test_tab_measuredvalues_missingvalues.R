@@ -102,7 +102,7 @@ test_that("hist_feature_category", {
             binwidth = 2), "argument is not interpretable as logical")
     expect_error(
         hist_feature_category(se, measured = TRUE, category = "foo", 
-            binwidth = 2), "Can't subset columns that don't exist")
+            binwidth = 2), "Can't subset columns")
     expect_is(g, "plotly")
 })
 
