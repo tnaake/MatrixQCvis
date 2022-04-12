@@ -18,7 +18,7 @@
 #' @author Thomas Naake
 #' 
 #' @examples
-#' tP_barPlotMeasuredMissingSampleUI("test")
+#' tP_barplotMeasuredMissingSampleUI("test")
 #' 
 #' @importFrom shiny NS tabPanel downloadButton
 #' @importFrom shinyhelper helper
@@ -28,10 +28,10 @@
 tP_barplotMeasuredMissingSampleUI <- function(id, title = "Number of measured features") {
     ns <- shiny::NS(id)
     
-    if (id == "MeasuredValues_number") {
+    if (id == "MeV_number") {
         helper_file <- "tabPanel_barNumberFeature_measured"
     }
-    if (id == "MissingValues_number") {
+    if (id == "MiV_number") {
         helper_file <- "tabPanel_barNumberFeature_missing"
     }
     
@@ -166,10 +166,10 @@ barplotMeasuredMissingSampleServer <- function(id, samplesMeasuredMissing,
 tP_histFeatUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeasuredValues") {
+    if (id == "MeV") {
         helper_file <-  "tabPanel_histFeature_measured"
     } 
-    if (id == "MissingValues") {
+    if (id == "MiV") {
         helper_file <- "tabPanel_histFeature_missing"
     }
     
@@ -277,10 +277,10 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
 tP_histFeatCategoryUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeasuredValues") {
+    if (id == "MeV") {
         helper_file <- "tabPanel_histFeatureSample_measured"
     }
-    if (id == "MissingValues") {
+    if (id == "MiV") {
         helper_file <- "tabPanel_histFeatureSample_missing"
     }
     
@@ -396,10 +396,10 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
 tP_upSetUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeasuredValues") {
+    if (id == "MeV") {
         helper_file <- "tabPanel_upSet_measured"
     } 
-    if (id == "MissingValues") {
+    if (id == "MiV") {
         helper_file <- "tabPanel_upSet_missing"
     }
     
@@ -501,10 +501,10 @@ upSetServer <- function(id, se, measured = TRUE) {
 tP_setsUI <- function(id) {
     ns <- shiny::NS(id)
     
-    if (id == "MeasuredValues") {
+    if (id == "MeV") {
         helper_file <- "tabPanel_sets_measured"
     } 
-    if (id == "MissingValues") {
+    if (id == "MiV") {
         helper_file <- "tabPanel_sets_missing"
     }
     
@@ -584,12 +584,12 @@ setsServer <- function(id, se, measured = TRUE) {
 tP_measuredValues_all <- function() {
     shiny::tabPanel("Measured Values",
         shinydashboard::tabBox(title = "", width = 12,
-            tP_barplotMeasuredMissingSampleUI(id = "MeasuredValues_number", 
+            tP_barplotMeasuredMissingSampleUI(id = "MeV_number", 
                 title = "Number of features"),
-            tP_histFeatUI(id = "MeasuredValues"),
-            tP_histFeatCategoryUI(id = "MeasuredValues"),
-            tP_upSetUI(id = "MeasuredValues"),
-            tP_setsUI(id = "MeasuredValues")
+            tP_histFeatUI(id = "MeV"),
+            tP_histFeatCategoryUI(id = "MeV"),
+            tP_upSetUI(id = "MeV"),
+            tP_setsUI(id = "MeV")
         )
     )    
 }
@@ -620,12 +620,12 @@ tP_measuredValues_all <- function() {
 tP_missingValues_all <- function() {
         shiny::tabPanel("Missing Values",
             shinydashboard::tabBox(title = "", width = 12,
-                tP_barplotMeasuredMissingSampleUI(id = "MissingValues_number",
+                tP_barplotMeasuredMissingSampleUI(id = "MiV_number",
                     title = "Number of features"),
-                tP_histFeatUI(id = "MissingValues"),
-                tP_histFeatCategoryUI(id = "MissingValues"),
-                tP_upSetUI(id = "MissingValues"),
-                tP_setsUI(id = "MissingValues")
+                tP_histFeatUI(id = "MiV"),
+                tP_histFeatCategoryUI(id = "MiV"),
+                tP_upSetUI(id = "MiV"),
+                tP_setsUI(id = "MiV")
             )
         )
 }

@@ -308,9 +308,9 @@ shinyQC <- function(se, app_server = FALSE) {
     ## barplot number of measured/missing features per sample
     samplesMeasuredMissingTbl <- sampleMeasuredMissingServer("MeMiTbl", 
                                                             se = se_r)
-    barplotMeasuredMissingSampleServer("MeV_number", 
+    barplotMeasuredMissingSampleServer(id = "MeV_number", 
         samplesMeasuredMissing = samplesMeasuredMissingTbl, measured = TRUE)
-    barplotMeasuredMissingSampleServer("MiV_number", 
+    barplotMeasuredMissingSampleServer(id = "MiV_number", 
         samplesMeasuredMissing = samplesMeasuredMissingTbl, measured = FALSE)
     
     ## sync input[["MeV-categoryHist"]] with input[["MeV-categoryUpSet"]]
@@ -361,7 +361,6 @@ shinyQC <- function(se, app_server = FALSE) {
     ## tab: Sets
     setsServer("MeV", se = se_r, measured = TRUE)
     setsServer("MiV", se = se_r, measured = FALSE)
-    
     
     ## TAB: Values and Dimension reduction plots
     

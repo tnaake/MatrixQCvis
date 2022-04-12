@@ -1,3 +1,6 @@
+Changes in version 1.3.7 (2022-04-12)
++ change namespace in module_measuredValues_missingValues.R
+  
 Changes in version 1.3.6 (2022-04-08)
 + set internally parameters (probs, batchColumn) in normalizeAssay and 
   batchCorrectionAssay to default values when the parameters are NULL
