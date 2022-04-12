@@ -12,9 +12,9 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
 
 ## tP_barplotMeasuredMissingSampleUI
 test_that("tP_barplotMeasuredMissingSampleUI", {
-    expect_is(tP_barplotMeasuredMissingSampleUI("MeasuredValues_number", 
+    expect_is(tP_barplotMeasuredMissingSampleUI("MeV_number", 
         title = "test"), "shiny.tag")
-    expect_is(tP_barplotMeasuredMissingSampleUI("MissingValues_number", 
+    expect_is(tP_barplotMeasuredMissingSampleUI("MiV_number", 
         title = "test"), "shiny.tag")
 })
 
@@ -49,8 +49,8 @@ test_that("barplotMeasuredMissingSampleServer", {
 
 ## tP_histFeatUI
 test_that("tP_histFeatUI", {
-    expect_is(tP_histFeatUI("MeasuredValues"), "shiny.tag")
-    expect_is(tP_histFeatUI("MissingValues"), "shiny.tag")
+    expect_is(tP_histFeatUI("MeV"), "shiny.tag")
+    expect_is(tP_histFeatUI("MiV"), "shiny.tag")
 })
 
 ## histFeatServer
@@ -70,8 +70,8 @@ test_that("histFeatServer", {
 
 ## tP_histFeatCategoryUI
 test_that("tP_histFeatCategoryUI", {
-    expect_is(tP_histFeatCategoryUI("MeasuredValues"), "shiny.tag")
-    expect_is(tP_histFeatCategoryUI("MissingValues"), "shiny.tag")
+    expect_is(tP_histFeatCategoryUI("MeV"), "shiny.tag")
+    expect_is(tP_histFeatCategoryUI("MiV"), "shiny.tag")
 })
 
 ## histFeatCategoryServer
@@ -90,8 +90,8 @@ test_that("histFeatCategoryServer", {
 
 ## tP_upSetUI
 test_that("tP_upSetUI", {
-    expect_is(tP_upSetUI("MeasuredValues"), "shiny.tag")
-    expect_is(tP_upSetUI("MissingValues"), "shiny.tag")
+    expect_is(tP_upSetUI("MeV"), "shiny.tag")
+    expect_is(tP_upSetUI("MiV"), "shiny.tag")
 })
 
 ## upSetServer
@@ -110,8 +110,8 @@ test_that("upSetServer", {
 
 ## tP_setsUI
 test_that("tP_setsUI", {
-    expect_is(tP_setsUI("MeasuredValues"), "shiny.tag")
-    expect_is(tP_setsUI("MissingValues"), "shiny.tag")
+    expect_is(tP_setsUI("MeV"), "shiny.tag")
+    expect_is(tP_setsUI("MiV"), "shiny.tag")
 })
 
 ## setsServer
