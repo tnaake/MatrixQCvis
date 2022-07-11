@@ -8,32 +8,34 @@ axis (PCoA)}
 explVar(x, params, type = c("PCA", "PCoA"))
 }
 \arguments{
-\item{x}{`matrix`, containing no missing values (`NA`), samples in columns
-and features in rows}
+\item{x}{\code{matrix}, containing no missing values (\code{NA}), samples 
+in columns and features in rows}
 
-\item{params}{`list`, containing the parameters for PCA and PCoA. For 
-`type = "PCA"` these are `center` of type `logical` 
+\item{params}{\code{list}, containing the parameters for PCA and PCoA. For 
+\code{type = "PCA"} these are \code{center} of type \code{logical}
 (indicating whether the variables should be shifted to be zero centered) and
-`scale` of type `logical`(indicating whether the variables should be scaled
-that they have a standard variation of 1). For `type = "PCoA"`, this 
-is `method` of type `character` (indicating the method for distance 
-calculation).}
+\code{scale} of type \code{logical}(indicating whether the variables 
+should be scaled that they have a standard variation of 1). For 
+\code{type = "PCoA"}, this is \code{method} of type \code{character} 
+(indicating the method for distance  calculation).}
 
-\item{type}{`character`, one of `"PCA"` or `"PCoA"`}
+\item{type}{\code{character}, one of \code{"PCA"} or \code{"PCoA"}}
 }
 \value{
-`numeric` vector with the proportion of explained variance for each 
-PC or Axis
+\code{numeric} vector with the proportion of explained variance 
+for each PC or Axis
 }
 \description{
-The function `explVar` calculates the proportion of explained variance for
-each principal component (PC, `type = "PCA"`) and axis (`type = "PCoA"`).
+The function \code{explVar} calculates the proportion of explained variance 
+for each principal component (PC, \code{type = "PCA"}) and axis 
+(\code{type = "PCoA"}).
 }
 \details{
-`explVar` uses the function `prcomp` from the `stats` package to retrieve
-the explained standard deviation per PC (`type = "PCA"`) and the function 
-`cmdscale` from the `stats` package to retrieve the explained variation 
-based on eigenvalues per Axis (`type = "PCoA"`).
+\code{explVar} uses the function \code{prcomp} from the \code{stats} package 
+to retrieve the explained standard deviation per PC 
+(\code{type = "PCA"}) and the function \code{cmdscale} from the \code{stats} 
+package to retrieve the explained variation based on eigenvalues per 
+Axis (\code{type = "PCoA"}).
 }
 \examples{
 x <- matrix(1:100, nrow = 10, ncol = 10, 

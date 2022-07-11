@@ -7,20 +7,20 @@
 plotPCAVarPvalue(var_x, var_perm)
 }
 \arguments{
-\item{var_x}{`numeric`, measured variances}
+\item{var_x}{\code{numeric}, measured variances}
 
-\item{var_perm}{`matrix`, variances obtained by permutation}
+\item{var_perm}{\code{matrix}, variances obtained by permutation}
 }
 \value{
-`gg` object from `ggplot`
+\code{gg} object from \code{ggplot}
 }
 \description{
-The function `plotPCAVarPvalue` plots the p-values of significances of 
+The function \code{plotPCAVarPvalue} plots the p-values of significances of 
 principal components. Using the visual output, the optimal number of 
 principal components can be selected.
 }
 \details{
-Internal usage in `shinyQC`.
+Internal usage in \code{shinyQC}.
 }
 \examples{
 x <- matrix(1:100, ncol = 10)

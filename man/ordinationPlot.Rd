@@ -2,7 +2,7 @@
 % Please edit documentation in R/tab_dimensionreduction.R
 \name{ordinationPlot}
 \alias{ordinationPlot}
-\title{Plot the coordinates from `ordination` values}
+\title{Plot the coordinates from \code{ordination} values}
 \usage{
 ordinationPlot(
   tbl,
@@ -11,38 +11,46 @@ ordinationPlot(
   explainedVar = NULL,
   x_coord,
   y_coord,
-  height = 600
+  height = 600,
+  interactive = TRUE
 )
 }
 \arguments{
-\item{tbl}{`tbl` as obtained by the function `ordination`}
+\item{tbl}{\code{tbl} as obtained by the function \code{ordination}}
 
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{highlight}{`character`, one of `"none"` or `colnames(colData(se))`}
+\item{highlight}{\code{character}, one of \code{"none"} or 
+\code{colnames(colData(se))}}
 
-\item{explainedVar}{NULL or named `numeric`, if `numeric` `explainedVar` 
-contains the explained variance per principal component (names of 
-`explainedVar` corresponds to the principal components)}
+\item{explainedVar}{NULL or named \code{numeric}, if \code{numeric} 
+\code{explainedVar} contains the explained variance per principal component 
+(names of \code{explainedVar} corresponds to the principal components)}
 
-\item{x_coord}{`character`, column name of `tbl` that stores x coordinates}
+\item{x_coord}{\code{character}, column name of \code{tbl} that stores 
+x coordinates}
 
-\item{y_coord}{`character`, column name of `tbl` that stores y coordinates}
+\item{y_coord}{\code{character}, column name of \code{tbl} that stores 
+y coordinates}
 
-\item{height}{`numeric`, specifying the height of the plot (in pixels)}
+\item{height}{\code{numeric}, specifying the height of the plot (in pixels)}
+
+\item{interactive}{\code{logical(1)}, if \code{TRUE} \code{ordinationPlot} 
+will return a \code{plotly} object, if \code{FALSE} \code{ordinationPlot} 
+will return a \code{gg} object}
 }
 \value{
-`plotly`
+\code{plotly} or \code{gg}
 }
 \description{
-The function `ordinationPlot` creates a dimension reduction plot. 
-The function takes as input the `tbl` object obtained 
-from the `ordination` function. The `tbl` contains transformed
+The function \code{ordinationPlot} creates a dimension reduction plot. 
+The function takes as input the \code{tbl} object obtained 
+from the \code{ordination} function. The \code{tbl} contains transformed
 values by one of the ordination methods.
 }
 \details{
-The function `ordinationPlot` is a wrapper for a `ggplot`/`ggplotly` 
-expression.
+The function \code{ordinationPlot} is a wrapper for a
+\code{ggplot/ggplotly} expression.
 }
 \examples{
 library(SummarizedExperiment)

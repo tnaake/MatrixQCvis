@@ -7,21 +7,21 @@
 tblPCALoadings(x, params)
 }
 \arguments{
-\item{x}{`matrix`, containing no missing values}
+\item{x}{\code{matrix}, containing no missing values}
 
-\item{params}{`list`, arguments/parameters given to the function 
-`stats::prcomp`}
+\item{params}{\code{list}, arguments/parameters given to the function 
+\code{stats::prcomp}}
 }
 \value{
-`tbl`
+\code{tbl}
 }
 \description{
-The function `tblPCALoadings` returns a `tibble` with loadings values for the
-features (row entries) in `x`.
+The function \code{tblPCALoadings} returns a \code{tibble} with loadings values for the
+features (row entries) in \code{x}.
 }
 \details{
-The function `tblPCALoadings` acccesses the list entry `rotation` of the
-`prcomp` object.
+The function \code{tblPCALoadings} acccesses the list entry \code{rotation} of the
+\code{prcomp} object.
 }
 \examples{
 set.seed(1)

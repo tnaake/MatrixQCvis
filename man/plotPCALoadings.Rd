@@ -7,22 +7,22 @@
 plotPCALoadings(tbl, x_coord, y_coord)
 }
 \arguments{
-\item{tbl}{`tbl` as obtained by the function `ordination`}
+\item{tbl}{\code{tbl} as obtained by the function \code{ordination}}
 
-\item{x_coord}{`character`, column name of `tbl` that stores x coordinates}
+\item{x_coord}{\code{character}, column name of \code{tbl} that stores x coordinates}
 
-\item{y_coord}{`character`, column name of `tbl` that stores y coordinates}
+\item{y_coord}{\code{character}, column name of \code{tbl} that stores y coordinates}
 }
 \value{
-`plotly`
+\code{plotly}
 }
 \description{
-The function `plotPCALoadings` creates a loadings plot of the features.
+The function \code{plotPCALoadings} creates a loadings plot of the features.
 }
 \details{
-The function takes as input the output of the function `tblPlotPCALoadings`.
-It uses the `ggplotly` function from `plotly` to create an interactive 
-`plotly` plot.
+The function takes as input the output of the function \code{tblPlotPCALoadings}.
+It uses the \code{ggplotly} function from \code{plotly} to create an interactive 
+\code{plotly} plot.
 }
 \examples{
 x <- matrix(rnorm(1:10000), ncol = 100)

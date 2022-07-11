@@ -7,26 +7,26 @@
 permuteExplVar(x, n = 10, center = TRUE, scale = TRUE)
 }
 \arguments{
-\item{x}{`matrix` or `data.frame`, samples in columns and features in rows}
+\item{x}{\code{matrix} or \code{data.frame}, samples in columns and features in rows}
 
-\item{n}{`numeric`, number of permutation rounds}
+\item{n}{\code{numeric}, number of permutation rounds}
 
-\item{center}{`logical`, passed to the function `explVar`}
+\item{center}{\code{logical}, passed to the function \code{explVar}}
 
-\item{scale}{`logical`, passed to the function `explVar`}
+\item{scale}{\code{logical}, passed to the function \code{explVar}}
 }
 \value{
 matrix with explained variance
 }
 \description{
-The function `permuteExplVar` determines the explained variance of the 
-permuted expression matrix (`x`). It is used to determine the optimal 
+The function \code{permuteExplVar} determines the explained variance of the 
+permuted expression matrix (\code{x}). It is used to determine the optimal 
 number of PCs for tSNE.
 }
 \details{
-For the input of tSNE, typically, we want to reduce the 
-initial number of dimensions linearly with PCA (used as the `initial_dims`
-arguments in the `Rtsne` funtion). The reduced data set is used for feeding 
+For the input of tSNE, typically, we want to reduce the initial number of 
+dimensions linearly with PCA (used as the \code{initial_dims} arguments in 
+the \code{Rtsne} funtion). The reduced data set is used for feeding 
 into tSNE. By plotting the percentage of variance explained by the Princical
 Components (PCs) we can estimate how many PCs we keep as input into tSNE.
 However, if we select too many PCs, noise will be included as input to tSNE;

@@ -4,25 +4,29 @@
 #' PCoA, NMDS, UMAP and tSNE
 #'
 #' @description 
-#' The function `ordination` creates a `data.frame` with the coordinates of the
-#' projected data. The function allows for the following projections:
+#' The function \code{ordination} creates a \code{data.frame} 
+#' with the coordinates of the projected data. The function allows for the 
+#' following projections:
 #' Principal Component Analysis (PCA), Principal Coordinates 
 #' Analysis/Multidimensional Scaling (PCoA), Non-metric Multidimensional 
 #' scaling (NMDS), t-distributed stochastic neighbor embedding (tSNE), and 
 #' Uniform Manifold Approimation and Projection (UMAP).
 #' 
 #' @details 
-#' The function `ordination` is a wrapper around the following 
-#' functions `stats::prcomp` (PCA), `stats::cmdscale` (PCoA), 
-#' `vegan::metaMDS` (NMDS), `Rtsne::Rtsne` (tSNE), and `umap::umap` (UMAP).
-#' For the function `umap::umap` the method is set to `naive`. 
+#' The function \code{ordination} is a wrapper around the following 
+#' functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA), 
+#' \code{vegan::metaMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
+#' \code{umap::umap} (UMAP). For the function \code{umap::umap} 
+#' the method is set to \code{naive}. 
 #' 
-#' @param x `matrix`, containing no missing values, samples are in columns and
-#' features are in rows
-#' @param type `character`, specifying the type/method to use for 
-#' dimensionality reduction. One of `PCA`, `PCoA`, `NMDS`, `tSNE`, or `UMAP`. 
-#' @param params `list`, arguments/parameters given to the functions 
-#' `stats::prcomp`, `stats::dist`, `Rtsne::Rtsne`, `umap::umap`
+#' @param x \code{matrix}, containing no missing values, samples are in columns 
+#' and features are in rows
+#' @param type \code{character}, specifying the type/method to use for 
+#' dimensionality reduction. One of \code{PCA}, \code{PCoA}, \code{NMDS}, 
+#' \code{tSNE}, or \code{UMAP}. 
+#' @param params \code{list}, arguments/parameters given to the functions 
+#' \code{stats::prcomp}, \code{stats::dist}, \code{Rtsne::Rtsne}, 
+#' \code{umap::umap}
 #' 
 #' @examples 
 #' x <- matrix(rnorm(1:10000), ncol = 100)
@@ -45,7 +49,7 @@
 #' @importFrom umap umap
 #' @importFrom methods formalArgs
 #' 
-#' @return `tbl`
+#' @return \code{tbl}
 #' 
 #' @export
 ordination <- function(x, 
@@ -105,27 +109,33 @@ ordination <- function(x,
 
 #' @name ordinationPlot
 #' 
-#' @title Plot the coordinates from `ordination` values
+#' @title Plot the coordinates from \code{ordination} values
 #' 
 #' @description 
-#' The function `ordinationPlot` creates a dimension reduction plot. 
-#' The function takes as input the `tbl` object obtained 
-#' from the `ordination` function. The `tbl` contains transformed
+#' The function \code{ordinationPlot} creates a dimension reduction plot. 
+#' The function takes as input the \code{tbl} object obtained 
+#' from the \code{ordination} function. The \code{tbl} contains transformed
 #' values by one of the ordination methods. 
 #' 
 #' @details 
-#' The function `ordinationPlot` is a wrapper for a `ggplot`/`ggplotly` 
-#' expression. 
+#' The function \code{ordinationPlot} is a wrapper for a
+#' \code{ggplot/ggplotly} expression. 
 #'
-#' @param tbl `tbl` as obtained by the function `ordination`
-#' @param se `SummarizedExperiment`
-#' @param highlight `character`, one of `"none"` or `colnames(colData(se))`
-#' @param explainedVar NULL or named `numeric`, if `numeric` `explainedVar` 
-#' contains the explained variance per principal component (names of 
-#' `explainedVar` corresponds to the principal components)
-#' @param x_coord `character`, column name of `tbl` that stores x coordinates
-#' @param y_coord `character`, column name of `tbl` that stores y coordinates
-#' @param height `numeric`, specifying the height of the plot (in pixels)
+#' @param tbl \code{tbl} as obtained by the function \code{ordination}
+#' @param se \code{SummarizedExperiment}
+#' @param highlight \code{character}, one of \code{"none"} or 
+#' \code{colnames(colData(se))}
+#' @param explainedVar NULL or named \code{numeric}, if \code{numeric} 
+#' \code{explainedVar} contains the explained variance per principal component 
+#' (names of \code{explainedVar} corresponds to the principal components)
+#' @param x_coord \code{character}, column name of \code{tbl} that stores 
+#' x coordinates
+#' @param y_coord \code{character}, column name of \code{tbl} that stores 
+#' y coordinates
+#' @param height \code{numeric}, specifying the height of the plot (in pixels)
+#' @param interactive \code{logical(1)}, if \code{TRUE} \code{ordinationPlot} 
+#' will return a \code{plotly} object, if \code{FALSE} \code{ordinationPlot} 
+#' will return a \code{gg} object
 #' 
 #' @examples
 #' library(SummarizedExperiment)
@@ -152,12 +162,13 @@ ordination <- function(x,
 #' @importFrom ggplot2 ggplot aes_string xlab ylab geom_point coord_fixed
 #' @importFrom ggplot2 theme_classic theme
 #' 
-#' @return `plotly`
+#' @return \code{plotly} or \code{gg}
 #' 
 #' @export
 ordinationPlot <- function(tbl, se, 
     highlight = c("none", colnames(colData(se))), 
-    explainedVar = NULL, x_coord, y_coord, height = 600) {
+    explainedVar = NULL, x_coord, y_coord, height = 600,
+    interactive = TRUE) {
     
     highlight <- match.arg(highlight)
     highlight <- make.names(highlight)
@@ -201,10 +212,15 @@ ordinationPlot <- function(tbl, se,
         g <- g + ggplot2::geom_point(ggplot2::aes_string(color = "color"))
     }
     
-    g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() + 
-        ggplot2::theme(legend.position = "none") 
+    g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() 
+        
     
-    plotly::ggplotly(g, tooltip = tT, height = height) 
+    if (interactive) {
+        g <- g + ggplot2::theme(legend.position = "none") 
+        plotly::ggplotly(g, tooltip = tT, height = height)
+    } else {
+        g
+    }
 }
 
 
@@ -215,28 +231,30 @@ ordinationPlot <- function(tbl, se,
 #' axis (PCoA)
 #'
 #' @description
-#' The function `explVar` calculates the proportion of explained variance for
-#' each principal component (PC, `type = "PCA"`) and axis (`type = "PCoA"`). 
+#' The function \code{explVar} calculates the proportion of explained variance 
+#' for each principal component (PC, \code{type = "PCA"}) and axis 
+#' (\code{type = "PCoA"}). 
 #' 
 #' @details 
-#' `explVar` uses the function `prcomp` from the `stats` package to retrieve
-#' the explained standard deviation per PC (`type = "PCA"`) and the function 
-#' `cmdscale` from the `stats` package to retrieve the explained variation 
-#' based on eigenvalues per Axis (`type = "PCoA"`).
+#' \code{explVar} uses the function \code{prcomp} from the \code{stats} package 
+#' to retrieve the explained standard deviation per PC 
+#' (\code{type = "PCA"}) and the function \code{cmdscale} from the \code{stats} 
+#' package to retrieve the explained variation based on eigenvalues per 
+#' Axis (\code{type = "PCoA"}).
 #' 
-#' @param x `matrix`, containing no missing values (`NA`), samples in columns
-#' and features in rows
-#' @param params `list`, containing the parameters for PCA and PCoA. For 
-#' `type = "PCA"` these are `center` of type `logical` 
+#' @param x \code{matrix}, containing no missing values (\code{NA}), samples 
+#' in columns and features in rows
+#' @param params \code{list}, containing the parameters for PCA and PCoA. For 
+#' \code{type = "PCA"} these are \code{center} of type \code{logical}
 #' (indicating whether the variables should be shifted to be zero centered) and
-#' `scale` of type `logical`(indicating whether the variables should be scaled
-#' that they have a standard variation of 1). For `type = "PCoA"`, this 
-#' is `method` of type `character` (indicating the method for distance 
-#' calculation). 
-#' @param type `character`, one of `"PCA"` or `"PCoA"`
+#' \code{scale} of type \code{logical}(indicating whether the variables 
+#' should be scaled that they have a standard variation of 1). For 
+#' \code{type = "PCoA"}, this is \code{method} of type \code{character} 
+#' (indicating the method for distance  calculation). 
+#' @param type \code{character}, one of \code{"PCA"} or \code{"PCoA"}
 #' 
-#' @return `numeric` vector with the proportion of explained variance for each 
-#' PC or Axis
+#' @return \code{numeric} vector with the proportion of explained variance 
+#' for each PC or Axis
 #' 
 #' @examples
 #' x <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -285,14 +303,14 @@ explVar <- function(x, params, type = c("PCA", "PCoA")) {
 #' @title Permute the expression values and retrieve the explained variance
 #' 
 #' @description 
-#' The function `permuteExplVar` determines the explained variance of the 
-#' permuted expression matrix (`x`). It is used to determine the optimal 
+#' The function \code{permuteExplVar} determines the explained variance of the 
+#' permuted expression matrix (\code{x}). It is used to determine the optimal 
 #' number of PCs for tSNE. 
 #' 
 #' @details 
-#' For the input of tSNE, typically, we want to reduce the 
-#' initial number of dimensions linearly with PCA (used as the `initial_dims`
-#' arguments in the `Rtsne` funtion). The reduced data set is used for feeding 
+#' For the input of tSNE, typically, we want to reduce the initial number of 
+#' dimensions linearly with PCA (used as the \code{initial_dims} arguments in 
+#' the \code{Rtsne} funtion). The reduced data set is used for feeding 
 #' into tSNE. By plotting the percentage of variance explained by the Princical
 #' Components (PCs) we can estimate how many PCs we keep as input into tSNE.
 #' However, if we select too many PCs, noise will be included as input to tSNE;
@@ -301,10 +319,10 @@ explVar <- function(x, params, type = c("PCA", "PCoA")) {
 #' be employed and the observed variance will be compared to the permuted 
 #' variance.
 #' 
-#' @param x `matrix` or `data.frame`, samples in columns and features in rows
-#' @param n `numeric`, number of permutation rounds
-#' @param center `logical`, passed to the function `explVar`
-#' @param scale `logical`, passed to the function `explVar`
+#' @param x \code{matrix} or \code{data.frame}, samples in columns and features in rows
+#' @param n \code{numeric}, number of permutation rounds
+#' @param center \code{logical}, passed to the function \code{explVar}
+#' @param scale \code{logical}, passed to the function \code{explVar}
 #' 
 #' @examples  
 #' x <- matrix(1:100, nrow = 10, ncol = 10,
@@ -341,16 +359,16 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' @title Plot of explained variance against the principal components
 #' 
 #' @description
-#' The function `plotPCAVar` plots the explained variance (in %) on the y-axis
+#' The function \code{plotPCAVar} plots the explained variance (in %) on the y-axis
 #' against the principal components for the measured and permuted values.  
 #' 
 #' @details
-#' The argument `var_perm` is optional and visualization of permuted values 
-#' can be omitted by setting `var_perm = NULL`.
+#' The argument \code{var_perm} is optional and visualization of permuted values 
+#' can be omitted by setting \code{var_perm = NULL}.
 #' 
-#' @param var_x `numeric` (named `numeric` vector)
-#' @param var_perm `matrix` with the explained variance obtained by permutation
-#' (function `permuteExplVar`)
+#' @param var_x \code{numeric} (named \code{numeric} vector)
+#' @param var_perm \code{matrix} with the explained variance obtained by permutation
+#' (function \code{permuteExplVar})
 #' 
 #' @examples 
 #' x <- matrix(1:100, ncol = 10)
@@ -360,7 +378,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' plotPCAVar(var_x = var_x, var_perm = var_perm)
 #'
 #' @return 
-#' `gg` object from `ggplot`
+#' \code{gg} object from \code{ggplot}
 #' 
 #' @author Thomas Naake
 #' 
@@ -401,15 +419,15 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' @title Plot p-values for the significance of principal components
 #' 
 #' @description 
-#' The function `plotPCAVarPvalue` plots the p-values of significances of 
+#' The function \code{plotPCAVarPvalue} plots the p-values of significances of 
 #' principal components. Using the visual output, the optimal number of 
 #' principal components can be selected. 
 #' 
 #' @details
-#' Internal usage in `shinyQC`.
+#' Internal usage in \code{shinyQC}.
 #' 
-#' @param var_x `numeric`, measured variances
-#' @param var_perm `matrix`, variances obtained by permutation
+#' @param var_x \code{numeric}, measured variances
+#' @param var_perm \code{matrix}, variances obtained by permutation
 #' 
 #' @examples
 #' x <- matrix(1:100, ncol = 10)
@@ -418,7 +436,7 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVarPvalue(var_x = var_x, var_perm = var_perm)
 #' 
-#' @return `gg` object from `ggplot`
+#' @return \code{gg} object from \code{ggplot}
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line geom_hline aes
 #' @importFrom ggplot2 ylab xlab theme_bw theme element_text
@@ -447,16 +465,16 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' @title Return tibble with PCA loadings for features
 #' 
 #' @description 
-#' The function `tblPCALoadings` returns a `tibble` with loadings values for the
-#' features (row entries) in `x`.
+#' The function \code{tblPCALoadings} returns a \code{tibble} with loadings values for the
+#' features (row entries) in \code{x}.
 #' 
 #' @details 
-#' The function `tblPCALoadings` acccesses the list entry `rotation` of the
-#' `prcomp` object. 
+#' The function \code{tblPCALoadings} acccesses the list entry \code{rotation} of the
+#' \code{prcomp} object. 
 #' 
-#' @param x `matrix`, containing no missing values
-#' @param params `list`, arguments/parameters given to the function 
-#' `stats::prcomp`
+#' @param x \code{matrix}, containing no missing values
+#' @param params \code{list}, arguments/parameters given to the function 
+#' \code{stats::prcomp}
 #' 
 #' @examples 
 #' set.seed(1)
@@ -468,7 +486,7 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
 #' tblPCALoadings(x, params)
 #'
-#' @return `tbl`
+#' @return \code{tbl}
 #' 
 #' @author Thomas Naake
 #' 
@@ -487,17 +505,17 @@ tblPCALoadings <- function(x, params) {
 #' @title Plot for PCA loadings of features
 #' 
 #' @description 
-#' The function `plotPCALoadings` creates a loadings plot of the features.
+#' The function \code{plotPCALoadings} creates a loadings plot of the features.
 #' 
 #' @details 
-#' The function takes as input the output of the function `tblPlotPCALoadings`.
-#' It uses the `ggplotly` function from `plotly` to create an interactive 
-#' `plotly` plot.
+#' The function takes as input the output of the function \code{tblPlotPCALoadings}.
+#' It uses the \code{ggplotly} function from \code{plotly} to create an interactive 
+#' \code{plotly} plot.
 #' 
 #' 
-#' @param tbl `tbl` as obtained by the function `ordination`
-#' @param x_coord `character`, column name of `tbl` that stores x coordinates
-#' @param y_coord `character`, column name of `tbl` that stores y coordinates
+#' @param tbl \code{tbl} as obtained by the function \code{ordination}
+#' @param x_coord \code{character}, column name of \code{tbl} that stores x coordinates
+#' @param y_coord \code{character}, column name of \code{tbl} that stores y coordinates
 #' 
 #' @examples 
 #' x <- matrix(rnorm(1:10000), ncol = 100)
@@ -509,7 +527,7 @@ tblPCALoadings <- function(x, params) {
 #' tbl <- tblPCALoadings(x, params)
 #' plotPCALoadings(tbl, x_coord = "PC1", y_coord = "PC2")
 #'
-#' @return `plotly`
+#' @return \code{plotly}
 #' 
 #' @author Thomas Naake
 #' 

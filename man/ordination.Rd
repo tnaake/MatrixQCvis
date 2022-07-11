@@ -8,31 +8,35 @@ PCoA, NMDS, UMAP and tSNE}
 ordination(x, type = c("PCA", "PCoA", "NMDS", "tSNE", "UMAP"), params = list())
 }
 \arguments{
-\item{x}{`matrix`, containing no missing values, samples are in columns and
-features are in rows}
+\item{x}{\code{matrix}, containing no missing values, samples are in columns 
+and features are in rows}
 
-\item{type}{`character`, specifying the type/method to use for 
-dimensionality reduction. One of `PCA`, `PCoA`, `NMDS`, `tSNE`, or `UMAP`.}
+\item{type}{\code{character}, specifying the type/method to use for 
+dimensionality reduction. One of \code{PCA}, \code{PCoA}, \code{NMDS}, 
+\code{tSNE}, or \code{UMAP}.}
 
-\item{params}{`list`, arguments/parameters given to the functions 
-`stats::prcomp`, `stats::dist`, `Rtsne::Rtsne`, `umap::umap`}
+\item{params}{\code{list}, arguments/parameters given to the functions 
+\code{stats::prcomp}, \code{stats::dist}, \code{Rtsne::Rtsne}, 
+\code{umap::umap}}
 }
 \value{
-`tbl`
+\code{tbl}
 }
 \description{
-The function `ordination` creates a `data.frame` with the coordinates of the
-projected data. The function allows for the following projections:
+The function \code{ordination} creates a \code{data.frame} 
+with the coordinates of the projected data. The function allows for the 
+following projections:
 Principal Component Analysis (PCA), Principal Coordinates 
 Analysis/Multidimensional Scaling (PCoA), Non-metric Multidimensional 
 scaling (NMDS), t-distributed stochastic neighbor embedding (tSNE), and 
 Uniform Manifold Approimation and Projection (UMAP).
 }
 \details{
-The function `ordination` is a wrapper around the following 
-functions `stats::prcomp` (PCA), `stats::cmdscale` (PCoA), 
-`vegan::metaMDS` (NMDS), `Rtsne::Rtsne` (tSNE), and `umap::umap` (UMAP).
-For the function `umap::umap` the method is set to `naive`.
+The function \code{ordination} is a wrapper around the following 
+functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA), 
+\code{vegan::metaMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
+\code{umap::umap} (UMAP). For the function \code{umap::umap} 
+the method is set to \code{naive}.
 }
 \examples{
 x <- matrix(rnorm(1:10000), ncol = 100)
