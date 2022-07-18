@@ -7,18 +7,18 @@
 hist_sample_num(se, category = "type")
 }
 \arguments{
-\item{se}{`SummarizedExperiment` object}
+\item{se}{\code{SummarizedExperiment} object}
 
-\item{category}{`character`, corresponding to a column in `colData(se)`}
+\item{category}{\code{character}, corresponding to a column in \code{colData(se)}}
 }
 \value{
-`tbl`
+\code{tbl}
 }
 \description{
-`hist_sample_num` returns the number of a category 
-(e.g. sample types) as a `tbl`.
-The function will retrieve first the column `category` in `colData(se)`. 
-The function will return a `tbl` containing the numerical 
+\code{hist_sample_num} returns the number of a category 
+(e.g. sample types) as a \code{tbl}.
+The function will retrieve first the column \code{category} in \code{colData(se)}. 
+The function will return a \code{tbl} containing the numerical 
 values of the quantities.
 }
 \examples{

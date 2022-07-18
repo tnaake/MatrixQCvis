@@ -3,20 +3,20 @@
 #' @title Create a boxplot of (count/intensity) values per sample
 #'
 #' @description
-#' The function `create_boxplot` creates a boxplot per sample for the 
+#' The function \code{create_boxplot} creates a boxplot per sample for the 
 #' intensity/count values.
 #' 
 #' @details
-#' Internal usage in `shinyQC`.
+#' Internal usage in \code{shinyQC}.
 #'
-#' @param se `SummarizedExperiment` containing the (count/intensity) values in
-#' the `assay` slot
-#' @param orderCategory `character`, one of `colnames(colData(se))`
-#' @param title `character` or `numeric` of `length(1)`
-#' @param log2 `logical`, if `TRUE` (count/intensity) values are displayed as 
-#' log2 values
-#' @param violin `logical`, if `FALSE` a boxplot is created, if `TRUE` a 
-#' violin plot is created
+#' @param se \code{SummarizedExperiment} containing the (count/intensity) values 
+#' in the \code{assay} slot
+#' @param orderCategory \code{character}, one of \code{colnames(colData(se))}
+#' @param title \code{character} or \code{numeric} of \code{length(1)}
+#' @param log2 \code{logical}, if \code{TRUE} (count/intensity) values are 
+#' displayed as log2 values
+#' @param violin \code{logical}, if \code{FALSE} a boxplot is created, if 
+#' \code{TRUE} a violin plot is created
 #'
 #' @examples
 #' ## create se
@@ -33,7 +33,7 @@
 #' createBoxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
 #'     violin = FALSE)
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer 
@@ -100,30 +100,30 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
 #' @title Plot the trend line for aggregated values
 #' 
 #' @description 
-#' The function `driftPlot` aggregates the (count/intensity) values from the 
-#' `assay()` slot of a `SummarizedExperiment` by the `median` or `sum` of the
-#' (count/intensity) values. `driftPlot` then visualizes these aggregated values 
-#' and adds a trend line (using either LOESS or a linear model) from 
-#' (a subset of) the aggregated values. The subset is specified by the 
-#' arguments `category` and `level`.
+#' The function \code{driftPlot} aggregates the (count/intensity) values from the 
+#' \code{assay()} slot of a \code{SummarizedExperiment} by the \code{median} or 
+#' \code{sum} of the (count/intensity) values. \code{driftPlot} then visualizes 
+#' these aggregated values and adds a trend line (using either LOESS or a 
+#' linear model) from (a subset of) the aggregated values. The subset is 
+#' specified by the arguments \code{category} and \code{level}.
 #' 
 #' @details 
-#' The x-values are sorted according to the `orderCategory` argument: The 
-#' levels of the corresponding column in `colData(se)` are pasted with the 
-#' sample names (in the column `name`) and factorized.
-#' Internal usage in `shinyQC`.
+#' The x-values are sorted according to the \code{orderCategory} argument: The 
+#' levels of the corresponding column in \code{colData(se)} are pasted with the 
+#' sample names (in the column \code{name}) and factorized.
+#' Internal usage in \code{shinyQC}.
 #' 
-#' @param se `SummarizedExperiment`
-#' @param aggregation `character`, type of aggregation of (count/intensity) 
+#' @param se \code{SummarizedExperiment}
+#' @param aggregation \code{character}, type of aggregation of (count/intensity) 
 #' values
-#' @param category `character`, column of `colData(se)`
-#' @param orderCategory `character`, column of `colData(se)`
-#' @param level `character`, from which samples should the LOESS curve be
-#' calculated, either `"all"` or one of the levels of the selected columns
-#' of `colData(se)` (`"category"`) 
-#' @param method `character`, either `"loess"` or `"lm"`
+#' @param category \code{character}, column of \code{colData(se)}
+#' @param orderCategory \code{character}, column of \code{colData(se)}
+#' @param level \code{character}, from which samples should the LOESS curve be
+#' calculated, either \code{"all"} or one of the levels of the selected columns
+#' of \code{colData(se)} (\code{"category"}) 
+#' @param method \code{character}, either \code{"loess"} or \code{"lm"}
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @examples 
 #' #' ## create se
@@ -244,18 +244,19 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
 #' @title Calculate coefficient of variation
 #' 
 #' @description 
-#' The function `cv` calculates the coefficient of variation from columns of 
+#' The function \code{cv} calculates the coefficient of variation from columns of 
 #' a matrix. The coefficients of variation are calculated according to the 
-#' formula `sd(y) / mean(y) * 100` with `y` the column values. 
+#' formula \code{sd(y) / mean(y) * 100} with \code{y} the column values. 
 #' 
 #' @details
-#' The function returned a named `list` (the name is specified by the `name`
-#' argument) containing the coefficient of variation of the columns of `x`.
+#' The function returned a named \code{list} (the name is specified by the 
+#' \code{name} argument) containing the coefficient of variation of the 
+#' columns of \code{x}.
 #' 
-#' @param x `matrix`
-#' @param name `character`, the name of the returned list
+#' @param x \code{matrix}
+#' @param name \code{character}, the name of the returned list
 #' 
-#' @return `list`
+#' @return \code{list}
 #' 
 #' @examples
 #' x <- matrix(1:10, ncol = 2)
@@ -281,15 +282,15 @@ cv <- function(x, name = "raw") {
 #' @title Plot CV values
 #' 
 #' @description 
-#' The function `plotCV` displays the coefficient of variation values of 
-#' set of values supplied in a `data.frame` object. The function will create
-#' a plot using the `ggplot2` package and will print the values in the 
-#' different columns in different colors.
+#' The function \code{plotCV} displays the coefficient of variation values of 
+#' set of values supplied in a \code{data.frame} object. The function will 
+#' create a plot using the \code{ggplot2} package and will print the values 
+#' in the different columns in different colors.
 #' 
 #' @details 
-#' Internal usage in `shinyQC`.
+#' Internal usage in \code{shinyQC}.
 #' 
-#' @param df `data.frame` containing one or multiple columns containing the 
+#' @param df \code{data.frame} containing one or multiple columns containing the 
 #' coefficients of variation
 #' 
 #' @examples
@@ -307,7 +308,7 @@ cv <- function(x, name = "raw") {
 #' df <- data.frame(cv1, cv2, cv3, cv4)
 #' plotCV(df)
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom tibble tibble
 #' @importFrom tidyr pivot_longer
@@ -336,28 +337,33 @@ plotCV <- function(df) {
 #' @title Create ECDF plot of a sample against a reference
 #'
 #' @description
-#' The function `ECDF` creates a plot of the empirical cumulative distribution
-#' function of a specified sample and an outgroup (reference). The reference
-#' is specified by the `group` argument. The row-wise (feature) mean values of
-#' the reference are calculated after excluding the specified `sample`.
+#' The function \code{ECDF} creates a plot of the empirical cumulative 
+#' distribution function of a specified sample and an outgroup (reference). 
+#' The reference is specified by the \code{group} argument. The row-wise 
+#' (feature) mean values of the reference are calculated after excluding 
+#' the specified \code{sample}.
 #'
 #' @details 
-#' Internal use in `shinyQC`. 
+#' Internal use in \code{shinyQC}. 
 #' 
-#' The function `ECDF` uses the `ks.test` function from `stats` to perform
-#' a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov test is run 
-#' with the alternative `"two.sided"`
-#' (null hypothesis is that the true distribution function of the `sample` is
-#' equal to the hypothesized distribution function of the `group`).
+#' The function \code{ECDF} uses the \code{ks.test} function from \code{stats} 
+#' to perform a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov 
+#' test is run with the alternative \code{"two.sided"}
+#' (null hypothesis is that the true distribution function of the 
+#' \code{sample} is equal to the hypothesized distribution function of the 
+#' \code{group}).
 #' 
-#' The `exact` argument in `ks.test` is set to `NULL`, meaning that an exact
-#' p-value is computed if the product of the sample sizes is less than 10000 
-#' of `sample` and `group`. Otherwise, asymptotic distributions are used whose
-#' approximations might be inaccurate in low sample sizes.
+#' The \code{exact} argument in \code{ks.test} is set to \code{NULL}, meaning 
+#' that an exact p-value is computed if the product of the sample sizes is 
+#' less than 10000 of \code{sample} and \code{group}. Otherwise, asymptotic 
+#' distributions are used whose approximations might be inaccurate in low 
+#' sample sizes.
 #' 
-#' @param se `SummarizedExperiment` object
-#' @param sample `character`, name of the sample to compare against the group
-#' @param group `character`, either `"all"` or one of `colnames(colData(se))`
+#' @param se \code{SummarizedExperiment} object
+#' @param sample \code{character}, name of the sample to compare against the 
+#' group
+#' @param group \code{character}, either \code{"all"} or one of 
+#' \code{colnames(colData(se))}
 #' 
 #' @examples
 #' ## create se
@@ -377,7 +383,7 @@ plotCV <- function(df) {
 #' @importFrom ggplot2 ggtitle theme element_blank
 #' @importFrom tibble rownames_to_column
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @export
 ECDF <- function(se, sample = colnames(se), 
@@ -447,23 +453,23 @@ ECDF <- function(se, sample = colnames(se),
 #' @title Create distance matrix from numerical matrix
 #'
 #' @description
-#' The function `distShiny` takes as an input a numerical `matrix` or
-#' `data.frame` and returns the distances between the rows and columns based
-#' on the defined `method` (e.g. euclidean distance). 
+#' The function \code{distShiny} takes as an input a numerical \code{matrix} or
+#' \code{data.frame} and returns the distances between the rows and columns based
+#' on the defined \code{method} (e.g. euclidean distance). 
 #' 
 #' @details 
-#' Internal use in `shinyQC`.
+#' Internal use in \code{shinyQC}.
 #'
-#' @param x `matrix` or `data.frame` with samples in columns and features in 
-#' rows
-#' @param method `character`, method for distance calculation
+#' @param x \code{matrix} or \code{data.frame} with samples in columns and 
+#' features in rows
+#' @param method \code{character}, method for distance calculation
 #'
 #' @examples
 #' x <- matrix(1:100, nrow = 10, ncol = 10, 
 #'         dimnames = list(1:10, paste("sample", 1:10)))
 #' distShiny(x = x)
 #' 
-#' @return `matrix`
+#' @return \code{matrix}
 #' 
 #' @importFrom stats dist
 #'
@@ -479,18 +485,18 @@ distShiny <- function(x, method = "euclidean") {
 #' @title  Create a heatmap using distance information between samples
 #' 
 #' @description 
-#' The function `distSample` creates a heatmap from a distance matrix created
-#' by the function `distShiny`. The heatmap is annotated by the column specified
-#' by the `label` column in `colData(se)`.
+#' The function \code{distSample} creates a heatmap from a distance matrix 
+#' created by the function \code{distShiny}. The heatmap is annotated by the 
+#' column specified by the \code{label} column in \code{colData(se)}.
 #' 
 #' @details 
-#' Internal use in `shinyQC`
+#' Internal use in \code{shinyQC}
 #'
-#' @param d `matrix` containing distances, obtained from `distShiny`
-#' @param se `SummarizedExperiment`
-#' @param label `character`, refers to a column in `colData(se)`
-#' @param title `character`
-#' @param ... further arguments passed to `ComplexHeatmap::Heatmap`
+#' @param d \code{matrix} containing distances, obtained from \code{distShiny}
+#' @param se \code{SummarizedExperiment}
+#' @param label \code{character}, refers to a column in \code{colData(se)}
+#' @param title \code{character}
+#' @param ... further arguments passed to \code{ComplexHeatmap::Heatmap}
 #'
 #' @examples
 #' ## create se
@@ -510,7 +516,7 @@ distShiny <- function(x, method = "euclidean") {
 #' distSample(dist, se, label = "type", title = "imputed", 
 #'     show_row_names = TRUE)
 #'
-#' @return `plotly`
+#' @return \code{plotly}
 #'
 #' @importFrom SummarizedExperiment colData
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
@@ -563,11 +569,11 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' @title Plot the sum of distances to other samples
 #'
 #' @description 
-#' The function `sumDistSample` creates a plot showing the sum of distance of a 
-#' sample to other samples. 
+#' The function \code{sumDistSample} creates a plot showing the sum of distance 
+#' of a sample to other samples. 
 #'
-#' @param d `matrix` containing distances, obtained from `distShiny`
-#' @param title `character` specifying the title to be added to the plot
+#' @param d \code{matrix} containing distances, obtained from \code{distShiny}
+#' @param title \code{character} specifying the title to be added to the plot
 #' 
 #' @examples
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -576,7 +582,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' 
 #' sumDistSample(dist, title = "raw")
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
 #' @importFrom ggplot2 xlab ylab theme_bw theme element_blank
@@ -607,22 +613,24 @@ sumDistSample <- function(d, title = "raw") {
 #' @title Create values (M and A) for MA plot
 #'
 #' @description 
-#' The function `MAvalues` will create MA values as input for the function 
-#' `MAplot` and `hoeffDValues`. 
-#' `M` and `A` are specified relative to specified samples which 
-#' is determined by the `group` argument. In case of `group == "all"`, all 
-#' samples (expect the specified one) are taken for the reference calculation.
-#' In case of `group != "all"` will use the samples belonging to the same group
-#' given in `colnames(colData(se))` expect the specified one. 
+#' The function \code{MAvalues} will create MA values as input for the function 
+#' \code{MAplot} and \code{hoeffDValues}. 
+#' \code{M} and \code{A} are specified relative to specified samples which 
+#' is determined by the \code{group} argument. In case of \code{group == "all"}, 
+#' all samples (expect the specified one) are taken for the reference 
+#' calculation. In case of \code{group != "all"} will use the samples belonging 
+#' to the same group given in \code{colnames(colData(se))} expect the 
+#' specified one. 
 #'
-#' @param se `SummarizedExperiment`
-#' @param log2 `logical`, specifies if values re `log2` transformed prior to
-#' calculating M and A values. If the values are already transformed, `log2` 
-#' should be set to `FALSE`.
-#' @param group `character`, either `"all"` or one of `colnames(colData(se))`
+#' @param se \code{SummarizedExperiment}
+#' @param log2 \code{logical}, specifies if values re \code{log2} 
+#' transformed prior to calculating M and A values. If the values are already 
+#' transformed, \code{log2} should be set to \code{FALSE}.
+#' @param group \code{character}, either \code{"all"} or one of 
+#' \code{colnames(colData(se))}
 #'
-#' @return `tbl` with columns `Feature`, `name` (sample name), `A`, `M` and
-#' additional columns of `colData(se)`
+#' @return \code{tbl} with columns \code{Feature}, \code{name} (sample name), 
+#' \code{A}, \code{M} and additional columns of \code{colData(se)}
 #' 
 #' @examples
 #' ## create se
@@ -709,11 +717,11 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' from MA values.   
 #'
 #' @details 
-#' The function uses the function `hoeffd` from the `Hmisc` package to 
+#' The function uses the function \code{hoeffd} from the \code{Hmisc} package to 
 #' calculate the values.
 #'
-#' @param tbl `tibble`, as obtained from the function `MAvalues`
-#' @param name `character`, name of the returned list
+#' @param tbl \code{tibble}, as obtained from the function \code{MAvalues}
+#' @param name \code{character}, name of the returned list
 #' 
 #' @examples
 #' ## create se
@@ -783,20 +791,20 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' @title Create a plot from a list of Hoeffding's D values
 #' 
 #' @description 
-#' The function `hoeffDPlot` creates via `ggplot` a violin plot per factor,
-#' a jitter plot of the data points and (optionally) connects the points
-#' via lines. `hoeffDPlot` uses the `plotly` package to make the figure
-#' interactive.
+#' The function \code{hoeffDPlot} creates via \code{ggplot} a violin plot per 
+#' factor, a jitter plot of the data points and (optionally) connects the points
+#' via lines. \code{hoeffDPlot} uses the \code{plotly} package to make the 
+#' figure interactive.
 #' 
 #' @details 
-#' The function `hoeffDPlot` will create the violin plot and jitter plot 
-#' according to the specified order given by the colnames of `df`. `hoeffDPlot`
-#' will thus internally refactor the `colnames` of the supplied `data.frame` 
-#' according to the order of the `colnames`. 
+#' The function \code{hoeffDPlot} will create the violin plot and jitter plot 
+#' according to the specified order given by the colnames of \code{df}. 
+#' \code{hoeffDPlot} will thus internally refactor the \code{colnames} of the 
+#' supplied \code{data.frame} according to the order of the \code{colnames}. 
 #' 
-#' @param df `data.frame` containing one or multiple columns containing the 
+#' @param df \code{data.frame} containing one or multiple columns containing the 
 #' Hoeffding's D statistics
-#' @param lines `logical`, should points belonging to the same sample be 
+#' @param lines \code{logical}, should points belonging to the same sample be 
 #' connected
 #'
 #' @examples
@@ -824,7 +832,7 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' hoeffDPlot(df, lines = FALSE)
 #' 
 #' @return 
-#' `gg` object from `ggplot2`
+#' \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
@@ -878,24 +886,24 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' The function creates a 2D histogram of M and A values.
 #' 
 #' @details 
-#' `MAplot` returns a 2D hex histogram instead of a classical scatterplot due to 
-#' computational reasons and better visualization of overlaying points.
-#' The argument `plot` specifies the sample (refering to `colData(se)$name`)
-#' to be plotted. If `plot = "all"`, MA values for all samples will be plotted
-#' (samples will be plotted in facets). 
-#' If the number of features (`tbl$Features`) is below 1000, points will be 
-#' plotted (via `geom_points`), otherwise hexagons will be plotted
-#' (via `geom_hex`).
+#' \code{MAplot} returns a 2D hex histogram instead of a classical scatterplot 
+#' due to computational reasons and better visualization of overlaying points.
+#' The argument \code{plot} specifies the sample (refering to 
+#' \code{colData(se)$name}) to be plotted. If \code{plot = "all"}, MA values 
+#' for all samples will be plotted (samples will be plotted in facets). 
+#' If the number of features (\code{tbl$Features}) is below 1000, points will be 
+#' plotted (via \code{geom_points}), otherwise hexagons will be plotted
+#' (via \code{geom_hex}).
 #'
-#' @param tbl `tibble` containing the M and A values, as obtained from the 
-#' `MAvalues` function
-#' @param group `character`, one of `colnames(colData(se))` 
-#' (`se` used in `MAvalues`) or `"all"`
-#' @param plot `character`, one of `colData(se)$name` (`se` used in `MAvalues`)
-#' or `"all"`
+#' @param tbl \code{tibble} containing the M and A values, as obtained from the 
+#' \code{MAvalues} function
+#' @param group \code{character}, one of \code{colnames(colData(se))} 
+#' (\code{se} used in \code{MAvalues}) or \code{"all"}
+#' @param plot \code{character}, one of \code{colData(se)$name} (\code{se} 
+#' used in \code{MAvalues}) or \code{"all"}
 #'
 #' @return 
-#' `gg` object from `ggplot2`
+#' \code{gg} object from \code{ggplot2}
 #'
 #' @examples
 #' ## create se
@@ -975,18 +983,19 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 #' along data processing steps
 #' 
 #' @description 
-#' The function `createDfFeature` takes as input a list of matrices and 
-#' returns the row `feature` of each matrix as a column of a `data.frame`.
-#' The function `createDfFeature` provides the input for the function
-#' `featurePlot`. 
+#' The function \code{createDfFeature} takes as input a list of matrices and 
+#' returns the row \code{Feature} of each matrix as a column of a 
+#' \code{data.frame}. The function \code{createDfFeature} provides the input 
+#' for the function \code{featurePlot}. 
 #' 
 #' @details 
-#' Internal usage in `shinyQC`
+#' Internal usage in \code{shinyQC}
 #' 
-#' @param l `list` containing matrices at different processing steps
-#' @param feature `character`, element of `rownames` of the matrices in `l`
+#' @param l \code{list} containing matrices at different processing steps
+#' @param feature \code{character}, element of \code{rownames} of the matrices 
+#' in \code{l}
 #' 
-#' @return `data.frame`
+#' @return \code{data.frame}
 #' 
 #' @examples 
 #' set.seed(1)
@@ -1012,16 +1021,17 @@ createDfFeature <- function(l, feature) {
 #' @title Create a plot of (count/intensity) values over the samples
 #'
 #' @description
-#' The function `featurePlot` creates a plot of (count/intensity) values for
-#' different data processing steps (referring to columns in the `data.frame`)
-#' over the different samples (referring to rows in the `data.frame`).
+#' The function \code{featurePlot} creates a plot of (count/intensity) values 
+#' for different data processing steps (referring to columns in the 
+#' \code{data.frame}) over the different samples (referring to rows in 
+#' the \code{data.frame}).
 #' 
 #' @details
-#' Internal usage in `shinyQC`.
+#' Internal usage in \code{shinyQC}.
 #' 
-#' @param df `data.frame`
+#' @param df \code{data.frame}
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @examples 
 #' set.seed(1)
@@ -1061,19 +1071,19 @@ featurePlot <- function(df) {
 #' @title Plot of feature-wise coefficient of variation values
 #' 
 #' @description 
-#' The function `cvFeaturePlot` returns a `plotly` plot of coefficient 
+#' The function \code{cvFeaturePlot} returns a \code{plotly} plot of coefficient 
 #' of variation values. It will create a violin plot and superseded points
-#' of coefficient of variation values per list entry of `l`.
+#' of coefficient of variation values per list entry of \code{l}.
 #' 
 #' @details 
-#' `lines = TRUE` will connect the points belonging to the same feature with a 
-#' line. If there are less than two features, the violin plot will not be
-#' plotted. The violin plots will be ordered according to the order in `l`
+#' \code{lines = TRUE} will connect the points belonging to the same feature 
+#' with a line. If there are less than two features, the violin plot will not be
+#' plotted. The violin plots will be ordered according to the order in \code{l}
 #'  
-#' @param l `list` containing matrices
-#' @param lines `logical`
+#' @param l \code{list} containing matrices
+#' @param lines \code{logical}
 #' 
-#' @return `plotly`
+#' @return \code{plotly}
 #' 
 #' @examples
 #' x1 <- matrix(1:100, ncol = 10, nrow = 10, 
@@ -1139,33 +1149,34 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' @title Normalize a data sets (reduce technical sample effects)
 #'
 #' @description
-#' The function `normalizeAssay` performs normalization by sum of the 
+#' The function \code{normalizeAssay} performs normalization by sum of the 
 #' (count/intensity) values per sample or quantile division per sample
 #' or by quantile normalization (adjusting the distributions that they become
 #' identical in statistical distributions). The divisor for quantile division
-#' (e.g., the 75% quantile per sample) can be specified by the `probs` argument.
-#' Quantile normalization is performed by using the `normalizeQuantiles` 
-#' function from `limma`.
+#' (e.g., the 75% quantile per sample) can be specified by the \code{probs} 
+#' argument. Quantile normalization is performed by using the 
+#' \code{normalizeQuantiles} function from \code{limma}.
 #' 
 #' @details
-#' Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
-#' `x` is returned as is (pass-through).
+#' Internal usage in \code{shinyQC}. If \code{method} is set to \code{"none"}, 
+#' the object \code{x} is returned as is (pass-through).
 #' 
-#' If `probs` is NULL, `probs` is internally set to "name" if 
-#' `method = "quantile division"`.
+#' If \code{probs} is NULL, \code{probs} is internally set to "name" if 
+#' \code{method = "quantile division"}.
 #' 
-#' @param a `matrix` with samples in columns and features in rows
-#' @param method `character`, one of `"none"`, `"sum"`, `"quantile division"`, 
-#' `"quantile"`
-#' @param probs `numeric`, ranging between `[0, 1)`. `probs` is used as the 
-#' divisor for quantile division in `method = "quantile division"`
+#' @param a \code{matrix} with samples in columns and features in rows
+#' @param method \code{character}, one of \code{"none"}, \code{"sum"}, 
+#' \code{"quantile division"}, \code{"quantile"}
+#' @param probs \code{numeric}, ranging between \code{[0, 1)}. \code{probs} 
+#' is used as the divisor for quantile division in 
+#' \code{method = "quantile division"}
 #'
 #' @examples
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
 #'         dimnames = list(1:10, paste("sample", 1:10)))
 #' normalizeAssay(a, "sum")
 #' 
-#' @return `matrix`
+#' @return \code{matrix}
 #'
 #' @importFrom limma normalizeQuantiles
 #' @importFrom stats quantile
@@ -1199,25 +1210,27 @@ normalizeAssay <- function(a,
 #' @name batchCorrectionAssay
 #'
 #' @title Remove batch effects from (count/intensity) values of a 
-#' `SummarizedExperiment`
+#' \code{SummarizedExperiment}
 #'
 #' @description
-#' The function `batchCorrectionAssay` removes the batch effect of 
-#' (count/intensity) values of a `SummarizedExperiment`. 
-#' It uses either the `removeBatchEffect` function 
+#' The function \code{batchCorrectionAssay} removes the batch effect of 
+#' (count/intensity) values of a \code{SummarizedExperiment}. 
+#' It uses either the \code{removeBatchEffect} function 
 #' or no batch effect correction method (pass-through, 
-#' `none`).
+#' \code{none}).
 #'
 #' @details 
-#' The column `batchColumn` in `colData(se)` contains the information on the 
-#' batch identity. Internal use in `shinyQC`.
+#' The column \code{batchColumn} in \code{colData(se)} contains the information 
+#' on the batch identity. Internal use in \code{shinyQC}.
 #' 
-#' If `batchColumn` is NULL, `batchColumn` is internally set to the name
-#' of the first column in `colData(se)` if `method = "removeBatchEffect (limma)"`.
+#' If \code{batchColumn} is NULL, \code{batchColumn} is internally set to the 
+#' name of the first column in \code{colData(se)} if 
+#' \code{method = "removeBatchEffect (limma)"}.
 #' 
-#' @param se `SummarizedExperiment`
-#' @param method `character`, one of `"none"` or `"removeBatchEffect"`
-#' @param batchColumn `character`, one of `colnames(colData(se))`
+#' @param se \code{SummarizedExperiment}
+#' @param method \code{character}, one of \code{"none"} or 
+#' \code{"removeBatchEffect"}
+#' @param batchColumn \code{character}, one of \code{colnames(colData(se))}
 #'
 #' @examples
 #' ## create se
@@ -1235,7 +1248,7 @@ normalizeAssay <- function(a,
 #' batchCorrectionAssay(se, method = "removeBatchEffect (limma)", 
 #'                             batchColumn = "batch")
 #' 
-#' @return `matrix`
+#' @return \code{matrix}
 #' 
 #' @importFrom limma removeBatchEffect
 #' @importFrom SummarizedExperiment assay colData
@@ -1272,21 +1285,22 @@ batchCorrectionAssay <- function(se,
 
 #' @name transformAssay
 #'
-#' @title Transform the (count/intensity) values of a `data.frame`, `tbl` or
-#' `matrix` 
-#'
+#' @title Transform the (count/intensity) values of a \code{data.frame}, 
+#' \code{tbl} or \code{matrix} 
+#' 
 #' @description
-#' The function `transformAssay` transforms the (count/intensity) values of a 
-#' `matrix`. It uses either `log`, `log2`, variance 
-#' stabilizing normalisation (`vsn`) or no transformation method (pass-through,
-#' `none`). The object
-#' `x` has the samples in the columns and the features in the rows.
+#' The function \code{transformAssay} transforms the (count/intensity) values 
+#' of a  \code{matrix}. It uses either \code{log}, \code{log2}, variance 
+#' stabilizing normalisation (\code{vsn}) or no transformation method 
+#' (pass-through, \code{none}). The object
+#' \code{x} has the samples in the columns and the features in the rows.
 #'
 #' @details 
-#' Internal use in `shinyQC`.
+#' Internal use in \code{shinyQC}.
 #' 
-#' @param a `matrix` with samples in columns and features in rows
-#' @param method `character`, one of `"none"`, `"log"`, `"log2"` or `"vsn"`
+#' @param a \code{matrix} with samples in columns and features in rows
+#' @param method \code{character}, one of \code{"none"}, \code{"log"}, 
+#' \code{"log2"} or \code{"vsn"}
 #'
 #' @examples
 #' a <- matrix(1:1000, nrow = 100, ncol = 10, 
@@ -1296,7 +1310,7 @@ batchCorrectionAssay <- function(se,
 #' transformAssay(a, "log2")
 #' transformAssay(a, "vsn")
 #'
-#' @return `matrix`
+#' @return \code{matrix}
 #' 
 #' @importFrom vsn vsn2
 #' 
@@ -1326,46 +1340,47 @@ transformAssay <- function(a, method = c("none", "log", "log2", "vsn")) {
 
 #' @name imputeAssay
 #' 
-#' @title Impute missing values in a `matrix`
+#' @title Impute missing values in a \code{matrix}
 #' 
 #' @description 
-#' The function `impute` imputes missing values based on one of the following 
-#' principles: Bayesian missing value imputation (`BPCA`), k-nearest 
-#' neighbor averaging (`kNN`), Malimum likelihood-based imputation method using
-#' the EM algorithm (`MLE`), replacement by the smallest non-missing value
-#' in the data (`Min`), replacement by the minimal value observed as
-#' the q-th quantile (`MinDet`, default `q = 0.01`), and replacement by
+#' The function \code{impute} imputes missing values based on one of the 
+#' following principles: Bayesian missing value imputation (\code{BPCA}), 
+#' k-nearest neighbor averaging (\code{kNN}), Malimum likelihood-based 
+#' imputation method using the EM algorithm (\code{MLE}), replacement by 
+#' the smallest non-missing value
+#' in the data (\code{Min}), replacement by the minimal value observed as
+#' the q-th quantile (\code{MinDet}, default \code{q = 0.01}), and replacement by
 #' random draws from a Gaussian distribution centred to a minimal value 
-#' (`MinProb`).
+#' (\code{MinProb}).
 #'
 #' @details
-#' `BPCA` wrapper for `pcaMethods::pca` with `methods = "bpca"`. `BPCA` is a
+#' \code{BPCA} wrapper for \code{pcaMethods::pca} with \code{methods = "bpca"}. \code{BPCA} is a
 #' missing at random (MAR) imputation method. 
 #' 
-#' `kNN` wrapper for `impute::impute.knn` with `k = 10`, `rowmax = 0.5`, 
-#' `colmax = 0.5`, `maxp = 1500`. `kNN` is a MAR imputation method.
+#' \code{kNN} wrapper for \code{impute::impute.knn} with \code{k = 10}, \code{rowmax = 0.5}, 
+#' \code{colmax = 0.5}, \code{maxp = 1500}. \code{kNN} is a MAR imputation method.
 #' 
-#' `MLE` wrapper for `imputeLCMD::impute.MAR` with `method = "MLE"`, 
-#' `model.selector = 1`/`imputeLCMD::impute.wrapper.MLE`. `MLE` is a MAR
+#' \code{MLE} wrapper for \code{imputeLCMD::impute.MAR} with \code{method = "MLE"}, 
+#' \code{model.selector = 1}/\code{imputeLCMD::impute.wrapper.MLE}. \code{MLE} is a MAR
 #' imputation method.
 #' 
-#' `Min` imputes the missing values by the observed minimal value of `x`. 
-#' `Min` is a missing not at random (MNAR) imputation method.
+#' \code{Min} imputes the missing values by the observed minimal value of \code{x}. 
+#' \code{Min} is a missing not at random (MNAR) imputation method.
 #' 
-#' `MinDet` is a wrapper for `imputeLCMD::impute.MinDet` with `q = 0.01`. 
-#' `MinDet` performs the imputation using a 
+#' \code{MinDet} is a wrapper for \code{imputeLCMD::impute.MinDet} with \code{q = 0.01}. 
+#' \code{MinDet} performs the imputation using a 
 #' deterministic minimal value approach. The missing entries are
-#' replaced with a minimal value, estimated from the `q`-th quantile from each
-#' sample. `MinDet` is a MNAR imputation method.
+#' replaced with a minimal value, estimated from the \code{q}-th quantile from each
+#' sample. \code{MinDet} is a MNAR imputation method.
 #' 
-#' `MinProb` is a wrapper for `imputeLCMD::impute.MinProb` with `q = 0.01` and 
-#' `tune.sigma = 1`. `MinProb` performs the imputation based on random draws 
+#' \code{MinProb} is a wrapper for \code{imputeLCMD::impute.MinProb} with \code{q = 0.01} and 
+#' \code{tune.sigma = 1}. \code{MinProb} performs the imputation based on random draws 
 #' from a Gaussion distribution with the mean set to the minimal value of a 
-#' sample. `MinProb` is a MNAR imputation method.
+#' sample. \code{MinProb} is a MNAR imputation method.
 #' 
-#' @param a `matrix` with samples in columns and features in rows
-#' @param method `character`, one of `"BPCA"`, `"kNN"`, `"MLE`, `"Min"`, 
-#' `"MinDet"`, or `"MinProb"`
+#' @param a \code{matrix} with samples in columns and features in rows
+#' @param method \code{character}, one of \code{"BPCA"}, \code{"kNN"}, \code{"MLE"}, \code{"Min"}, 
+#' \code{"MinDet"}, or \code{"MinProb"}
 #'
 #' @examples
 #' a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -1377,7 +1392,7 @@ transformAssay <- function(a, method = c("none", "log", "log2", "vsn")) {
 #' imputeAssay(a, method = "MinDet")
 #' imputeAssay(a, method = "MinProb")
 #' 
-#' @return `matrix`
+#' @return \code{matrix}
 #' 
 #' @importFrom imputeLCMD impute.MinDet impute.MinProb
 #' @importFrom impute impute.knn

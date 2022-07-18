@@ -2,28 +2,29 @@
 % Please edit documentation in R/tab_values.R
 \name{transformAssay}
 \alias{transformAssay}
-\title{Transform the (count/intensity) values of a `data.frame`, `tbl` or
-`matrix`}
+\title{Transform the (count/intensity) values of a \code{data.frame}, 
+\code{tbl} or \code{matrix}}
 \usage{
 transformAssay(a, method = c("none", "log", "log2", "vsn"))
 }
 \arguments{
-\item{a}{`matrix` with samples in columns and features in rows}
+\item{a}{\code{matrix} with samples in columns and features in rows}
 
-\item{method}{`character`, one of `"none"`, `"log"`, `"log2"` or `"vsn"`}
+\item{method}{\code{character}, one of \code{"none"}, \code{"log"}, 
+\code{"log2"} or \code{"vsn"}}
 }
 \value{
-`matrix`
+\code{matrix}
 }
 \description{
-The function `transformAssay` transforms the (count/intensity) values of a 
-`matrix`. It uses either `log`, `log2`, variance 
-stabilizing normalisation (`vsn`) or no transformation method (pass-through,
-`none`). The object
-`x` has the samples in the columns and the features in the rows.
+The function \code{transformAssay} transforms the (count/intensity) values 
+of a  \code{matrix}. It uses either \code{log}, \code{log2}, variance 
+stabilizing normalisation (\code{vsn}) or no transformation method 
+(pass-through, \code{none}). The object
+\code{x} has the samples in the columns and the features in the rows.
 }
 \details{
-Internal use in `shinyQC`.
+Internal use in \code{shinyQC}.
 }
 \examples{
 a <- matrix(1:1000, nrow = 100, ncol = 10, 

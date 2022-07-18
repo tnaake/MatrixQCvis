@@ -7,25 +7,28 @@
 measuredCategory(se, measured = TRUE, category = "type")
 }
 \arguments{
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{measured}{`logical`, should the measured values 
-(`measured = TRUE`) or missing values (`measured = FALSE`) be taken}
+\item{measured}{\code{logical}, should the measured values 
+(\code{measured = TRUE}) or missing values (\code{measured = FALSE}) 
+be taken}
 
-\item{category}{`character`, corresponds to a column name in `colData(se)`}
+\item{category}{\code{character}, corresponds to a column name in 
+\code{colData(se)}}
 }
 \value{
-`tbl` with number of measured/mising features per `category` type
+\code{tbl} with number of measured/mising features per 
+\code{category} type
 }
 \description{
-The function `measuredCategory` creates a `tbl` with
+The function \code{measuredCategory} creates a \code{tbl} with
 the number of measured values per feature. 0 means that there were only 
-missing values (`NA`) for the feature and sample type. 
-`measuredCategory` will return a `tbl` where columns are the 
-unique sample types and rows are the features as in `assay(se)`.
+missing values (\code{NA}) for the feature and sample type. 
+\code{measuredCategory} will return a \code{tbl} where columns are the 
+unique sample types and rows are the features as in \code{assay(se)}.
 }
 \details{
-`measuredCategory` is a helper function.
+\code{measuredCategory} is a helper function.
 }
 \examples{
 ## create se

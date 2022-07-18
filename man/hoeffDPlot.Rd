@@ -7,26 +7,26 @@
 hoeffDPlot(df, lines = TRUE)
 }
 \arguments{
-\item{df}{`data.frame` containing one or multiple columns containing the 
+\item{df}{\code{data.frame} containing one or multiple columns containing the 
 Hoeffding's D statistics}
 
-\item{lines}{`logical`, should points belonging to the same sample be 
+\item{lines}{\code{logical}, should points belonging to the same sample be 
 connected}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `hoeffDPlot` creates via `ggplot` a violin plot per factor,
-a jitter plot of the data points and (optionally) connects the points
-via lines. `hoeffDPlot` uses the `plotly` package to make the figure
-interactive.
+The function \code{hoeffDPlot} creates via \code{ggplot} a violin plot per 
+factor, a jitter plot of the data points and (optionally) connects the points
+via lines. \code{hoeffDPlot} uses the \code{plotly} package to make the 
+figure interactive.
 }
 \details{
-The function `hoeffDPlot` will create the violin plot and jitter plot 
-according to the specified order given by the colnames of `df`. `hoeffDPlot`
-will thus internally refactor the `colnames` of the supplied `data.frame` 
-according to the order of the `colnames`.
+The function \code{hoeffDPlot} will create the violin plot and jitter plot 
+according to the specified order given by the colnames of \code{df}. 
+\code{hoeffDPlot} will thus internally refactor the \code{colnames} of the 
+supplied \code{data.frame} according to the order of the \code{colnames}.
 }
 \examples{
 ## create se

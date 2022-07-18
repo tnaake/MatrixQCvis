@@ -7,22 +7,22 @@
 cvFeaturePlot(l, lines = FALSE)
 }
 \arguments{
-\item{l}{`list` containing matrices}
+\item{l}{\code{list} containing matrices}
 
-\item{lines}{`logical`}
+\item{lines}{\code{logical}}
 }
 \value{
-`plotly`
+\code{plotly}
 }
 \description{
-The function `cvFeaturePlot` returns a `plotly` plot of coefficient 
+The function \code{cvFeaturePlot} returns a \code{plotly} plot of coefficient 
 of variation values. It will create a violin plot and superseded points
-of coefficient of variation values per list entry of `l`.
+of coefficient of variation values per list entry of \code{l}.
 }
 \details{
-`lines = TRUE` will connect the points belonging to the same feature with a 
-line. If there are less than two features, the violin plot will not be
-plotted. The violin plots will be ordered according to the order in `l`
+\code{lines = TRUE} will connect the points belonging to the same feature 
+with a line. If there are less than two features, the violin plot will not be
+plotted. The violin plots will be ordered according to the order in \code{l}
 }
 \examples{
 x1 <- matrix(1:100, ncol = 10, nrow = 10, 

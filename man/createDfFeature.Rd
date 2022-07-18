@@ -8,21 +8,22 @@ along data processing steps}
 createDfFeature(l, feature)
 }
 \arguments{
-\item{l}{`list` containing matrices at different processing steps}
+\item{l}{\code{list} containing matrices at different processing steps}
 
-\item{feature}{`character`, element of `rownames` of the matrices in `l`}
+\item{feature}{\code{character}, element of \code{rownames} of the matrices 
+in \code{l}}
 }
 \value{
-`data.frame`
+\code{data.frame}
 }
 \description{
-The function `createDfFeature` takes as input a list of matrices and 
-returns the row `feature` of each matrix as a column of a `data.frame`.
-The function `createDfFeature` provides the input for the function
-`featurePlot`.
+The function \code{createDfFeature} takes as input a list of matrices and 
+returns the row \code{Feature} of each matrix as a column of a 
+\code{data.frame}. The function \code{createDfFeature} provides the input 
+for the function \code{featurePlot}.
 }
 \details{
-Internal usage in `shinyQC`
+Internal usage in \code{shinyQC}
 }
 \examples{
 set.seed(1)

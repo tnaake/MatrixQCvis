@@ -10,15 +10,15 @@
 #' The module defines the UI for the tab panel 'Boxplot/Violin plot'.
 #'
 #' @details 
-#' `fR_boxplotUI` returns the HTML code for the tab-pane 'Boxplot/Violin plot'. 
-#' Internal function for `shinyQC`.
+#' \code{fR_boxplotUI} returns the HTML code for the tab-pane 
+#' 'Boxplot/Violin plot'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param name `character`
-#' @param collapsed `logical`
+#' @param id \code{character}
+#' @param name \code{character}
+#' @param collapsed \code{logical}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -45,16 +45,16 @@ fR_boxplotUI <- function(id, name, collapsed) {
 #' 
 #' @description 
 #' The function defines the UI for the tab panel 'Boxplot/Violin plot'. It 
-#' serves as a wrapper for the function `fR_boxplotUI`.
+#' serves as a wrapper for the function \code{fR_boxplotUI}.
 #' 
 #' @details 
-#' `tP_boxplotUI` returns the HTML code for the tab-pane 'Boxplot/Violin plot'.
-#' Internal function for `shinyQC`.
+#' \code{tP_boxplotUI} returns the HTML code for the tab-pane 
+#' 'Boxplot/Violin plot'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -102,16 +102,16 @@ tP_boxplotUI <- function(id) {
 #' @description
 #' The module defines the server expressions for parts of the UI for the tab 
 #' panel 'Boxplot/Violin plot'. It will load different helper files depending
-#' on `missingValue`
+#' on \code{missingValue}
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param missingValue `logical` (will load different helper files)
+#' @param id \code{character}
+#' @param missingValue \code{logical} (will load different helper files)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #' 
 #' @importFrom shiny moduleServer renderUI
 #' @importFrom shinyhelper helper
@@ -150,16 +150,16 @@ boxPlotUIServer <- function(id, missingValue, se) {
 #' 'Boxplot/Violin plot'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment`
-#' @param boxLog `reactive` expression and `logical`
-#' @param violin `reactive` expression and `character`
-#' @param type `character`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment}
+#' @param boxLog \code{reactive} expression and \code{logical}
+#' @param violin \code{reactive} expression and \code{character}
+#' @param type \code{character}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -226,13 +226,13 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
 #' The module defines the UI for the tab panel 'Trend/drift'.
 #'
 #' @details 
-#' `tP_driftUI` returns the HTML code for the tab-pane 
-#' 'Trend/drift'. Internal function for `shinyQC`.
+#' \code{tP_driftUI} returns the HTML code for the tab-pane 
+#' 'Trend/drift'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #'
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #'
@@ -285,18 +285,18 @@ tP_driftUI <- function(id) {
 #' 'Trend/drift'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
-#' @param se_n `SummarizedExperiment` and `reactive` value
-#' @param se_b `SummarizedExperiment` and `reactive` value
-#' @param se_t `SummarizedExperiment` and `reactive` value
-#' @param se_i `SummarizedExperiment` and `reactive` value
-#' @param missingValue `logical` (if `FALSE` do not show option for imputed)
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
+#' @param se_n \code{SummarizedExperiment} and \code{reactive} value
+#' @param se_b \code{SummarizedExperiment} and \code{reactive} value
+#' @param se_t \code{SummarizedExperiment} and \code{reactive} value
+#' @param se_i \code{SummarizedExperiment} and \code{reactive} value
+#' @param missingValue \code{logical} (if \code{FALSE} do not show option for imputed)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -409,13 +409,13 @@ driftServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
 #' The module defines the UI for the tab panel 'Coefficient of Variation'.
 #'
 #' @details 
-#' `fR_boxplotUI` returns the HTML code for the tab-pane 
-#' 'Coefficient of Variation'. Internal function for `shinyQC`.
+#' \code{fR_boxplotUI} returns the HTML code for the tab-pane 
+#' 'Coefficient of Variation'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #'
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #'
@@ -452,18 +452,18 @@ tP_cvUI <- function(id) {
 #' 'Coefficient of variation'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param a_r `matrix` and `reactive` value
-#' @param a_n `matrix` and `reactive` value
-#' @param a_b `matrix` and `reactive` value
-#' @param a_t `matrix` and `reactive` value
-#' @param a_i `matrix` and `reactive` value
-#' @param missingValue `logical` (if `FALSE` do not use imputed values)
+#' @param id \code{character}
+#' @param a_r \code{matrix} and \code{reactive} value
+#' @param a_n \code{matrix} and \code{reactive} value
+#' @param a_b \code{matrix} and \code{reactive} value
+#' @param a_t \code{matrix} and \code{reactive} value
+#' @param a_i \code{matrix} and \code{reactive} value
+#' @param missingValue \code{logical} (if \code{FALSE} do not use imputed values)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -566,14 +566,14 @@ cvServer <- function(id, a_r, a_n, a_b, a_t, a_i, missingValue) {
 #' The module defines the UI in the tab panel 'mean-sd plot'.
 #' 
 #' @details 
-#' `box_meanSdUI` returns the HTML code for the tab-pane 'mean-sd plot'. 
-#' Internal function for `shinyQC`.
+#' \code{box_meanSdUI} returns the HTML code for the tab-pane 'mean-sd plot'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param name `character`, name/title for the box
+#' @param id \code{character}
+#' @param name \code{character}, name/title for the box
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -598,16 +598,16 @@ box_meanSdUI <- function(id, name) {
 #' 
 #' @description 
 #' The module defines the UI in the tab panel 'mean-sd plot'. It serves as a 
-#' wrapper for the function `box_meanSdUI`.
+#' wrapper for the function \code{box_meanSdUI}.
 #' 
 #' @details 
-#' `tP_meanSdUI` returns the HTML code for the tab-pane 'mean-sd plot'. 
-#' Internal function for `shinyQC`.
+#' \code{box_meanSdUI} returns the HTML code for the tab-pane 'mean-sd plot'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #'
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -640,13 +640,13 @@ tP_meanSdUI <- function(id) {
 #' 'mean-sd plot'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param missingValue `logical` (will load different help files)
+#' @param id \code{character}
+#' @param missingValue \code{logical} (will load different help files)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -679,16 +679,16 @@ meanSdUIServer <- function(id, missingValue) {
 #' The module defines the server expressions for the tab panel 'mean-sd plot'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` expression, obtained from 
-#' `assay(SummarizedExperiment)`
-#' @param type `character`
-#' @param missingValue `logical` (if `FALSE` do not show box for imputed)
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} expression, obtained from 
+#' \code{assay(SummarizedExperiment)}
+#' @param type \code{character}
+#' @param missingValue \code{logical} (if \code{FALSE} do not show box for imputed)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -735,14 +735,15 @@ meanSdServer <- function(id, assay, type, missingValue) {
 #' The module defines the UI in the tab panel 'MA plot'.
 #' 
 #' @details 
-#' `tP_maUI` returns the HTML code for the tab-pane 'MA plot'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_maUI} returns the HTML code for the tab-pane 'MA plot'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param missingValue `logical` (if `FALSE` do not show option for imputed)
+#' @param id \code{character}
+#' @param missingValue \code{logical} (if \code{FALSE} do not show option 
+#' for imputed)
 #'
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -790,25 +791,26 @@ tP_maUI <- function(id) {
 #' The module defines the server expressions in the tab panel 'MA plot'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` value, containing 
-#' raw values
-#' @param se_n `SummarizedExperiment` object and `reactive` value, containing 
-#' normalized values
-#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
-#' batch corrected values
-#' @param se_t `SummarizedExperiment` object and `reactive` value, containing 
-#' transformed values
-#' @param se_i `SummarizedExperiment` object and `reactive` value, containing 
-#' imputed values
-#' @param innerWidth `numeric` and `reactive` value, specifying the width of 
-#' the window size
-#' @param missingValue `logical` (if `FALSE` do not show values for imputed)
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} value, 
+#' containing raw values
+#' @param se_n \code{SummarizedExperiment} object and \code{reactive} value, 
+#' containing normalized values
+#' @param se_b \code{SummarizedExperiment} object and \code{reactive} value, 
+#' containing batch corrected values
+#' @param se_t \code{SummarizedExperiment} object and \code{reactive} value, 
+#' containing transformed values
+#' @param se_i \code{SummarizedExperiment} object and \code{reactive} value, 
+#' containing imputed values
+#' @param innerWidth \code{numeric} and \code{reactive} value, specifying 
+#' the width of the window size
+#' @param missingValue \code{logical} (if \code{FALSE} do not show values for 
+#' imputed)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -1012,13 +1014,13 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
 #' The module defines the UI in the tab panel 'ECDF'
 #'  
 #' @details 
-#' `tP_ECDFUI` returns the HTML code for the tab-pane 'ECDF'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_ECDFUI} returns the HTML code for the tab-pane 'ECDF'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character` 
+#' @param id \code{character} 
 #'
 #' @return
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -1053,23 +1055,23 @@ tP_ECDFUI <- function(id) {
 #' The module defines the server expressions in the tab panel 'ECDF'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` value, containing 
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} value, containing 
 #' raw values
-#' @param se_n `SummarizedExperiment` object and `reactive` value, containing 
+#' @param se_n \code{SummarizedExperiment} object and \code{reactive} value, containing 
 #' normalized values
-#' @param se_b `SummarizedExperiment` object and `reactive` value, containing
+#' @param se_b \code{SummarizedExperiment} object and \code{reactive} value, containing
 #' batch corrected values
-#' @param se_t `SummarizedExperiment` object and `reactive` value, containing 
+#' @param se_t \code{SummarizedExperiment} object and \code{reactive} value, containing 
 #' transformed values
-#' @param se_i `SummarizedExperiment` object and `reactive` value, containing 
+#' @param se_i \code{SummarizedExperiment} object and \code{reactive} value, containing 
 #' imputed values
-#' @param missingValue `logical` (if `FALSE` do not show option for imputed)
+#' @param missingValue \code{logical} (if \code{FALSE} do not show option for imputed)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #' 
 #' @importFrom shiny moduleServer renderUI selectInput req reactive
 #' @importFrom shiny downloadHandler renderPlot
@@ -1169,15 +1171,15 @@ ECDFServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
 #' The module defines the UI in the tab panel 'Distance matrix'.
 #' 
 #' @details 
-#' `fR_distUI` returns the HTML code for the tab-pane 'Distance Matrix'. 
-#' Internal function for `shinyQC`.
+#' \code{fR_distUI} returns the HTML code for the tab-pane 'Distance Matrix'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param title `character` name/title of the box
-#' @param collapsed `logical`
+#' @param id \code{character}
+#' @param title \code{character} name/title of the box
+#' @param collapsed \code{logical}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -1207,16 +1209,16 @@ fR_distUI <- function(id, title, collapsed = TRUE) {
 #' 
 #' @description
 #' The function defines the UI in the tab panel 'Distance matrix'. It serves
-#' as a wrapper for `fR_distUI`.
+#' as a wrapper for \code{fR_distUI}.
 #' 
 #' @details 
-#' `tP_distUI` returns the HTML code for the tab-pane 'Distance matrix'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_distUI} returns the HTML code for the tab-pane 'Distance matrix'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param missingValue `logical` (if `FALSE` do not show box for imputed)
+#' @param missingValue \code{logical} (if \code{FALSE} do not show box for imputed)
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -1264,14 +1266,14 @@ tP_distUI <- function() {
 #' 'Distance matrix'.
 #' 
 #' @details 
-#' `tP_distUIServer` returns the server for the `tP_distUI`. 
-#' Internal function for `shinyQC`.
+#' \code{tP_distUIServer} returns the server for the \code{tP_distUI}. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param missingValue `logical` (if `FALSE` do not show box for imputed)
+#' @param id \code{character}
+#' @param missingValue \code{logical} (if \code{FALSE} do not show box for imputed)
 #' 
 #' @return 
-#' `shiny.reactive.expression` with HTML content
+#' \code{shiny.reactive.expression} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -1304,19 +1306,19 @@ distUIServer <- function(id, missingValue) {
 #' The module defines the server expressions in the tab panel 'Distance matrix'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` value
-#' @param assay `matrix` and `reactive` value
-#' @param method `character` and `reactive` value, one of `"euclidean"`, 
-#' `"mannhattan"`, `"canberra"`, or `"minkowski"`
-#' @param label `character` and `reactive` value, specified the annotation of 
-#' the `ComplexHeatmap`
-#' @param type `character`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} value
+#' @param assay \code{matrix} and \code{reactive} value
+#' @param method \code{character} and \code{reactive} value, one of \code{"euclidean"}, 
+#' \code{"mannhattan"}, \code{"canberra"}, or \code{"minkowski"}
+#' @param label \code{character} and \code{reactive} value, specified the annotation of 
+#' the \code{ComplexHeatmap}
+#' @param type \code{character}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -1396,15 +1398,15 @@ distServer <- function(id, se, assay, method, label, type) {
 #' The module defines the UI in the tab panel 'Features'.
 #' 
 #' @details 
-#' `tP_featureUI` returns the HTML code for the tab-pane 'Distance Matrix'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_featureUI} returns the HTML code for the tab-pane 'Distance Matrix'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param title `character` name/title of the box
-#' @param collapsed `logical`
+#' @param id \code{character}
+#' @param title \code{character} name/title of the box
+#' @param collapsed \code{logical}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -1457,19 +1459,24 @@ tP_featureUI <- function(id) {
 #' The module defines the server expressions in the tab panel 'Features'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object
-#' @param a `matrix` and `reactive` value, containing raw values
-#' @param a_n `matrix` and `reactive` value, containing normalized values
-#' @param a_b `matrix` and `reactive` value, containing batch corrected values
-#' @param a_t `matrix` and `reactive` value, containing transformed values
-#' @param a_i `matrix` and `reactive` value, containing imputed values
-#' @param missingValue `logical` (if `FALSE` do not show option for imputed)
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object
+#' @param a \code{matrix} and \code{reactive} value, containing raw values
+#' @param a_n \code{matrix} and \code{reactive} value, containing 
+#' normalized values
+#' @param a_b \code{matrix} and \code{reactive} value, containing 
+#' batch corrected values
+#' @param a_t \code{matrix} and \code{reactive} value, containing 
+#' transformed values
+#' @param a_i \code{matrix} and \code{reactive} value, containing 
+#' imputed values
+#' @param missingValue \code{logical} (if \code{FALSE} do not show option for 
+#' imputed)
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -1581,11 +1588,11 @@ featureServer <- function(id, se, a, a_n, a_b, a_t, a_i, missingValue) {
 #' The module defines the UI for the tab panel 'Values'.
 #' 
 #' @details 
-#' `tP_values_all` returns the HTML code for the tab-pane 'Values'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_values_all} returns the HTML code for the tab-pane 'Values'. 
+#' Internal function for \code{shinyQC}.
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 

@@ -11,32 +11,33 @@ normalizeAssay(
 )
 }
 \arguments{
-\item{a}{`matrix` with samples in columns and features in rows}
+\item{a}{\code{matrix} with samples in columns and features in rows}
 
-\item{method}{`character`, one of `"none"`, `"sum"`, `"quantile division"`, 
-`"quantile"`}
+\item{method}{\code{character}, one of \code{"none"}, \code{"sum"}, 
+\code{"quantile division"}, \code{"quantile"}}
 
-\item{probs}{`numeric`, ranging between `[0, 1)`. `probs` is used as the 
-divisor for quantile division in `method = "quantile division"`}
+\item{probs}{\code{numeric}, ranging between \code{[0, 1)}. \code{probs} 
+is used as the divisor for quantile division in 
+\code{method = "quantile division"}}
 }
 \value{
-`matrix`
+\code{matrix}
 }
 \description{
-The function `normalizeAssay` performs normalization by sum of the 
+The function \code{normalizeAssay} performs normalization by sum of the 
 (count/intensity) values per sample or quantile division per sample
 or by quantile normalization (adjusting the distributions that they become
 identical in statistical distributions). The divisor for quantile division
-(e.g., the 75% quantile per sample) can be specified by the `probs` argument.
-Quantile normalization is performed by using the `normalizeQuantiles` 
-function from `limma`.
+(e.g., the 75% quantile per sample) can be specified by the \code{probs} 
+argument. Quantile normalization is performed by using the 
+\code{normalizeQuantiles} function from \code{limma}.
 }
 \details{
-Internal usage in `shinyQC`. If `method` is set to `"none"`, the object
-`x` is returned as is (pass-through).
+Internal usage in \code{shinyQC}. If \code{method} is set to \code{"none"}, 
+the object \code{x} is returned as is (pass-through).
 
-If `probs` is NULL, `probs` is internally set to "name" if 
-`method = "quantile division"`.
+If \code{probs} is NULL, \code{probs} is internally set to "name" if 
+\code{method = "quantile division"}.
 }
 \examples{
 a <- matrix(1:100, nrow = 10, ncol = 10, 

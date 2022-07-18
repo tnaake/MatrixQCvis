@@ -3,19 +3,19 @@
 #' @title Volcano plot of fold changes/differences against p-values
 #' 
 #' @description 
-#' The function `volcanoPlot` creates a volcano plot. On the y-axis the
+#' The function \code{ComplexHeatmap} creates a volcano plot. On the y-axis the
 #' -log10(p-values) are displayed, while on the x-axis the fold 
 #' changes/differences are displayed.
-#' The output of the function `volcanoPlot` differs depending on the
-#' `type` parameter. For `type == "ttest"`, the fold changes are plotted;
-#' for `type == "proDA"`, the  differences are plotted. 
+#' The output of the function  differs depending on the
+#' \code{type} parameter. For \code{type == "ttest"}, the fold changes are 
+#' plotted; for \code{type == "proDA"}, the  differences are plotted. 
 #' 
 #' @details
-#' Internal use in `shinyQC`.
+#' Internal use in \code{shinyQC}.
 #' 
-#' @param df `data.frame` as received from `topTable` (`ttest`) or 
-#' `test_diff` (proDA)
-#' @param type `character`
+#' @param df \code{data.frame} as received from \code{topTable} (\code{ttest}) 
+#' or \code{test_diff} (proDA)
+#' @param type \code{character}
 #' 
 #' @examples 
 #' ## create se
@@ -66,7 +66,7 @@
 #' @importFrom ggplot2 ggplot aes_string geom_point ylab xlab theme_bw
 #' @importFrom plotly ggplotly style
 #' 
-#' @return `plotly`
+#' @return \code{plotly}
 #' 
 #' @export
 volcanoPlot <- function(df, type = c("ttest", "proDA")) {

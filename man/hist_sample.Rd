@@ -7,16 +7,16 @@
 hist_sample(tbl, category = "type")
 }
 \arguments{
-\item{tbl}{`tbl` as returned by `hist_sample_num`}
+\item{tbl}{\code{tbl} as returned by \code{hist_sample_num}}
 
-\item{category}{`character`, x-axis label of the plot}
+\item{category}{\code{character}, x-axis label of the plot}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-`hist_sample` plots the number of a category (e.g. sample types)
-as a histogram. It use the returned `tbl` from `hist_sample_num`.
+\code{hist_sample} plots the number of a category (e.g. sample types)
+as a histogram. It use the returned \code{tbl} from \code{hist_sample_num}.
 }
 \examples{
 ## create se

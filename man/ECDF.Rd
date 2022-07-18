@@ -7,34 +7,39 @@
 ECDF(se, sample = colnames(se), group = c("all", colnames(colData(se))))
 }
 \arguments{
-\item{se}{`SummarizedExperiment` object}
+\item{se}{\code{SummarizedExperiment} object}
 
-\item{sample}{`character`, name of the sample to compare against the group}
+\item{sample}{\code{character}, name of the sample to compare against the 
+group}
 
-\item{group}{`character`, either `"all"` or one of `colnames(colData(se))`}
+\item{group}{\code{character}, either \code{"all"} or one of 
+\code{colnames(colData(se))}}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `ECDF` creates a plot of the empirical cumulative distribution
-function of a specified sample and an outgroup (reference). The reference
-is specified by the `group` argument. The row-wise (feature) mean values of
-the reference are calculated after excluding the specified `sample`.
+The function \code{ECDF} creates a plot of the empirical cumulative 
+distribution function of a specified sample and an outgroup (reference). 
+The reference is specified by the \code{group} argument. The row-wise 
+(feature) mean values of the reference are calculated after excluding 
+the specified \code{sample}.
 }
 \details{
-Internal use in `shinyQC`. 
+Internal use in \code{shinyQC}. 
 
-The function `ECDF` uses the `ks.test` function from `stats` to perform
-a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov test is run 
-with the alternative `"two.sided"`
-(null hypothesis is that the true distribution function of the `sample` is
-equal to the hypothesized distribution function of the `group`).
+The function \code{ECDF} uses the \code{ks.test} function from \code{stats} 
+to perform a two-sample Kolmogorov-Smirnov test. The Kolmogorov-Smirnov 
+test is run with the alternative \code{"two.sided"}
+(null hypothesis is that the true distribution function of the 
+\code{sample} is equal to the hypothesized distribution function of the 
+\code{group}).
 
-The `exact` argument in `ks.test` is set to `NULL`, meaning that an exact
-p-value is computed if the product of the sample sizes is less than 10000 
-of `sample` and `group`. Otherwise, asymptotic distributions are used whose
-approximations might be inaccurate in low sample sizes.
+The \code{exact} argument in \code{ks.test} is set to \code{NULL}, meaning 
+that an exact p-value is computed if the product of the sample sizes is 
+less than 10000 of \code{sample} and \code{group}. Otherwise, asymptotic 
+distributions are used whose approximations might be inaccurate in low 
+sample sizes.
 }
 \examples{
 ## create se

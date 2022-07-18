@@ -11,30 +11,30 @@ MAplot(
 )
 }
 \arguments{
-\item{tbl}{`tibble` containing the M and A values, as obtained from the 
-`MAvalues` function}
+\item{tbl}{\code{tibble} containing the M and A values, as obtained from the 
+\code{MAvalues} function}
 
-\item{group}{`character`, one of `colnames(colData(se))` 
-(`se` used in `MAvalues`) or `"all"`}
+\item{group}{\code{character}, one of \code{colnames(colData(se))} 
+(\code{se} used in \code{MAvalues}) or \code{"all"}}
 
-\item{plot}{`character`, one of `colData(se)$name` (`se` used in `MAvalues`)
-or `"all"`}
+\item{plot}{\code{character}, one of \code{colData(se)$name} (\code{se} 
+used in \code{MAvalues}) or \code{"all"}}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
 The function creates a 2D histogram of M and A values.
 }
 \details{
-`MAplot` returns a 2D hex histogram instead of a classical scatterplot due to 
-computational reasons and better visualization of overlaying points.
-The argument `plot` specifies the sample (refering to `colData(se)$name`)
-to be plotted. If `plot = "all"`, MA values for all samples will be plotted
-(samples will be plotted in facets). 
-If the number of features (`tbl$Features`) is below 1000, points will be 
-plotted (via `geom_points`), otherwise hexagons will be plotted
-(via `geom_hex`).
+\code{MAplot} returns a 2D hex histogram instead of a classical scatterplot 
+due to computational reasons and better visualization of overlaying points.
+The argument \code{plot} specifies the sample (refering to 
+\code{colData(se)$name}) to be plotted. If \code{plot = "all"}, MA values 
+for all samples will be plotted (samples will be plotted in facets). 
+If the number of features (\code{tbl$Features}) is below 1000, points will be 
+plotted (via \code{geom_points}), otherwise hexagons will be plotted
+(via \code{geom_hex}).
 }
 \examples{
 ## create se

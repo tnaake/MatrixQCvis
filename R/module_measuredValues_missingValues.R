@@ -6,14 +6,14 @@
 #' The module defines the UI for the tab panel 'Number of Features'.
 #' 
 #' @details
-#' `tP_histFeatUI` returns the HTML code for the tab-pane 'Number of Features'.
-#' Internal function for `shinyQC`.
+#' \code{tP_histFeatUI} returns the HTML code for the tab-pane 'Number of Features'.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param title `character`
+#' @param id \code{character}
+#' @param title \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -51,13 +51,13 @@ tP_barplotMeasuredMissingSampleUI <- function(id, title = "Number of measured fe
 #' 'Number of features'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -88,14 +88,14 @@ sampleMeasuredMissingServer <- function(id, se) {
 #' 'Number of features'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param samplesMeasuredMissing `tibble` and `reactive` value
-#' @param measured `logical`
+#' @param id \code{character}
+#' @param samplesMeasuredMissing \code{tibble} and \code{reactive} value
+#' @param measured \code{logical}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -144,14 +144,14 @@ barplotMeasuredMissingSampleServer <- function(id, samplesMeasuredMissing,
 #' The module defines the UI for the tab panel 'Histogram Features'.
 #' 
 #' @details
-#' `tP_histFeatUI` returns the HTML code for the tab-pane 'Histogram Features'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_histFeatUI} returns the HTML code for the tab-pane 'Histogram Features'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -192,15 +192,15 @@ tP_histFeatUI <- function(id) {
 #' 'Histogram Features'
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` value, obtained from 
-#' `assay(SummarizedExperiment`
-#' @param measured `logical`
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} value, obtained from 
+#' \code{assay(se)}
+#' @param measured \code{logical}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -255,14 +255,14 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
 #' 'Histogram Features along variable'.
 #' 
 #' @details 
-#' `tP_histFeatCategoryUI` returns the HTML code for the tab-pane
-#' 'Histogram Features along variable'. Internal function for `shinyQC`.
+#' \code{tP_histFeatCategoryUI} returns the HTML code for the tab-pane
+#' 'Histogram Features along variable'. Internal function for \code{shinyQC}.
 #'
-#' @param id `character`
-#' @param se `SummarizedExperiment` object
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -303,14 +303,14 @@ tP_histFeatCategoryUI <- function(id) {
 #' 'Histogram Features along variable'
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` values
-#' @param measured `logical`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} values
+#' @param measured \code{logical}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -375,13 +375,13 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
 #' The module defines the UI for the tab panel 'UpSet'.
 #' 
 #' @details
-#' `tP_upSetUI` returns the HTML code for the tab-pane 'UpSet'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_upSetUI} returns the HTML code for the tab-pane 'UpSet'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -419,14 +419,14 @@ tP_upSetUI <- function(id) {
 #' The function defines the server expressions for the tab panel 'UpSet'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` values
-#' @param measured `logical`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} values
+#' @param measured \code{logical}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -482,13 +482,13 @@ upSetServer <- function(id, se, measured = TRUE) {
 #' The module defines the UI for the tab panel 'Sets'.
 #' 
 #' @details 
-#' `tP_setsUI` returns the HTML code for the tab-pane 'Sets'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_setsUI} returns the HTML code for the tab-pane 'Sets'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -523,14 +523,14 @@ tP_setsUI <- function(id) {
 #' The module defines the server expressions for the tab panel 'Sets'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object and `reactive` values
-#' @param measured `logical`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object and \code{reactive} values
+#' @param measured \code{logical}
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -566,11 +566,11 @@ setsServer <- function(id, se, measured = TRUE) {
 #' The module defines the UI for the tab panel 'Measured Values'.
 #' 
 #' @details 
-#' `tP_measuredValues_all` returns the HTML code for the tab-pane 
-#' 'Measured Values'. Internal function for `shinyQC`.
+#' \code{tP_measuredValues_all} returns the HTML code for the tab-pane 
+#' 'Measured Values'. Internal function for \code{shinyQC}.
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -602,11 +602,11 @@ tP_measuredValues_all <- function() {
 #' The module defines the UI for the tab panel 'Missing Values'.
 #' 
 #' @details 
-#' `tP_missingValues_all` returns the HTML code for the tab-pane 
-#' 'Missing Values'. Internal function for `shinyQC`.
+#' \code{tP_missingValues_all} returns the HTML code for the tab-pane 
+#' 'Missing Values'. Internal function for \code{shinyQC}.
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 

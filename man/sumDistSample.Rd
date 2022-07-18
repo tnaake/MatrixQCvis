@@ -7,16 +7,16 @@
 sumDistSample(d, title = "raw")
 }
 \arguments{
-\item{d}{`matrix` containing distances, obtained from `distShiny`}
+\item{d}{\code{matrix} containing distances, obtained from \code{distShiny}}
 
-\item{title}{`character` specifying the title to be added to the plot}
+\item{title}{\code{character} specifying the title to be added to the plot}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `sumDistSample` creates a plot showing the sum of distance of a 
-sample to other samples.
+The function \code{sumDistSample} creates a plot showing the sum of distance 
+of a sample to other samples.
 }
 \examples{
 a <- matrix(1:100, nrow = 10, ncol = 10, 

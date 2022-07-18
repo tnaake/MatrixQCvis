@@ -85,7 +85,7 @@ BiocStyle::markdown()
 ```{r env, include=FALSE, echo=FALSE, cache=FALSE}
 library("knitr")
 opts_chunk$set(stop_on_error = 1L)
-##suppressPackageStartupMessages(library("MatrixQCvis"))
+suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
 ```{r prepare_se, eval=TRUE, echo=FALSE}
@@ -354,15 +354,15 @@ Use the settings
 - *Select variable to order samples* = `r int_violin_orderCategory`.
 
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE}
-create_boxplot(se_r, orderCategory = int_violin_orderCategory, 
+createBoxplot(se_r, orderCategory = int_violin_orderCategory, 
     title = "raw", log2 = int_log, violin = int_violin)
-create_boxplot(se_n, orderCategory = int_violin_orderCategory, 
+createBoxplot(se_n, orderCategory = int_violin_orderCategory, 
     title = "normalized", log2 = int_log, violin = int_violin)
-create_boxplot(se_b, orderCategory = int_violin_orderCategory,
+createBoxplot(se_b, orderCategory = int_violin_orderCategory,
     title = "batch corrected", log2 = FALSE, violin = int_violin)
-create_boxplot(se_t, orderCategory = int_violin_orderCategory,
+createBoxplot(se_t, orderCategory = int_violin_orderCategory,
     title = "transformed", log2 = FALSE, violin = int_violin)
-create_boxplot(se_i, orderCategory = int_violin_orderCategory, 
+createBoxplot(se_i, orderCategory = int_violin_orderCategory, 
     title = "imputed", log2 = FALSE, violin = int_violin)
 ```
 

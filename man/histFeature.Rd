@@ -7,20 +7,20 @@
 histFeature(x, measured = TRUE, ...)
 }
 \arguments{
-\item{x}{`matrix` containing intensities. Missing values are encoded 
-as `NA`.}
+\item{x}{\code{matrix} containing intensities. Missing values are encoded 
+as \code{NA}.}
 
-\item{measured}{`logical`, should the measured values 
-(`measured = TRUE`) or missing values (`measured = FALSE`) be taken}
+\item{measured}{\code{logical}, should the measured values 
+(\code{measured = TRUE}) or missing values (\code{measured = FALSE}) be taken}
 
-\item{...}{additional parameters passed to `geom_histogram`, e.g. 
-`binwidth`.}
+\item{...}{additional parameters passed to \code{geom_histogram}, e.g. 
+\code{binwidth}.}
 }
 \value{
-`plotly` object from `ggplotly`
+\code{plotly} object from \code{ggplotly}
 }
 \description{
-The function `histFeature` creates a histogram with the number
+The function \code{histFeature} creates a histogram with the number
 of measured/missing values per feature.
 }
 \examples{

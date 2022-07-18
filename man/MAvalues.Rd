@@ -7,26 +7,28 @@
 MAvalues(se, log2 = TRUE, group = c("all", colnames(colData(se))))
 }
 \arguments{
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{log2}{`logical`, specifies if values re `log2` transformed prior to
-calculating M and A values. If the values are already transformed, `log2` 
-should be set to `FALSE`.}
+\item{log2}{\code{logical}, specifies if values re \code{log2} 
+transformed prior to calculating M and A values. If the values are already 
+transformed, \code{log2} should be set to \code{FALSE}.}
 
-\item{group}{`character`, either `"all"` or one of `colnames(colData(se))`}
+\item{group}{\code{character}, either \code{"all"} or one of 
+\code{colnames(colData(se))}}
 }
 \value{
-`tbl` with columns `Feature`, `name` (sample name), `A`, `M` and
-additional columns of `colData(se)`
+\code{tbl} with columns \code{Feature}, \code{name} (sample name), 
+\code{A}, \code{M} and additional columns of \code{colData(se)}
 }
 \description{
-The function `MAvalues` will create MA values as input for the function 
-`MAplot` and `hoeffDValues`. 
-`M` and `A` are specified relative to specified samples which 
-is determined by the `group` argument. In case of `group == "all"`, all 
-samples (expect the specified one) are taken for the reference calculation.
-In case of `group != "all"` will use the samples belonging to the same group
-given in `colnames(colData(se))` expect the specified one.
+The function \code{MAvalues} will create MA values as input for the function 
+\code{MAplot} and \code{hoeffDValues}. 
+\code{M} and \code{A} are specified relative to specified samples which 
+is determined by the \code{group} argument. In case of \code{group == "all"}, 
+all samples (expect the specified one) are taken for the reference 
+calculation. In case of \code{group != "all"} will use the samples belonging 
+to the same group given in \code{colnames(colData(se))} expect the 
+specified one.
 }
 \examples{
 ## create se

@@ -7,28 +7,29 @@
 extractComb(se, combination, measured = TRUE, category = "type")
 }
 \arguments{
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{combination}{`character`, refers to factors in `category`}
+\item{combination}{\code{character}, refers to factors in \code{category}}
 
-\item{measured}{`logical`}
+\item{measured}{\code{logical}}
 
-\item{category}{`character`, corresponding to a column name in `colData(se)`}
+\item{category}{\code{character}, corresponding to a column name in 
+\code{colData(se)}}
 }
 \value{
-`character`
+\code{character}
 }
 \description{
-The function `extractComb` extracts the features that match a
-`combination` depending if the features was measured or missing. The function
-will return the sets that match the `combination`, thus, the function 
-might be useful when answering questions about which features are 
-measured/missing under certain combinations (e.g. sample types or 
-experimental conditions).
+The function \code{extractComb} extracts the features that match a
+\code{combination} depending if the features was measured or missing. 
+The function will return the sets that match the \code{combination}, 
+thus, the function might be useful when answering questions about which 
+features are measured/missing under certain combinations (e.g. sample 
+types or experimental conditions).
 }
 \details{
-The function `extractComb` uses the `make_comb_mat` function from 
-`ComplexHeatmap` package.
+The function \code{extractComb} uses the \code{make_comb_mat} function from 
+\code{ComplexHeatmap} package.
 
 Presence is defined by a feature being measured in at least one sample of a 
 set.

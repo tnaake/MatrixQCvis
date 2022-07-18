@@ -2,16 +2,16 @@
 #'
 #' @title Return the number of a category
 #'
-#' @description `hist_sample_num` returns the number of a category 
-#' (e.g. sample types) as a `tbl`.
-#' The function will retrieve first the column `category` in `colData(se)`. 
-#' The function will return a `tbl` containing the numerical 
+#' @description \code{hist_sample_num} returns the number of a category 
+#' (e.g. sample types) as a \code{tbl}.
+#' The function will retrieve first the column \code{category} in \code{colData(se)}. 
+#' The function will return a \code{tbl} containing the numerical 
 #' values of the quantities.
 #'
-#' @param se `SummarizedExperiment` object
-#' @param category `character`, corresponding to a column in `colData(se)`
+#' @param se \code{SummarizedExperiment} object
+#' @param category \code{character}, corresponding to a column in \code{colData(se)}
 #'
-#' @return `tbl`
+#' @return \code{tbl}
 #' 
 #' @examples 
 #' ## create se
@@ -52,13 +52,13 @@ hist_sample_num <- function(se, category = "type") {
 #'
 #' @title Plot a histogram of the number of a category
 #'
-#' @description `hist_sample` plots the number of a category (e.g. sample types)
-#' as a histogram. It use the returned `tbl` from `hist_sample_num`.
+#' @description \code{hist_sample} plots the number of a category (e.g. sample types)
+#' as a histogram. It use the returned \code{tbl} from \code{hist_sample_num}.
 #'
-#' @param tbl `tbl` as returned by `hist_sample_num`
-#' @param category `character`, x-axis label of the plot 
+#' @param tbl \code{tbl} as returned by \code{hist_sample_num}
+#' @param category \code{character}, x-axis label of the plot 
 #'
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @examples 
 #' ## create se
@@ -96,19 +96,19 @@ hist_sample <- function(tbl, category = "type") {
 #' @title Mosaic plot for two factors in colData(se)
 #' 
 #' @description 
-#' The function `mosaic` creates a mosaic plot of two factors from
-#' an `SummararizedExperiment` object. The columns `f1` and `f2` 
-#' are taken from `colData(se)`.
+#' The function \code{mosaic} creates a mosaic plot of two factors from
+#' an \code{SummarizedExperiment} object. The columns \code{f1} and \code{f2} 
+#' are taken from \code{colData(se)}.
 #'
 #' @details
 #' Code partly taken from
 #' https://stackoverflow.com/questions/21588096/pass-string-to-facet-grid-ggplot2
 #'
-#' @param se `SummarizedExperiment` object
-#' @param f1 `character`, `f1` is one of the column names in `colData(se)`
-#' @param f2 `character`, `f2` is one of the column names in `colData(se)`
+#' @param se \code{SummarizedExperiment} object
+#' @param f1 \code{character}, \code{f1} is one of the column names in \code{colData(se)}
+#' @param f2 \code{character}, \code{f2} is one of the column names in \code{colData(se)}
 #'
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #'
 #' @examples
 #' ## create se

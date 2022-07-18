@@ -14,37 +14,37 @@ driftPlot(
 )
 }
 \arguments{
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{aggregation}{`character`, type of aggregation of (count/intensity) 
+\item{aggregation}{\code{character}, type of aggregation of (count/intensity) 
 values}
 
-\item{category}{`character`, column of `colData(se)`}
+\item{category}{\code{character}, column of \code{colData(se)}}
 
-\item{orderCategory}{`character`, column of `colData(se)`}
+\item{orderCategory}{\code{character}, column of \code{colData(se)}}
 
-\item{level}{`character`, from which samples should the LOESS curve be
-calculated, either `"all"` or one of the levels of the selected columns
-of `colData(se)` (`"category"`)}
+\item{level}{\code{character}, from which samples should the LOESS curve be
+calculated, either \code{"all"} or one of the levels of the selected columns
+of \code{colData(se)} (\code{"category"})}
 
-\item{method}{`character`, either `"loess"` or `"lm"`}
+\item{method}{\code{character}, either \code{"loess"} or \code{"lm"}}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `driftPlot` aggregates the (count/intensity) values from the 
-`assay()` slot of a `SummarizedExperiment` by the `median` or `sum` of the
-(count/intensity) values. `driftPlot` then visualizes these aggregated values 
-and adds a trend line (using either LOESS or a linear model) from 
-(a subset of) the aggregated values. The subset is specified by the 
-arguments `category` and `level`.
+The function \code{driftPlot} aggregates the (count/intensity) values from the 
+\code{assay()} slot of a \code{SummarizedExperiment} by the \code{median} or 
+\code{sum} of the (count/intensity) values. \code{driftPlot} then visualizes 
+these aggregated values and adds a trend line (using either LOESS or a 
+linear model) from (a subset of) the aggregated values. The subset is 
+specified by the arguments \code{category} and \code{level}.
 }
 \details{
-The x-values are sorted according to the `orderCategory` argument: The 
-levels of the corresponding column in `colData(se)` are pasted with the 
-sample names (in the column `name`) and factorized.
-Internal usage in `shinyQC`.
+The x-values are sorted according to the \code{orderCategory} argument: The 
+levels of the corresponding column in \code{colData(se)} are pasted with the 
+sample names (in the column \code{name}) and factorized.
+Internal usage in \code{shinyQC}.
 }
 \examples{
 #' ## create se

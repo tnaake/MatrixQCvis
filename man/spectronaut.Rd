@@ -2,37 +2,37 @@
 % Please edit documentation in R/conversion.R
 \name{spectronaut}
 \alias{spectronaut}
-\title{Convert Spectronaut xlsx output to `SummarizedExperiment` object}
+\title{Convert Spectronaut xlsx output to \code{SummarizedExperiment} object}
 \usage{
 spectronaut(file, sheetIntensities, sheetAnnotation, ...)
 }
 \arguments{
-\item{file}{`character`}
+\item{file}{\code{character}}
 
-\item{sheetIntensities}{`character` or `numeric`, name or index of the 
+\item{sheetIntensities}{\code{character} or \code{numeric}, name or index of the 
 sheet where the intensities are stored}
 
-\item{sheetAnnotation}{`character` or `numeric`, name or index of the 
+\item{sheetAnnotation}{\code{character} or \code{numeric}, name or index of the 
 sheet where the annotations are stored}
 
-\item{...}{additional parameters given to `read.xslx`}
+\item{...}{additional parameters given to \code{read.xslx}}
 }
 \value{
-`SummarizedExperiment` object
+\code{SummarizedExperiment} object
 }
 \description{
-The function `spectronaut` will create a `SummarizedExperiment` from a
-Spectronaut xlsx file. 
-The function `spectronaut` takes as input the path to a .xlsx file 
+The function \code{spectronaut} will create a \code{SummarizedExperiment} 
+from a Spectronaut xlsx file. 
+The function \code{spectronaut} takes as input the path to a .xlsx file 
 (Spectronaut output).
 }
 \details{
 The function requires that the intensity values are stored in the sheet
-`sheetIntensities` and the sample annotations in the sheet
-`sheetAnnotation`.
+\code{sheetIntensities} and the sample annotations in the sheet
+\code{sheetAnnotation}.
 
-The sample names are taken from the column `"SAMPLE_IDs"` from the 
-sheet `sheetAnnotation`.
+The sample names are taken from the column \code{"SAMPLE_IDs"} from the 
+sheet \code{sheetAnnotation}.
 }
 \examples{
 file <- "path/to/spectronaut/object"

@@ -7,9 +7,9 @@
 hoeffDValues(tbl, name = "raw")
 }
 \arguments{
-\item{tbl}{`tibble`, as obtained from the function `MAvalues`}
+\item{tbl}{\code{tibble}, as obtained from the function \code{MAvalues}}
 
-\item{name}{`character`, name of the returned list}
+\item{name}{\code{character}, name of the returned list}
 }
 \value{
 named list with Hoeffding's D values per sample
@@ -19,7 +19,7 @@ The function creates and returns Hoeffding's D statistics values
 from MA values.
 }
 \details{
-The function uses the function `hoeffd` from the `Hmisc` package to 
+The function uses the function \code{hoeffd} from the \code{Hmisc} package to 
 calculate the values.
 }
 \examples{

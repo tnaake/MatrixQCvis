@@ -2,28 +2,28 @@
 % Please edit documentation in R/conversion.R
 \name{biocrates}
 \alias{biocrates}
-\title{Convert Biocrates xlsx output to `SummarizedExperiment` object}
+\title{Convert Biocrates xlsx output to \code{SummarizedExperiment} object}
 \usage{
 biocrates(file, sheet, ...)
 }
 \arguments{
-\item{file}{`character`}
+\item{file}{\code{character}}
 
-\item{sheet}{`character` or `numeric`, the name or index of the sheet to 
-read data from}
+\item{sheet}{\code{character} or \code{numeric}, the name or index of the 
+sheet to read data from}
 
-\item{...}{additional parameters given to `read.xslx`}
+\item{...}{additional parameters given to \code{read.xlsx}}
 }
 \value{
-`SummarizedExperiment` object
+\code{SummarizedExperiment} object
 }
 \description{
-The function `biocrates` will create a `SummarizedExperiment` from a
-Biocrates xlsx file. 
-The function `biocrates` takes as input the path to a .xlsx file 
-(Biocrates output) and additional parameters given to the `read.xlsx` 
-function from the `openxlsx` package (e.g. specifying the sheet name or index
-by `sheet`).
+The function \code{biocrates} will create a \code{SummarizedExperiment} 
+from a Biocrates xlsx file. 
+The function \code{biocrates} takes as input the path to a .xlsx file 
+(Biocrates output) and additional parameters given to the \code{read.xlsx} 
+function from the \code{openxlsx} package (e.g. specifying the sheet name or 
+index by \code{sheet}).
 }
 \details{
 The column "Sample Identification" has to contain unique identifiers

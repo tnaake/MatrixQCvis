@@ -7,19 +7,19 @@
 mosaic(se, f1, f2)
 }
 \arguments{
-\item{se}{`SummarizedExperiment` object}
+\item{se}{\code{SummarizedExperiment} object}
 
-\item{f1}{`character`, `f1` is one of the column names in `colData(se)`}
+\item{f1}{\code{character}, \code{f1} is one of the column names in \code{colData(se)}}
 
-\item{f2}{`character`, `f2` is one of the column names in `colData(se)`}
+\item{f2}{\code{character}, \code{f2} is one of the column names in \code{colData(se)}}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `mosaic` creates a mosaic plot of two factors from
-an `SummararizedExperiment` object. The columns `f1` and `f2` 
-are taken from `colData(se)`.
+The function \code{mosaic} creates a mosaic plot of two factors from
+an \code{SummarizedExperiment} object. The columns \code{f1} and \code{f2} 
+are taken from \code{colData(se)}.
 }
 \details{
 Code partly taken from

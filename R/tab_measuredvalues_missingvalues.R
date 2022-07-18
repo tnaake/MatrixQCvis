@@ -3,14 +3,14 @@
 #' @title Create tibble containing number of measured/missing features 
 #' of samples
 #'
-#' @description `samplesMeasuredMissing` returns a `tbl` with 
+#' @description \code{samplesMeasuredMissing} returns a \code{tbl} with 
 #' the number of measured/missing
 #' features of samples. The function will take as input a 
-#' `SummarizedExperiment` object and will access its `assay()` slot
+#' \code{SummarizedExperiment} object and will access its \code{assay()} slot
 #'
-#' @param se `SummarizedExperiment` object
+#' @param se \code{SummarizedExperiment} object
 #' 
-#' @return `tbl` with number of measured/missing features per sample
+#' @return \code{tbl} with number of measured/missing features per sample
 #' 
 #' @examples 
 #' ## create se
@@ -50,15 +50,15 @@ samplesMeasuredMissing <- function(se) {
 #'
 #' @title Barplot of number of measured/missing features of samples
 #'
-#' @description `barplotSamplesMeasuredMissing` plots the number of 
+#' @description \code{barplotSamplesMeasuredMissing} plots the number of 
 #' measured/missing features of samples as a barplot. The function will 
-#' take as input the returned `tbl` of `samplesMeasuredMissing`. 
+#' take as input the returned \code{tbl} of \code{samplesMeasuredMissing}. 
 #'
-#' @param tbl `tbl` object
-#' @param measured `logical`, should the number of measured or missing values
-#' be plotted
+#' @param tbl \code{tbl} object
+#' @param measured \code{logical}, should the number of measured or missing 
+#' values be plotted
 #' 
-#' @return `gg` object from `ggplot2`
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @examples 
 #' ## create se
@@ -111,17 +111,17 @@ barplotSamplesMeasuredMissing <- function(tbl, measured = TRUE) {
 #' @title Histogram for measured value per feature
 #'
 #' @description 
-#' The function `histFeature` creates a histogram with the number
+#' The function \code{histFeature} creates a histogram with the number
 #' of measured/missing values per feature.
 #'
-#' @param x `matrix` containing intensities. Missing values are encoded 
-#' as `NA`.
-#' @param measured `logical`, should the measured values 
-#' (`measured = TRUE`) or missing values (`measured = FALSE`) be taken
-#' @param ... additional parameters passed to `geom_histogram`, e.g. 
-#' `binwidth`.
+#' @param x \code{matrix} containing intensities. Missing values are encoded 
+#' as \code{NA}.
+#' @param measured \code{logical}, should the measured values 
+#' (\code{measured = TRUE}) or missing values (\code{measured = FALSE}) be taken
+#' @param ... additional parameters passed to \code{geom_histogram}, e.g. 
+#' \code{binwidth}.
 #'
-#' @return `plotly` object from `ggplotly`
+#' @return \code{plotly} object from \code{ggplotly}
 #' 
 #' @examples
 #' x <- matrix(c(c(1, 1, 1), c(1, NA, 1), c(1, NA, 1), 
@@ -167,21 +167,24 @@ histFeature <- function(x, measured = TRUE, ...) {
 #' @title Obtain the number of measured intensities per sample type
 #' 
 #' @description 
-#' The function `measuredCategory` creates a `tbl` with
+#' The function \code{measuredCategory} creates a \code{tbl} with
 #' the number of measured values per feature. 0 means that there were only 
-#' missing values (`NA`) for the feature and sample type. 
-#' `measuredCategory` will return a `tbl` where columns are the 
-#' unique sample types and rows are the features as in `assay(se)`.
+#' missing values (\code{NA}) for the feature and sample type. 
+#' \code{measuredCategory} will return a \code{tbl} where columns are the 
+#' unique sample types and rows are the features as in \code{assay(se)}.
 #' 
 #' @details 
-#' `measuredCategory` is a helper function. 
+#' \code{measuredCategory} is a helper function. 
 #' 
-#' @param se `SummarizedExperiment`
-#' @param measured `logical`, should the measured values 
-#' (`measured = TRUE`) or missing values (`measured = FALSE`) be taken
-#' @param category `character`, corresponds to a column name in `colData(se)`
+#' @param se \code{SummarizedExperiment}
+#' @param measured \code{logical}, should the measured values 
+#' (\code{measured = TRUE}) or missing values (\code{measured = FALSE}) 
+#' be taken
+#' @param category \code{character}, corresponds to a column name in 
+#' \code{colData(se)}
 #' 
-#' @return `tbl` with number of measured/mising features per `category` type
+#' @return \code{tbl} with number of measured/mising features per 
+#' \code{category} type
 #' 
 #' @examples
 #' ## create se
@@ -220,7 +223,7 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
     samp <- cD[[category]]
     samp_u <- unique(samp)
 
-    ## create the data.frame to store the values, the `data.frame` has the
+    ## create the data.frame to store the values, the data.frame has the
     ## dimensions: nrow(a)/number of features as in a and number of 
     ## unique sample types
     tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u),
@@ -248,17 +251,19 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
 #'
 #' @title Histogram of features per sample type
 #'
-#' @description The function `histFeatureCategory` creates histogram
-#' plots for each sample type in `se`.
+#' @description The function \code{histFeatureCategory} creates histogram
+#' plots for each sample type in \code{se}.
 #'
-#' @param se `SummarizedExperiment`, the assay slot contains the intensity 
-#' values per sample. Missing values are encoded as `NA`.
-#' @param measured `logical`, should the measured values 
-#' (`measured = TRUE`) or missing values (`measured = FALSE`) be taken 
-#' @param category `character`, corresponding to a column in `colData(se)`
-#' @param... additional parameters passed to `geom_histogram`, e.g. `binwidth`.
+#' @param se \code{SummarizedExperiment}, the assay slot contains the intensity 
+#' values per sample. Missing values are encoded as \code{NA}.
+#' @param measured \code{logical}, should the measured values 
+#' (\code{measured = TRUE}) or missing values (\code{measured = FALSE}) be taken 
+#' @param category \code{character}, corresponding to a column in 
+#' \code{colData(se)}
+#' @param... additional parameters passed to \code{geom_histogram}, e.g. 
+#' \code{binwidth}.
 #' 
-#' @return `plotly` object from `ggplotly`
+#' @return \code{plotly} object from \code{ggplotly}
 #'
 #' @examples
 #' ## create se
@@ -314,30 +319,33 @@ histFeatureCategory <- function(se, measured = TRUE,
 #' @title UpSet plot to display measures values across sample types
 #'
 #' @description 
-#' The function `upsetCategory` displays the frequency of measured values per
-#' feature with respect to class/sample type to assess difference in
+#' The function \code{upsetCategory} displays the frequency of measured values 
+#' per feature with respect to class/sample type to assess difference in
 #' occurrences. Internally, the measured values per sample are obtained via
-#' the `measuredCategory` function: this function will access the number
+#' the \code{measuredCategory} function: this function will access the number
 #' of measured/missing values per category and feature. From this, a binary 
-#' `tbl` will be created specifying if the feature is present/missing, which
-#' will be given to the `upset` function from the `UpSetR` package.
+#' \code{tbl} will be created specifying if the feature is present/missing, 
+#' which will be given to the \code{upset} function from the \code{UpSetR} 
+#' package.
 #'
 #' @details 
-#'  Presence is defined by a feature being measured in at least one 
-#'  sample of a set.
+#' Presence is defined by a feature being measured in at least one 
+#' sample of a set.
 #' 
 #' Absence is defined by a feature with only missing values (i.e. 
 #' no measured values) of a set.
 #' 
-#' @param se `SummarizedExperiment`,
-#'  containing the intensity values in `assay(se)`, missing values are
-#' encoded by `NA`
-#' @param category `character`, corresponding to a column in `colData(se)`
-#' @param measured `logical`, should the measured values (`measured = TRUE`) 
-#' or missing values (`measured = FALSE`) be taken 
+#' @param se \code{SummarizedExperiment},
+#'  containing the intensity values in \code{assay(se)}, missing values are
+#' encoded by \code{NA}
+#' @param category \code{character}, corresponding to a column in 
+#' \code{colData(se)}
+#' @param measured \code{logical}, should the measured values 
+#' (\code{measured = TRUE}) 
+#' or missing values (\code{measured = FALSE}) be taken 
 #'
 #' @return 
-#' `UpSet` plot
+#' \code{upset} plot
 #' 
 #' @examples 
 #' ## create se
@@ -389,16 +397,16 @@ upsetCategory <- function(se, category = colnames(colData(se)), measured = TRUE)
 #' @title Obtain the features that are present in a specified set
 #'
 #' @description
-#' The function `extractComb` extracts the features that match a
-#' `combination` depending if the features was measured or missing. The function
-#' will return the sets that match the `combination`, thus, the function 
-#' might be useful when answering questions about which features are 
-#' measured/missing under certain combinations (e.g. sample types or 
-#' experimental conditions).
+#' The function \code{extractComb} extracts the features that match a
+#' \code{combination} depending if the features was measured or missing. 
+#' The function will return the sets that match the \code{combination}, 
+#' thus, the function might be useful when answering questions about which 
+#' features are measured/missing under certain combinations (e.g. sample 
+#' types or experimental conditions).
 #' 
 #' @details 
-#' The function `extractComb` uses the `make_comb_mat` function from 
-#' `ComplexHeatmap` package.
+#' The function \code{extractComb} uses the \code{make_comb_mat} function from 
+#' \code{ComplexHeatmap} package.
 #' 
 #' Presence is defined by a feature being measured in at least one sample of a 
 #' set.
@@ -406,12 +414,13 @@ upsetCategory <- function(se, category = colnames(colData(se)), measured = TRUE)
 #' Absence is defined by a feature with only missing values (i.e. no measured 
 #' values) of a set. 
 #'
-#' @param se `SummarizedExperiment`
-#' @param combination `character`, refers to factors in `category`
-#' @param measured `logical`
-#' @param category `character`, corresponding to a column name in `colData(se)`
+#' @param se \code{SummarizedExperiment}
+#' @param combination \code{character}, refers to factors in \code{category}
+#' @param measured \code{logical}
+#' @param category \code{character}, corresponding to a column name in 
+#' \code{colData(se)}
 #'
-#' @return `character`
+#' @return \code{character}
 #' 
 #' @examples
 #' 

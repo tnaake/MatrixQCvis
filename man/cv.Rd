@@ -7,21 +7,22 @@
 cv(x, name = "raw")
 }
 \arguments{
-\item{x}{`matrix`}
+\item{x}{\code{matrix}}
 
-\item{name}{`character`, the name of the returned list}
+\item{name}{\code{character}, the name of the returned list}
 }
 \value{
-`list`
+\code{list}
 }
 \description{
-The function `cv` calculates the coefficient of variation from columns of 
+The function \code{cv} calculates the coefficient of variation from columns of 
 a matrix. The coefficients of variation are calculated according to the 
-formula `sd(y) / mean(y) * 100` with `y` the column values.
+formula \code{sd(y) / mean(y) * 100} with \code{y} the column values.
 }
 \details{
-The function returned a named `list` (the name is specified by the `name`
-argument) containing the coefficient of variation of the columns of `x`.
+The function returned a named \code{list} (the name is specified by the 
+\code{name} argument) containing the coefficient of variation of the 
+columns of \code{x}.
 }
 \examples{
 x <- matrix(1:10, ncol = 2)

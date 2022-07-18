@@ -1,23 +1,23 @@
 #' @name biocrates
 #' 
-#' @title Convert Biocrates xlsx output to `SummarizedExperiment` object
+#' @title Convert Biocrates xlsx output to \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `biocrates` will create a `SummarizedExperiment` from a
-#' Biocrates xlsx file. 
-#' The function `biocrates` takes as input the path to a .xlsx file 
-#' (Biocrates output) and additional parameters given to the `read.xlsx` 
-#' function from the `openxlsx` package (e.g. specifying the sheet name or index
-#' by `sheet`).
+#' The function \code{biocrates} will create a \code{SummarizedExperiment} 
+#' from a Biocrates xlsx file. 
+#' The function \code{biocrates} takes as input the path to a .xlsx file 
+#' (Biocrates output) and additional parameters given to the \code{read.xlsx} 
+#' function from the \code{openxlsx} package (e.g. specifying the sheet name or 
+#' index by \code{sheet}).
 #' 
 #' @details 
 #' The column "Sample Identification" has to contain unique identifiers
 #' (no duplications).
 #' 
-#' @param file `character`
-#' @param sheet `character` or `numeric`, the name or index of the sheet to 
-#' read data from
-#' @param ... additional parameters given to `read.xslx`
+#' @param file \code{character}
+#' @param sheet \code{character} or \code{numeric}, the name or index of the 
+#' sheet to read data from
+#' @param ... additional parameters given to \code{read.xlsx}
 #' 
 #' @examples
 #' file <- "path/to/biocrates/object"
@@ -26,7 +26,7 @@
 #' @usage biocrates(file, sheet, ...)
 #'
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #' 
 #' @export
 #' 
@@ -82,35 +82,37 @@ biocrates <- function(file, sheet, ...) {
 
 #' @name maxQuant
 #' 
-#' @title Convert MaxQuant xlsx output to `SummarizedExperiment` object
+#' @title Convert MaxQuant xlsx output to \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `maxQuant` will create a `SummarizedExperiment` from a
+#' The function \code{maxQuant} will create a \code{SummarizedExperiment} from a
 #' MaxQuant xlsx file. 
-#' The function `maxQuant` takes as input the path to a .xlsx file 
-#' (MaxQuant output) and additional parameters given to the `read.xlsx` 
-#' function from the `openxlsx` package (e.g. specifying the sheet name or index 
-#' by `sheet`).
+#' The function \code{maxQuant} takes as input the path to a .xlsx file 
+#' (MaxQuant output) and additional parameters given to the \code{read.xlsx} 
+#' function from the \code{openxlsx} package (e.g. specifying the sheet name 
+#' or index by \code{sheet}).
 #' 
 #' @details 
-#' The argument `intensity` will specify if the `iBAQ` or `LFQ` values are taken. 
+#' The argument \code{intensity} will specify if the \code{iBAQ} or 
+#' \code{LFQ} values are taken. 
 #' 
-#' The argument `type` will specify if the data is loaded from `txt` or `xlsx`
-#' files.
-#' 
-#' @param file `character`
-#' @param intensity `character`, either `"iBAQ"` or `"LFQ"`
-#' @param sheet `character` or `numeric`, the name or index of the sheet to 
-#' read data from
-#' @param type `character`, either `"txt"` or `"xlsx"`
-#' @param ... additional parameters given to `read.xslx` (for `type = "xlsx"`)
+#' The argument \code{type} will specify if the data is loaded from \code{txt} 
+#' or \code{xlsx} files.
+#'  
+#' @param file \code{character}
+#' @param intensity \code{character}, either \code{"iBAQ"} or \code{"LFQ"}
+#' @param sheet \code{character} or \code{numeric}, the name or index of the 
+#' sheet to read data from
+#' @param type \code{character}, either \code{"txt"} or \code{"xlsx"}
+#' @param ... additional parameters given to \code{read.xlsx} (for 
+#' \code{type = "xlsx"})
 #'
 #' @examples
 #' file <- "path/to/maxQuant/object.txt"
 #' \donttest{maxQuant(file = file, intensity = "iBAQ", type = "txt")}
 #'
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #'
 #' @export
 #' 
@@ -226,28 +228,28 @@ maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet,
 
 #' @name spectronaut
 #' 
-#' @title Convert Spectronaut xlsx output to `SummarizedExperiment` object
+#' @title Convert Spectronaut xlsx output to \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `spectronaut` will create a `SummarizedExperiment` from a
-#' Spectronaut xlsx file. 
-#' The function `spectronaut` takes as input the path to a .xlsx file 
+#' The function \code{spectronaut} will create a \code{SummarizedExperiment} 
+#' from a Spectronaut xlsx file. 
+#' The function \code{spectronaut} takes as input the path to a .xlsx file 
 #' (Spectronaut output).
 #' 
 #' @details 
 #' The function requires that the intensity values are stored in the sheet
-#' `sheetIntensities` and the sample annotations in the sheet
-#' `sheetAnnotation`.
+#' \code{sheetIntensities} and the sample annotations in the sheet
+#' \code{sheetAnnotation}.
 #' 
-#' The sample names are taken from the column `"SAMPLE_IDs"` from the 
-#' sheet `sheetAnnotation`.
+#' The sample names are taken from the column \code{"SAMPLE_IDs"} from the 
+#' sheet \code{sheetAnnotation}.
 #' 
-#' @param file `character`
-#' @param sheetIntensities `character` or `numeric`, name or index of the 
+#' @param file \code{character}
+#' @param sheetIntensities \code{character} or \code{numeric}, name or index of the 
 #' sheet where the intensities are stored
-#' @param sheetAnnotation `character` or `numeric`, name or index of the 
+#' @param sheetAnnotation \code{character} or \code{numeric}, name or index of the 
 #' sheet where the annotations are stored 
-#' @param ... additional parameters given to `read.xslx`
+#' @param ... additional parameters given to \code{read.xslx}
 #'
 #' @examples
 #' file <- "path/to/spectronaut/object"
@@ -257,7 +259,7 @@ maxQuant <- function(file, intensity = c("iBAQ", "LFQ"), sheet,
 #' @usage spectronaut(file, sheetIntensities, sheetAnnotation, ...)
 #'
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #'
 #' @export
 #' 

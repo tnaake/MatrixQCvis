@@ -13,28 +13,28 @@ createBoxplot(
 )
 }
 \arguments{
-\item{se}{`SummarizedExperiment` containing the (count/intensity) values in
-the `assay` slot}
+\item{se}{\code{SummarizedExperiment} containing the (count/intensity) values 
+in the \code{assay} slot}
 
-\item{orderCategory}{`character`, one of `colnames(colData(se))`}
+\item{orderCategory}{\code{character}, one of \code{colnames(colData(se))}}
 
-\item{title}{`character` or `numeric` of `length(1)`}
+\item{title}{\code{character} or \code{numeric} of \code{length(1)}}
 
-\item{log2}{`logical`, if `TRUE` (count/intensity) values are displayed as 
-log2 values}
+\item{log2}{\code{logical}, if \code{TRUE} (count/intensity) values are 
+displayed as log2 values}
 
-\item{violin}{`logical`, if `FALSE` a boxplot is created, if `TRUE` a 
-violin plot is created}
+\item{violin}{\code{logical}, if \code{FALSE} a boxplot is created, if 
+\code{TRUE} a violin plot is created}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `create_boxplot` creates a boxplot per sample for the 
+The function \code{create_boxplot} creates a boxplot per sample for the 
 intensity/count values.
 }
 \details{
-Internal usage in `shinyQC`.
+Internal usage in \code{shinyQC}.
 }
 \examples{
 ## create se

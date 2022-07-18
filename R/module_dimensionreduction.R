@@ -1,19 +1,19 @@
 #' @name coordsUI
 #' 
-#' @title UI for `selectInput` for dimension selection
+#' @title UI for \code{selectInput} for dimension selection
 #' 
 #' @description 
 #' The module defines the UI in the tab panel 'Dimension reduction'. It allows
 #' to switch between the different coordinates. 
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param df `data.frame` as obtained by the function `ordination`
-#' @param name `character` title/name for row
-#' @param x `character`, character string for `input$x`
-#' @param y `character`, character string for `input$y`
-#' @param session `shiny` session
+#' @param df \code{data.frame} as obtained by the function \code{ordination}
+#' @param name \code{character} title/name for row
+#' @param x \code{character}, character string for \code{input$x}
+#' @param y \code{character}, character string for \code{input$y}
+#' @param session \code{shiny} session
 #' 
 #' @examples
 #' df <- ordination(x, "PCA")
@@ -49,13 +49,13 @@ coordsUI <- function(df, name = "PC",
 #' The module defines the UI in the tab panel 'PCA'.
 #' 
 #' @details 
-#' `tP_PCAUI` returns the HTML code for the tab-pane 'PCA'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_PCAUI} returns the HTML code for the tab-pane 'PCA'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -112,13 +112,13 @@ tP_PCAUI <- function(id) {
 #' The module defines the UI in the tab panel 'PCoA'.
 #' 
 #' @details 
-#' `tP_PCoAUI` returns the HTML code for the tab-pane 'PCoA'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_PCoAUI} returns the HTML code for the tab-pane 'PCoA'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 
@@ -169,13 +169,13 @@ tP_PCoAUI <- function(id) {
 #' The module defines the UI in the tab panel 'NMDS'.
 #' 
 #' @details
-#' `tP_NMDSUI` returns the HTML code for the tab-pane 'NMDS'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_NMDSUI} returns the HTML code for the tab-pane 'NMDS'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -226,13 +226,13 @@ tP_NMDSUI <- function(id) {
 #' The module defines the UI in the tab panel 'tSNE'.
 #' 
 #' @details
-#' `tP_tSNEUI` returns the HTML code for the tab-pane 'tSNE'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_tSNEUI} returns the HTML code for the tab-pane 'tSNE'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -306,16 +306,16 @@ tP_tSNEUI <- function(id) {
 #' The module defines the UI in the tab panel 'tSNE'.
 #' 
 #' @details
-#' `tP_sSNEUIServer` defines the UI for the tab-pane 'tSNE' from the 
-#' server-side. Internal function for `shinyQC`.
+#' \code{tP_sSNEUIServer} defines the UI for the tab-pane 'tSNE' from the 
+#' server-side. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
 #' 
 #' @author Thomas Naake
 #' 
 #' @return 
-#' `shiny.render.function`
+#' \code{shiny.render.function}
 #' 
 #' @importFrom shiny NS moduleServer renderUI sliderInput
 #' @importFrom plotly plotlyOutput
@@ -358,14 +358,14 @@ tSNEUIServer <- function(id, se) {
 #' The module defines the UI in the tab panel 'UMAP'.
 #' 
 #' @details
-#' `tP_umapUI` returns the HTML code for the tab-pane 'UMAP'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_umapUI} returns the HTML code for the tab-pane 'UMAP'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -419,16 +419,16 @@ tP_umapUI <- function(id) {
 #' The module defines the UI in the tab panel 'UMAP'.
 #' 
 #' @details
-#' `umapUIServer` defines the UI for the tab-pane 'UMAP' from the server-side. 
-#' Internal function for `shinyQC`.
+#' \code{umapUIServer} defines the UI for the tab-pane 'UMAP' from the server-side. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
 #' 
 #' @author Thomas Naake
 #' 
 #' @return 
-#' `shiny.render.function`
+#' \code{shiny.render.function}
 #' 
 #' @importFrom shiny moduleServer renderUI sliderInput
 #' @importFrom SummarizedExperiment colData
@@ -459,19 +459,19 @@ umapUIServer <- function(id, se) {
 #' 'Dimension reduction'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` value, obtained from 
-#' `assay(SummarizedExperiment)`
-#' @param type `character`
-#' @param label `character`
-#' @param params `reactiveValues`
-#' @param innerWidth `numeric` and `reactive` value, specifying the width of 
-#' the window size
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} value, obtained from 
+#' \code{assay(SummarizedExperiment)}
+#' @param type \code{character}
+#' @param label \code{character}
+#' @param params \code{reactiveValues}
+#' @param innerWidth \code{numeric} and \code{reactive} value, specifying the 
+#' width of the window size
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -571,16 +571,16 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
 #' 'Dimension Reduction', specifically for the tab panels 'PCA' and 'tSNE'.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` value, obtained from 
-#' `assay(SummarizedExperiment)`
-#' @param center `logical` and `reactive` value
-#' @param scale `logical` and `reactive` value
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} value, obtained from 
+#' \code{assay(SummarizedExperiment)}
+#' @param center \code{logical} and \code{reactive} value
+#' @param scale \code{logical} and \code{reactive} value
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @importFrom shiny moduleServer reactive renderPlot
 #' @importFrom shinyhelper helper
@@ -635,16 +635,16 @@ screePlotServer <- function(id, assay, center, scale) {
 #' the loading plot server expression
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` value, obtained from 
-#' `assay(SummarizedExperiment)`
-#' @param center `logical` and `reactive` value
-#' @param scale `logical` and `reactive` value
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} value, obtained from 
+#' \code{assay(SummarizedExperiment)}
+#' @param center \code{logical} and \code{reactive} value
+#' @param scale \code{logical} and \code{reactive} value
 #' 
 #' @return
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -679,11 +679,11 @@ loadingsPlotServer <- function(id, assay, params) {
 #' The module defines the UI for the tab panel 'Dimension Reduction'.
 #' 
 #' @details 
-#' `tP_dimensionReduction_all` returns the HTML code for the tab-pane 
-#' 'Dimension Reduction'. Internal function for `shinyQC`.
+#' \code{tP_dimensionReduction_all} returns the HTML code for the tab-pane 
+#' 'Dimension Reduction'. Internal function for \code{shinyQC}.
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 

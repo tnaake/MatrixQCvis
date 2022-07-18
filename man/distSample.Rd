@@ -7,26 +7,26 @@
 distSample(d, se, label = "name", title = "raw", ...)
 }
 \arguments{
-\item{d}{`matrix` containing distances, obtained from `distShiny`}
+\item{d}{\code{matrix} containing distances, obtained from \code{distShiny}}
 
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{label}{`character`, refers to a column in `colData(se)`}
+\item{label}{\code{character}, refers to a column in \code{colData(se)}}
 
-\item{title}{`character`}
+\item{title}{\code{character}}
 
-\item{...}{further arguments passed to `ComplexHeatmap::Heatmap`}
+\item{...}{further arguments passed to \code{ComplexHeatmap::Heatmap}}
 }
 \value{
-`plotly`
+\code{plotly}
 }
 \description{
-The function `distSample` creates a heatmap from a distance matrix created
-by the function `distShiny`. The heatmap is annotated by the column specified
-by the `label` column in `colData(se)`.
+The function \code{distSample} creates a heatmap from a distance matrix 
+created by the function \code{distShiny}. The heatmap is annotated by the 
+column specified by the \code{label} column in \code{colData(se)}.
 }
 \details{
-Internal use in `shinyQC`
+Internal use in \code{shinyQC}
 }
 \examples{
 ## create se

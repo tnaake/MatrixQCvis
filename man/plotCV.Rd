@@ -7,20 +7,20 @@
 plotCV(df)
 }
 \arguments{
-\item{df}{`data.frame` containing one or multiple columns containing the 
+\item{df}{\code{data.frame} containing one or multiple columns containing the 
 coefficients of variation}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `plotCV` displays the coefficient of variation values of 
-set of values supplied in a `data.frame` object. The function will create
-a plot using the `ggplot2` package and will print the values in the 
-different columns in different colors.
+The function \code{plotCV} displays the coefficient of variation values of 
+set of values supplied in a \code{data.frame} object. The function will 
+create a plot using the \code{ggplot2} package and will print the values 
+in the different columns in different colors.
 }
 \details{
-Internal usage in `shinyQC`.
+Internal usage in \code{shinyQC}.
 }
 \examples{
 x1 <- matrix(1:10, ncol = 2)

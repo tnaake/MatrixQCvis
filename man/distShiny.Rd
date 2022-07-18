@@ -7,21 +7,21 @@
 distShiny(x, method = "euclidean")
 }
 \arguments{
-\item{x}{`matrix` or `data.frame` with samples in columns and features in 
-rows}
+\item{x}{\code{matrix} or \code{data.frame} with samples in columns and 
+features in rows}
 
-\item{method}{`character`, method for distance calculation}
+\item{method}{\code{character}, method for distance calculation}
 }
 \value{
-`matrix`
+\code{matrix}
 }
 \description{
-The function `distShiny` takes as an input a numerical `matrix` or
-`data.frame` and returns the distances between the rows and columns based
-on the defined `method` (e.g. euclidean distance).
+The function \code{distShiny} takes as an input a numerical \code{matrix} or
+\code{data.frame} and returns the distances between the rows and columns based
+on the defined \code{method} (e.g. euclidean distance).
 }
 \details{
-Internal use in `shinyQC`.
+Internal use in \code{shinyQC}.
 }
 \examples{
 x <- matrix(1:100, nrow = 10, ncol = 10, 

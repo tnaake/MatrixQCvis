@@ -7,22 +7,24 @@
 histFeatureCategory(se, measured = TRUE, category = "type", ...)
 }
 \arguments{
-\item{se}{`SummarizedExperiment`, the assay slot contains the intensity 
-values per sample. Missing values are encoded as `NA`.}
+\item{se}{\code{SummarizedExperiment}, the assay slot contains the intensity 
+values per sample. Missing values are encoded as \code{NA}.}
 
-\item{measured}{`logical`, should the measured values 
-(`measured = TRUE`) or missing values (`measured = FALSE`) be taken}
+\item{measured}{\code{logical}, should the measured values 
+(\code{measured = TRUE}) or missing values (\code{measured = FALSE}) be taken}
 
-\item{category}{`character`, corresponding to a column in `colData(se)`}
+\item{category}{\code{character}, corresponding to a column in 
+\code{colData(se)}}
 
-\item{...}{additional parameters passed to `geom_histogram`, e.g. `binwidth`.}
+\item{...}{additional parameters passed to \code{geom_histogram}, e.g. 
+\code{binwidth}.}
 }
 \value{
-`plotly` object from `ggplotly`
+\code{plotly} object from \code{ggplotly}
 }
 \description{
-The function `histFeatureCategory` creates histogram
-plots for each sample type in `se`.
+The function \code{histFeatureCategory} creates histogram
+plots for each sample type in \code{se}.
 }
 \examples{
 ## create se

@@ -7,30 +7,33 @@
 upsetCategory(se, category = colnames(colData(se)), measured = TRUE)
 }
 \arguments{
-\item{se}{`SummarizedExperiment`,
- containing the intensity values in `assay(se)`, missing values are
-encoded by `NA`}
+\item{se}{\code{SummarizedExperiment},
+ containing the intensity values in \code{assay(se)}, missing values are
+encoded by \code{NA}}
 
-\item{category}{`character`, corresponding to a column in `colData(se)`}
+\item{category}{\code{character}, corresponding to a column in 
+\code{colData(se)}}
 
-\item{measured}{`logical`, should the measured values (`measured = TRUE`) 
-or missing values (`measured = FALSE`) be taken}
+\item{measured}{\code{logical}, should the measured values 
+(\code{measured = TRUE}) 
+or missing values (\code{measured = FALSE}) be taken}
 }
 \value{
-`UpSet` plot
+\code{upset} plot
 }
 \description{
-The function `upsetCategory` displays the frequency of measured values per
-feature with respect to class/sample type to assess difference in
+The function \code{upsetCategory} displays the frequency of measured values 
+per feature with respect to class/sample type to assess difference in
 occurrences. Internally, the measured values per sample are obtained via
-the `measuredCategory` function: this function will access the number
+the \code{measuredCategory} function: this function will access the number
 of measured/missing values per category and feature. From this, a binary 
-`tbl` will be created specifying if the feature is present/missing, which
-will be given to the `upset` function from the `UpSetR` package.
+\code{tbl} will be created specifying if the feature is present/missing, 
+which will be given to the \code{upset} function from the \code{UpSetR} 
+package.
 }
 \details{
 Presence is defined by a feature being measured in at least one 
- sample of a set.
+sample of a set.
 
 Absence is defined by a feature with only missing values (i.e. 
 no measured values) of a set.

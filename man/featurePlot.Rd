@@ -7,18 +7,19 @@
 featurePlot(df)
 }
 \arguments{
-\item{df}{`data.frame`}
+\item{df}{\code{data.frame}}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-The function `featurePlot` creates a plot of (count/intensity) values for
-different data processing steps (referring to columns in the `data.frame`)
-over the different samples (referring to rows in the `data.frame`).
+The function \code{featurePlot} creates a plot of (count/intensity) values 
+for different data processing steps (referring to columns in the 
+\code{data.frame}) over the different samples (referring to rows in 
+the \code{data.frame}).
 }
 \details{
-Internal usage in `shinyQC`.
+Internal usage in \code{shinyQC}.
 }
 \examples{
 set.seed(1)

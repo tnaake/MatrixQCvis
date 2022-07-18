@@ -7,18 +7,18 @@
 barplotSamplesMeasuredMissing(tbl, measured = TRUE)
 }
 \arguments{
-\item{tbl}{`tbl` object}
+\item{tbl}{\code{tbl} object}
 
-\item{measured}{`logical`, should the number of measured or missing values
-be plotted}
+\item{measured}{\code{logical}, should the number of measured or missing 
+values be plotted}
 }
 \value{
-`gg` object from `ggplot2`
+\code{gg} object from \code{ggplot2}
 }
 \description{
-`barplotSamplesMeasuredMissing` plots the number of 
+\code{barplotSamplesMeasuredMissing} plots the number of 
 measured/missing features of samples as a barplot. The function will 
-take as input the returned `tbl` of `samplesMeasuredMissing`.
+take as input the returned \code{tbl} of \code{samplesMeasuredMissing}.
 }
 \examples{
 ## create se

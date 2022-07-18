@@ -10,13 +10,13 @@
 #' The module defines the UI in the tab panel 'colData'.
 #' 
 #' @details 
-#' `tP_colDataUI` returns the HTML code for the tab-pane 'colData'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_colDataUI} returns the HTML code for the tab-pane 'colData'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -48,15 +48,15 @@ tP_colDataUI <- function(id) {
 #' 'colData'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
-#' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containign missing or non-missing data
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
+#' @param missingValue \code{logical}, will load the respective help page for a
+#' \code{SummarizedExperiment} containign missing or non-missing data
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -97,13 +97,13 @@ colDataServer <- function(id, se, missingValue) {
 #' The module defines the UI in the tab panel 'Model matrix'.
 #' 
 #' @details 
-#' `tP_modelMatrixUI` returns the HTML code for the tab-pane 'Model matrix'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_modelMatrixUI} returns the HTML code for the tab-pane 
+#' 'Model matrix'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -132,19 +132,19 @@ tP_modelMatrixUI <- function(id) {
 #' 
 #' @description
 #' The module defines the server expressions in the tab 
-#' 'DE'. The function returns `NULL` if the formula is not valid with the
-#' `SummarizedExperiment`, otherwise the formula is returned. 
+#' 'DE'. The function returns \code{NULL} if the formula is not valid with the
+#' \code{SummarizedExperiment}, otherwise the formula is returned. 
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param expr `character` and `reactive` value
-#' @param action `reactive` value
-#' @param se `SummarizedExperiment` and `reactive` value
+#' @param id \code{character}
+#' @param expr \code{character} and \code{reactive} value
+#' @param action \code{reactive} value
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -172,19 +172,20 @@ validFormulaMMServer <- function(id, expr, action, se) {
 #' @title Validate if expr is a formula for the model matrix
 #' 
 #' @description
-#' The function `validExprModelMatr` returns either a `formula` object if 
-#' `expr` is compatible with `se` or `NULL` if `expr` is not compatible with 
-#' `se`. Specifically, the function accesses `colnames(colData(se))` and 
-#' checks if all terms in `expr` are present in `colnames(colData(se))`
+#' The function \code{validExprModelMatr} returns either a \code{formula} 
+#' object if \code{expr} is compatible with \code{se} or \code{NULL} 
+#' if \code{expr} is not compatible with \code{se}. Specifically, the 
+#' function accesses \code{colnames(colData(se))} and checks if all terms 
+#' in \code{expr} are present in \code{colnames(colData(se))}.
 #' 
 #' @details
-#' Internal usage in `validFormulaMMServer` within `shinyQC`.
+#' Internal usage in \code{validFormulaMMServer} within \code{shinyQC}.
 #' 
-#' @param expr `character`
-#' @param se `SummarizedExperiment`
+#' @param expr \code{character}
+#' @param se \code{SummarizedExperiment}
 #'  
 #' @return 
-#' A `formula` object or `NULL`
+#' A \code{formula} object or \code{NULL}
 #' 
 #' @examples 
 #' library(dplyr)
@@ -236,17 +237,17 @@ validExprModelMatrix <- function(expr, se) {
 #' @description
 #' The module defines the server expressions in the tab panel 
 #' 'Model matrix'. The function returns a reactive expression of the 
-#' `model.matrix` given a formula and a `SummarizedExperiment`.
+#' \code{model.matrix} given a formula and a \code{SummarizedExperiment}.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` and `reactive` value
-#' @param validFormulaMM `formula` and `reactive` value
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} and \code{reactive} value
+#' @param validFormulaMM \code{formula} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -281,16 +282,16 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
 #' 'Model matrix'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param modelMatrix `matrix` and `reactive` value
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containign missing or non-missing data
+#' @param id \code{character}
+#' @param modelMatrix \code{matrix} and \code{reactive} value
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param missingValue \code{logical}, will load the respective help page for a
+#' \code{SummarizedExperiment} containign missing or non-missing data
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -345,13 +346,13 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
 #' The module defines the UI in the tab panel 'Contrast matrix'.
 #' 
 #' @details 
-#' `tP_contrastUI` returns the HTML code for the tab-pane 'Contrast matrix'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_contrastUI} returns the HTML code for the tab-pane 
+#' 'Contrast matrix'. Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -380,19 +381,19 @@ tP_contrastUI <- function(id) {
 #' 
 #' @description
 #' The module defines the server expressions in the tab 'DE'. The function
-#' returns `NULL` if the expression is not compatible with the `modelMatrix`,
-#' otherwise the expression is returned.
+#' returns \code{NULL} if the expression is not compatible with the 
+#' \code{modelMatrix}, otherwise the expression is returned.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param expr `character` and `reactive` value
-#' @param action `reactive` value
-#' @param modelMatrix `matrix` and `reactive` value
+#' @param id \code{character}
+#' @param expr \code{character} and \code{reactive} value
+#' @param action \code{reactive} value
+#' @param modelMatrix \code{matrix} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -421,20 +422,21 @@ validExprContrastServer <- function(id, expr, action, modelMatrix) {
 #' @title Validate if expr is an expression for contrasts
 #' 
 #' @description
-#' The function `validExprContrast` returns either a `formula` object if 
-#' `expr` is compatible with `modelMatrix` or `NULL` if `expr` is not 
-#' compatible with `modelMatrix`. Specifically, the function accesses 
-#' `colnames(modelMatrix)` and checks if all terms in `expr` are present in 
-#' `colnames(modelMatrix)`
+#' The function \code{validExprContrast} returns either a \code{formula} object 
+#' if \code{expr} is compatible with \code{modelMatrix} or \code{NULL} 
+#' if \code{expr} is not compatible with \code{modelMatrix}. Specifically, 
+#' the function accesses \code{colnames(modelMatrix)} and checks if all 
+#' terms in \code{expr} are present in \code{colnames(modelMatrix)}.
 #' 
 #' @details
-#' Internal usage in `validExprConstrastServer` within `shinyQC`.
+#' Internal usage in \code{validExprConstrastServer} within \code{shinyQC}.
 #' 
-#' @param expr `character`
-#' @param modelMatrix `model.matrix` as returned from `limma::model.matrix`
+#' @param expr \code{character}
+#' @param modelMatrix \code{model.matrix} as returned from 
+#' \code{limma::model.matrix}
 #'  
 #' @return 
-#' A `character` or `NULL`
+#' A \code{character} or \code{NULL}
 #' 
 #' @examples 
 #' library(limma)
@@ -471,14 +473,14 @@ validExprContrast <- function(contrasts, modelMatrix) {
 #' expression and a model matrix.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param validExprContrast `character` and `reactive` value
-#' @param modelMatrix `matrix` and `reactive value`
+#' @param id \code{character}
+#' @param validExprContrast \code{character} and \code{reactive} value
+#' @param modelMatrix \code{matrix} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -511,17 +513,17 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
 #' 'Contrast matrix'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param validExprContrast `character` and `reactive` value
-#' @param contrastMatrix `matrix` and `reactive` value
-#' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containign missing or non-missing data
+#' @param id \code{character}
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param validExprContrast \code{character} and \code{reactive} value
+#' @param contrastMatrix \code{matrix} and \code{reactive} value
+#' @param missingValue \code{logical}, will load the respective help page for a
+#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -586,13 +588,13 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
 #' The module defines the UI in the tab panel 'Top DE'.
 #' 
 #' @details 
-#' `tP_topDEUI` returns the HTML code for the tab-pane 'Top DE'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_topDEUI} returns the HTML code for the tab-pane 'Top DE'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -624,18 +626,18 @@ tP_topDEUI <- function(id) {
 #' 'Top DE'.
 #' 
 #' @details
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param type `reactive` value
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param validExprContrast `character` and `reactive` value
-#' @param testResult `matrix` and `reactive` value
-#' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containing missing or non-missing data
+#' @param id \code{character}
+#' @param type \code{reactive} value
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param validExprContrast \code{character} and \code{reactive} value
+#' @param testResult \code{matrix} and \code{reactive} value
+#' @param missingValue \code{logical}, will load the respective help page for a
+#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -709,22 +711,22 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #' 'Top DE'.
 #' 
 #' @details
-#' Internal function for `shinyQC`. For `eBayes`, the `trend` argument is set
-#' by default to `TRUE`. The `trend=TRUE` argument will model 
-#' any mean-variance trend in the data; this is required when there is a 
-#' mean-variance trend (otherwise the estimates of the prior d.f. and 
+#' Internal function for \code{shinyQC}. For \code{eBayes}, the \code{trend}
+#' argument is set by default to \code{TRUE}. The \code{trend=TRUE} argument 
+#' will model any mean-variance trend in the data; this is required when 
+#' there is a mean-variance trend (otherwise the estimates of the prior d.f. and 
 #' subsequent eBayes shrinkage would be confounded by systematic 
 #' mean-dependent differences from a common prior variance).
 #' 
-#' @param id `character`
-#' @param assay `matrix` and `reactive` value, obtained from 
-#' `assay(SummarizedExperiment)`
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param modelMatrix `matrix` and `reactive` value
-#' @param contrastMatrix `matrix` and `reactive` value
+#' @param id \code{character}
+#' @param assay \code{matrix} and \code{reactive} value, obtained from 
+#' \code{assay(SummarizedExperiment)}
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param modelMatrix \code{matrix} and \code{reactive} value
+#' @param contrastMatrix \code{matrix} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -767,17 +769,17 @@ fitServer <- function(id, assay, validFormulaMM, modelMatrix, contrastMatrix) {
 #' 'Top DE'.
 #' 
 #' @details
-#' Internal function for `shinyQC`. 
+#' Internal function for \code{shinyQC}. 
 #' 
-#' @param id `character`
-#' @param type `reactive` value
-#' @param fit_ttest `matrix` and `reactive` value
-#' @param fit_proDA `matrix` and `reactive` value
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param validExprContrast `character` and `reactive` value
+#' @param id \code{character}
+#' @param type \code{reactive} value
+#' @param fit_ttest \code{matrix} and \code{reactive} value
+#' @param fit_proDA \code{matrix} and \code{reactive} value
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param validExprContrast \code{character} and \code{reactive} value
 #' 
 #' @return 
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -824,13 +826,13 @@ testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM,
 #' The module defines the UI in the tab panel 'Volcano plot'.
 #' 
 #' @details 
-#' `tP_volcanoUI` returns the HTML code for the tab-pane 'Volcano plot'. 
-#' Internal function for `shinyQC`.
+#' \code{tP_volcanoUI} returns the HTML code for the tab-pane 'Volcano plot'. 
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -861,18 +863,18 @@ tP_volcanoUI <- function(id) {
 #' 'Volcano plot'.
 #' 
 #' @details
-#' Internal function for `shinyQC`. 
+#' Internal function for \code{shinyQC}. 
 #' 
-#' @param id `character`
-#' @param type `reactive` value
-#' @param validFormulaMM `formula` and `reactive` value
-#' @param validExprContrast `character` and `reactive` value
-#' @param testResult `matrix` and `reactive` value
-#' @param missingValue `logical`, will load the respective help page for a
-#' `SummarizedExperiment` containing missing or non-missing data
+#' @param id \code{character}
+#' @param type \code{reactive} value
+#' @param validFormulaMM \code{formula} and \code{reactive} value
+#' @param validExprContrast \code{character} and \code{reactive} value
+#' @param testResult \code{matrix} and \code{reactive} value
+#' @param missingValue \code{logical}, will load the respective help page for a
+#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
-#' `shiny.render.function` expression
+#' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -952,11 +954,11 @@ volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #' The module defines the UI for the tab panel 'DE'.
 #' 
 #' @details 
-#' `tP_DE_all` returns the HTML code for the tab-pane 
-#' 'DE'. Internal function for `shinyQC`.
+#' \code{tP_DE_all} returns the HTML code for the tab-pane 
+#' 'DE'. Internal function for \code{shinyQC}.
 #' 
 #' @return 
-#' `shiny.tag` with HTML content
+#' \code{shiny.tag} with HTML content
 #'
 #' @author Thomas Naake
 #' 

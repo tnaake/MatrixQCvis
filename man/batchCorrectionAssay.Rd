@@ -3,7 +3,7 @@
 \name{batchCorrectionAssay}
 \alias{batchCorrectionAssay}
 \title{Remove batch effects from (count/intensity) values of a 
-`SummarizedExperiment`}
+\code{SummarizedExperiment}}
 \usage{
 batchCorrectionAssay(
   se,
@@ -12,28 +12,30 @@ batchCorrectionAssay(
 )
 }
 \arguments{
-\item{se}{`SummarizedExperiment`}
+\item{se}{\code{SummarizedExperiment}}
 
-\item{method}{`character`, one of `"none"` or `"removeBatchEffect"`}
+\item{method}{\code{character}, one of \code{"none"} or 
+\code{"removeBatchEffect"}}
 
-\item{batchColumn}{`character`, one of `colnames(colData(se))`}
+\item{batchColumn}{\code{character}, one of \code{colnames(colData(se))}}
 }
 \value{
-`matrix`
+\code{matrix}
 }
 \description{
-The function `batchCorrectionAssay` removes the batch effect of 
-(count/intensity) values of a `SummarizedExperiment`. 
-It uses either the `removeBatchEffect` function 
+The function \code{batchCorrectionAssay} removes the batch effect of 
+(count/intensity) values of a \code{SummarizedExperiment}. 
+It uses either the \code{removeBatchEffect} function 
 or no batch effect correction method (pass-through, 
-`none`).
+\code{none}).
 }
 \details{
-The column `batchColumn` in `colData(se)` contains the information on the 
-batch identity. Internal use in `shinyQC`.
+The column \code{batchColumn} in \code{colData(se)} contains the information 
+on the batch identity. Internal use in \code{shinyQC}.
 
-If `batchColumn` is NULL, `batchColumn` is internally set to the name
-of the first column in `colData(se)` if `method = "removeBatchEffect (limma)"`.
+If \code{batchColumn} is NULL, \code{batchColumn} is internally set to the 
+name of the first column in \code{colData(se)} if 
+\code{method = "removeBatchEffect (limma)"}.
 }
 \examples{
 ## create se

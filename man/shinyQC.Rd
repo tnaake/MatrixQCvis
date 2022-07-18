@@ -7,48 +7,50 @@
 shinyQC(se, app_server = FALSE)
 }
 \arguments{
-\item{se}{`SummarizedExperiment` object (can be omitted)}
+\item{se}{\code{SummarizedExperiment} object (can be omitted)}
 
-\item{app_server}{`logical` (set to `TRUE` if run under a server environment)}
+\item{app_server}{\code{logical} (set to \code{TRUE} if run under a server 
+environment)}
 }
 \value{
-`shiny` application, 
-`SummarizedExperiment` upon exiting the `shiny` application
+\code{shiny} application, 
+\code{SummarizedExperiment} upon exiting the \code{shiny} application
 }
 \description{
 The shiny application allows to explore -omics
-data sets especially with a focus on quality control. `shinyQC` gives
+data sets especially with a focus on quality control. \code{shinyQC} gives
 information on the type of samples included (if this was previously
-specified within the `SummarizedExperiment` object). It gives information
-on the number of missing and measured values across features and across
-sets (e.g. quality control samples, control, and treatment groups, only
-displayed for `SummarizedExperiment` objects that contain missing values).
+specified within the \code{SummarizedExperiment} object). It gives 
+information on the number of missing and measured values across features 
+and across sets (e.g. quality control samples, control, and treatment 
+groups, only displayed for \code{SummarizedExperiment} objects that 
+contain missing values).
 
-`shinyQC` includes functionality to display (count/intensity) values 
+\code{shinyQC} includes functionality to display (count/intensity) values 
 across samples (to detect drifts in intensity values during the 
 measurement), to display
 mean-sd plots, MA plots, ECDF plots, and distance plots between samples.
-`shinyQC` includes functionality to perform dimensionality reduction
+\code{shinyQC} includes functionality to perform dimensionality reduction
 (currently limited to PCA, PCoA, NMDS, tSNE, and UMAP). Additionally,
 it includes functionality to perform differential expression analysis
 (currently limited to moderated t-tests and the Wald test).
 }
 \details{
-`rownames(se)` should be set to the corresponding name of features, 
-while `colnames(se)` should be set to the sample IDs. 
-`rownames(se)` and `colnames(se)` are not allowed to be NULL.
-`colnames(se)`, `colnames(assay(se))` and `rownames(colData(se))` all have 
-to be identical.
+\code{rownames(se)} should be set to the corresponding name of features, 
+while \code{colnames(se)} should be set to the sample IDs. 
+\code{rownames(se)} and \code{colnames(se)} are not allowed to be NULL.
+\code{colnames(se)}, \code{colnames(assay(se))} and 
+\code{rownames(colData(se))} all have to be identical.
 
-`shinyQC` allows to subset the supplied `SummarizedExperiment` object. 
+\code{shinyQC} allows to subset the supplied \code{SummarizedExperiment} object. 
 
-On exit of the shiny application, the (subsetted) `SummarizedExperiment` 
+On exit of the shiny application, the (subsetted) \code{SummarizedExperiment} 
 object is returned with information on the processing steps (normalization, 
 transformation, batch correction and imputation). The object will 
-only returned if `app_server = FALSE` and if the function call is assigned
-to an object, e.g. `tmp <- shinyQC(se)`. 
+only returned if \code{app_server = FALSE} and if the function call is assigned
+to an object, e.g. \code{tmp <- shinyQC(se)}. 
 
-If the `se` argument is omitted the app will load an interface that allows 
+If the \code{se} argument is omitted the app will load an interface that allows 
 for data upload.
 }
 \examples{

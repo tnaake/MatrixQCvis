@@ -8,16 +8,16 @@ of samples}
 samplesMeasuredMissing(se)
 }
 \arguments{
-\item{se}{`SummarizedExperiment` object}
+\item{se}{\code{SummarizedExperiment} object}
 }
 \value{
-`tbl` with number of measured/missing features per sample
+\code{tbl} with number of measured/missing features per sample
 }
 \description{
-`samplesMeasuredMissing` returns a `tbl` with 
+\code{samplesMeasuredMissing} returns a \code{tbl} with 
 the number of measured/missing
 features of samples. The function will take as input a 
-`SummarizedExperiment` object and will access its `assay()` slot
+\code{SummarizedExperiment} object and will access its \code{assay()} slot
 }
 \examples{
 ## create se

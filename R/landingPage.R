@@ -1,27 +1,28 @@
 #' @name createLandingPage
 #' 
-#' @title Create landing page in shiny qc when no `SummarizedExperiment` is 
+#' @title Create landing page in shiny qc when no \code{SummarizedExperiment} is 
 #' supplied
 #' 
 #' @description
-#' The function `createLandingPage` will load the UI when the `launch` button
-#' is hit. It will pass the loaded `SUmmarizedExperiment` object to the 
-#' function `FUN` and will load the tab panels (`show("tabPanelSE")`) and will
-#' hide the upload interface `hide("uploadSE")`.
+#' The function \code{createLandingPage} will load the UI when the \code{launch} 
+#' button
+#' is hit. It will pass the loaded \code{SummarizedExperiment} object to the 
+#' function \code{FUN} and will load the tab panels (\code{show("tabPanelSE")}) and will
+#' hide the upload interface \code{hide("uploadSE")}.
 #' 
 #' @details 
-#' Internal usage in `shinyQC`. Modified from `iSEE` package. 
+#' Internal usage in \code{shinyQC}. Modified from \code{iSEE} package. 
 #' 
-#' @param seUI `function` or `NULL`
-#' @param seLoad `function` or `NULL`
-#' @param requireButton `logical`
+#' @param seUI \code{function} or \code{NULL}
+#' @param seLoad \code{function} or \code{NULL}
+#' @param requireButton \code{logical}
 #' 
 #' @examples
 #' \dontrun{
 #' createLandingPage(seUI = NULL, seLoad = NULL, requireButton = TRUE)
 #' }
 #' 
-#' @author authors of `iSEE` package, adjusted by Thomas Naake
+#' @author authors of \code{iSEE} package, adjusted by Thomas Naake
 #' 
 #' @importFrom shiny fileInput renderUI tagList actionButton observeEvent
 #' @importFrom shiny showNotification insertTab

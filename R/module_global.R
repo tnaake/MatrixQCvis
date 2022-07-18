@@ -3,14 +3,14 @@
 #' @title Create a banner to indicate that the shiny session is busy
 #' 
 #' @description 
-#' The function `tag_loadMessage` will display a banner within a shiny session
-#' in the case of shiny being busy. The function will display the loadmessage
-#' `Loading...` in the top of the page. 
+#' The function \code{tag_loadMessage} will display a banner within a shiny 
+#' session in the case of shiny being busy. The function will display the 
+#' loadmessage \code{Loading...} in the top of the page. 
 #' 
 #' @details 
-#' Internal function for `shinyQC`
+#' Internal function for \code{shinyQC}
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -58,14 +58,14 @@ tag_loadMessage <- function() {
 #' @title Send data back and forth through the websocket to keep the app busy
 #' 
 #' @description 
-#' The function `tag_keepAlive` will send data back and forth through the 
+#' The function \code{tag_keepAlive} will send data back and forth through the 
 #' websocket. When running the app via the server and the app is getting idle,
 #' it will crash. Stop this behavior by exchanging data via the websocket.
 #' 
 #' @details 
-#' Internal function for `shinyQC`
+#' Internal function for \code{shinyQC}
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -108,10 +108,10 @@ tag_keepAlive <- function() {
 #' (normlization, transformation, and batch correction). 
 #' 
 #' @details 
-#' `sidebar_assayUI` returns the HTML code for the sidebar in the tabs
-#' `Values` and `Dimension Reduction`. Internal function for `shinyQC`.
+#' \code{sidebar_assayUI} returns the HTML code for the sidebar in the tabs
+#' \code{Values} and \code{Dimension Reduction}. Internal function for \code{shinyQC}.
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -158,12 +158,14 @@ sidebar_assayUI <- function() {
 #' The module defines the UI in the sidebar for the data imputation. 
 #' 
 #' @details 
-#' `sidebar_assayUI` returns the HTML code for the sidebar in the tabs
-#' `Values` and `Dimension Reduction`. Internal function for `shinyQC`.
+#' \code{sidebar_assayUI} returns the HTML code for the sidebar in the tabs
+#' \code{Values} and \code{Dimension Reduction}. Internal function for 
+#' \code{shinyQC}.
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
-#' @param missingValue `logical` (if `FALSE` do not show `selectInput` for 
+#' @param missingValue \code{logical} (if \code{FALSE} do not show 
+#' \code{selectInput} for 
 #' imputation)
 #' 
 #' @author Thomas Naake
@@ -193,9 +195,9 @@ sidebar_imputationUI <- function() {
 #' the UI for selecting the type of test to perform (ttest or proDA). 
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -225,18 +227,19 @@ sidebar_DEUI <- function() {
 
 #' @name sidebar_excludeSampleUI
 #' 
-#' @title Sidebar UI for removing columns from `SummarizedExperiment` objects 
+#' @title Sidebar UI for removing columns from \code{SummarizedExperiment} 
+#' objects 
 #' 
 #' @description 
 #' The module defines the UI in the sidebar for removing columns in the
-#' `SummarizedExperiment` object. 
+#' \code{SummarizedExperiment} object. 
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
+#' @param id \code{character}
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -271,20 +274,20 @@ sidebar_excludeSampleUI <- function(id) {
 #' @name sidebar_excludeSampleServer
 #' 
 #' @title Server for sidebar UI for removing columns from 
-#' `SummarizedExperiment` objects 
+#' \code{SummarizedExperiment} objects 
 #' 
 #' @description 
 #' The module defines the server for the 
 #' UI in the sidebar for removing columns in the
-#' `SummarizedExperiment` object.
+#' \code{SummarizedExperiment} object.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment` object
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment} object
 #' 
-#' @return `shiny.server.function` 
+#' @return \code{shiny.server.function} 
 #' 
 #' @author Thomas Naake
 #' 
@@ -308,15 +311,15 @@ sidebar_excludeSampleServer <- function(id, se) {
 
 #' @name sidebar_reportUI
 #' 
-#' @title Sidebar UI for creating a `knitr` report 
+#' @title Sidebar UI for creating a \code{knitr} report 
 #' 
 #' @description 
-#' The module defines the UI in the sidebar for creating a `knitr` report.
+#' The module defines the UI in the sidebar for creating a \code{knitr} report.
 #' 
 #' @details 
-#' Internal function for `shinyQC`
+#' Internal function for \code{shinyQC}
 #' 
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -333,24 +336,25 @@ sidebar_reportUI <- function() {
 #' @name sidebar_selectAssayUI
 #' 
 #' @title Sidebar UI for selecting the assay in multi-assay 
-#' `SummarizedExperiment` objects
+#' \code{SummarizedExperiment} objects
 #' 
 #' @description 
 #' The module defines the UI in the sidebar for selecting the assay in 
-#' multi-assay `SummarizedExperiment` objects. 
+#' multi-assay \code{SummarizedExperiment} objects. 
 #' 
 #' @details 
-#' `sidebar_selectAssayUI` will only displayed if the `SummarizedExperiment` 
-#' object contains more than one assay. This behavior will be governed by the
-#' condition `output.lengthAssays == 'TRUE'`; within the server
-#' expression the module `selectAssayServer` (`id = "select"`) will return
-#' the `character` `"TRUE"` if there is more than one assay in `se`, otherwise
-#' it will return `"FALSE"` which will not display the `selectInput`. 
-#' Internal function for `shinyQC`.
+#' \code{sidebar_selectAssayUI} will only displayed if the 
+#' \code{SummarizedExperiment} object contains more than one assay. This 
+#' behavior will be governed by the condition 
+#' \code{output.lengthAssays == 'TRUE'}; within the server
+#' expression the module \code{selectAssayServer} (\code{id = "select"}) will 
+#' return the \code{character} \code{"TRUE"} if there is more than one assay 
+#' in \code{se}, otherwise it will return \code{"FALSE"} which will not 
+#' display the \code{selectInput}. Internal function for \code{shinyQC}.
 #' 
-#' @param choicesAssaySE `character` or `numeric`
+#' @param choicesAssaySE \code{character} or \code{numeric}
 #'
-#' @return `shiny.tag.list` with HTML content
+#' @return \code{shiny.tag.list} with HTML content
 #' 
 #' @author Thomas Naake
 #' 
@@ -371,22 +375,22 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' @name choiceAssaySE
 #' 
 #' @title Return vector with names of assays of multi-assay 
-#' `SummarizedExperiment`
+#' \code{SummarizedExperiment}
 #' 
 #' @description 
-#' The function `choiceAssaySE` will return a vector of length
-#' `length(assays(se))`. It will contain either the assigned names to 
-#' `assays(se)` (if any) or a vector with the seuence from 1 to 
-#' `length(assays(se))`.
+#' The function \code{choiceAssaySE} will return a vector of length
+#' \code{length(assays(se))}. It will contain either the assigned names to 
+#' \code{assays(se)} (if any) or a vector with the seuence from 1 to 
+#' \code{length(assays(se))}.
 #'
 #' @details 
-#' The function returns the `choices` for the `selectInput` UI to select
-#' the assay. Internal usage in `shinyQC`.
+#' The function returns the \code{choices} for the \code{selectInput} UI to 
+#' select the assay. Internal usage in \code{shinyQC}.
 #' 
-#' @param se `SummarizedExperiment` object
+#' @param se \code{SummarizedExperiment} object
 #' 
 #' @return 
-#' `character` 
+#' \code{character} 
 #' 
 #' @author Thomas Naake
 #' 
@@ -424,22 +428,23 @@ choiceAssaySE <- function(se) {
 
 #' @name selectAssaySE
 #' 
-#' @title Select assay from multi-assay `SummarizedExperiment` object
+#' @title Select assay from multi-assay \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `selectAssaySE` will assign the `selected` assay to the 
-#' `SummarizedExperiment`. `selectAssaySE` will return the `assay`, together
-#' with the `colData` and `rowData`, as a `SummarizedExperiment`. 
+#' The function \code{selectAssaySE} will assign the \code{selected} assay to the 
+#' \code{SummarizedExperiment}. \code{selectAssaySE} will return the \code{assay}, 
+#' together with the \code{colData} and \code{rowData}, as a 
+#' \code{SummarizedExperiment}. 
 #' 
 #' @details 
-#' The function truncates multi-assay `SummarizedExperiment` objects to 
-#' `assays(se)` with length 1. Internal usage in `shinyQC`.
+#' The function truncates multi-assay \code{SummarizedExperiment} objects to 
+#' \code{assays(se)} with length 1. Internal usage in \code{shinyQC}.
 #' 
-#' @param se `SummarizedExperiment` object
-#' @param selected `numeric` vector, index of the `assay` to be returned
+#' @param se \code{SummarizedExperiment} object
+#' @param selected \code{numeric} vector, index of the \code{assay} to be returned
 #' 
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #' 
 #' @author Thomas Naake
 #' 
@@ -479,21 +484,21 @@ selectAssaySE <- function(se, selected = 1) {
 #' @name selectAssayServer
 #' 
 #' @title Module for server expressions for selecting assay in multi-assay
-#' `SummarizedExperiment` objects 
+#' \code{SummarizedExperiment} objects 
 #' 
 #' @description
 #' The module defines the server expressions for selecting the assay in 
-#' multi-assay `SummarizedExperiment` objects.
+#' multi-assay \code{SummarizedExperiment} objects.
 #' 
 #' @details 
-#' Internal function for `shinyQC`.
+#' Internal function for \code{shinyQC}.
 #' 
-#' @param id `character`
-#' @param se `SummarizedExperiment`
-#' @param selected `reactive` expression and `character`/`numeric`
+#' @param id \code{character}
+#' @param se \code{SummarizedExperiment}
+#' @param selected \code{reactive} expression and \code{character}/\code{numeric}
 #' 
 #' @return
-#' `reactive` expression
+#' \code{reactive} expression
 #'
 #' @author Thomas Naake
 #' 
@@ -516,23 +521,23 @@ selectAssayServer <- function(id, se, selected) {
 
 #' @name selectSampleSE
 #' 
-#' @title Select sample(s) from a `SummarizedExperiment` object
+#' @title Select sample(s) from a \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `selectSampleSE` removes/adds samples from a 
-#' `SummarizedExperiment` as specified by the `selection` argument and the
-#' `mode` argument.
+#' The function \code{selectSampleSE} removes/adds samples from a 
+#' \code{SummarizedExperiment} as specified by the \code{selection} argument 
+#' and the \code{mode} argument.
 #' 
 #' @details 
-#' If the supplied vector (`selection`) is of length 0, the object `se` will 
-#' be returned as is. 
+#' If the supplied vector (\code{selection}) is of length 0, the object 
+#' \code{se} will be returned as is. 
 #' 
-#' @param se `SummarizedExperiment` object
-#' @param selection `character` vector, containing the samples to exclude/add 
-#' (`colnames(se)`)
+#' @param se \code{SummarizedExperiment} object
+#' @param selection \code{character} vector, containing the samples to 
+#' exclude/add (\code{colnames(se)})
 #' 
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #' 
 #' @author Thomas Naake
 #' 
@@ -575,25 +580,25 @@ selectSampleSE <- function(se, selection,
 
 #' @name selectFeatureSE
 #' 
-#' @title Select feature(s) from a `SummarizedExperiment` object
+#' @title Select feature(s) from a \code{SummarizedExperiment} object
 #' 
 #' @description 
-#' The function `selectFeatureSE` removes/adds feature from a 
-#' `SummarizedExperiment` as specified by the `selection` argument and the
-#' `mode` argument.
+#' The function \code{selectFeatureSE} removes/adds feature from a 
+#' \code{SummarizedExperiment} as specified by the \code{selection} argument and the
+#' \code{mode} argument.
 #' 
 #' @details 
-#' If the supplied vector (`selection`) is of length 0, the object `se` will 
-#' be returned as is (if `mode = "exclude"`). 
-#' If the supplied vector (`selection`) is of length <3, the object `se` will 
-#' be returned as is (if `mode = "select"`).
+#' If the supplied vector (\code{selection}) is of length 0, the object \code{se} will 
+#' be returned as is (if \code{mode = "exclude"}). 
+#' If the supplied vector (\code{selection}) is of length <3, the object \code{se} will 
+#' be returned as is (if \code{mode = "select"}).
 #' 
-#' @param se `SummarizedExperiment` object
-#' @param selection `character` vector, containing the samples to exclude/add 
-#' (`colnames(se)`)
+#' @param se \code{SummarizedExperiment} object
+#' @param selection \code{character} vector, containing the samples to exclude/add 
+#' (\code{colnames(se)})
 #' 
 #' @return 
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #' 
 #' @author Thomas Naake
 #' 
@@ -635,21 +640,21 @@ selectFeatureSE <- function(se, selection,
 
 #' @name updateSE
 #' 
-#' @title Update the `SummarizedExperiment` by the slot array
+#' @title Update the \code{SummarizedExperiment} by the slot array
 #' 
 #' @description 
-#' The function `updateSE` updates the `assay` slot of a `SummarizedExperiment`
-#' object, `se`, with a supplied `assay` object. The function returns the 
+#' The function \code{updateSE} updates the \code{assay} slot of a \code{SummarizedExperiment}
+#' object, \code{se}, with a supplied \code{assay} object. The function returns the 
 #' updated object. 
 #' 
 #' @details 
-#' Internal function in `shinyQC`.
+#' Internal function in \code{shinyQC}.
 #' 
-#' @param se `SummarizedExperiment` object
-#' @param assay `matrix` with same dimensions as `assay(se)`
+#' @param se \code{SummarizedExperiment} object
+#' @param assay \code{matrix} with same dimensions as \code{assay(se)}
 #' 
 #' @return
-#' `SummarizedExperiment` object
+#' \code{SummarizedExperiment} object
 #' 
 #' @author Thomas Naake
 #' 
@@ -673,19 +678,19 @@ updateSE <- function(se, assay) {
 #' @name missingValuesSE
 #' 
 #' @title Check if there are missing values in the assay slot(s) of 
-#' the `SummarizedExperiment`
+#' the \code{SummarizedExperiment}
 #' 
 #' @description 
-#' The function `missingValuesSE` checks if the `assay` slot(s) of a 
-#' `SummarizedExperiment` object, `se`, contains `NA` values.
+#' The function \code{missingValuesSE} checks if the \code{assay} slot(s) of a 
+#' \code{SummarizedExperiment} object, \code{se}, contains \code{NA} values.
 #' 
 #' @details 
-#' Internal function in `shinyQC`.
+#' Internal function in \code{shinyQC}.
 #' 
-#' @param se `SummarizedExperiment` object
+#' @param se \code{SummarizedExperiment} object
 #' 
 #' @return
-#' `logical`
+#' \code{logical}
 #' 
 #' @author Thomas Naake
 #' 
