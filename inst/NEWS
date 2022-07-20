@@ -1,3 +1,7 @@
+Changes in version 1.5.2 (2022-07-20)
++ remove the functions biocrates, maxQuant, and spectronaut from MatrixQCvis
+  and move to the MatrixQCUtils package
+
 Changes in version 1.5.1 (2022-07-18)
 + load package MatrixQCvis in report_qc.Rmd
 

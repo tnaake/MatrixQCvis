@@ -1,8 +1,8 @@
 Package: MatrixQCvis
 Type: Package
 Title: Shiny-based interactive data-quality exploration for omics data
-Version: 1.5.1
-Date: 2022-07-18
+Version: 1.5.2
+Date: 2022-07-20
 Authors@R: c(person("Thomas", "Naake", role = c("aut", "cre"), 
 		email = "thomasnaake@googlemail.com",
 		comment = c(ORCID = "0000-0001-7917-5580")),
@@ -45,7 +45,6 @@ Imports:
 	imputeLCMD (>= 2.0),
 	limma (>= 3.47.12),
 	methods (>= 4.1.0),
-	openxlsx (>= 4.2.3),
 	pcaMethods (>= 1.83.0),
 	proDA (>= 1.5.0),
 	rlang (>= 0.4.10),
