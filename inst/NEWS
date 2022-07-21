@@ -1,4 +1,10 @@
 Changes in version 1.5.2 (2022-07-20)
++ only use a subset of maximum 10000 features in the calculation of Hoeffding's 
+  D values. In case there are less than 10000 features in the 
+  SummarizedExperiment object, all features of the SummarizedExperiment are 
+  taken
+
+Changes in version 1.5.2 (2022-07-20)
 + remove the functions biocrates, maxQuant, and spectronaut from MatrixQCvis
   and move to the MatrixQCUtils package
 
