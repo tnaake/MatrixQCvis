@@ -1,8 +1,10 @@
-Changes in version 1.5.2 (2022-07-20)
-+ only use a subset of maximum 10000 features in the calculation of Hoeffding's 
+Changes in version 1.5.3 (2022-08-01)
++ only use a subset of maximum 5000 features in the calculation of Hoeffding's 
   D values. In case there are less than 10000 features in the 
   SummarizedExperiment object, all features of the SummarizedExperiment are 
   taken
++ createBoxplot precalculates the values of the boxplot instead on relying 
+  on geom_boxplot for calculation of the statistics
 
 Changes in version 1.5.2 (2022-07-20)
 + remove the functions biocrates, maxQuant, and spectronaut from MatrixQCvis
