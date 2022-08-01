@@ -424,7 +424,7 @@ selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
-createBoxplot(se, orderCategory = "name", title = "raw", log2 = FALSE, 
+createBoxplot(se, orderCategory = "name", title = "raw", log = FALSE, 
                violin = TRUE)
 ```
 
