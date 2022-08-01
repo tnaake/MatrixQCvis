@@ -13,8 +13,8 @@
 #' in the \code{assay} slot
 #' @param orderCategory \code{character}, one of \code{colnames(colData(se))}
 #' @param title \code{character} or \code{numeric} of \code{length(1)}
-#' @param log2 \code{logical}, if \code{TRUE} (count/intensity) values are 
-#' displayed as log2 values
+#' @param log \code{logical}, if \code{TRUE} (count/intensity) values are 
+#' displayed as log values
 #' @param violin \code{logical}, if \code{FALSE} a boxplot is created, if 
 #' \code{TRUE} a violin plot is created
 #'
@@ -30,28 +30,31 @@
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
-#' createBoxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
+#' createBoxplot(se, orderCategory = "name", title = "", log = TRUE, 
 #'     violin = FALSE)
 #' 
 #' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer 
-#' @importFrom tibble as_tibble rownames_to_column
+#' @importFrom tibble tibble as_tibble rownames_to_column
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
+#' @importFrom ggplot2 theme_classic
 #' 
 #' @export
 createBoxplot <- function(se, orderCategory = colnames(colData(se)), 
-    title = "", log2 = TRUE, violin = FALSE) {
+    title = "", log = TRUE, violin = FALSE) {
 
-    
     ## match arguments for order
     orderCategory <- match.arg(orderCategory)
 
     ## access the assay slot
     a <- SummarizedExperiment::assay(se)
+    
+    ## take log values if log = TRUE
+    if (log) a <- log(a)
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
@@ -59,15 +62,56 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(assay(se)) do not match rownames(colData(se))")
     cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
+    cD <- cD[, c("x5at1t1g161asy", orderCategory)]
 
-    ## pivot_longer will create the columns name (containing the colnames of a)
-    ## and value (containing the actual values)
-    a <- tibble::as_tibble(a) 
-    a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
-
-    ## take log2 values if log2 = TRUE
-    if (log2) a_l$value <- log2(a_l$value)
     
+    if (!violin) {
+        ## calculate the values for the box length (this will be 
+        ## substantially faster than using geom_boxplot to do the job):
+        ## 
+        ## the upper whisker is located at the mininum of the maximum value or 
+        ## Q_3 + 1.5 IQR ( min(max(x), Q_3 + 1.5 * IQR) )
+        ## the lower whisker is located at the maximum of the smallest value or 
+        ## Q_1 - 1.5 IQR ( max(min(x), Q_1 - 1.5 * IQR) ),
+        ## where IQR = Q_3 - Q_1 is the box length.
+        a_quantiles <- apply(a, 2, quantile, c(0, 0.25, 0.5, 0.75, 1), 
+            na.rm = TRUE)
+        a_iqr <- a_quantiles["75%", ] - a_quantiles["25%", ]
+        a_upper_whisker <- apply(rbind(
+            a_quantiles["100%", ], a_quantiles["75%", ] + 1.5 * a_iqr), 2, min)
+        a_lower_whisker <- apply(rbind(
+            a_quantiles["0%", ], a_quantiles["25%", ] - 1.5 * a_iqr), 2, max)
+        
+        ## combine all the information
+        a_l <- tibble::tibble(name = colnames(a_quantiles), 
+            ymin = as.numeric(a_lower_whisker),
+            lower = as.numeric(a_quantiles["25%", ]), 
+            middle = as.numeric(a_quantiles["50%", ]), 
+            upper = as.numeric(a_quantiles["75%", ]), 
+            ymax = as.numeric(a_upper_whisker))
+        
+        ## get a list of outliers for each column, these will be the values that 
+        ## are located above the upper whisker or below the lower whisker
+        a_out <- lapply(seq_len(ncol(a)), function(cols_i) {
+            a_cols_i <- a[, cols_i]
+            a_cols_i <- a_cols_i[a_cols_i > a_upper_whisker[cols_i] | 
+                a_cols_i < a_lower_whisker[cols_i]]
+            a_cols_i <- as.numeric(a_cols_i)
+            if (length(a_cols_i) > 0)
+                data.frame(name = colnames(a)[cols_i], value = a_cols_i)
+            else 
+                data.frame(name = NULL, value = NULL)
+        })
+        a_out <- do.call("rbind", a_out)
+        a_out <- tibble::as_tibble(a_out)
+        
+    } else { ## if violin == TRUE
+        ## pivot_longer will create the columns name (containing the colnames of a)
+        ## and value (containing the actual values)
+        a <- tibble::as_tibble(a) 
+        a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
+    }
+
     ## add another column that gives the order of plotting (will be factor)
     ## order alphabetically: combine the levels of the orderCategory and add 
     ## the name (to secure that the levels are unique)
@@ -79,21 +123,35 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
     a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
     
     ## do the actual plotting
-    g <- ggplot2::ggplot(a_l, 
-        ggplot2::aes_string(y = "value", x = "x_ggplot_vals"))
-
     if (!violin) { 
-        g <- g + ggplot2::geom_boxplot() 
+        
+        g <- ggplot2::ggplot(a_l, ggplot2::aes_string(x = "x_ggplot_vals")) +
+            ggplot2::geom_boxplot(aes_string(ymin = "ymin", 
+                lower = "lower", middle = "middle", upper = "upper", 
+                ymax = "ymax"), stat = "identity") 
+        
+        if (nrow(a_out) > 0) {
+            ## add x-axis order to outliers data set
+            a_out <- dplyr::left_join(x = a_out, y = cD, 
+                by = c("name" = "x5at1t1g161asy"), copy = TRUE)
+            a_out_o <- paste(a_out[[orderCategory]], a_out[["name"]])
+            a_out$x_ggplot_vals <- factor(x = a_out_o, levels = sort(a_o_u))
+            g <- g + geom_point(
+                ggplot2::aes_string(x = "x_ggplot_vals", y = "value"), 
+                data = a_out)    
+        }
+        
     } else { ## violin == TRUE
-        g <- g + ggplot2::geom_violin()
+        g <- ggplot2::ggplot(a_l, 
+            ggplot2::aes_string(y = "value", x = "x_ggplot_vals")) +
+            ggplot2::geom_violin()
     }
     
-    g <- g + 
-        ggplot2::scale_x_discrete(labels = unique(a_l[["name"]])[order(a_o_u)])
-    g + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) + 
-        ggplot2::ggtitle(title) + ggplot2::xlab("samples")
+    g + ggplot2::scale_x_discrete(labels = unique(a_l[["name"]])[order(a_o_u)]) +
+        ggplot2::theme_classic() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) + 
+        ggplot2::ggtitle(title) + ggplot2::xlab("samples")   
 }
-
 
 #' @name driftPlot
 #' 
@@ -274,7 +332,7 @@ cv <- function(x, name = "raw") {
     ## create a named list and return the list
     cv_v <- list(cv_v)
     names(cv_v) <- name
-    return(cv_v)
+    cv_v
 }
 
 #' @name plotCV
@@ -585,7 +643,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
-#' @importFrom ggplot2 xlab ylab theme_bw theme element_blank
+#' @importFrom ggplot2 xlab ylab theme_classic theme element_blank
 #' @importFrom tibble tibble
 #' @importFrom plotly ggplotly
 #'
@@ -599,13 +657,9 @@ sumDistSample <- function(d, title = "raw") {
             size = 0.1) + 
         ggplot2::ggtitle(title) +
         ggplot2::xlab("sum of distances") + ggplot2::ylab("") + 
-        ggplot2::theme_bw() + 
-        ggplot2::theme(panel.grid.major.y = ggplot2::element_blank(),
-                        panel.grid.minor.y = ggplot2::element_blank())
+        ggplot2::theme_classic()
     
-    g <- plotly::ggplotly(g, tooltip = c("x", "y"))
-    
-    return(g)
+    plotly::ggplotly(g, tooltip = c("x", "y"))
 }
 
 #' @name MAvalues
@@ -623,9 +677,10 @@ sumDistSample <- function(d, title = "raw") {
 #' specified one. 
 #'
 #' @param se \code{SummarizedExperiment}
-#' @param log2 \code{logical}, specifies if values re \code{log2} 
-#' transformed prior to calculating M and A values. If the values are already 
-#' transformed, \code{log2} should be set to \code{FALSE}.
+#' @param log2 \code{logical}, specifies if values are 
+#' \code{log2}-transformed prior to calculating M and A values. 
+#' If the values are already transformed, \code{log2} should be set to 
+#' \code{FALSE}.
 #' @param group \code{character}, either \code{"all"} or one of 
 #' \code{colnames(colData(se))}
 #'
@@ -642,19 +697,19 @@ sumDistSample <- function(d, title = "raw") {
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 #' 
-#' MAvalues(se, log2 = FALSE, group = "all")
+#' MAvalues(se, log = FALSE, group = "all")
 #' 
-#' @importFrom dplyr pull left_join
+#' @importFrom dplyr left_join
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom tibble as_tibble add_column tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
 #' 
 #' @export
 MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
-
+    
     ## check arguments group
     group <- match.arg(group)
-
+    
     ## access the assay slot
     a <- SummarizedExperiment::assay(se)
     
@@ -664,48 +719,45 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     if (!all(colnames(a) == rownames(cD)))
         stop("colnames(assay(se)) do not match rownames(colData(se))")
     cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
-
+    
     if (ncol(a) < 2)
         stop("MAplot needs more than one samples")
-
+    
     ## take logarithm of assay values if the values are not transformed yet
     if (log2) a <- log2(a)
-
+    
+    ## calculate sample-wise the M and A values (iterate through the columns)
     A <- M <- matrix(NA, nrow = nrow(a), ncol = ncol(a),
         dimnames = list(rownames(a), colnames(a)))
     
     ## calculate sample-wise the values (iterate through the columns)
-    for (i in colnames(a)) {
-
+    for (sample_i in colnames(a)) {
+        
         ## get indices
-        inds_l <- colnames(a) == i
-        inds_nl <- !inds_l
-
+        inds_nl <- colnames(a) != sample_i
+        
         ## truncate the indices based on the group (only use the group for the 
         ## comparison and the "outgroup")
         if (group != "all") {
-            g <- cD[cD[, "x5at1t1g161asy"] == i, group]
+            g <- cD[cD[, "x5at1t1g161asy"] == sample_i, group]
             inds_nl <- inds_nl & cD[, group] == g
         }
-
         rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
-        M[, inds_l] <- a[, inds_l] - rM
-        A[, inds_l] <- 0.5 * (a[, inds_l] + rM)
+        M[, sample_i] <- a[, sample_i] - rM
+        A[, sample_i] <- 0.5 * (a[, sample_i] + rM)
     }
-
-    ## combine the data and add additional information from 
-    A_l <- tibble::as_tibble(A) 
-    A_l <- tibble::add_column(Feature = rownames(A), .data = A_l, .before = 1)  
-    A_l <- tidyr::pivot_longer(A_l, cols = 2:ncol(A_l), values_to = "A")
     
-    M_l <- tibble::as_tibble(M)
-    M_l <- tibble::add_column(Feature = rownames(M), M_l, .before = 1)
-    M_l <- tidyr::pivot_longer(M_l, cols = 2:ncol(M_l), values_to = "M")
-
-    tbl <- tibble::tibble(A_l, M = dplyr::pull(M_l, "M")) 
-    tbl <- dplyr::left_join(x = tbl, y = cD, by = c("name" = "x5at1t1g161asy"))
-
-    return(tbl)
+    ## combine the data and add additional information from colData
+    M <- M |> 
+        tibble::as_tibble(M, rownames = "Feature") |>
+        tidyr::pivot_longer(cols = 2:(ncol(a) + 1), values_to = "M")
+    A <- A |>
+        tibble::as_tibble(A, rownames = "Feature") |>
+        tidyr::pivot_longer(cols = 2:(ncol(a) + 1), values_to = "A")
+    
+    ## combine A and M
+    tibble::tibble(A, M = M$M) |>
+        dplyr::left_join(y = cD, by = c("name" = "x5at1t1g161asy"))
 }
 
 #' @name hoeffDValues
@@ -714,14 +766,21 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' 
 #' @description 
 #' The function creates and returns Hoeffding's D statistics values 
-#' from MA values.   
+#' from MA values. 
+#' 
+#' In case \code{sample_n} is set to a numerical value (e.g. 10000), a 
+#' random subset containing \code{sample_n} is taken to calculate Hoeffding's D 
+#' values to speed up the calculation. In case there are less features
+#' than \code{sample_n}, all features are taken.
 #'
 #' @details 
 #' The function uses the function \code{hoeffd} from the \code{Hmisc} package to 
 #' calculate the values.
 #'
 #' @param tbl \code{tibble}, as obtained from the function \code{MAvalues}
-#' @param name \code{character}, name of the returned list
+#' @param name \code{character(1)}, name of the returned list
+#' @param sample_n \code{numeric(1)}, number of features (subset) to be 
+#' taken for calculation of Hoeffding's D values 
 #' 
 #' @examples
 #' ## create se
@@ -746,7 +805,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #'
 #' ## transformed values
 #' se_t <- se
-#' assay(se_t) <- transformAssay(a, "log2")
+#' assay(se_t) <- transformAssay(a, "log")
 #' tbl_t <- MAvalues(se_t, group = "all")
 #' hoeffDValues(tbl_t, "transformed")
 #'
@@ -757,8 +816,18 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' @return named list with Hoeffding's D values per sample
 #' 
 #' @export
-hoeffDValues <- function(tbl, name = "raw") {
+hoeffDValues <- function(tbl, name = "raw", sample_n = NULL) {
     
+    ## for bigger datasets the calculaton of Hoeffding's values is not
+    ## efficient, create a random subset of the features to calculate 
+    ## Hoeffding's D values (e.g. 10000 features)
+    ## in case there are less features than sample_n, all features are taken
+    unique_features <- unique(tbl$Feature)
+    if (!is.numeric(sample_n)) sample_n <- length(unique_features)
+    min_features <- min(length(unique_features), sample_n)
+    features <- sample(unique_features, size = sample_n, replace = FALSE)
+    tbl <- tbl[tbl$Feature %in% features, ]
+         
     ## create a wide tibble with the samples as columns and features as rows 
     ## for A and M values
     A <- tidyr::pivot_wider(tbl, id_cols = "Feature", values_from = "A", 
@@ -783,7 +852,7 @@ hoeffDValues <- function(tbl, name = "raw") {
     l <- list(hd_l)
     names(l) <- name
     
-    return(l)
+    l
 }
 
 #' @name hoeffDPlot
@@ -818,26 +887,25 @@ hoeffDValues <- function(tbl, name = "raw") {
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
 #'     rowData = rD, colData = cD)
 #' 
-#' tbl <- MAvalues(se, log2 = FALSE, group = "all")
+#' tbl <- MAvalues(se, log = FALSE, group = "all")
 #' hd_r <- hoeffDValues(tbl, "raw")
 #' 
 #' ## normalized values
 #' se_n <- se
 #' assay(se_n) <- normalizeAssay(a, "sum")
-#' tbl_n <- MAvalues(se_n, log2 = FALSE, group = "all")
+#' tbl_n <- MAvalues(se_n, log = FALSE, group = "all")
 #' hd_n <- hoeffDValues(tbl_n, "normalized")
 #' 
 #' df <- data.frame(raw = hd_r, normalized = hd_n)
 #' hoeffDPlot(df, lines = TRUE)
 #' hoeffDPlot(df, lines = FALSE)
 #' 
-#' @return 
-#' \code{gg} object from \code{ggplot2}
+#' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
 #' @importFrom ggplot2 ggplot geom_violin geom_point aes_string geom_line
-#' @importFrom ggplot2 ylab theme_bw theme
+#' @importFrom ggplot2 ylab theme_classic theme
 #' @importFrom plotly ggplotly
 #' 
 #' @export
@@ -873,7 +941,7 @@ hoeffDPlot <- function(df, lines = TRUE) {
     if (lines) g <- g + ggplot2::geom_line(
         ggplot2::aes_string(x = "x_jitter", y = "value", group = "sample"))
     g <- g + ggplot2::ylab("Hoeffding's D statistic") + 
-        ggplot2::xlab("processing step") + ggplot2::theme_bw() +
+        ggplot2::xlab("processing step") + ggplot2::theme_classic() +
         ggplot2::theme(legend.position = "none")
     plotly::ggplotly(g, tooltip = c("text", "y"))
 }
@@ -902,8 +970,7 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' @param plot \code{character}, one of \code{colData(se)$name} (\code{se} 
 #' used in \code{MAvalues}) or \code{"all"}
 #'
-#' @return 
-#' \code{gg} object from \code{ggplot2}
+#' @return \code{gg} object from \code{ggplot2}
 #'
 #' @examples
 #' ## create se
@@ -916,7 +983,7 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a,
 #'     rowData = rD, colData = cD)
 #'
-#' tbl <- MAvalues(se, log2 = FALSE, group = "all")
+#' tbl <- MAvalues(se, log = FALSE, group = "all")
 #' MAplot(tbl, group = "all", plot = "all")
 #'
 #' @importFrom dplyr pull filter
@@ -1013,7 +1080,7 @@ createDfFeature <- function(l, feature) {
     names(l_slice) <- names(l)
     df <- data.frame(l_slice)
     rownames(df) <- colnames(l[[1]])
-    return(df)
+    df
 }
 
 #' @name featurePlot
@@ -1096,7 +1163,7 @@ featurePlot <- function(df) {
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
 #' @importFrom ggplot2 ggplot geom_violin aes_string geom_point geom_line
-#' @importFrom ggplot2 ylab xlab theme_bw theme
+#' @importFrom ggplot2 ylab xlab theme_classic theme
 #' @importFrom plotly ggplotly
 #' @export
 cvFeaturePlot <- function(l, lines = FALSE) {
@@ -1126,7 +1193,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
         ggplot2::aes_string(x = "x_jitter", y = "value", group = "feature"))
     g <- g + ggplot2::ylab("coefficient of variation") + 
         ggplot2::xlab("processing step") +
-        ggplot2::theme_bw() + ggplot2::theme(legend.position = "none") 
+        ggplot2::theme_classic() + ggplot2::theme(legend.position = "none") 
     plotly::ggplotly(g, tooltip = c("text", "y"))
 }
 
@@ -1204,7 +1271,7 @@ normalizeAssay <- function(a,
     
     rownames(a_n) <- rownames(a)
     colnames(a_n) <- colnames(a)
-    return(a_n)
+    a_n
 }
 
 #' @name batchCorrectionAssay
@@ -1280,7 +1347,7 @@ batchCorrectionAssay <- function(se,
     rownames(a_b) <- rownames(a)
     colnames(a_b) <- colnames(a)
     
-    return(a_b)
+    a_b
 }
 
 #' @name transformAssay
@@ -1335,7 +1402,7 @@ transformAssay <- function(a, method = c("none", "log", "log2", "vsn")) {
     
     rownames(a_t) <- rownames(a) 
     colnames(a_t) <- colnames(a)
-    return(a_t)
+    a_t
 }
 
 #' @name imputeAssay
@@ -1443,7 +1510,7 @@ imputeAssay <- function(a,
             tune.sigma = 1)
     }
         
-    return(a_i)
+    a_i
 }
 
 

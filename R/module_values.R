@@ -74,10 +74,10 @@ tP_boxplotUI <- function(id) {
         shiny::fluidRow(
             shiny::column(6, 
                 shiny::radioButtons(inputId = "boxLog",
-                    label = shiny::HTML("Display log2 values? <br>
+                    label = shiny::HTML("Display log values? <br>
                         (only for 'raw', 'normalized' and 'batch corrected')"),
-                    choices = list("no log2", "log2"),
-                    selected = "no log2")),
+                    choices = list("no log", "log"),
+                    selected = "no log")),
             shiny::column(3, 
                 shiny::radioButtons(inputId = "violinPlot",
                     label = "Type of display", 
@@ -175,7 +175,7 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
         function(input, output, session) {
             
             logValues <- shiny::reactive({
-                if (boxLog() == "log2") {
+                if (boxLog() == "log") {
                     return(TRUE)
                 } else {
                     return(FALSE)
@@ -194,7 +194,7 @@ boxPlotServer <- function(id, se, orderCategory, boxLog, violin, type) {
             ## create the actual plot
             p_boxplot <- shiny::reactive({
                 createBoxplot(se = se(), orderCategory = orderCategory(), 
-                    title = "", log2 = logValues(), 
+                    title = "", log = logValues(), 
                     violin = vP())
             })
             output$boxplot <- shiny::renderPlot({
@@ -693,7 +693,7 @@ meanSdUIServer <- function(id, missingValue) {
 #' @author Thomas Naake
 #' 
 #' @importFrom shiny moduleServer reactive renderPlot downloadHandler
-#' @importFrom ggplot2 ggsave
+#' @importFrom ggplot2 ggsave theme_classic
 #' 
 #' @noRd
 #' 
@@ -706,7 +706,8 @@ meanSdServer <- function(id, assay, type, missingValue) {
 
             p_meansd <- shiny::reactive({
                 req(assay())
-                vsn::meanSdPlot(assay(), ranks = TRUE)$gg
+                vsn::meanSdPlot(assay(), ranks = TRUE)$gg +
+                    ggplot2::theme_bw()
             })
             output$meanSd <- shiny::renderPlot({
                 p_meansd()
@@ -838,6 +839,13 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
                 
                 helperFile <- paste("tabPanel_MA_missingValue_", 
                                                         missingValue, sep = "")
+                
+                if (ncol(se()) > 9) {
+                    selected_samples <- colnames(se())[1:9]
+                } else {
+                    selected_samples <- colnames(se())
+                }
+                
                 shiny::fluidRow(
                     shiny::column(6, 
                         shiny::selectInput(
@@ -850,6 +858,7 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
                         shiny::selectInput(
                             inputId = session$ns("plotMA"),
                             label = "plot", multiple = TRUE,
+                            selected = selected_samples,
                             choices = cD_rn$rowname) 
                     )
                 ) |> 
@@ -911,32 +920,38 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
             ## MA plots: MA values, group
             p_ma <- shiny::reactive({
                 shiny::req(input$MAtype)
-                if (length(input$plotMA) == 0) {
-                    ma_plot <- "all"
-                } else {
-                    ma_plot <- input$plotMA
-                }
+                # if (length(input$plotMA) == 0) {
+                #     if (ncol(se_i()) > 20) {
+                #         ma_plot <- colnames(se_i())[1:20]
+                #     } else {
+                #         ma_plot <- "all"    
+                #     }
+                #     
+                # } else {
+                #     ma_plot <- input$plotMA
+                # }
+                # ##
                     
                     
                 if (input$MAtype == "raw") {
                     ma <- MAplot(vals_r(), group = input$groupMA, 
-                        plot = ma_plot)
+                        plot = input$plotMA)
                 }
                 if (input$MAtype == "normalized") {
                     ma <- MAplot(vals_n(), group = input$groupMA,
-                        plot = ma_plot)
+                        plot = input$plotMA)
                 }
                 if (input$MAtype == "batch corrected") {
                     ma <- MAplot(vals_b(), group = input$groupMA,
-                        plot = ma_plot)
+                        plot = input$plotMA)
                 }
                 if (input$MAtype == "transformed") {
                     ma <- MAplot(vals_t(), group = input$groupMA, 
-                        plot = ma_plot)
+                        plot = input$plotMA)
                 }
                 if (input$MAtype == "imputed") {
                     ma <- MAplot(vals_i(), group = input$groupMA,
-                        plot = ma_plot)
+                        plot = input$plotMA)
                 }
                 ma
             })
@@ -960,15 +975,25 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
             )
 
             ## Hoeffding's D values: MA values, title for plot
-            hD_r <- shiny::reactive(hoeffDValues(vals_r(), "raw")) |>
+            hD_r <- shiny::reactive({
+                hoeffDValues(vals_r(), "raw", sample_n = 5000)
+            }) |>
                 shiny::bindCache(vals_r(), cache = "session")
-            hD_n <- shiny::reactive(hoeffDValues(vals_n(),  "normalized")) |>
+            hD_n <- shiny::reactive({
+                hoeffDValues(vals_n(),  "normalized", sample_n = 5000)
+            }) |>
                 shiny::bindCache(vals_n(), cache = "session")
-            hD_b <- shiny::reactive(hoeffDValues(vals_b(), "batch corrected")) |>
+            hD_b <- shiny::reactive({
+                hoeffDValues(vals_b(), "batch corrected", sample_n = 5000)
+            }) |>
                 shiny::bindCache(vals_b(), cache = "session")
-            hD_t <- shiny::reactive(hoeffDValues(vals_t(), "transformed")) |>
+            hD_t <- shiny::reactive({
+                hoeffDValues(vals_t(), "transformed", sample_n = 5000)
+            }) |>
                 shiny::bindCache(vals_t(), cache = "session")
-            hD_i <- shiny::reactive(hoeffDValues(vals_i(), "imputed")) |>
+            hD_i <- shiny::reactive({
+                hoeffDValues(vals_i(), "imputed", sample_n = 5000)
+            }) |>
                 shiny::bindCache(vals_i(), cache = "session")
 
             ## create reactive data.frame for the hoeffDPlot function

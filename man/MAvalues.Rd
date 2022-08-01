@@ -9,9 +9,10 @@ MAvalues(se, log2 = TRUE, group = c("all", colnames(colData(se))))
 \arguments{
 \item{se}{\code{SummarizedExperiment}}
 
-\item{log2}{\code{logical}, specifies if values re \code{log2} 
-transformed prior to calculating M and A values. If the values are already 
-transformed, \code{log2} should be set to \code{FALSE}.}
+\item{log2}{\code{logical}, specifies if values are 
+\code{log2}-transformed prior to calculating M and A values. 
+If the values are already transformed, \code{log2} should be set to 
+\code{FALSE}.}
 
 \item{group}{\code{character}, either \code{"all"} or one of 
 \code{colnames(colData(se))}}
@@ -40,6 +41,6 @@ cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
-MAvalues(se, log2 = FALSE, group = "all")
+MAvalues(se, log = FALSE, group = "all")
 
 }

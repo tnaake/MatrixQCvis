@@ -47,7 +47,7 @@ rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a,
     rowData = rD, colData = cD)
 
-tbl <- MAvalues(se, log2 = FALSE, group = "all")
+tbl <- MAvalues(se, log = FALSE, group = "all")
 MAplot(tbl, group = "all", plot = "all")
 
 }

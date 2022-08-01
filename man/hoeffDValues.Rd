@@ -4,19 +4,27 @@
 \alias{hoeffDValues}
 \title{Create values of Hoeffding's D statistics from M and A values}
 \usage{
-hoeffDValues(tbl, name = "raw")
+hoeffDValues(tbl, name = "raw", sample_n = NULL)
 }
 \arguments{
 \item{tbl}{\code{tibble}, as obtained from the function \code{MAvalues}}
 
-\item{name}{\code{character}, name of the returned list}
+\item{name}{\code{character(1)}, name of the returned list}
+
+\item{sample_n}{\code{numeric(1)}, number of features (subset) to be 
+taken for calculation of Hoeffding's D values}
 }
 \value{
 named list with Hoeffding's D values per sample
 }
 \description{
 The function creates and returns Hoeffding's D statistics values 
-from MA values.
+from MA values. 
+
+In case \code{sample_n} is set to a numerical value (e.g. 10000), a 
+random subset containing \code{sample_n} is taken to calculate Hoeffding's D 
+values to speed up the calculation. In case there are less features
+than \code{sample_n}, all features are taken.
 }
 \details{
 The function uses the function \code{hoeffd} from the \code{Hmisc} package to 
@@ -45,7 +53,7 @@ hoeffDValues(tbl_n, "normalized")
 
 ## transformed values
 se_t <- se
-assay(se_t) <- transformAssay(a, "log2")
+assay(se_t) <- transformAssay(a, "log")
 tbl_t <- MAvalues(se_t, group = "all")
 hoeffDValues(tbl_t, "transformed")
 
