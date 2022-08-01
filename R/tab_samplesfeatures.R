@@ -44,8 +44,7 @@ hist_sample_num <- function(se, category = "type") {
     
     ## retrieve the number of samples per sample type
     tab <- table(df)
-    tbl <- tibble::tibble(names = names(tab), values = as.vector(tab))
-    return(tbl)
+    tibble::tibble(names = names(tab), values = as.vector(tab))
 }
 
 #' @name hist_sample
@@ -86,7 +85,7 @@ hist_sample <- function(tbl, category = "type") {
         ggplot2::geom_bar(stat = "identity") + 
         ggplot2::ggtitle("Number of samples") + 
         ggplot2::ylab("number") + ggplot2::xlab(category) + 
-        ggplot2::theme_bw() + 
+        ggplot2::theme_classic() + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
     plotly::ggplotly(p = p, tooltip = c("x", "y"))
 }
