@@ -9,15 +9,15 @@ plotPCAVar(var_x, var_perm = NULL)
 \arguments{
 \item{var_x}{\code{numeric} (named \code{numeric} vector)}
 
-\item{var_perm}{\code{matrix} with the explained variance obtained by permutation
-(function \code{permuteExplVar})}
+\item{var_perm}{\code{matrix} with the explained variance obtained by 
+permutation (function \code{permuteExplVar})}
 }
 \value{
 \code{gg} object from \code{ggplot}
 }
 \description{
-The function \code{plotPCAVar} plots the explained variance (in %) on the y-axis
-against the principal components for the measured and permuted values.
+The function \code{plotPCAVar} plots the explained variance (in %) on the 
+y-axis against the principal components for the measured and permuted values.
 }
 \details{
 The argument \code{var_perm} is optional and visualization of permuted values 
@@ -25,8 +25,9 @@ can be omitted by setting \code{var_perm = NULL}.
 }
 \examples{
 x <- matrix(1:100, ncol = 10)
-var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE),
-    type = "PCA")
+pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE),
+    type = "PCA")[[2]]
+var_x <- explVar(d = pca, type = "PCA")
 var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 plotPCAVar(var_x = var_x, var_perm = var_perm)
 

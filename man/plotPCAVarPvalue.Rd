@@ -24,8 +24,9 @@ Internal usage in \code{shinyQC}.
 }
 \examples{
 x <- matrix(1:100, ncol = 10)
-var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE), 
-    type = "PCA")
+pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE), 
+    type = "PCA")[[2]]
+var_x <- explVar(d = pca, type = "PCA")
 var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 plotPCAVarPvalue(var_x = var_x, var_perm = var_perm)
 

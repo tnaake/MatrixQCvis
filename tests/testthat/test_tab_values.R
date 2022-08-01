@@ -21,11 +21,11 @@ test_that("createBoxplot", {
     expect_error(createBoxplot(SummarizedExperiment::assay(se)), 
         "unable to find an inherited method for function")
     expect_error(createBoxplot(se = se, orderCategory = "name", 
-        title =  "test", log2 = "", violin = TRUE), "not interpretable as logical")
+        title =  "test", log = "", violin = TRUE), "not interpretable as logical")
     expect_error(createBoxplot(se = se, orderCategory = "name",
-        title = "test", log2 = TRUE, violin = ""), "invalid argument type")
+        title = "test", log = TRUE, violin = ""), "invalid argument type")
     expect_error(createBoxplot(se = se, orderCategory = "foo", title = "", 
-          log2 = TRUE, violin = TRUE),
+          log = TRUE, violin = TRUE),
         "should be one of")
     expect_error(createBoxplot(se = se_error, orderCategory = "x5at1t1g161asy"),
         "Column name `x5at1t1g161asy` must not be duplicated")
@@ -172,15 +172,22 @@ test_that("hoeffDValues", {
     tbl <- MAvalues(se)
     l_test <- list(raw = c(0.9901381, 0.7174001, 0.2431791, 0.8799139,
         0.9270406, 0.9566922, 0.9671259, 0.9773905, 0.9788422, 0.9766581))
+    l_test_subset <- list(raw = c(0.9924323, 0.6885165, 0.2892747, 0.8822307,
+        0.9255351, 0.9562963, 0.9635617, 0.9784907, 0.9765922, 0.9765521))
     names(l_test$raw) <- colnames(se)
+    names(l_test_subset$raw) <- colnames(se)
     
-    hD <- hoeffDValues(tbl)
+    
+    hD <- hoeffDValues(tbl, name = "raw", sample_n = NULL)
+    set.seed(2022)
+    hD_subset <- hoeffDValues(tbl, name = "raw", sample_n = 90)
 
     expect_error(hoeffDValues(tbl[, !colnames(tbl) %in% "A"]),
         "Column `A` doesn't exist")
     expect_error(hoeffDValues(tbl[, !colnames(tbl) %in% "M"]),
         "Column `M` doesn't exist")
     expect_equal(hD, l_test, tolerance = 1e-07)
+    expect_equal(hD_subset, l_test_subset, tolerance = 1e-07)
     expect_true(is.list(hD))
     expect_equal(length(hD), 1)
     expect_equal(length(unlist(hD)), length(unique(tbl$name)))

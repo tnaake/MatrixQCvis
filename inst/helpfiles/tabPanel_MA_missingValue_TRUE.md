@@ -37,3 +37,8 @@ visualized for the different data sets **raw**, **normalized**,
 `F(A, M)` is the joint cumulative distribution function (CDF) of 
 `A` and `M`, and `G` and `H` are marginal CDFs. 
 The higher the value of `D`, the more dependent are `A` and `M`. 
+
+For reasons of computational efficiency, a subset of 5000 features
+will be randomly sampled from the `SummarizedExperiment` object. 
+In case there are less than 5000 features, all features of the
+`SummarizedExperiment` are taken.

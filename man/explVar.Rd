@@ -5,19 +5,10 @@
 \title{Retrieve the explained variance for each principal component (PCA) or
 axis (PCoA)}
 \usage{
-explVar(x, params, type = c("PCA", "PCoA"))
+explVar(d, type = c("PCA", "PCoA"))
 }
 \arguments{
-\item{x}{\code{matrix}, containing no missing values (\code{NA}), samples 
-in columns and features in rows}
-
-\item{params}{\code{list}, containing the parameters for PCA and PCoA. For 
-\code{type = "PCA"} these are \code{center} of type \code{logical}
-(indicating whether the variables should be shifted to be zero centered) and
-\code{scale} of type \code{logical}(indicating whether the variables 
-should be scaled that they have a standard variation of 1). For 
-\code{type = "PCoA"}, this is \code{method} of type \code{character} 
-(indicating the method for distance  calculation).}
+\item{d}{\code{prcomp} or \code{list} from \code{cmdscale}}
 
 \item{type}{\code{character}, one of \code{"PCA"} or \code{"PCoA"}}
 }
@@ -42,8 +33,16 @@ x <- matrix(1:100, nrow = 10, ncol = 10,
     dimnames = list(1:10, paste("sample", 1:10)))
 set.seed(1)
 x <- x + rnorm(100)
-explVar(x = x, params = list(center = TRUE, scale = TRUE), type = "PCA")
-explVar(x = x, params = list(method = "euclidean"), type = "PCoA")
+
+## run for PCA
+pca <- dimensionReduction(x = x, 
+    params = list(center = TRUE, scale = TRUE), type = "PCA")[[2]]
+explVar(d = pca, type = "PCA")
+
+## run for PCoA
+pcoa <- dimensionReduction(x = x, 
+    params = list(method = "euclidean"), type = "PCoA")[[2]]
+explVar(d = pcoa, type = "PCoA")
 
 }
 \author{

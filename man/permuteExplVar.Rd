@@ -4,16 +4,22 @@
 \alias{permuteExplVar}
 \title{Permute the expression values and retrieve the explained variance}
 \usage{
-permuteExplVar(x, n = 10, center = TRUE, scale = TRUE)
+permuteExplVar(x, n = 10, center = TRUE, scale = TRUE, sample_n = NULL)
 }
 \arguments{
-\item{x}{\code{matrix} or \code{data.frame}, samples in columns and features in rows}
+\item{x}{\code{matrix} or \code{data.frame}, samples in columns and features 
+in rows}
 
 \item{n}{\code{numeric}, number of permutation rounds}
 
 \item{center}{\code{logical}, passed to the function \code{explVar}}
 
 \item{scale}{\code{logical}, passed to the function \code{explVar}}
+
+\item{sample_n}{\code{numeric(1)}, number of features (subset) to be 
+taken for calculation of permuted explained variance, the top 
+\code{sample_n} varying values based on their standard deviation will be 
+taken}
 }
 \value{
 matrix with explained variance
@@ -39,7 +45,7 @@ variance.
  
 x <- matrix(1:100, nrow = 10, ncol = 10,
     dimnames = list(1:10, paste("sample", 1:10)))
-permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
+permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE, sample_n = NULL)
 
 }
 \author{

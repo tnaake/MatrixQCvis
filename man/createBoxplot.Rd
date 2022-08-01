@@ -8,7 +8,7 @@ createBoxplot(
   se,
   orderCategory = colnames(colData(se)),
   title = "",
-  log2 = TRUE,
+  log = TRUE,
   violin = FALSE
 )
 }
@@ -20,8 +20,8 @@ in the \code{assay} slot}
 
 \item{title}{\code{character} or \code{numeric} of \code{length(1)}}
 
-\item{log2}{\code{logical}, if \code{TRUE} (count/intensity) values are 
-displayed as log2 values}
+\item{log}{\code{logical}, if \code{TRUE} (count/intensity) values are 
+displayed as log values}
 
 \item{violin}{\code{logical}, if \code{FALSE} a boxplot is created, if 
 \code{TRUE} a violin plot is created}
@@ -48,7 +48,7 @@ rD <- data.frame(spectra = rownames(a))
 se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
     rowData = rD, colData = cD)
 
-createBoxplot(se, orderCategory = "name", title = "", log2 = TRUE, 
+createBoxplot(se, orderCategory = "name", title = "", log = TRUE, 
     violin = FALSE)
 
 }

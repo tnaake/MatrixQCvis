@@ -1,19 +1,24 @@
-#' @name ordination
+#' @name dimensionReduction
 #'
-#' @title Dimensionality reduction with ordination methods PCA,
+#' @title Dimensionality reduction with dimensionReduction methods PCA,
 #' PCoA, NMDS, UMAP and tSNE
 #'
 #' @description 
-#' The function \code{ordination} creates a \code{data.frame} 
-#' with the coordinates of the projected data. The function allows for the 
+#' The function \code{dimensionReduction} creates a \code{data.frame} 
+#' with the coordinates of the projected data (first entry of returned output). 
+#' The function allows for the 
 #' following projections:
 #' Principal Component Analysis (PCA), Principal Coordinates 
 #' Analysis/Multidimensional Scaling (PCoA), Non-metric Multidimensional 
 #' scaling (NMDS), t-distributed stochastic neighbor embedding (tSNE), and 
-#' Uniform Manifold Approimation and Projection (UMAP).
+#' Uniform Manifold Approximation and Projection (UMAP).
+#' 
+#' The second list entry will contains the object returned from 
+#' \code{prcomp} (PCA), \code{cmdscale} (PCoA), \code{metaMDS} (NMDS), 
+#' \code{Rtsne} (tSNE), or \code{umap} (UMAP).
 #' 
 #' @details 
-#' The function \code{ordination} is a wrapper around the following 
+#' The function \code{dimensionReduction} is a wrapper around the following 
 #' functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA), 
 #' \code{vegan::metaMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
 #' \code{umap::umap} (UMAP). For the function \code{umap::umap} 
@@ -35,11 +40,11 @@
 #' params <- list(method = "euclidean", ## dist
 #'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
-#' ordination(x, type = "PCA", params = params)
-#' ordination(x, type = "PCoA", params = params)
-#' ordination(x, type = "NMDS", params = params)
-#' ordination(x, type = "tSNE", params = params)
-#' ordination(x, type = "UMAP", params = params)
+#' dimensionReduction(x, type = "PCA", params = params)
+#' dimensionReduction(x, type = "PCoA", params = params)
+#' dimensionReduction(x, type = "NMDS", params = params)
+#' dimensionReduction(x, type = "tSNE", params = params)
+#' dimensionReduction(x, type = "UMAP", params = params)
 #'
 #' @author Thomas Naake
 #'
@@ -49,10 +54,12 @@
 #' @importFrom umap umap
 #' @importFrom methods formalArgs
 #' 
-#' @return \code{tbl}
+#' @return list, first entry contains a \code{tbl}, second entry contains
+#' the object returned from \code{prcomp} (PCA), \code{cmdscale} (PCoA),
+#' \code{metaMDS} (NMDS), \code{Rtsne} (tSNE), or \code{umap} (UMAP)
 #' 
 #' @export
-ordination <- function(x, 
+dimensionReduction <- function(x, 
     type = c("PCA", "PCoA", "NMDS", "tSNE", "UMAP"), params = list()) {
     
     type <- match.arg(type)
@@ -60,18 +67,20 @@ ordination <- function(x,
     if (type == "PCA") { ## scale, center
         params <- append(params, list(x = t(x)))
         d <- do.call(what = stats::prcomp, params)
-        tbl <- tibble::as_tibble(d$x)
-        tbl <- tibble::tibble(name = rownames(d$x), tbl)
+        d_coord <- d$x
+        tbl <- tibble::as_tibble(d_coord)
+        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
     }
     if (type == "PCoA") {
         params <- append(params, list(x = t(x)))
         ## truncate params
         params <- params[names(params) %in% methods::formalArgs(stats::dist)] 
         d <- do.call(what = stats::dist, args = params)
-        d <- stats::cmdscale(d, k = ncol(x) - 1, eig = FALSE)
-        colnames(d) <- paste("Axis.", seq_len(ncol(d)), sep = "")
-        tbl <- tibble::as_tibble(d)
-        tbl <- tibble::tibble(name = rownames(d), tbl)
+        d <- stats::cmdscale(d, k = ncol(x) - 1, eig = TRUE)
+        d_coord <- d$points
+        colnames(d_coord) <- paste("Axis.", seq_len(ncol(d_coord)), sep = "")
+        tbl <- tibble::as_tibble(d_coord)
+        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
     }
     if (type == "NMDS") {
         params <- append(params, list(x = t(x)))
@@ -79,16 +88,17 @@ ordination <- function(x,
         params <- params[names(params) %in% formalArgs(dist)] 
         d <- do.call(what = stats::dist, args = params)
         d <- vegan::metaMDS(d)
-        tbl <- tibble::as_tibble(d$points)
-        tbl <- tibble::tibble(name = rownames(d$points), tbl)
+        d_coord <- d$points
+        tbl <- tibble::as_tibble(d_coord)
+        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
     }
     if (type == "tSNE") { 
         ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims
         params <- append(params, list(X = t(x)))
         d <- do.call(what = Rtsne::Rtsne, args = params) 
-        d <- d$Y
-        colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
-        tbl <- tibble::as_tibble(d)
+        d_coord <- d$Y
+        colnames(d_coord) <- paste("X", seq_len(ncol(d_coord)), sep = "")
+        tbl <- tibble::as_tibble(d_coord)
         tbl <- tibble::tibble(name = colnames(x), tbl)
     }
     if (type == "UMAP") { 
@@ -98,30 +108,30 @@ ordination <- function(x,
             params <- params[names(params) != "method"]
         params <- append(params, list(d = t(x), method = "naive"))
         d <- do.call(what = umap::umap, args = params)
-        d <- d$layout
-        colnames(d) <- paste("X", seq_len(ncol(d)), sep = "")
-        tbl <- tibble::as_tibble(d)
-        tbl <- tibble::tibble(name = rownames(d), tbl)
+        d_coord <- d$layout
+        colnames(d_coord) <- paste("X", seq_len(ncol(d_coord)), sep = "")
+        tbl <- tibble::as_tibble(d_coord)
+        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
     }
     
-    return(tbl)
+    list(tbl, d)
 }
 
-#' @name ordinationPlot
+#' @name dimensionReductionPlot
 #' 
-#' @title Plot the coordinates from \code{ordination} values
+#' @title Plot the coordinates from \code{dimensionReduction} values
 #' 
 #' @description 
-#' The function \code{ordinationPlot} creates a dimension reduction plot. 
+#' The function \code{dimensionReductionPlot} creates a dimension reduction plot. 
 #' The function takes as input the \code{tbl} object obtained 
-#' from the \code{ordination} function. The \code{tbl} contains transformed
-#' values by one of the ordination methods. 
+#' from the \code{dimensionReduction} function. The \code{tbl} contains 
+#' transformed values by one of the dimension reduction methods. 
 #' 
 #' @details 
-#' The function \code{ordinationPlot} is a wrapper for a
+#' The function \code{dimensionReductionPlot} is a wrapper for a
 #' \code{ggplot/ggplotly} expression. 
 #'
-#' @param tbl \code{tbl} as obtained by the function \code{ordination}
+#' @param tbl \code{tbl} as obtained by the function \code{dimensionReduction}
 #' @param se \code{SummarizedExperiment}
 #' @param highlight \code{character}, one of \code{"none"} or 
 #' \code{colnames(colData(se))}
@@ -133,9 +143,9 @@ ordination <- function(x,
 #' @param y_coord \code{character}, column name of \code{tbl} that stores 
 #' y coordinates
 #' @param height \code{numeric}, specifying the height of the plot (in pixels)
-#' @param interactive \code{logical(1)}, if \code{TRUE} \code{ordinationPlot} 
-#' will return a \code{plotly} object, if \code{FALSE} \code{ordinationPlot} 
-#' will return a \code{gg} object
+#' @param interactive \code{logical(1)}, if \code{TRUE} 
+#' \code{dimensionReductionPlot} will return a \code{plotly} object, 
+#' if \code{FALSE} \code{dimensionReductionPlot} will return a \code{gg} object
 #' 
 #' @examples
 #' library(SummarizedExperiment)
@@ -149,9 +159,9 @@ ordination <- function(x,
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 #' 
-#' pca <- ordination(x = assay(se), type = "PCA", params = list())
+#' pca <- dimensionReduction(x = assay(se), type = "PCA", params = list())[[1]]
 #' 
-#' ordinationPlot(tbl = pca, se = se, highlight = "type", 
+#' dimensionReductionPlot(tbl = pca, se = se, highlight = "type", 
 #'     x_coord = "PC1", y_coord = "PC2")
 #'
 #' @author Thomas Naake
@@ -165,10 +175,9 @@ ordination <- function(x,
 #' @return \code{plotly} or \code{gg}
 #' 
 #' @export
-ordinationPlot <- function(tbl, se, 
+dimensionReductionPlot <- function(tbl, se, 
     highlight = c("none", colnames(colData(se))), 
-    explainedVar = NULL, x_coord, y_coord, height = 600,
-    interactive = TRUE) {
+    explainedVar = NULL, x_coord, y_coord, height = 600, interactive = TRUE) {
     
     highlight <- match.arg(highlight)
     highlight <- make.names(highlight)
@@ -199,9 +208,9 @@ ordinationPlot <- function(tbl, se,
     
     if (!is.null(explainedVar)) {
         g <- g + ggplot2::xlab(paste(x_coord, " (", 
-            round(explainedVar[[x_coord]]*100, 2), "%)", sep = ""))
+            round(explainedVar[[x_coord]] * 100, 2), "%)", sep = ""))
         g <- g + ggplot2::ylab(paste(y_coord, " (", 
-            round(explainedVar[[y_coord]]*100, 2), "%)", sep = ""))
+            round(explainedVar[[y_coord]] * 100, 2), "%)", sep = ""))
     } else {
         g <- g + ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) 
     }
@@ -213,7 +222,7 @@ ordinationPlot <- function(tbl, se,
     }
     
     g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() 
-        
+         
     
     if (interactive) {
         g <- g + ggplot2::theme(legend.position = "none") 
@@ -242,15 +251,7 @@ ordinationPlot <- function(tbl, se,
 #' package to retrieve the explained variation based on eigenvalues per 
 #' Axis (\code{type = "PCoA"}).
 #' 
-#' @param x \code{matrix}, containing no missing values (\code{NA}), samples 
-#' in columns and features in rows
-#' @param params \code{list}, containing the parameters for PCA and PCoA. For 
-#' \code{type = "PCA"} these are \code{center} of type \code{logical}
-#' (indicating whether the variables should be shifted to be zero centered) and
-#' \code{scale} of type \code{logical}(indicating whether the variables 
-#' should be scaled that they have a standard variation of 1). For 
-#' \code{type = "PCoA"}, this is \code{method} of type \code{character} 
-#' (indicating the method for distance  calculation). 
+#' @param d \code{prcomp} or \code{list} from \code{cmdscale}
 #' @param type \code{character}, one of \code{"PCA"} or \code{"PCoA"}
 #' 
 #' @return \code{numeric} vector with the proportion of explained variance 
@@ -261,42 +262,39 @@ ordinationPlot <- function(tbl, se,
 #'     dimnames = list(1:10, paste("sample", 1:10)))
 #' set.seed(1)
 #' x <- x + rnorm(100)
-#' explVar(x = x, params = list(center = TRUE, scale = TRUE), type = "PCA")
-#' explVar(x = x, params = list(method = "euclidean"), type = "PCoA")
+#'
+#' ## run for PCA
+#' pca <- dimensionReduction(x = x, 
+#'     params = list(center = TRUE, scale = TRUE), type = "PCA")[[2]]
+#' explVar(d = pca, type = "PCA")
+#' 
+#' ## run for PCoA
+#' pcoa <- dimensionReduction(x = x, 
+#'     params = list(method = "euclidean"), type = "PCoA")[[2]]
+#' explVar(d = pcoa, type = "PCoA")
 #' 
 #' @author Thomas Naake
-#' 
-#' @importFrom stats prcomp dist cmdscale
 #'
 #' @export
-explVar <- function(x, params, type = c("PCA", "PCoA")) {
+explVar <- function(d, type = c("PCA", "PCoA")) {
 
     type <- match.arg(type)
 
     if (type == "PCA") {
 
         ## PCA (by prcomp) and retrieve the exlained variance for each PC
-        params <- append(params, list(x = t(x)))
-        PC <- do.call(what = stats::prcomp, params)
-        explVar <- PC$sdev^2 / sum(PC$sdev^2)
-        names(explVar) <- paste("PC", seq_len(ncol(x)), sep = "")    
+        explVar <- d$sdev ^ 2 / sum(d$sdev ^ 2)
+        names(explVar) <- paste("PC", seq_along(explVar), sep = "")    
     }
 
     if (type == "PCoA") {
-
-        params <- append(params, list(x = t(x)))
-        ## truncate params
-        params <- params[names(params) %in% methods::formalArgs(stats::dist)]
-        d <- do.call(what = stats::dist, params)
-        cmd <- stats::cmdscale(d, k = ncol(x) - 1, eig = TRUE)
-        explVar <- cmd$eig / sum(cmd$eig)
+        explVar <- d$eig / sum(d$eig)
         explVar <- explVar[-length(explVar)]
-        names(explVar) <- paste("Axis.", seq_len(ncol(x) - 1), sep = "")
+        names(explVar) <- paste("Axis.", seq_along(explVar), sep = "")
     }
 
-    return(explVar)
+    explVar
 }
-
 
 #' @name permuteExplVar
 #' 
@@ -319,38 +317,54 @@ explVar <- function(x, params, type = c("PCA", "PCoA")) {
 #' be employed and the observed variance will be compared to the permuted 
 #' variance.
 #' 
-#' @param x \code{matrix} or \code{data.frame}, samples in columns and features in rows
+#' @param x \code{matrix} or \code{data.frame}, samples in columns and features 
+#' in rows
 #' @param n \code{numeric}, number of permutation rounds
 #' @param center \code{logical}, passed to the function \code{explVar}
 #' @param scale \code{logical}, passed to the function \code{explVar}
+#' @param sample_n \code{numeric(1)}, number of features (subset) to be 
+#' taken for calculation of permuted explained variance, the top 
+#' \code{sample_n} varying values based on their standard deviation will be 
+#' taken
 #' 
 #' @examples  
 #' x <- matrix(1:100, nrow = 10, ncol = 10,
 #'     dimnames = list(1:10, paste("sample", 1:10)))
-#' permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE)
+#' permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE, sample_n = NULL)
 #'
 #' @return matrix with explained variance
 #'
 #' @author Thomas Naake
 #'
 #' @export
-permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
+permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE, 
+    sample_n = NULL) {
     
     if (n < 1) stop("n has to be greater than 0")
+    
+    ## in case of large data sets the permutation might take a long time,
+    ## limit if there are more features (nrow(x)) than sample_n features the 
+    ## features to sample_n features
+    if (!is.null(sample_n)) {
+        if (sample_n < nrow(x)) {
+            sds <- apply(x, 1, sd, na.rm = TRUE)
+            sds_feat <- order(sds, decreasing = TRUE)[seq_len(sample_n)]
+            x <- x[sds_feat, ] 
+        }
+    }
     
     var_perm <- lapply(seq_len(n), function(i) {
         ## permute features across the samples
         x_perm <- apply(x, 1, sample)
         
         ## PCA and retrieve the explained variance for each PC
-        explVar(x_perm, params = list(center = center, scale = scale), 
-            type = "PCA")
+        pca <- dimensionReduction(x = x_perm,  type = "PCA", 
+            params = list(center = center, scale = scale))[[2]]
+        explVar(d = pca, type = "PCA")
     })
     
     ## create a matrix (rbind the list elements)
-    var_perm <- do.call(rbind, var_perm)
-    
-    return(var_perm)
+    do.call(rbind, var_perm)
 }
 
 
@@ -359,21 +373,22 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE) {
 #' @title Plot of explained variance against the principal components
 #' 
 #' @description
-#' The function \code{plotPCAVar} plots the explained variance (in %) on the y-axis
-#' against the principal components for the measured and permuted values.  
+#' The function \code{plotPCAVar} plots the explained variance (in %) on the 
+#' y-axis against the principal components for the measured and permuted values.  
 #' 
 #' @details
 #' The argument \code{var_perm} is optional and visualization of permuted values 
 #' can be omitted by setting \code{var_perm = NULL}.
 #' 
 #' @param var_x \code{numeric} (named \code{numeric} vector)
-#' @param var_perm \code{matrix} with the explained variance obtained by permutation
-#' (function \code{permuteExplVar})
+#' @param var_perm \code{matrix} with the explained variance obtained by 
+#' permutation (function \code{permuteExplVar})
 #' 
 #' @examples 
 #' x <- matrix(1:100, ncol = 10)
-#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE),
-#'     type = "PCA")
+#' pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE),
+#'     type = "PCA")[[2]]
+#' var_x <- explVar(d = pca, type = "PCA")
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVar(var_x = var_x, var_perm = var_perm)
 #'
@@ -411,7 +426,7 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
         ggplot2::theme(legend.title = ggplot2::element_blank(), 
             legend.position = "none")
     
-    return(g)
+    g
 }
 
 #' @name plotPCAVarPvalue
@@ -431,8 +446,9 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' 
 #' @examples
 #' x <- matrix(1:100, ncol = 10)
-#' var_x <- explVar(x = x, params = list(center = TRUE, scale = TRUE), 
-#'     type = "PCA")
+#' pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE), 
+#'     type = "PCA")[[2]]
+#' var_x <- explVar(d = pca, type = "PCA")
 #' var_perm <- permuteExplVar(x = x, n = 100, center = TRUE, scale = TRUE)
 #' plotPCAVarPvalue(var_x = var_x, var_perm = var_perm)
 #' 
@@ -465,12 +481,12 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' @title Return tibble with PCA loadings for features
 #' 
 #' @description 
-#' The function \code{tblPCALoadings} returns a \code{tibble} with loadings values for the
-#' features (row entries) in \code{x}.
+#' The function \code{tblPCALoadings} returns a \code{tibble} with loadings 
+#' values for the features (row entries) in \code{x}.
 #' 
 #' @details 
-#' The function \code{tblPCALoadings} acccesses the list entry \code{rotation} of the
-#' \code{prcomp} object. 
+#' The function \code{tblPCALoadings} acccesses the list entry \code{rotation} 
+#' of the \code{prcomp} object. 
 #' 
 #' @param x \code{matrix}, containing no missing values
 #' @param params \code{list}, arguments/parameters given to the function 
@@ -494,10 +510,8 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 tblPCALoadings <- function(x, params) {
     params <- append(params, list(x = t(x)))
     d <- do.call(what = stats::prcomp, params)
-    tbl <- tibble::as_tibble(d$rotation)
+    tbl <- tibble::as_tibble(d$rotation) 
     tbl <- tibble::tibble(name = rownames(d$rotation), tbl)
-    
-    return(tbl)
 }
 
 #' @name plotPCALoadings
@@ -508,14 +522,16 @@ tblPCALoadings <- function(x, params) {
 #' The function \code{plotPCALoadings} creates a loadings plot of the features.
 #' 
 #' @details 
-#' The function takes as input the output of the function \code{tblPlotPCALoadings}.
-#' It uses the \code{ggplotly} function from \code{plotly} to create an interactive 
-#' \code{plotly} plot.
+#' The function takes as input the output of the function 
+#' \code{tblPlotPCALoadings}. It uses the \code{ggplotly} function from 
+#' \code{plotly} to create an interactive \code{plotly} plot.
 #' 
 #' 
-#' @param tbl \code{tbl} as obtained by the function \code{ordination}
-#' @param x_coord \code{character}, column name of \code{tbl} that stores x coordinates
-#' @param y_coord \code{character}, column name of \code{tbl} that stores y coordinates
+#' @param tbl \code{tbl} as obtained by the function \code{dimensionReduction}
+#' @param x_coord \code{character}, column name of \code{tbl} that stores x 
+#' coordinates
+#' @param y_coord \code{character}, column name of \code{tbl} that stores y 
+#' coordinates
 #' 
 #' @examples 
 #' x <- matrix(rnorm(1:10000), ncol = 100)

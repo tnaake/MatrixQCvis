@@ -9,8 +9,8 @@ The different methods for normalization, transformation, batch
 correction and imputation are specified in the side panel. 
 
 For visualization purposes only, the assay
-values for the raw and normalized data sets can be `log2` transformed
-(**Display log2 values? (only for 'raw' and 'normalized')**).
+values for the raw and normalized data sets can be `log` transformed
+(**Display log values? (only for 'raw' and 'normalized')**).
 
 The type of visualization (boplot or violin plot) can be specified 
 by selecting `boxplot` or `violin` in the radio button panel. 

@@ -6,8 +6,8 @@
 #' @importFrom tibble as_tibble 
 #' @importFrom SummarizedExperiment SummarizedExperiment
 
-## function ordination
-test_that("ordination", {
+## function dimensionReduction
+test_that("dimensionReduction", {
     set.seed(1)
     x <- matrix(rnorm(100000), nrow = 1000, ncol = 100, 
         dimnames = list(1:1000, paste("sample", 1:100)))
@@ -26,12 +26,13 @@ test_that("ordination", {
         "dims" = 2, "pca_center" = TRUE, "pca_scale" = FALSE, theta = 0, ## tSNE
         "min_dist" = 0.1, "n_neighbors" = 5, "spread" = 1) ## UMAP
     
-    pca_o <- ordination(x, "PCA", params = parameters)
-    pcoa_o <- ordination(x, type = "PCoA", params = parameters)
-    nmds_o <- ordination(x, "NMDS", params = parameters)
+    pca_o <- dimensionReduction(x, "PCA", params = parameters)
+    pcoa_o <- dimensionReduction(x, type = "PCoA", params = parameters)
+    suppressWarnings(
+        nmds_o <- dimensionReduction(x, "NMDS", params = parameters))
     set.seed(1)
-    tsne_o <- ordination(x, "tSNE", params = parameters)
-    umap_o <- ordination(x, "UMAP", params = parameters)
+    tsne_o <- dimensionReduction(x, "tSNE", params = parameters)
+    umap_o <- dimensionReduction(x, "UMAP", params = parameters)
     
     pca_r <- stats::prcomp(t(x), center = TRUE, scale = FALSE)$x 
     pca_r <- tibble::as_tibble(pca_r)
@@ -39,7 +40,8 @@ test_that("ordination", {
         eig = FALSE)
     colnames(pcoa_r) <- paste("Axis.", seq_len(99), sep = "")
     pcoa_r <- tibble::as_tibble(pcoa_r)
-    nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points 
+    suppressWarnings(
+        nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points)
     nmds_r <- tibble::as_tibble(nmds_r)
     tsne_r <- Rtsne::Rtsne(t(x), perplexity = 3, max_iter = 1000,
         initial_dims = 2, dims = 2, pca_center = TRUE, pca_scale = FALSE,
@@ -51,33 +53,54 @@ test_that("ordination", {
     umap_r <- tibble::as_tibble(umap_r)
     colnames(umap_r) <- c("X1", "X2")
     
-    expect_error(ordination(x, type = "foo", params = parameters), 
+    expect_error(dimensionReduction(x, type = "foo", params = parameters), 
         "'arg' should be one of ")
-    expect_error(ordination(x_foo, type = "PCA", params = parameters), 
-        "infinite or missing values in 'x'")
-    expect_error(ordination(x_foo, type = "tSNE", params = parameters), 
+    suppressWarnings(expect_error(
+        dimensionReduction(x_foo, type = "PCA", params = parameters), 
+        "infinite or missing values in 'x'"))
+    expect_error(dimensionReduction(x_foo, type = "tSNE", params = parameters), 
         "missing values in object")
-    expect_error(ordination(x_foo, type = "UMAP", params = parameters), 
+    expect_error(dimensionReduction(x_foo, type = "UMAP", params = parameters), 
         "missing value where TRUE/FALSE needed")
-    expect_true(tibble::is_tibble(pca_o))
-    expect_true(tibble::is_tibble(pcoa_o))
-    expect_true(tibble::is_tibble(nmds_o))
-    expect_true(tibble::is_tibble(tsne_o))
-    expect_true(tibble::is_tibble(umap_o))
-    expect_equal(dim(pca_o), c(100, 101))
-    expect_equal(dim(pcoa_o), c(100, 100))
-    expect_equal(dim(nmds_o), c(100, 3))
-    expect_equal(dim(tsne_o), c(100, 3))
-    expect_equal(dim(umap_o), c(100, 3))
-    expect_equal(pca_o[, -1], pca_r, tolerance = 1e-07)
-    expect_equal(pcoa_o[, -1], pcoa_r, tolerance = 1e-07)
-    expect_equal(nmds_o[, -1], nmds_r, tolerance = 1e00)
-    expect_equal(tsne_o[, -1], tsne_r, tolerance = 1e01)
-    expect_equal(umap_o[, -1], umap_r, tolerance = 1e01)
+    expect_true(tibble::is_tibble(pca_o[[1]]))
+    expect_true(tibble::is_tibble(pcoa_o[[1]]))
+    expect_true(tibble::is_tibble(nmds_o[[1]]))
+    expect_true(tibble::is_tibble(tsne_o[[1]]))
+    expect_true(tibble::is_tibble(umap_o[[1]]))
+    expect_true(is(pca_o[[2]], "prcomp"))
+    expect_equal(names(pca_o[[2]]), 
+        c("sdev", "rotation", "center", "scale", "x"))
+    expect_true(is(pcoa_o[[2]], "list"))
+    expect_equal(names(pcoa_o[[2]]), c("points", "eig", "x", "ac", "GOF"))
+    expect_true(is(nmds_o[[2]], "metaMDS"))
+    expect_equal(names(nmds_o[[2]]), 
+        c("nobj", "nfix", "ndim", "ndis", "ngrp", "diss", "iidx", "jidx",
+            "xinit", "istart", "isform", "ities", "iregn", "iscal", "maxits",
+            "sratmx", "strmin", "sfgrmn", "dist", "dhat", "points", "stress",
+            "grstress", "iters", "icause", "call", "model", "distmethod",
+            "distcall", "distance", "converged", "tries", "engine", "species",
+            "data"))
+    expect_true(is(tsne_o[[2]], "Rtsne"))
+    expect_equal(names(tsne_o[[2]]), 
+        c("N", "Y", "costs", "itercosts", "origD", "perplexity", "theta",
+            "max_iter", "stop_lying_iter", "mom_switch_iter", "momentum",
+            "final_momentum", "eta", "exaggeration_factor"))
+    expect_true(is(umap_o[[2]], "umap"))
+    expect_equal(names(umap_o[[2]]), c("layout", "data", "knn", "config"))
+    expect_equal(dim(pca_o[[1]]), c(100, 101))
+    expect_equal(dim(pcoa_o[[1]]), c(100, 100))
+    expect_equal(dim(nmds_o[[1]]), c(100, 3))
+    expect_equal(dim(tsne_o[[1]]), c(100, 3))
+    expect_equal(dim(umap_o[[1]]), c(100, 3))
+    expect_equal(pca_o[[1]][, -1], pca_r, tolerance = 1e-07)
+    expect_equal(pcoa_o[[1]][, -1], pcoa_r, tolerance = 1e-07)
+    expect_equal(nmds_o[[1]][, -1], nmds_r, tolerance = 1e00)
+    expect_equal(tsne_o[[1]][, -1], tsne_r, tolerance = 1e01)
+    expect_equal(umap_o[[1]][, -1], umap_r, tolerance = 1e01)
 })
 
-## function ordinationPlot
-test_that("ordinationPlot", {
+## function dimensionReductionPlot
+test_that("dimensionReductionPlot", {
      
     ## create se
     a <- matrix(1:100, nrow = 10, ncol = 10, 
@@ -93,28 +116,28 @@ test_that("ordinationPlot", {
     
     ## create the data.frame containing the transformed values
     parameters <- list("center" = TRUE, "scale" = FALSE)
-    tbl <- ordination(assay(se), type = "PCA", params = parameters)
-    g <- ordinationPlot(tbl = tbl, se = se, highlight = "type", 
+    tbl <- dimensionReduction(assay(se), type = "PCA", params = parameters)[[1]]
+    g <- dimensionReductionPlot(tbl = tbl, se = se, highlight = "type", 
         x_coord = "PC1", y_coord = "PC2")
     
-    expect_error(ordinationPlot(tbl = tbl), 'argument "se" is missing')
-    expect_error(ordinationPlot(tbl = tbl, se = se), 
+    expect_error(dimensionReductionPlot(tbl = tbl), 'argument "se" is missing')
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se), 
         'argument "x_coord" is missing')
-    expect_error(ordinationPlot(tbl = tbl, se = se,
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se,
         highlight = "none"), 'argument "x_coord" is missing')
-    expect_error(ordinationPlot(tbl = tbl, se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "none", 
         x_coord = "PC1"), 'argument "y_coord" is missing')
-    expect_error(ordinationPlot(tbl = tbl, se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "none", 
         x_coord = "test", y_coord = "PC2"), 
         "object 'test' not found")
-    expect_error(ordinationPlot(tbl = tbl[, -1], se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl[, -1], se = se, highlight = "none", 
         x_coord = "PC1", y_coord = "PC2"), "object 'name' not found")
-    expect_error(ordinationPlot(tbl = se, se = se), "must be a data frame")
-    expect_error(ordinationPlot(tbl = tbl, se = "foo"), 
+    expect_error(dimensionReductionPlot(tbl = se, se = se), "must be a data frame")
+    expect_error(dimensionReductionPlot(tbl = tbl, se = "foo"), 
         "unable to find an inherited method for function")
-    expect_error(ordinationPlot(tbl = tbl, se = se, highlight = "foo"), 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "foo"), 
         "should be one of")
-    expect_error(ordinationPlot(tbl = tbl, se = se_error, highlight = "none"), 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se_error, highlight = "none"), 
         "Column name `rowname` must not be duplicated")
     expect_is(g, "plotly")
 })
@@ -129,28 +152,22 @@ test_that("explVar", {
     set.seed(1)
     x <- x + rnorm(100)
     
-    params <- list(center = TRUE, scale = TRUE, method = "euclidean")
-    varExpl_pca <- explVar(x, params = params, type = "PCA")
-    varExpl_pcoa <- explVar(x, params = params, type = "PCoA")
+    pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE), 
+        type = "PCA")[[2]]
+    pcoa <- dimensionReduction(x = x, params = list(method = "euclidean"), 
+        type = "PCoA")[[2]]
     
-    expect_error(explVar(NA, params = params, type = "PCA"), 
-        "cannot rescale a constant/zero column to unit variance")
-    expect_error(explVar(NA, params = params, type = "PCoA"), 
-        "missing value where TRUE/FALSE needed")
-    suppressWarnings(expect_error(explVar(1:10, params = params, type = "PCA"), 
-        "cannot rescale a constant/zero column to unit variance"))
-    expect_error(
-        explVar(matrix(1, nrow = 10, ncol = 10), params = params, type = "PCA"), 
-        "cannot rescale a constant/zero column to unit variance")
-    expect_error(
-        explVar(x, params = list(center = "", scale = TRUE), type = "PCA"), 
-        "length of 'center' must equal the number of columns")
-    expect_error(
-        explVar(x, params = list(center = TRUE, scale = ""), type = "PCA"), 
-        "length of 'scale' must equal the number of columns")
-    expect_error(
-        explVar(x, params = list(center = TRUE, scale = ""), type = "PCA"), 
-        "length of 'scale' must equal the number of columns")
+    varExpl_pca <- explVar(d = pca, type = "PCA")
+    varExpl_pcoa <- explVar(d = pcoa, type = "PCoA")
+    
+    expect_error(explVar(d = NA, type = "PCA"), 
+        "operator is invalid for atomic vectors")
+    expect_error(explVar(d = NA, type = "PCoA"), 
+        "operator is invalid for atomic vectors")
+    suppressWarnings(expect_error(explVar(d = list(), type = "PCA"), 
+        "must be the same length as the vector"))
+    suppressWarnings(expect_error(explVar(d = list(), type = "PCoA"), 
+        "must be the same length as the vector"))
     expect_equal(as.numeric(varExpl_pca), 
         c(9.992575e-01, 2.675309e-04, 2.275137e-04, 1.158747e-04, 5.881982e-05,
             4.652981e-05, 1.865835e-05, 6.885796e-06, 6.705589e-07,
@@ -162,7 +179,6 @@ test_that("explVar", {
         tolerance = 1e-07)
     expect_equal(names(varExpl_pca), paste("PC", 1:10, sep = ""))
     expect_equal(names(varExpl_pcoa), paste("Axis.", 1:9, sep = ""))
-    
 })
 
 ## function permuteExplVar
@@ -196,8 +212,9 @@ test_that("plotPCAVar", {
         dimnames = list(1:10, paste("sample", 1:10)))
     set.seed(1)
     x <- x + rnorm(100)
-    var_x <- explVar(x, params = list(center = TRUE, scale = TRUE), 
-        type = "PCA")
+    pca <- dimensionReduction(x, params = list(center = TRUE, scale = TRUE), 
+        type = "PCA")[[2]]
+    var_x <- explVar(d = pca, type = "PCA")
     var_perm <- permuteExplVar(x, n = 100, center = TRUE, scale = TRUE)
     g <- plotPCAVar(var_x, var_perm)
     
@@ -214,8 +231,9 @@ test_that("plotPCAVarPvalue", {
                 dimnames = list(1:10, paste("sample", 1:10)))
     set.seed(1)
     x <- x + rnorm(100)
-    var_x <- explVar(x, params = list(center = TRUE, scale = TRUE), 
-        type = "PCA")
+    pca <- dimensionReduction(x, params = list(center = TRUE, scale = TRUE), 
+        type = "PCA")[[2]]
+    var_x <- explVar(d = pca, type = "PCA")
     var_perm <- permuteExplVar(x, n = 100, center = TRUE, scale = TRUE)
     g <- plotPCAVarPvalue(var_x, var_perm)
     

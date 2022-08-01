@@ -9,14 +9,15 @@
 #' @details
 #' Internal function for \code{shinyQC}.
 #' 
-#' @param df \code{data.frame} as obtained by the function \code{ordination}
+#' @param df \code{data.frame} as obtained by the function 
+#' \code{dimensionReduction}
 #' @param name \code{character} title/name for row
 #' @param x \code{character}, character string for \code{input$x}
 #' @param y \code{character}, character string for \code{input$y}
 #' @param session \code{shiny} session
 #' 
 #' @examples
-#' df <- ordination(x, "PCA")
+#' df <- dimensionReduction(x, "PCA")
 #' coordsUI(df)
 #'
 #' @author Thomas Naake
@@ -24,8 +25,8 @@
 #' @importFrom shiny fluidRow column selectInput
 #' 
 #' @noRd
-coordsUI <- function(df, name = "PC", 
-        x = "ordination_x", y = "ordination_y", session = session) {
+coordsUI <- function(df, name = "PC", x = "dimensionReduction_x", 
+    y = "dimensionReduction_y", session = session) {
     
     shiny::fluidRow(
         shiny::column(12, name),
@@ -419,8 +420,8 @@ tP_umapUI <- function(id) {
 #' The module defines the UI in the tab panel 'UMAP'.
 #' 
 #' @details
-#' \code{umapUIServer} defines the UI for the tab-pane 'UMAP' from the server-side. 
-#' Internal function for \code{shinyQC}.
+#' \code{umapUIServer} defines the UI for the tab-pane 'UMAP' from the 
+#' server-side. Internal function for \code{shinyQC}.
 #' 
 #' @param id \code{character}
 #' @param se \code{SummarizedExperiment} and \code{reactive} value
@@ -491,14 +492,18 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
         function(input, output, session) {
             
             ## create data.frame with new coordinates: x, type, params 
-            tbl_vals <- shiny::reactive({
-                ordination(x = assay(), type = type, 
+            dimensionReduction_list <- shiny::reactive({
+                dimensionReduction(x = assay(), type = type, 
                     params = reactiveValuesToList(params()))
             })
             
+            tbl_vals <- shiny::reactive({
+                dimensionReduction_list()[[1]]
+            })
+            
             ## create an expression that retrieves information on the columns of
-            ## a_ordinationPlot (from PCA, PCoA, or NMDS), i.e. the principal
-            ## components or axis (remove the first column = namesDf)
+            ## dimensionReduction tbl (from PCA, PCoA, or NMDS), i.e. the 
+            ## principal components or axis (remove the first column = namesDf)
             output$coords <- shiny::renderUI({
                 cn_tbl <- colnames(tbl_vals())[-1]
                 shiny::fluidRow(
@@ -519,16 +524,16 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                         colnames(SummarizedExperiment::colData(se()))))
             })
             
-            ## reactive plot for ordination plots
+            ## reactive plot for dimension reduction plots
             output$plot <- plotly::renderPlotly({
                 shiny::req(input$x)
                 
                 if (id %in% c("PCA", "PCoA")) {
                     
                     params_l <- shiny::reactiveValuesToList(params())
-                    explainedVar <- explVar(assay(), 
-                        params = params_l, type = id)
-                    ordinationPlot(tbl_vals(), se = se(), 
+                    explainedVar <- explVar(dimensionReduction_list()[[2]], 
+                        type = id)
+                    dimensionReductionPlot(tbl_vals(), se = se(), 
                         highlight = input$highlight, 
                         x_coord = input$x, y_coord = input$y,
                         explainedVar = explainedVar, 
@@ -536,7 +541,7 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
 
                 } else {
 
-                    ordinationPlot(tbl_vals(), se = se(), 
+                    dimensionReductionPlot(tbl_vals(), se = se(), 
                         highlight = input$highlight, 
                         x_coord = input$x, y_coord = input$y, 
                         explainedVar = NULL, 
@@ -552,7 +557,7 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 },
                 content = function(file) {
                     htmlwidgets::saveWidget(
-                        ordinationPlot(tbl = tbl_vals(), se = se(), 
+                        dimensionReductionPlot(tbl = tbl_vals(), se = se(), 
                             highlight = input$highlight, 
                             x_coord = input$x, y_coord = input$y), file)
                 }
@@ -595,9 +600,10 @@ screePlotServer <- function(id, assay, center, scale) {
         function(input, output, session) {
             
             var_x <- shiny::reactive({
-                explVar(assay(), 
+                pca <- dimensionReduction(assay(), 
                     params = list(center = center(), scale = scale()), 
                     type = "PCA")
+                explVar(d = var_x, type = "PCA")
             })
             
             if (id == "PCA") {
@@ -608,7 +614,7 @@ screePlotServer <- function(id, assay, center, scale) {
             } else { ## tSNE
                 var_perm <- shiny::reactive({
                     permuteExplVar(assay(), n = 10, center = center(), 
-                            scale = scale()) 
+                            scale = scale(), sample_n = 5000) 
                 })
                 
                 ## Scree plot for tSNE panel including permuted values

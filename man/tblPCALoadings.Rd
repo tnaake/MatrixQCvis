@@ -16,12 +16,12 @@ tblPCALoadings(x, params)
 \code{tbl}
 }
 \description{
-The function \code{tblPCALoadings} returns a \code{tibble} with loadings values for the
-features (row entries) in \code{x}.
+The function \code{tblPCALoadings} returns a \code{tibble} with loadings 
+values for the features (row entries) in \code{x}.
 }
 \details{
-The function \code{tblPCALoadings} acccesses the list entry \code{rotation} of the
-\code{prcomp} object.
+The function \code{tblPCALoadings} acccesses the list entry \code{rotation} 
+of the \code{prcomp} object.
 }
 \examples{
 set.seed(1)
