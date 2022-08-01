@@ -41,9 +41,9 @@ samplesMeasuredMissing <- function(se) {
     a <- as.data.frame(a) 
     a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
     a_l <- dplyr::group_by(.data = a_l, .data$name)
-    a_l <- dplyr::summarise(.data = a_l, measured = sum(!is.na(.data$value)), 
+    dplyr::summarise(.data = a_l, measured = sum(!is.na(.data$value)), 
         missing = sum(is.na(.data$value)))
-    return(a_l)
+    
 }
 
 #' @name barplotSamplesMeasuredMissing
@@ -82,7 +82,7 @@ samplesMeasuredMissing <- function(se) {
 #' ## plot number of missing values
 #' barplotSamplesMeasuredMissing(tbl, measured = FALSE)
 #'
-#' @importFrom ggplot2 ggplot geom_bar aes_string ylab theme_bw xlab theme
+#' @importFrom ggplot2 ggplot geom_bar aes_string ylab theme_classic xlab theme
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly
 #' 
@@ -92,16 +92,14 @@ barplotSamplesMeasuredMissing <- function(tbl, measured = TRUE) {
     ## create a barplot with the number of measured/missing features per sample
     g <- ggplot2::ggplot(tbl) 
     if (measured) 
-        g <- g + 
-            ggplot2::geom_bar(ggplot2::aes_string(x = "name", y = "measured"), 
-                                                        stat = "identity") +
+        g <- g + ggplot2::geom_bar(
+            ggplot2::aes_string(x = "name", y = "measured"), stat = "identity") +
             ggplot2::ylab("number of measured features")
     if (!measured) 
-        g <- g + 
-            ggplot2::geom_bar(ggplot2::aes_string(x = "name", y = "missing"), 
-                                                        stat = "identity") +
+        g <- g + ggplot2::geom_bar(
+            ggplot2::aes_string(x = "name", y = "missing"), stat = "identity") +
             ggplot2::ylab("number of missing features")
-    g <- g + ggplot2::theme_bw() + ggplot2::xlab("sample") + 
+    g <- g + ggplot2::theme_classic() + ggplot2::xlab("sample") + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
     plotly::ggplotly(g)
 } 
@@ -130,7 +128,7 @@ barplotSamplesMeasuredMissing <- function(tbl, measured = TRUE) {
 #' histFeature(x, binwidth = 1)
 #' 
 #' @importFrom tibble tibble
-#' @importFrom ggplot2 ggplot geom_histogram xlab ylab ggtitle theme_bw
+#' @importFrom ggplot2 ggplot geom_histogram xlab ylab ggtitle theme_classic
 #' @importFrom plotly ggplotly
 #' @export
 histFeature <- function(x, measured = TRUE, ...) { 
@@ -155,10 +153,10 @@ histFeature <- function(x, measured = TRUE, ...) {
         ggplot2::xlab(x_lab) + 
         ggplot2::ylab("number of features") + 
         ggplot2::ggtitle(title) + 
-        ggplot2::theme_bw()
-    g <- plotly::ggplotly(g)
+        ggplot2::theme_classic()
+    plotly::ggplotly(g)
     
-    return(g)
+    
 }
 
 
@@ -243,7 +241,7 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
         tbl_type[, samp_u[i]] <- a_i_val
     }
     
-    return(tbl_type)
+    tbl_type
 }
 
 ## compounds per class
@@ -281,7 +279,7 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes_string geom_histogram facet_grid ggtitle
-#' @importFrom ggplot2 xlab ylab theme_bw theme
+#' @importFrom ggplot2 xlab ylab theme_classic theme
 #' @importFrom plotly ggplotly
 #'
 #' @export
@@ -308,7 +306,7 @@ histFeatureCategory <- function(se, measured = TRUE,
         ggplot2::geom_histogram(ggplot2::aes_string(fill = "name"), ...) +
         ggplot2::facet_grid(. ~ name) + ggplot2::ggtitle(title) + 
         ggplot2::xlab(x_lab) + ggplot2::ylab("number of features") +
-        ggplot2::theme_bw() + ggplot2::theme(legend.position = "none")
+        ggplot2::theme_classic() + ggplot2::theme(legend.position = "none")
     plotly::ggplotly(p)
 }
 
@@ -344,8 +342,7 @@ histFeatureCategory <- function(se, measured = TRUE,
 #' (\code{measured = TRUE}) 
 #' or missing values (\code{measured = FALSE}) be taken 
 #'
-#' @return 
-#' \code{upset} plot
+#' @return \code{upset} plot
 #' 
 #' @examples 
 #' ## create se
@@ -477,6 +474,6 @@ extractComb <- function(se, combination, measured = TRUE, category = "type") {
         res <- "no features for this combination"
     }
     
-    return(res)
+    res
 }
 
