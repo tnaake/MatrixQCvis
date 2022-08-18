@@ -1473,25 +1473,27 @@ imputeAssay <- function(a,
     if (!is.matrix(a)) stop("a is not a matrix")
     method <- match.arg(method)
 
-    ## convert the data.frame into matrix
-    a_i <- as.matrix(a)
+    ## convert the data.frame into matrix and transpose, this will impute
+    ## the per row (feature-wise)
+    a_i <- as.matrix(a) |>
+        t()
 
     if (method == "BPCA") {
         n_samp <- ncol(a_i)
-        ## expects a matrix with features in cols, samples in rows
-        res <- pcaMethods::pca(t(a_i), method = "bpca", nPcs = (n_samp - 1),
+        ## expects a matrix with features in columns, samples in rows
+        res <- pcaMethods::pca(a_i, method = "bpca", nPcs = (n_samp - 1),
                                                             verbose = FALSE)
         a_i <- pcaMethods::completeObs(res)
-        a_i <- t(a_i)
     }
 
     if (method == "kNN") {
         ## expects a matrix with features in rows, samples in columns
-        a_i <- impute::impute.knn(data = a_i)$data
+        a_i <- impute::impute.knn(data = t(a_i))$data |>
+            t()
     }
 
     if (method == "MLE") {
-        ## expects a matrix with features in rows, samples in columns
+        ## expects a matrix with features in columns, samples in rows
         a_i <- imputeLCMD::impute.wrapper.MLE(dataSet.mvs = a_i)
     }
         
@@ -1501,17 +1503,17 @@ imputeAssay <- function(a,
     }
         
     if (method == "MinDet") {
-        ## expects a matrix with features in rows, samples in columns
+        ## expects a matrix with features in columns, samples in rows
         a_i <- imputeLCMD::impute.MinDet(dataSet.mvs = a_i, q = 0.01)
     }
         
     if (method == "MinProb") {
-        ## expects a matrix with features in rows, samples in columns
+        ## expects a matrix with features in columns, samples in rows
         a_i <- imputeLCMD::impute.MinProb(dataSet.mvs = a_i, q = 0.01, 
             tune.sigma = 1)
     }
         
-    a_i
+    t(a_i)
 }
 
 

@@ -158,6 +158,10 @@ rD <- data.frame(spectra = rownames(a))
 
 ## create se
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+
+## remove the features that have only NA values
+se <- se[!apply(assay(se), 1, function(row_i) all(is.na(row_i))), ]
+se
 ```
 
 The actual shiny application can then be started by entering the following 

@@ -1,3 +1,6 @@
+Changes in version 1.5.4 (2022-08-18)
++ improve the imputation of missing values
+
 Changes in version 1.5.3 (2022-08-01)
 + only use a subset of maximum 5000 features in the calculation of Hoeffding's 
   D values. In case there are less than 10000 features in the 
