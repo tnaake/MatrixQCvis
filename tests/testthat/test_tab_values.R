@@ -393,6 +393,40 @@ test_that("imputeAssay", {
     expect_equal(colnames(a_min), colnames(a))
     expect_equal(colnames(a_mindet), colnames(a))
     expect_equal(colnames(a_minprob), colnames(a))
+    expect_equal(as.vector(a[1, 1:6]), c(NA, NA, NA, NA, NA, 501.0773),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a[5, 1:6]), c(NA, NA, NA, NA, NA, 505.9916),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_bpca[1, 1:6]), 
+        c(700.2801, 700.2800, 700.2800, 700.2801, 700.2801, 501.0773), 
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_bpca[5, 1:6]), 
+        c(704.9565, 704.9565, 704.9565, 704.9566, 704.9566, 505.9916),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_knn[1, 1:6]), 
+        c(6.799054, 106.900480, 207.305202, 306.809707, 406.564452, 501.077303),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_knn[5, 1:6]), 
+        c(6.799054, 106.900480, 207.305202, 306.809707, 406.564452, 505.991601),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_min[1, 1:6]), 
+        c(2.164371, 2.164371, 2.164371, 2.164371, 2.164371, 501.077303),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_min[5, 1:6]), 
+        c(2.164371, 2.164371, 2.164371, 2.164371, 2.164371, 505.991601),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_mindet[1, 1:6]), 
+        c(505.0606, 505.0606, 505.0606, 505.0606, 505.0606, 501.0773),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_mindet[5, 1:6]), 
+        c(509.9465, 509.9465, 509.9465, 509.9465, 509.9465, 505.9916),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_minprob[1, 1:6]), 
+        c(485.9080, 507.6398, 495.5805, 490.3416, 479.0684, 501.0773),
+        tolerance = 1e-04)
+    expect_equal(as.vector(a_minprob[5, 1:6]), 
+        c(550.3846, 479.6420, 547.0334, 449.2677, 429.0399, 505.9916),
+        tolerance = 1e-04)
 })
 
 

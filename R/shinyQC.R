@@ -426,7 +426,7 @@ shinyQC <- function(se, app_server = FALSE) {
     a_i <- shiny::reactive({
         shiny::req(input$imputation, a_t())
         if (missingValue) {
-            ## impute missing values of  the data.frame with transformed values
+            ## impute missing values of the data.frame with transformed values
             imputeAssay(a_t(), input$imputation)    
         } else {
             a_t()

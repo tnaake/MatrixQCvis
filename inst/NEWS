@@ -1,3 +1,7 @@
+Changes in version 1.5.5 (2022-08-23)
++ add unit tests for imputation of missing values
++ bug fix (ncol instead of nrow) for calculation of BPCA imputation
+
 Changes in version 1.5.4 (2022-08-18)
 + improve the imputation of missing values
 

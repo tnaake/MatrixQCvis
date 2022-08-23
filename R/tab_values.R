@@ -1479,7 +1479,7 @@ imputeAssay <- function(a,
         t()
 
     if (method == "BPCA") {
-        n_samp <- ncol(a_i)
+        n_samp <- nrow(a_i)
         ## expects a matrix with features in columns, samples in rows
         res <- pcaMethods::pca(a_i, method = "bpca", nPcs = (n_samp - 1),
                                                             verbose = FALSE)
