@@ -673,8 +673,8 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
                             testResult()
                         })
                         return(shiny::dataTableOutput(ns("dtTest")))
-                    } 
-                    
+                    }
+
                     if (type() == "proDA") {
                         if (!is.null(validExprContrast())) {
                             output$dtTest <- shiny::renderDataTable({

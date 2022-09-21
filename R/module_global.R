@@ -21,8 +21,7 @@
 #' 
 #' @noRd
 tag_loadMessage <- function() {
-    l <- shiny::tagList(
-        ##
+    shiny::tagList(
         shiny::tags$head(shiny::tags$script("
             $(document).on('shiny:connected', function(e) {
                 Shiny.onInputChange('innerWidth', window.innerWidth);
@@ -50,7 +49,6 @@ tag_loadMessage <- function() {
         shiny::conditionalPanel(condition = "$('html').hasClass('shiny-busy')",
             shiny::tags$div("Loading...",id = "loadmessage"))      
     )
-    return(l)
 }
 
 #' @name tag_keepAlive
@@ -77,7 +75,7 @@ tag_loadMessage <- function() {
 #' @noRd
 tag_keepAlive <- function() {
     
-    l <- shiny::tagList(
+    shiny::tagList(
         shiny::tags$head(shiny::HTML(
             "
             <script>
@@ -96,7 +94,6 @@ tag_keepAlive <- function() {
             )
         )
     )
-    return(l)
 }
 
 #' @name sidebar_assayUI
@@ -464,19 +461,18 @@ choiceAssaySE <- function(se) {
 #' selectAssaySE(se = se, selected = 2)
 #' 
 #' @importFrom SummarizedExperiment SummarizedExperiment
-#' @importFrom SummarizedExperiment assay assays colData rowData
+#' @importFrom SummarizedExperiment assay assays colData rowData assayNames
 #' @noRd
 selectAssaySE <- function(se, selected = 1) {
     
-    if (length(names(SummarizedExperiment::assays(se))) > 1) {
-        a <- SummarizedExperiment::assay(se, i = selected)
-        cD <- SummarizedExperiment::colData(se)
-        rD <- SummarizedExperiment::rowData(se)
-        se <- SummarizedExperiment::SummarizedExperiment(assays = a, 
-            rowData = rD, colData = cD)    
+    if (length(SummarizedExperiment::assayNames(se)) > 1) {
+        se <- SummarizedExperiment::SummarizedExperiment(
+            assays = SummarizedExperiment::assay(se, i = selected), 
+            rowData = SummarizedExperiment::rowData(se), 
+            colData = SummarizedExperiment::colData(se))    
     }
     
-    return(se)
+    se
 }
 
 

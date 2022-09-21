@@ -129,7 +129,6 @@ barplotMeasuredMissingSampleServer <- function(id, samplesMeasuredMissing,
                     htmlwidgets::saveWidget(p_barplotNumber(), file)
                 }
             )
-
         }
     )
 }
@@ -468,8 +467,6 @@ upSetServer <- function(id, se, measured = TRUE) {
                     ggplot2::ggsave(file, p_upset(), device = "pdf")
                 }
             )
-            
-            
         }
     )
 }

@@ -122,15 +122,15 @@ tP_boxplotUI <- function(id) {
 #' @noRd
 boxPlotUIServer <- function(id, missingValue, se) {
     
+    helperFile <- paste("tabPanel_boxplot_missingValue_", 
+        missingValue, sep = "")
+    
     shiny::moduleServer(
         id, 
         function(input, output, session) {
 
             output$orderCategoryUI <- shiny::renderUI({
                 
-                helperFile <- paste("tabPanel_boxplot_missingValue_", 
-                                    missingValue, sep = "")
-
                 shiny::selectInput(inputId = session$ns("orderCategory"), 
                     label = "Select variable to order samples",
                     choices = colnames(SummarizedExperiment::colData(se))) |> 
@@ -438,7 +438,6 @@ tP_cvUI <- function(id) {
                     shiny::uiOutput(outputId = ns("dataUI"))),
                 shiny::column(6, 
                     shiny::downloadButton(outputId = ns("downloadPlot"), "")))
-                
         )
     )
 }
@@ -768,7 +767,6 @@ tP_maUI <- function(id) {
                 shiny::plotOutput(outputId = ns("MAplot"), height = "auto"),
                 shiny::downloadButton(outputId = ns("downloadPlotMA"), ""),
                 shiny::uiOutput(ns("MAtypeUI"))
-                
             )
         ),
         shiny::fluidRow(

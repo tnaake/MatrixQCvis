@@ -28,16 +28,16 @@
 coordsUI <- function(df, name = "PC", x = "dimensionReduction_x", 
     y = "dimensionReduction_y", session = session) {
     
+    cols_df <- colnames(df)[-1]
+    
     shiny::fluidRow(
         shiny::column(12, name),
         shiny::column(6, 
             shiny::selectInput(session$ns(x), label = "x-axis",
-                    choices = colnames(df)[-1],
-                    selected = colnames(df)[-1][1])),
+                    choices = cols_df, selected = cols_df[1])),
         shiny::column(6, 
             shiny::selectInput(session$ns(y), label = "y-axis",
-                    choices = colnames(df)[-1],
-                    selected = colnames(df)[-1][2]))
+                    choices = cols_df, selected = cols_df[2]))
     )
 }
 
@@ -529,7 +529,6 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 shiny::req(input$x)
                 
                 if (id %in% c("PCA", "PCoA")) {
-                    
                     params_l <- shiny::reactiveValuesToList(params())
                     explainedVar <- explVar(dimensionReduction_list()[[2]], 
                         type = id)
@@ -538,15 +537,12 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                         x_coord = input$x, y_coord = input$y,
                         explainedVar = explainedVar, 
                         height = innerWidth() * 3 / 5)
-
                 } else {
-
                     dimensionReductionPlot(tbl_vals(), se = se(), 
                         highlight = input$highlight, 
                         x_coord = input$x, y_coord = input$y, 
                         explainedVar = NULL, 
                         height = innerWidth() * 3 / 5)
-
                 }
             })
 
@@ -614,7 +610,7 @@ screePlotServer <- function(id, assay, center, scale) {
             } else { ## tSNE
                 var_perm <- shiny::reactive({
                     permuteExplVar(assay(), n = 10, center = center(), 
-                            scale = scale(), sample_n = 5000) 
+                        scale = scale(), sample_n = 5000) 
                 })
                 
                 ## Scree plot for tSNE panel including permuted values
