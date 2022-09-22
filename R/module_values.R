@@ -94,7 +94,7 @@ tP_boxplotUI <- function(id) {
     )
 }
 
-#' @name boxPlotServer
+#' @name boxPlotUIServer
 #' 
 #' @title Module for server expressions for the UI of tab panel 
 #' 'Boxplot/Violin plot' 
@@ -121,19 +121,19 @@ tP_boxplotUI <- function(id) {
 #' 
 #' @noRd
 boxPlotUIServer <- function(id, missingValue, se) {
-    
-    helperFile <- paste("tabPanel_boxplot_missingValue_", 
-        missingValue, sep = "")
-    
+
     shiny::moduleServer(
         id, 
         function(input, output, session) {
-
+            
             output$orderCategoryUI <- shiny::renderUI({
+                
+                helperFile <- paste("tabPanel_boxplot_missingValue_", 
+                    missingValue, sep = "")
                 
                 shiny::selectInput(inputId = session$ns("orderCategory"), 
                     label = "Select variable to order samples",
-                    choices = colnames(SummarizedExperiment::colData(se))) |> 
+                    choices = colnames(se@colData)) |> 
                         shinyhelper::helper(content = helperFile)
             })
 

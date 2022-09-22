@@ -15,18 +15,18 @@ se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
 
 ## function samplesMeasuredMissing
 test_that("samplesMeasuredMissing", {
-    measured <- c(7, 10, 7, 7, 7, 7, 10, 10, 10, 10)
-    missing <- c(3, 0, 3, 3, 3, 3, 0, 0, 0, 0)
+    measured <- c(7, 7, 7, 7, 7, 10, 10, 10, 10, 10)
+    missing <- c(3, 3, 3, 3, 3, 0, 0, 0, 0, 0)
     x <- samplesMeasuredMissing(se)
-    expect_equal(dplyr::pull(x, "measured"), measured)
-    expect_equal(dplyr::pull(x, "missing"), missing)
+    expect_equal(dplyr::pull(x, "name"), 
+        c("sample 1", "sample 2", "sample 3", "sample 4", "sample 5", 
+          "sample 6", "sample 7", "sample 8", "sample 9", "sample 10"))
+    expect_equal(as.numeric(dplyr::pull(x, "measured")), measured)
+    expect_equal(as.numeric(dplyr::pull(x, "missing")), missing)
     expect_is(x, "tbl")
-    expect_error(samplesMeasuredMissing(NULL), 
-        "unable to find an inherited method for")
-    expect_error(samplesMeasuredMissing("foo"), 
-        "unable to find an inherited method for")
-    expect_error(samplesMeasuredMissing(1:10), 
-        "unable to find an inherited method for")
+    expect_error(samplesMeasuredMissing(NULL), "unable to find an inherited")
+    expect_error(samplesMeasuredMissing("foo"), "unable to find an inherited")
+    expect_error(samplesMeasuredMissing(1:10), "unable to find an inherited")
 })
 
 ## function barplotSamplesMeasuredMissing
@@ -67,27 +67,27 @@ test_that("measuredCategory", {
     mc_t <- measuredCategory(se, measured = TRUE, category = "type")
     mc_f <- measuredCategory(se, measured = FALSE, category = "type")
     
-    tbl_1 <- tibble::tibble(feature = 1:10, 
+    tbl_1 <- data.frame( 
         "1" = c(0, 5, 5, 5, 0, 5, 5, 0, 5, 5), 
-        "2" = c(5, 5, 5, 5, 5, 5, 5, 5, 5, 5))
-    colnames(tbl_1) <- c("feature", 1, 2)
-    tbl_2 <- tibble::tibble(feature = 1:10, 
+        "2" = c(5, 5, 5, 5, 5, 5, 5, 5, 5, 5)) |> as.matrix()
+    colnames(tbl_1) <- c(1, 2)
+    tbl_2 <- data.frame(
         "1" = c(5, 0, 0, 0, 5, 0, 0, 5, 0, 0), 
-        "2" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-    colnames(tbl_2) <- c("feature", 1, 2)
+        "2" = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) |> as.matrix()
+    colnames(tbl_2) <- c(1, 2)
     
     expect_true(all(mc_t == tbl_1))
     expect_true(all(mc_f == tbl_2))
-    expect_true(tibble::is_tibble(mc_t))
-    expect_true(tibble::is_tibble(mc_f))
-    expect_equal(dim(mc_t), c(10, 3))
-    expect_equal(dim(mc_f), c(10, 3))
+    expect_true(is.matrix(mc_t))
+    expect_true(is.matrix(mc_f))
+    expect_equal(dim(mc_t), c(10, 2))
+    expect_equal(dim(mc_f), c(10, 2))
     expect_error(
         measuredCategory(se = se, measured = TRUE, category = "foo"), 
         "'arg' should be one of ")
     expect_error(
         measuredCategory(se = NULL, measured = TRUE, category = "type"),
-        "unable to find an inherited method for function")
+        "trying to get slot")
     expect_error(
         measuredCategory(se = se, measured = "", category = "type"),
         "argument is not interpretable as logical")
@@ -99,7 +99,7 @@ test_that("histFeatureCategory", {
         category = "type", binwidth = 2)
     expect_error(
         histFeatureCategory(NULL, measured = TRUE, category = "type", 
-            binwidth = 2), "unable to find an inherited method for function")
+            binwidth = 2), "trying to get slot")
     expect_error(
         histFeatureCategory(se, measured = "", category = "type", 
             binwidth = 2), "argument is not interpretable as logical")
@@ -112,23 +112,21 @@ test_that("histFeatureCategory", {
 ## function upset_category
 test_that("upset_category", {
     g <- upsetCategory(se, category = "type")
-    expect_error(upsetCategory(NULL, category = "type"),
-        "unable to find an inherited method for function")
-    expect_error(upsetCategory(se, category = "foo"),
-        "should be one of ")
+    expect_error(upsetCategory(NULL, category = "type"), "unable to find an")
+    expect_error(upsetCategory(se, category = "foo"), "should be one of ")
     expect_equal(upsetCategory(se, category = "type", measured = FALSE), NULL)
     expect_error(upsetCategory(se, category = "type", measured = ""),
         "argument is not interpretable as logical")
     expect_is(g, "upset")
     
-    se <- SummarizedExperiment(
+    se_2 <- SummarizedExperiment(
         assays = list(counts = matrix(100 * runif(100 * 8), 100, 8)),
         colData = DataFrame(sample = paste0("S", 1:8),
                             type = sample(LETTERS[1:2], 8, replace = TRUE),
                             name = paste0("S", 1:8))
     )
-    assay(se)[5, 1] <- NA
-    g <- upsetCategory(se, category = "type", measured = FALSE)
+    assay(se_2)[5, 1] <- NA
+    g <- upsetCategory(se_2, category = "type", measured = FALSE)
     expect_equal(g, NULL)
     
 })
@@ -162,7 +160,6 @@ test_that("extractComb", {
         "'arg' should be one of ")
     expect_error(
         extractComb(se = NULL, combination = "1", measured = TRUE, 
-            category = "type"), 
-        "unable to find an inherited method for function")
+            category = "type"), "trying to get slot")
 })
 

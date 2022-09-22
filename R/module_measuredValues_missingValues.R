@@ -317,7 +317,6 @@ tP_histFeatCategoryUI <- function(id) {
 #' @importFrom shiny downloadHandler
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly renderPlotly
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 histFeatCategoryServer <- function(id, se, measured = TRUE) {
@@ -326,7 +325,7 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
         id,
         function(input, output, session) {
             
-            cD <- shiny::reactive(SummarizedExperiment::colData(se()))
+            cD <- shiny::reactive(se()@colData)
             
             output$categoryHistUI <- shiny::renderUI({
                 shiny::selectInput(
@@ -432,7 +431,6 @@ tP_upSetUI <- function(id) {
 #' @importFrom shiny moduleServer renderUI selectInput req reactive
 #' @importFrom shiny downloadHandler renderPlot
 #' @importFrom ggplot2 ggsave
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 upSetServer <- function(id, se, measured = TRUE) {
@@ -445,7 +443,7 @@ upSetServer <- function(id, se, measured = TRUE) {
                 shiny::selectInput(
                     inputId = session$ns("categoryUpSet"), 
                     label = "Variable for stratification", 
-                    choices = colnames(SummarizedExperiment::colData(se())),
+                    choices = colnames(se()@colData),
                     selected = "type")
             })
             
@@ -543,7 +541,7 @@ setsServer <- function(id, se, measured = TRUE) {
             output$checkboxCategoryUI <- shiny::renderUI({
                 shiny::checkboxGroupInput(session$ns("checkboxCategory"), 
                     label = "Select sets", 
-                    choices = unique(SummarizedExperiment::colData(se())[[input$categoryUpSet]])) 
+                    choices = unique(se()@colData[[input$categoryUpSet]])) 
             })
             
             output$combinationText <- shiny::renderText({

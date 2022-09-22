@@ -68,19 +68,15 @@ histSampleServer <- function(id, se) {
             output$typeHistUI <- shiny::renderUI({
                 shiny::selectInput(inputId = session$ns("typeHist"), 
                     label = "Categorical variable", 
-                    choices = colnames(SummarizedExperiment::colData(se())))
-            })
-            
-            histTbl <- shiny::reactive({
-                hist_sample_num(se(), category = input$typeHist)
+                    choices = colnames((se()@colData)))
             })
             
             p_hist <- shiny::reactive({
-                hist_sample(histTbl(), category = input$typeHist)
+                histTbl <- hist_sample_num(se(), category = input$typeHist)
+                hist_sample(histTbl, category = input$typeHist)
             })
             
             output$histSample <- plotly::renderPlotly({
-                shiny::req(input$typeHist)
                 p_hist()
             })
             
@@ -180,7 +176,6 @@ mosaicSampleServer <- function(id, se) {
             })
             
             output$mosaicSample <- shiny::renderPlot({
-                shiny::req(input$mosaicf1, input$mosaicf2)
                 p_mosaic()
             })
             

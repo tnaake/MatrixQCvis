@@ -34,9 +34,9 @@
 hist_sample_num <- function(se, category = "type") {
 
     cD <- SummarizedExperiment::colData(se)
-    category <- match.arg(category, choices = colnames(cD))
+    category <- match.arg(category, choices = colnames(cD)) |>
+        make.names()
     colnames(cD) <- make.names(colnames(cD))
-    category <- make.names(category)
     
     ## retrieve the sample type
     df <- cD[[category]]
@@ -134,15 +134,16 @@ hist_sample <- function(tbl, category = "type") {
 #' @export
 mosaic <- function(se, f1, f2) {
     
-    cD <- SummarizedExperiment::colData(se)
-    f1 <- match.arg(f1, choices = colnames(cD))
-    f2 <- match.arg(f2, choices = colnames(cD))
-    colnames(cD) <- make.names(colnames(cD))
+    cD <- SummarizedExperiment::colData(se) |>
+        as.data.frame()
+    cols <- colnames(cD)
+    f1 <- match.arg(f1, choices = cols)
+    f2 <- match.arg(f2, choices = cols)
+    colnames(cD) <- make.names(cols)
     f1 <- make.names(f1)
     f2 <- make.names(f2)
     
     df <- cD |> 
-        as.data.frame() |> 
         dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) |>
         dplyr::summarise(count = dplyr::n()) |>
         dplyr::mutate(cut.count = sum(.data$count), 
@@ -156,12 +157,11 @@ mosaic <- function(se, f1, f2) {
     }
     
     df <- dplyr::mutate(df, 
-            prop_percent = paste(round(.data$prop*100, 1), "%", sep = ""))
-    df <- dplyr::ungroup(df)
+            prop_percent = paste(round(.data[["prop"]]*100, 1), "%", sep = "")) |>
+        dplyr::ungroup()
     
     ## create label for facet (contains the proportion of f1 on total samples)
-    sample_percent <- round(df$cut.count / ncol(se) * 100, 1) 
-    
+    sample_percent <- round(df[["cut.count"]] / ncol(se) * 100, 1) 
     df$f1_labs <- paste0(df[[f1]], " (", sample_percent, "%)")
     
     ## plotting
@@ -172,7 +172,7 @@ mosaic <- function(se, f1, f2) {
         ggplot2::geom_text(ggplot2::aes_string(label = "prop_percent"), 
             angle = 90, position = ggplot2::position_stack(vjust = 0.5)) +
         ggplot2::facet_grid(~ f1_labs, scales = "free_x", space = "free_x") +
-        ggplot2::scale_fill_brewer() + ggplot2::theme_bw() + 
+        ggplot2::scale_fill_brewer() + ggplot2::theme_classic() + 
         ggplot2::ylab("proportion (%)") + 
         ggplot2::scale_y_continuous(labels = function(x) x * 100) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))

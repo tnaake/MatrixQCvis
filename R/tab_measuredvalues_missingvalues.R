@@ -28,22 +28,17 @@
 #' ## values
 #' samplesMeasuredMissing(se)
 #' 
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_longer
-#' @importFrom dplyr group_by summarise
+#' @importFrom SummarizedExperiment assay
 #' 
 #' @export
 samplesMeasuredMissing <- function(se) {
     
     a <- SummarizedExperiment::assay(se)
+    sum_na <- colSums(is.na(a))
     
-    ## count per column the missing/measured values depending on the 
-    a <- as.data.frame(a) 
-    a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
-    a_l <- dplyr::group_by(.data = a_l, .data$name)
-    dplyr::summarise(.data = a_l, measured = sum(!is.na(.data$value)), 
-        missing = sum(is.na(.data$value)))
-    
+    ## count per column the missing/measured values
+    tibble::tibble(name = colnames(a),
+        measured = nrow(a) - sum_na, missing = sum_na)
 }
 
 #' @name barplotSamplesMeasuredMissing
@@ -181,7 +176,7 @@ histFeature <- function(x, measured = TRUE, ...) {
 #' @param category \code{character}, corresponds to a column name in 
 #' \code{colData(se)}
 #' 
-#' @return \code{tbl} with number of measured/mising features per 
+#' @return \code{matrix} with number of measured/missing features per 
 #' \code{category} type
 #' 
 #' @examples
@@ -197,7 +192,7 @@ histFeature <- function(x, measured = TRUE, ...) {
 #'
 #' measuredCategory(se, measured = TRUE, category = "type")
 #'
-#' @importFrom SummarizedExperiment assay colData
+#' @importFrom SummarizedExperiment assay
 #' @importFrom tibble as_tibble
 #'
 #' @export
@@ -205,16 +200,13 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "rowname")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    cD <- se@colData
     category <- match.arg(category, choices = colnames(cD))
     colnames(cD) <- make.names(colnames(cD))
     category <- make.names(category)
     
     ## access the assay slot
     a <- SummarizedExperiment::assay(se)
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
     
     ## get the sample category levels and create a vector with the unique
     ## sample category levels
@@ -224,24 +216,21 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
     ## create the data.frame to store the values, the data.frame has the
     ## dimensions: nrow(a)/number of features as in a and number of 
     ## unique sample types
-    tbl_type <- matrix(NA, nrow = nrow(a), ncol = length(samp_u),
-                            dimnames = list(rownames(a), samp_u)) |>
-        tibble::as_tibble(rownames = "feature")
+    mat_samp <- matrix(NA, nrow = nrow(a), ncol = length(samp_u),
+        dimnames = list(rownames(a), samp_u))
 
     ## iterate through the columns and write to the respective column if 
     ## the feature was measured in (at least) one sample of this type
-    for (i in seq_along(samp_u)) {
-        col_inds <- samp == samp_u[i]
-        a_i <- a[, col_inds, drop = FALSE]
+    for (i in samp_u) {
+        a_samp_i <- a[, samp == i, drop = FALSE]
         if (measured) {
-            a_i_val <- rowSums(!is.na(a_i))    
+            mat_samp[, i] <- rowSums(!is.na(a_samp_i))    
         } else { ## missing
-            a_i_val <- rowSums(is.na(a_i))
+            mat_samp[, i] <- rowSums(is.na(a_samp_i))
         }
-        tbl_type[, samp_u[i]] <- a_i_val
     }
-    
-    tbl_type
+    #data.frame(feature = rownames(mat_samp), mat_samp)
+    mat_samp
 }
 
 ## compounds per class
@@ -287,12 +276,14 @@ histFeatureCategory <- function(se, measured = TRUE,
     category = "type", ...) {
 
     ## create data frame with columns as unique sample type
-    tbl_type <- measuredCategory(se, measured = measured, 
+    mat_type <- measuredCategory(se, measured = measured, 
         category = category)
 
     ## create a tibble in long format and prepare for plotting (exclude column
     ## feature)
-    tbl_type_l <- tidyr::pivot_longer(tbl_type, cols = 2:ncol(tbl_type))
+    tbl_type_l <- mat_type |> 
+        as.data.frame() |> 
+        tidyr::pivot_longer(cols = 1:ncol(mat_type))
     
     if (measured) {
         title <- "Measured values"
@@ -359,31 +350,29 @@ histFeatureCategory <- function(se, measured = TRUE,
 #' upsetCategory(se, category = "type")
 #' 
 #' @importFrom UpSetR upset
-#' @importFrom dplyr select
 #' 
 #' @export
 upsetCategory <- function(se, category = colnames(colData(se)), measured = TRUE) {
     
     category <- match.arg(category)
     ## create data frame with columns as unique sample type
-    tbl_type <- measuredCategory(se, category = category, measured = measured)
-    tbl_type <- dplyr::select(tbl_type, -"feature")
+    mat_type <- measuredCategory(se, category = category, measured = measured) 
     
     if (measured) 
         ## Presence is defined by a feature being measured in at least one 
         ## sample of a set
-        tbl_bin <- ifelse(tbl_type > 0, 1, 0) 
+        mat_bin <- ifelse(mat_type > 0, 1, 0) 
     else {
         ## Absence is defined by a feature with only missing values (i.e. 
         ## no measured values) of a set. 
-        cD <- SummarizedExperiment::colData(se)
+        cD <- se@colData
         category_tab <- table(cD[[category]])
-        category_tab <- category_tab[colnames(tbl_type)]
-        tbl_bin <- ifelse(tbl_type == category_tab, 1, 0)
+        category_tab <- category_tab[colnames(mat_type)]
+        mat_bin <- ifelse(mat_type == as.numeric(category_tab), 1, 0)
     }
-    tbl_bin <- as.data.frame(tbl_bin)
-    if (sum(colSums(tbl_bin) > 0) > 1) {
-        UpSetR::upset(tbl_bin, order.by = "freq", nsets = ncol(tbl_type))
+    if (sum(colSums(mat_bin) > 0) > 1) {
+        mat_bin <- as.data.frame(mat_bin)
+        UpSetR::upset(mat_bin, order.by = "freq", nsets = ncol(mat_type))
     } else {
         NULL
     }
@@ -434,42 +423,39 @@ upsetCategory <- function(se, category = colnames(colData(se)), measured = TRUE)
 #' extractComb(se, combination = "2", measured = TRUE, category = "type") 
 #' 
 #' @importFrom ComplexHeatmap make_comb_mat comb_name extract_comb
-#' @importFrom dplyr pull select
 #' 
 #' @export
 extractComb <- function(se, combination, measured = TRUE, category = "type") {
     
     ## obtain the number of measured samples per type and create a binary matrix
-    tbl_type <- measuredCategory(se = se, measured = measured, category = category)
-    feat <- dplyr::pull(tbl_type, "feature")
-    tbl_type <- dplyr::select(tbl_type, -"feature")
+    mat_type <- measuredCategory(se = se, measured = measured, category = category)
+    feat <- rownames(mat_type)
     
     ## create the binary matrix
-    if (measured) 
+    if (measured) {
         ## Presence is defined by a feature being measured in at least one 
         ## sample of a set
-        tbl_bin <- ifelse(tbl_type > 0, 1, 0) 
-    else {
+        mat_bin <- ifelse(mat_type > 0, 1, 0) 
+    } else {
         ## Absence is defined by a feature with only missing values (i.e. 
         ## no measured values) of a set. 
-        cD <- SummarizedExperiment::colData(se)
+        cD <- se@colData
         category_tab <- table(cD[[category]])
-        category_tab <- category_tab[colnames(tbl_type)]
-        tbl_bin <- ifelse(tbl_type == category_tab, 1, 0)
+        category_tab <- category_tab[colnames(mat_type)]
+        mat_bin <- ifelse(mat_type == as.numeric(category_tab), 1, 0)
     }
     
     ## create the combination matrix object
-    comb_mat <- ComplexHeatmap::make_comb_mat(tbl_bin, mode = "distinct")
+    comb_mat <- ComplexHeatmap::make_comb_mat(mat_bin, mode = "distinct")
     
     ## create a character vector that contains the combination in a binary 
     ## format from the combination argument (character vector with types)
-    combination_num <- ifelse(colnames(tbl_bin) %in% combination, 1, 0)
+    combination_num <- ifelse(colnames(mat_bin) %in% combination, 1, 0)
     combination_num <- paste(combination_num, collapse = "")
     
     ## return the names of the features that match the combination
     if (combination_num %in% ComplexHeatmap::comb_name(comb_mat)) {
         res <- ComplexHeatmap::extract_comb(comb_mat, combination_num)
-        res <- as.character(feat[res])
     } else {
         res <- "no features for this combination"
     }
