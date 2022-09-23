@@ -258,8 +258,10 @@ tP_driftUI <- function(id) {
             ),
             shinydashboard::box(width = 12, collapsible = TRUE, 
                 collapsed = FALSE, title = "Parameters",
-                column(6, 
-                    shiny::uiOutput(ns("categoryUI")),
+                column(6,
+                    shiny::selectInput(
+                        inputId = ns("category"),
+                        label = "Select variable", choices = "name"),
                     shiny::uiOutput(ns("levelUI")),
                     shiny::uiOutput(ns("orderCategoryUI"))),
                 column(6,
@@ -339,12 +341,11 @@ driftServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
 
             cD <- shiny::reactive(SummarizedExperiment::colData(se()))
             
-            output$categoryUI <- shiny::renderUI({
-                shiny::selectInput(
-                    inputId = session$ns("category"),
-                    label = "Select variable",
-                    choices = colnames(cD()))
+            observe({
+                updateSelectInput(session = session,
+                    inputId = "category", choices = colnames(cD()))
             })
+            
             
             output$levelUI <- shiny::renderUI({
                 shiny::req(input$category)
