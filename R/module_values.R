@@ -262,8 +262,14 @@ tP_driftUI <- function(id) {
                     shiny::selectInput(
                         inputId = ns("category"),
                         label = "Select variable", choices = "name"),
-                    shiny::uiOutput(ns("levelUI")),
-                    shiny::uiOutput(ns("orderCategoryUI"))),
+                    shiny::selectInput(
+                        inputId = ns("levelSel"), 
+                        label = "Select level to highlight", 
+                        choices = "all"),
+                    shiny::selectInput(
+                        inputId = ns("orderCategory"),
+                        label = "Select variable to order samples",
+                        choices = "name")),
                 column(6,
                     shiny::selectInput(inputId = ns("aggregation"), 
                         label = "Select aggregation",
@@ -302,7 +308,8 @@ tP_driftUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI selectInput reactive req
+#' @importFrom shiny moduleServer renderUI selectInput reactive req 
+#' @importFrom updateSelectInput
 #' @importFrom plotly renderPlotly
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom SummarizedExperiment colData
@@ -314,7 +321,7 @@ driftServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
     shiny::moduleServer(
         id, 
         function(input, output, session) {
-
+            
             output$dataUI <- shiny::renderUI({
                 
                 if (missingValue) {
@@ -338,30 +345,20 @@ driftServer <- function(id, se, se_n, se_b, se_t, se_i, missingValue) {
                 if (input$data == "imputed") se <- se_i()
                 se
             })
-
+            
             cD <- shiny::reactive(SummarizedExperiment::colData(se()))
             
-            observe({
-                updateSelectInput(session = session,
-                    inputId = "category", choices = colnames(cD()))
+            shiny::observe({
+                cols_cD <- colnames(cD())
+                shiny::updateSelectInput(session = session, inputId = "category", 
+                    choices = cols_cD)
+                shiny::updateSelectInput(session = session,
+                    inputId = "orderCategory", choices = cols_cD)
             })
-            
-            
-            output$levelUI <- shiny::renderUI({
-                shiny::req(input$category)
-                shiny::selectInput(
-                    inputId = session$ns("levelSel"), 
-                    label = "Select level to highlight", 
+            observe({
+                updateSelectInput(session = session, inputId = "levelSel",
                     choices = c("all", unique(cD()[[input$category]])))
             })
-            
-            output$orderCategoryUI <- shiny::renderUI({
-                shiny::selectInput(
-                    inputId = session$ns("orderCategory"),
-                    label = "Select variable to order samples",
-                    choices = colnames(cD()))    
-            })
-            
             
             p_drift <- shiny::reactive({
                 driftPlot(se = se_drift(), aggregation = input$aggregation, 

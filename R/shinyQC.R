@@ -247,8 +247,8 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @importFrom rmarkdown render
 #' @importFrom shinyhelper observe_helpers
 #' @importFrom shiny renderText req outputOptions reactive observe sliderInput
-#' @importFrom shiny updateCheckboxInput observeEvent showModal 
-#' @importFrom shiny modalDialog withProgress downloadHandler
+#' @importFrom shiny updateCheckboxInput updateSelectInput observeEvent 
+#' @importFrom shiny showModal modalDialog withProgress downloadHandler
 #' @importFrom shiny reactiveValues bindCache
 #' 
 #' @author Thomas Naake
@@ -373,8 +373,10 @@ shinyQC <- function(se, app_server = FALSE) {
         ## update the batchCol selectInput menu to select the variable for
         ## batch correction
         cols_cD <- colnames(se@colData)
-        shiny::updateSelectInput(session, "batchCol", choices = cols_cD)
-        shiny::updateSelectInput(session, "groupDist", choices = cols_cD)
+        shiny::updateSelectInput(session = session, inputId = "batchCol", 
+            choices = cols_cD)
+        shiny::updateSelectInput(session = session, inputId = "groupDist", 
+            choices = cols_cD)
     })
     
     ## create reactive for assay slot
