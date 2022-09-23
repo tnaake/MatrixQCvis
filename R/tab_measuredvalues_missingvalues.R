@@ -283,7 +283,7 @@ histFeatureCategory <- function(se, measured = TRUE,
     ## feature)
     tbl_type_l <- mat_type |> 
         as.data.frame() |> 
-        tidyr::pivot_longer(cols = 1:ncol(mat_type))
+        tidyr::pivot_longer(cols = seq_len(ncol(mat_type)))
     
     if (measured) {
         title <- "Measured values"

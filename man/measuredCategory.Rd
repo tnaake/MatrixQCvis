@@ -17,7 +17,7 @@ be taken}
 \code{colData(se)}}
 }
 \value{
-\code{tbl} with number of measured/mising features per 
+\code{matrix} with number of measured/missing features per 
 \code{category} type
 }
 \description{

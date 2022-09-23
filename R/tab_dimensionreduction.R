@@ -67,9 +67,8 @@ dimensionReduction <- function(x,
     if (type == "PCA") { ## scale, center
         params <- append(params, list(x = t(x)))
         d <- do.call(what = stats::prcomp, params)
-        d_coord <- d$x
-        tbl <- tibble::as_tibble(d_coord)
-        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
+        tbl <- d[["x"]] |>
+            tibble::as_tibble()
     }
     if (type == "PCoA") {
         params <- append(params, list(x = t(x)))
@@ -77,10 +76,9 @@ dimensionReduction <- function(x,
         params <- params[names(params) %in% methods::formalArgs(stats::dist)] 
         d <- do.call(what = stats::dist, args = params)
         d <- stats::cmdscale(d, k = ncol(x) - 1, eig = TRUE)
-        d_coord <- d$points
-        colnames(d_coord) <- paste("Axis.", seq_len(ncol(d_coord)), sep = "")
-        tbl <- tibble::as_tibble(d_coord)
-        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
+        tbl <- d$points |>
+            tibble::as_tibble()
+        colnames(tbl) <- paste("Axis.", seq_len(ncol(tbl)), sep = "")
     }
     if (type == "NMDS") {
         params <- append(params, list(x = t(x)))
@@ -88,18 +86,16 @@ dimensionReduction <- function(x,
         params <- params[names(params) %in% formalArgs(dist)] 
         d <- do.call(what = stats::dist, args = params)
         d <- vegan::metaMDS(d)
-        d_coord <- d$points
-        tbl <- tibble::as_tibble(d_coord)
-        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
+        tbl <- d$points |>
+            tibble::as_tibble()
     }
     if (type == "tSNE") { 
         ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims
         params <- append(params, list(X = t(x)))
         d <- do.call(what = Rtsne::Rtsne, args = params) 
-        d_coord <- d$Y
-        colnames(d_coord) <- paste("X", seq_len(ncol(d_coord)), sep = "")
-        tbl <- tibble::as_tibble(d_coord)
-        tbl <- tibble::tibble(name = colnames(x), tbl)
+        tbl <- d$Y |>
+            tibble::as_tibble()
+        colnames(tbl) <- paste("X", seq_len(ncol(tbl)), sep = "")
     }
     if (type == "UMAP") { 
         ## hyperparameters for UMAP: n_neighbors, min_dist, spread
@@ -108,11 +104,12 @@ dimensionReduction <- function(x,
             params <- params[names(params) != "method"]
         params <- append(params, list(d = t(x), method = "naive"))
         d <- do.call(what = umap::umap, args = params)
-        d_coord <- d$layout
-        colnames(d_coord) <- paste("X", seq_len(ncol(d_coord)), sep = "")
-        tbl <- tibble::as_tibble(d_coord)
-        tbl <- tibble::tibble(name = rownames(d_coord), tbl)
+        tbl <- d$layout |> 
+            tibble::as_tibble()
+        colnames(tbl) <- paste("X", seq_len(ncol(tbl)), sep = "")
     }
+    
+    tbl[["name"]] <- colnames(x)
     
     list(tbl, d)
 }
@@ -134,7 +131,7 @@ dimensionReduction <- function(x,
 #' @param tbl \code{tbl} as obtained by the function \code{dimensionReduction}
 #' @param se \code{SummarizedExperiment}
 #' @param highlight \code{character}, one of \code{"none"} or 
-#' \code{colnames(colData(se))}
+#' \code{colnames(se@@colData)}
 #' @param explainedVar NULL or named \code{numeric}, if \code{numeric} 
 #' \code{explainedVar} contains the explained variance per principal component 
 #' (names of \code{explainedVar} corresponds to the principal components)
@@ -168,7 +165,6 @@ dimensionReduction <- function(x,
 #'
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr left_join
-#' @importFrom SummarizedExperiment colData
 #' @importFrom ggplot2 ggplot aes_string xlab ylab geom_point coord_fixed
 #' @importFrom ggplot2 theme_classic theme
 #' 
@@ -176,35 +172,30 @@ dimensionReduction <- function(x,
 #' 
 #' @export
 dimensionReductionPlot <- function(tbl, se, 
-    highlight = c("none", colnames(colData(se))), 
+    highlight = c("none", colnames(se@colData)), 
     explainedVar = NULL, x_coord, y_coord, height = 600, interactive = TRUE) {
     
     highlight <- match.arg(highlight)
     highlight <- make.names(highlight)
     
-    ## access the assay slot
-    a <- SummarizedExperiment::assay(se)
-    
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "rowname")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    cD <- se@colData |> as.data.frame()
     colnames(cD) <- make.names(colnames(cD))
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD)
+    cD[["name"]] <- rownames(cD)
     
     if (highlight == "none") {
         tT <- c("text")
     } else {
-        cD_cut <- data.frame(name = cD[, "rowname"], color = cD[, highlight])
+        cD_cut <- data.frame(name = cD[["name"]], color = cD[[highlight]])
         tbl <- dplyr::left_join(tbl, cD_cut, by = "name", copy = TRUE)
         tT <- c("text", "color")
     }
     
-    ## use deparse(quote(namesDf)) to convert object name into
+    ## use deparse(quote(name)) to convert object name into
     ## character string
     g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = x_coord, y = y_coord, 
-        text = deparse(quote(name)))) 
+        text = deparse(quote(name))))
     
     if (!is.null(explainedVar)) {
         g <- g + ggplot2::xlab(paste(x_coord, " (", 
@@ -221,14 +212,14 @@ dimensionReductionPlot <- function(tbl, se,
         g <- g + ggplot2::geom_point(ggplot2::aes_string(color = "color"))
     }
     
-    g <- g + ggplot2::coord_fixed(ratio = 1) + ggplot2::theme_classic() 
+    g <- g + ggplot2::theme_classic()
          
     
     if (interactive) {
         g <- g + ggplot2::theme(legend.position = "none") 
-        plotly::ggplotly(g, tooltip = tT, height = height)
+        plotly::ggplotly(g, tooltip = tT, height = height, width = height)
     } else {
-        g
+        g + ggplot2::theme(aspect.ratio = 1)
     }
 }
 
@@ -281,14 +272,15 @@ explVar <- function(d, type = c("PCA", "PCoA")) {
     type <- match.arg(type)
 
     if (type == "PCA") {
-
         ## PCA (by prcomp) and retrieve the exlained variance for each PC
-        explVar <- d$sdev ^ 2 / sum(d$sdev ^ 2)
+        sdev_2 <- d[["sdev"]] ^ 2
+        explVar <- sdev_2 / sum(sdev_2)
         names(explVar) <- paste("PC", seq_along(explVar), sep = "")    
     }
 
     if (type == "PCoA") {
-        explVar <- d$eig / sum(d$eig)
+        eig <- d[["eig"]]
+        explVar <- eig / sum(eig)
         explVar <- explVar[-length(explVar)]
         names(explVar) <- paste("Axis.", seq_along(explVar), sep = "")
     }
@@ -341,7 +333,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE,
     sample_n = NULL) {
     
     if (n < 1) stop("n has to be greater than 0")
-    
+
     ## in case of large data sets the permutation might take a long time,
     ## limit if there are more features (nrow(x)) than sample_n features the 
     ## features to sample_n features
@@ -352,7 +344,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE,
             x <- x[sds_feat, ] 
         }
     }
-    
+
     var_perm <- lapply(seq_len(n), function(i) {
         ## permute features across the samples
         x_perm <- apply(x, 1, sample)
@@ -362,7 +354,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE,
             params = list(center = center, scale = scale))[[2]]
         explVar(d = pca, type = "PCA")
     })
-    
+
     ## create a matrix (rbind the list elements)
     do.call(rbind, var_perm)
 }
@@ -411,8 +403,8 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
         df <- rbind(df, df_perm)
     }
     
-    df$PC <- factor(df$PC, levels = names(var_x))
-    df$values <- df$values * 100
+    df[["PC"]] <- factor(df[["PC"]], levels = names(var_x))
+    df[["values"]] <- df[["values"]] * 100
     
     ## plotting
     g <- ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values"))  + 
@@ -464,7 +456,7 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
     p_val <- apply(t(var_perm) >= var_x, 1, sum) / nrow(var_perm)
     
     df <- data.frame(PC = names(p_val), values = p_val, group = "pvalue")
-    df$PC <- factor(df$PC, levels = df$PC)
+    df[["PC"]] <- factor(df[["PC"]], levels = df[["PC"]])
     
     ## plotting
     ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values")) + 
@@ -509,9 +501,10 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' @export
 tblPCALoadings <- function(x, params) {
     params <- append(params, list(x = t(x)))
-    d <- do.call(what = stats::prcomp, params)
-    tbl <- tibble::as_tibble(d$rotation) 
-    tbl <- tibble::tibble(name = rownames(d$rotation), tbl)
+    d <- do.call(what = stats::prcomp, params)$rotation
+    tbl <- tibble::as_tibble(d) 
+    tbl[["name"]] <- rownames(d)
+    tbl
 }
 
 #' @name plotPCALoadings

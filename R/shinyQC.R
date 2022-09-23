@@ -86,7 +86,7 @@ shinyQC <- function(se, app_server = FALSE) {
         a <- SummarizedExperiment::assay(se)
 
         ## access the colData slot and check for integrity of colnames/rownames
-        cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+        cD <- se@colData |> as.data.frame()
         if (!all(colnames(se) == rownames(cD)))
             stop("colnames(se) do not match rownames(colData(se))")
         if (!all(colnames(a) == rownames(cD)))
@@ -392,7 +392,7 @@ shinyQC <- function(se, app_server = FALSE) {
     output$batchCol <- shiny::renderUI({
         shiny::selectInput("batchCol", 
             label = "Select column containing batch information",
-            choices = colnames(SummarizedExperiment::colData(se)))
+            choices = colnames(se@colData))
     })
     
     a_b <- shiny::reactive({
@@ -505,7 +505,7 @@ shinyQC <- function(se, app_server = FALSE) {
     
     output$groupDistUI <- shiny::renderUI({
         shiny::selectInput(inputId = "groupDist", label = "annotation",
-            choices = colnames(SummarizedExperiment::colData(se)))
+            choices = colnames(se@colData))
     })
     
     ## Features

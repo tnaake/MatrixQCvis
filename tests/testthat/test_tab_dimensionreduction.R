@@ -26,7 +26,8 @@ test_that("dimensionReduction", {
         "dims" = 2, "pca_center" = TRUE, "pca_scale" = FALSE, theta = 0, ## tSNE
         "min_dist" = 0.1, "n_neighbors" = 5, "spread" = 1) ## UMAP
     
-    pca_o <- dimensionReduction(x, "PCA", params = parameters)
+    pca_o <- suppressWarnings(
+        dimensionReduction(x, "PCA", params = parameters))
     pcoa_o <- dimensionReduction(x, type = "PCoA", params = parameters)
     suppressWarnings(
         nmds_o <- dimensionReduction(x, "NMDS", params = parameters))
@@ -92,11 +93,20 @@ test_that("dimensionReduction", {
     expect_equal(dim(nmds_o[[1]]), c(100, 3))
     expect_equal(dim(tsne_o[[1]]), c(100, 3))
     expect_equal(dim(umap_o[[1]]), c(100, 3))
-    expect_equal(pca_o[[1]][, -1], pca_r, tolerance = 1e-07)
-    expect_equal(pcoa_o[[1]][, -1], pcoa_r, tolerance = 1e-07)
-    expect_equal(nmds_o[[1]][, -1], nmds_r, tolerance = 1e00)
-    expect_equal(tsne_o[[1]][, -1], tsne_r, tolerance = 1e01)
-    expect_equal(umap_o[[1]][, -1], umap_r, tolerance = 1e01)
+    
+    ## the last column that is removed refers to the column "name"
+    expect_equal(pca_o[[1]][, -101], pca_r, tolerance = 1e-07)
+    expect_equal(pcoa_o[[1]][, -100], pcoa_r, tolerance = 1e-07)
+    expect_equal(nmds_o[[1]][, -3], nmds_r, tolerance = 1e00)
+    expect_equal(tsne_o[[1]][, -3], tsne_r, tolerance = 1e01)
+    expect_equal(umap_o[[1]][, -3], umap_r, tolerance = 1e01)
+    
+    cols <- paste("sample", 1:100)
+    expect_equal(pca_o[[1]][["name"]], cols)
+    expect_equal(pcoa_o[[1]][["name"]], cols)
+    expect_equal(nmds_o[[1]][["name"]], cols)
+    expect_equal(tsne_o[[1]][["name"]], cols)
+    expect_equal(umap_o[[1]][["name"]], cols)
 })
 
 ## function dimensionReductionPlot
@@ -112,11 +122,12 @@ test_that("dimensionReductionPlot", {
     se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
         rowData = rD, colData = cD)
     se_error <- se
-    colnames(SummarizedExperiment::colData(se_error))[1] <- "rowname"
+    colnames(se_error@colData)[1] <- "name"
     
     ## create the data.frame containing the transformed values
     parameters <- list("center" = TRUE, "scale" = FALSE)
-    tbl <- dimensionReduction(assay(se), type = "PCA", params = parameters)[[1]]
+    tbl <- dimensionReduction(SummarizedExperiment::assay(se), 
+        type = "PCA", params = parameters)[[1]]
     g <- dimensionReductionPlot(tbl = tbl, se = se, highlight = "type", 
         x_coord = "PC1", y_coord = "PC2")
     
@@ -130,15 +141,13 @@ test_that("dimensionReductionPlot", {
     expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "none", 
         x_coord = "test", y_coord = "PC2"), 
         "object 'test' not found")
-    expect_error(dimensionReductionPlot(tbl = tbl[, -1], se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl[, -11], se = se, highlight = "none", 
         x_coord = "PC1", y_coord = "PC2"), "object 'name' not found")
     expect_error(dimensionReductionPlot(tbl = se, se = se), "must be a data frame")
     expect_error(dimensionReductionPlot(tbl = tbl, se = "foo"), 
-        "unable to find an inherited method for function")
+        "trying to get slot")
     expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "foo"), 
         "should be one of")
-    expect_error(dimensionReductionPlot(tbl = tbl, se = se_error, highlight = "none"), 
-        "Column name `rowname` must not be duplicated")
     expect_is(g, "plotly")
 })
 
@@ -161,9 +170,9 @@ test_that("explVar", {
     varExpl_pcoa <- explVar(d = pcoa, type = "PCoA")
     
     expect_error(explVar(d = NA, type = "PCA"), 
-        "operator is invalid for atomic vectors")
+        "subscript out of bounds")
     expect_error(explVar(d = NA, type = "PCoA"), 
-        "operator is invalid for atomic vectors")
+        "subscript out of bounds")
     suppressWarnings(expect_error(explVar(d = list(), type = "PCA"), 
         "must be the same length as the vector"))
     suppressWarnings(expect_error(explVar(d = list(), type = "PCoA"), 
@@ -252,7 +261,7 @@ test_that("tblPCALoadings", {
     expect_is(tbl, "tbl")
     expect_equal(dim(tbl), c(10, 11))
     expect_equal(tbl$name, as.character(1:10))
-    expect_equal(colnames(tbl), c("name", paste0("PC", 1:10)))
+    expect_equal(colnames(tbl), c(paste0("PC", 1:10), "name"))
     expect_equal(tbl$PC1, rep(0.316, 10), tolerance = 1e-3)
     expect_equal(tbl$PC2, c(-0.9486833, rep(0.1054093, 9)), tolerance = 1e-3)
     expect_error(tblPCALoadings(x = "foo", params = params), "must be numeric")
@@ -271,3 +280,4 @@ test_that("plotPCALoadings", {
     expect_error(plotPCALoadings(tbl, "foo", "PC2"), "object 'foo' not found")
     expect_error(plotPCALoadings(tbl, "PC1", "foo"), "object 'foo' not found")
 })
+

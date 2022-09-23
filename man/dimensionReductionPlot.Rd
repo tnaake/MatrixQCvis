@@ -7,7 +7,7 @@
 dimensionReductionPlot(
   tbl,
   se,
-  highlight = c("none", colnames(colData(se))),
+  highlight = c("none", colnames(se@colData)),
   explainedVar = NULL,
   x_coord,
   y_coord,
@@ -21,7 +21,7 @@ dimensionReductionPlot(
 \item{se}{\code{SummarizedExperiment}}
 
 \item{highlight}{\code{character}, one of \code{"none"} or 
-\code{colnames(colData(se))}}
+\code{colnames(se@colData)}}
 
 \item{explainedVar}{NULL or named \code{numeric}, if \code{numeric} 
 \code{explainedVar} contains the explained variance per principal component 

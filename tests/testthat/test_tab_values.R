@@ -218,7 +218,7 @@ test_that("MAplot", {
     g <- MAplot(tbl, group = "all", plot = "all")
     
     expect_error(MAplot(se, "all"), 
-        "no applicable method for")
+        "must be a data frame, or other object")
     expect_error(MAplot(tbl, group = "foo", plot = "all"), "should be one of ")
     expect_error(MAplot(tbl, group = "all", plot = "foo"), 
         "plot not in ")
@@ -272,7 +272,7 @@ test_that("cvFeaturePlot", {
     expect_is(cvFeaturePlot(l = l, lines = FALSE), "plotly")
     expect_is(cvFeaturePlot(l = l, lines = TRUE), "plotly")
     expect_error(cvFeaturePlot(l = NULL, lines = TRUE), 
-        "Can't subset columns")
+        "Selections can't have negative values")
     expect_error(cvFeaturePlot(l = l, lines = "foo"), 
         "argument is not interpretable as logical")
 })

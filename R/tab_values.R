@@ -37,8 +37,8 @@
 #' 
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer 
-#' @importFrom tibble tibble as_tibble rownames_to_column
-#' @importFrom SummarizedExperiment assay colData
+#' @importFrom tibble tibble as_tibble
+#' @importFrom SummarizedExperiment assay
 #' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
 #' @importFrom ggplot2 theme_classic
@@ -58,10 +58,10 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
+    cD <- se@colData |> as.data.frame()
+    if ("x5at1t1g161asy" %in% colnames(cD))
+        stop("Column name `x5at1t1g161asy` must not be duplicated")
+    cD[["x5at1t1g161asy"]] <- rownames(cD)
     cD <- cD[, c("x5at1t1g161asy", orderCategory)]
 
     
@@ -120,7 +120,7 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
         by = c("name" = "x5at1t1g161asy"), copy = TRUE)
     a_o <- paste(a_l[[orderCategory]], a_l[["name"]])
     a_o_u <- unique(a_o)
-    a_l$x_ggplot_vals <- factor(x = a_o, levels = sort(a_o_u))
+    a_l[["x_ggplot_vals"]] <- factor(x = a_o, levels = sort(a_o_u))
     
     ## do the actual plotting
     if (!violin) { 
@@ -135,7 +135,7 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
             a_out <- dplyr::left_join(x = a_out, y = cD, 
                 by = c("name" = "x5at1t1g161asy"), copy = TRUE)
             a_out_o <- paste(a_out[[orderCategory]], a_out[["name"]])
-            a_out$x_ggplot_vals <- factor(x = a_out_o, levels = sort(a_o_u))
+            a_out[["x_ggplot_vals"]] <- factor(x = a_out_o, levels = sort(a_o_u))
             g <- g + geom_point(
                 ggplot2::aes_string(x = "x_ggplot_vals", y = "value"), 
                 data = a_out)    
@@ -200,12 +200,11 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
 #' @importFrom dplyr across left_join summarise starts_with
 #' @importFrom tidyr pivot_longer 
 #' @importFrom stats median
-#' @importFrom SummarizedExperiment assay colData
+#' @importFrom SummarizedExperiment assay
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_smooth theme_classic
 #' @importFrom ggplot2 scale_color_manual scale_x_discrete xlab ylab theme
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly style 
-#' @importFrom tibble as_tibble rownames_to_column
 #' @importFrom rlang .data
 #' 
 #' @export
@@ -227,14 +226,15 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    cD <- se@colData |> as.data.frame()
     colnames(cD) <- make.names(colnames(cD))
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(a) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
-    
-    a <- tibble::as_tibble(a) 
-    a_l <- tidyr::pivot_longer(data = a, cols = seq_len(ncol(a)))
+    if ("x5at1t1g161asy" %in% colnames(cD))
+        stop("Column name `x5at1t1g161asy` must not be duplicated")
+    cD[["x5at1t1g161asy"]] <- rownames(cD)
+
+    a_l <- a |>
+        as.data.frame() |>
+        tidyr::pivot_longer(cols = seq_len(ncol(a)))
 
     if (aggregation == "median") FUN <- median
     if (aggregation == "sum") FUN <- sum
@@ -245,49 +245,47 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         dplyr::across(dplyr::starts_with("value"), FUN, na.rm = TRUE))
 
     ## join with cD
-    tb <- dplyr::left_join(a_l, cD, 
+    tbl <- dplyr::left_join(a_l, cD, 
         by = c("name" = "x5at1t1g161asy"), copy = TRUE)
-    df <- as.data.frame(tb)
-
-    df <- data.frame(df, col_ggplot_points = "all")
-    df$name <- factor(df$name, sort(df$name))
-
-    df_c <- df[, category]
+    tbl[["col_ggplot_points"]] <- "all"
+    tbl[["name"]] <- factor(tbl[["name"]], sort(tbl[["name"]]))
+    tbl_c <- tbl[[category]]
 
     ## add another column that gives the order of plotting (will be factor)
     ## order alphabetically: combine the levels of the orderCategory and add 
     ## the name (to secure that the levels are unique)
     ## add another column for the x_values
-    df_o <- df[, orderCategory]
-    df_o_n <- paste(df_o, df$name)
-    df$x_ggplot_vals <- factor(df_o_n, sort(df_o_n))
+    tbl_o <- tbl[[orderCategory]]
+    tbl_o_n <- paste(tbl_o, tbl[["name"]])
+    tbl[["x_ggplot_vals"]] <- factor(tbl_o_n, sort(tbl_o_n))
 
     ## create a separate data.frame which only contains the level or "all"
     if (level == "all") {
-        df_subset <- df  
+        tbl_subset <- tbl
     } else {
-        df_subset <- df[df_c == level, ]
+        tbl_subset <- tbl[tbl_c == level, ]
     }
-    df_subset$col_ggplot_points <- "subset"
+    tbl_subset[["col_ggplot_points"]] <- "subset"
 
     ## create another column which converts factors into numeric (needed for 
     ## geom_smooth)
-    df_subset$x_ggplot_vals_num <- as.numeric(df_subset$x_ggplot_vals)
+    tbl_subset[["x_ggplot_vals_num"]] <- as.numeric(tbl_subset[["x_ggplot_vals"]])
 
-    g <- ggplot2::ggplot(df,
+    g <- ggplot2::ggplot(tbl,
             ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
         suppressWarnings(
             ggplot2::geom_point(ggplot2::aes_string(text = "name"))) + 
-        ggplot2::geom_point(data = df_subset, 
+        ggplot2::geom_point(data = tbl_subset, 
             ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
             col = "col_ggplot_points")) + 
-        ggplot2::geom_smooth(data = df_subset, 
+        ggplot2::geom_smooth(data = tbl_subset, 
             ggplot2::aes_string(x = "x_ggplot_vals_num", y = "value"), 
             method = method) +
         ggplot2::theme_classic() + 
         ggplot2::scale_color_manual(values = c("#000000", "#2A6CEF")) +
-        ggplot2::scale_x_discrete(labels = df$name[order(df$x_ggplot_vals)]) +
+        ggplot2::scale_x_discrete(
+            labels = tbl[["name"]][order(tbl[["x_ggplot_vals"]])]) +
         ggplot2::xlab("samples") + 
         ggplot2::ylab(paste(aggregation, "of values")) +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90), 
@@ -369,7 +367,6 @@ cv <- function(x, name = "raw") {
 #' 
 #' @return \code{gg} object from \code{ggplot2}
 #' 
-#' @importFrom tibble tibble
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line xlab ylab
 #' @importFrom ggplot2 theme_bw theme element_text
@@ -378,15 +375,16 @@ plotCV <- function(df) {
     
     ## add a sample column
     if (!is.data.frame(df)) stop("df is not a data.frame")
-    tbl <- tibble::tibble(sample = rownames(df), df)
-    tbl$sample <- factor(x = tbl$sample, levels = tbl$sample)
-    tbl <- tidyr::pivot_longer(tbl, cols = 2:ncol(tbl))
+    df[["sample"]] <- rownames(df)
+    df[["sample"]] <- factor(x = df[["sample"]], levels = df[["sample"]])
+    df <- tidyr::pivot_longer(df, cols = 2:(ncol(df) - 1))
     
-    ggplot2::ggplot(tbl, ggplot2::aes_string(x = "sample", y = "value")) + 
+    ggplot2::ggplot(df, ggplot2::aes_string(x = "sample", y = "value")) + 
         ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
         ggplot2::geom_line(ggplot2::aes_string(group = "name", 
             color = "name")) + 
-        ggplot2::xlab("sample") + ggplot2::ylab("coefficient of variation") + 
+        ggplot2::xlab("sample") + 
+        ggplot2::ylab("coefficient of variation (in %)") + 
         ggplot2::theme_bw() + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 }
@@ -436,11 +434,10 @@ plotCV <- function(df) {
 #' 
 #' ECDF(se, sample = "sample 1", group = "all")
 #' 
-#' @importFrom SummarizedExperiment assay colData
+#' @importFrom SummarizedExperiment assay
 #' @importFrom stats ks.test
 #' @importFrom ggplot2 ggplot aes_string stat_ecdf theme_bw xlab ylab
 #' @importFrom ggplot2 ggtitle theme element_blank
-#' @importFrom tibble rownames_to_column
 #' 
 #' @return \code{gg} object from \code{ggplot2}
 #' 
@@ -458,11 +455,11 @@ ECDF <- function(se, sample = colnames(se),
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
+    cD <- se@colData |> as.data.frame()
     colnames(cD) <- make.names(colnames(cD))
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(a) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
+    if ("x5at1t1g161asy" %in% colnames(cD))
+        stop("Column name `x5at1t1g161asy` must not be duplicated")
+    cD[["x5at1t1g161asy"]] <- rownames(cD)
     
     df <- data.frame(value = a[, sample], type = sample)
     
@@ -488,8 +485,8 @@ ECDF <- function(se, sample = colnames(se),
     df_group <- df_group[inds, ]
     
     ## calculate KS statistic of data
-    value_s <- df$value
-    value_g <- df_group$value
+    value_s <- df[["value"]]
+    value_g <- df_group[["value"]]
     ks_test <- stats::ks.test(x = value_s, y = value_g, exact = NULL, 
         alternative = "two.sided")
     
@@ -577,18 +574,16 @@ distShiny <- function(x, method = "euclidean") {
 #'
 #' @return \code{plotly}
 #'
-#' @importFrom SummarizedExperiment colData
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
 #' @importFrom grDevices hcl.colors
 #' @importFrom stats setNames as.dist
 #'
 #' @export
 distSample <- function(d, se, label = "name", title = "raw", ...) {
-
     
     ## create the annotation, use here the colData, get the column label in 
     ## colData
-    val <- colData(se)[[label]]
+    val <- se@colData[[label]]
     val_u <- unique(val)
     df <- data.frame(x = val)
     colnames(df) <- label
@@ -611,16 +606,6 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 
     ## call the ComplexHeatmap::Heatmap function
     do.call(what = ComplexHeatmap::Heatmap, args = args_default)
-
-    # @importFrom heatmaply heatmaply
-    ## define the row annotation
-    ##row_side_col <- list(SummarizedExperiment::colData(se)[[label]])
-    ##names(row_side_col) <- label
-    ## ## do the actual plotting
-    ## heatmaply::heatmaply(d, trace = "none", plot_method = "plotly", 
-    ##     row_dend_left = TRUE, main = title, dendrogram = "both",
-    ##     row_side_colors = row_side_col, scale = "none", 
-    ##     showticklabels = c(FALSE, FALSE), show_dendrogram = c(TRUE, FALSE))
 }
 
 #' @name sumDistSample
@@ -640,9 +625,9 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' dist <- distShiny(a)
 #' 
 #' sumDistSample(dist, title = "raw")
-#' 
+#'
 #' @return \code{gg} object from \code{ggplot2}
-#' 
+#'
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
 #' @importFrom ggplot2 xlab ylab theme_classic theme element_blank
 #' @importFrom tibble tibble
@@ -716,10 +701,10 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
-    cD <- SummarizedExperiment::colData(se) |> as.data.frame()
-    if (!all(colnames(a) == rownames(cD)))
-        stop("colnames(assay(se)) do not match rownames(colData(se))")
-    cD <- tibble::rownames_to_column(cD, var = "x5at1t1g161asy")
+    cD <- se@colData |> as.data.frame()
+    if ("x5at1t1g161asy" %in% colnames(cD))
+        stop("Column name `x5at1t1g161asy` must not be duplicated")
+    cD[["x5at1t1g161asy"]] <- rownames(cD)
     
     if (ncol(a) < 2)
         stop("MAplot needs more than one samples")
@@ -740,7 +725,7 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
         ## truncate the indices based on the group (only use the group for the 
         ## comparison and the "outgroup")
         if (group != "all") {
-            g <- cD[cD[, "x5at1t1g161asy"] == sample_i, group]
+            g <- cD[cD[["x5at1t1g161asy"]] == sample_i, group]
             inds_nl <- inds_nl & cD[, group] == g
         }
         rM <- rowMeans(a[, inds_nl], na.rm = TRUE)
@@ -839,10 +824,10 @@ hoeffDValues <- function(tbl, name = "raw", sample_n = NULL) {
     ## create the D statistic between M and A values, 
     ## only return these comparisons (not A vs. A and M vs. M, i.e. index 
     ## by [2, 1])
-    hd_l <- dplyr::mutate(tbl, name = factor(name, levels = unique(name)))
-    hd_l <- dplyr::group_by(hd_l, name)
-    hd_l <- dplyr::summarise(hd_l, hd_l = Hmisc::hoeffd(A, M)$D[2, 1]) 
-    hd_l <- dplyr::pull(hd_l, hd_l)
+    hd_l <- dplyr::mutate(tbl, name = factor(name, levels = unique(name))) |>
+        dplyr::group_by(name) |>
+        dplyr::summarise(hd_l = Hmisc::hoeffd(A, M)$D[2, 1]) 
+    hd_l <- hd_l$hd_l
     
     ## assign the names (do not use the first column since it contains the 
     ## Feature names)
@@ -998,25 +983,25 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     
     group <- match.arg(group)
     
-    if (!all(plot %in% c("all", unique(tbl[["name"]])))) {
+    if (!all(plot %in% c("all", unique(tbl$name)))) {
         stop("plot not in 'all' or 'unique(tbl$name)'")
     }
     
     ## get the number of features (this will govern if points will be plotted
     ## or hexagons)
-    n <- dplyr::pull(tbl, "Feature")
+    n <- tbl[["Feature"]]
     n <- unique(n)
     n <- length(n)
 
-    A <- dplyr::pull(tbl, "A")
-    M <- dplyr::pull(tbl, "M")
+    A <- tbl[["A"]]
+    M <- tbl[["M"]]
     x_lim <- c(min(A, na.rm = TRUE), max(A, na.rm = TRUE))
     x_lim <- ifelse(is.infinite(x_lim), NA, x_lim)
     y_lim <- c(min(M, na.rm = TRUE), max(M, na.rm = TRUE))
     y_lim <- ifelse(is.infinite(y_lim), NA, y_lim)
     
     if (!("all" %in% plot)) {
-        tbl <- dplyr::filter(tbl, tbl[["name"]] %in% plot)
+        tbl <- tbl[tbl[["name"]] %in% plot, ]
     }
     
     ## create a formula depending on the group argument for facet_wrap 
@@ -1077,7 +1062,7 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 #' 
 #' @export
 createDfFeature <- function(l, feature) {
-    l_slice <- lapply(seq_along(l), function(x) as.numeric(l[[x]][feature, ]))
+    l_slice <- lapply(seq_along(l), function(i) as.numeric(l[[i]][feature, ]))
     names(l_slice) <- names(l)
     df <- data.frame(l_slice)
     rownames(df) <- colnames(l[[1]])
@@ -1121,11 +1106,10 @@ featurePlot <- function(df) {
     
     ## add a sample column
     if (!is.data.frame(df)) stop("df is not a data.frame")
-    tbl <- tibble::tibble(sample = rownames(df), df)
-    tbl$sample <- factor(x = tbl$sample, levels = tbl$sample)
-    tbl <- tidyr::pivot_longer(tbl, cols = 2:ncol(tbl))
+    df[["sample"]] <- factor(x = rownames(df), levels = rownames(df))
+    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
     
-    ggplot2::ggplot(tbl, ggplot2::aes_string(x = "sample", y = "value")) + 
+    ggplot2::ggplot(df, ggplot2::aes_string(x = "sample", y = "value")) + 
         ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
         ggplot2::geom_line(ggplot2::aes_string(group = "name", 
             color = "name")) + 
@@ -1170,17 +1154,16 @@ featurePlot <- function(df) {
 cvFeaturePlot <- function(l, lines = FALSE) {
     
     names_l <- names(l)
-    l_cv <- lapply(seq_along(l), function(x) cv(t(l[[x]]), name = names_l[x]))
+    df <- lapply(seq_along(l), function(x) cv(t(l[[x]]), name = names_l[x])) |>
+        as.data.frame()
     
     ## create df containing cv values
-    df <- data.frame(feature = rownames(l[[1]]), l_cv)
-    df <- tidyr::pivot_longer(df, cols = 2:ncol(df))
-    df$name <- factor(df$name, levels = names(l))
-    df <- df |> 
-        dplyr::mutate(x = as.numeric(as.factor(df$name)))
+    df[["feature"]] <- rownames(l[[1]])
+    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
+    df[["name"]] <- factor(df[["name"]], levels = names(l))
+    df[["x_jitter"]] <- as.numeric(df$name) |>
+        jitter()
     
-    df$x_jitter <- jitter(df$x)
-
     # ## do the actual plotting
     g <- ggplot2::ggplot(df) 
     if (nrow(df) > 2) g <- g + 
@@ -1319,12 +1302,12 @@ normalizeAssay <- function(a,
 #' @return \code{matrix}
 #' 
 #' @importFrom limma removeBatchEffect
-#' @importFrom SummarizedExperiment assay colData
+#' @importFrom SummarizedExperiment assay
 #' 
 #' @export
 batchCorrectionAssay <- function(se, 
         method = c("none", "removeBatchEffect (limma)"), 
-        batchColumn = colnames(colData(se))) {
+        batchColumn = colnames(se@colData)) {
     
     method <- match.arg(method)
     a <- SummarizedExperiment::assay(se)
@@ -1332,7 +1315,7 @@ batchCorrectionAssay <- function(se,
     
     if (method == "removeBatchEffect (limma)") {
         
-        cD <- SummarizedExperiment::colData(se)
+        cD <- se@colData
         if (is.null(batchColumn)) {
             batchColumn <- colnames(cD)[1]
         }
@@ -1341,7 +1324,7 @@ batchCorrectionAssay <- function(se,
             stop("batchColumn not in colnames(colData(se))")
         }
         
-        batch <- cD[, batchColumn]
+        batch <- cD[[batchColumn]]
         a_b <- limma::removeBatchEffect(a_b, batch = batch)
     }
     
@@ -1512,7 +1495,7 @@ imputeAssay <- function(a,
         a_i <- imputeLCMD::impute.MinProb(dataSet.mvs = a_i, q = 0.01, 
             tune.sigma = 1)
     }
-        
+
     t(a_i)
 }
 

@@ -8,7 +8,7 @@
 batchCorrectionAssay(
   se,
   method = c("none", "removeBatchEffect (limma)"),
-  batchColumn = colnames(colData(se))
+  batchColumn = colnames(se@colData)
 )
 }
 \arguments{
