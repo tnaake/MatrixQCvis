@@ -74,7 +74,7 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 
                 ## access the colData slot and add the rownames as a new column to cD
                 ## (will add the column "rowname")
-                cD <- SummarizedExperiment::colData(se2) |> as.data.frame()
+                cD <- se2@colData |> as.data.frame()
                 if (!all(colnames(se2) == rownames(cD)))
                     stop("colnames(se) do not match rownames(colData(se))")
                 if (!all(colnames(a) == rownames(cD)))

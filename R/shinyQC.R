@@ -247,7 +247,7 @@ shinyQC <- function(se, app_server = FALSE) {
 #' @importFrom rmarkdown render
 #' @importFrom shinyhelper observe_helpers
 #' @importFrom shiny renderText req outputOptions reactive observe sliderInput
-#' @importFrom shiny updateCheckboxInput renderUI observeEvent showModal 
+#' @importFrom shiny updateCheckboxInput observeEvent showModal 
 #' @importFrom shiny modalDialog withProgress downloadHandler
 #' @importFrom shiny reactiveValues bindCache
 #' 
@@ -368,36 +368,31 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## TAB: Values and Dimension reduction plots
     
+    ## observe expression: update UI on loading the app
+    shiny::observe({
+        ## update the batchCol selectInput menu to select the variable for
+        ## batch correction
+        cols_cD <- colnames(se@colData)
+        shiny::updateSelectInput(session, "batchCol", choices = cols_cD)
+        shiny::updateSelectInput(session, "groupDist", choices = cols_cD)
+    })
+    
     ## create reactive for assay slot
     a <- shiny::reactive({assay(se_r())})
     
     ## reactive expression for data transformation, returns a matrix with
     ## normalized values
     a_n <- shiny::reactive({
-        shiny::req(a(), input$normalization)
+        #shiny::req(a(), input$normalization)
         ## input$normalization is either "none", "sum", "quantile division",
         ## "quantile"
         normalizeAssay(a(), method = input$normalization, 
             probs = input$quantile)
     })
     
-    output$quantDiv <- shiny::renderUI({
-        shiny::sliderInput("quantile", label = "Quantile",
-            min = 0, max = 1, value = 0.75)
-    })
-    
-    
-    ## reactive expression for data transformation, returns a matrix with
-    ## transformed values
-    output$batchCol <- shiny::renderUI({
-        shiny::selectInput("batchCol", 
-            label = "Select column containing batch information",
-            choices = colnames(se@colData))
-    })
-    
+    ## reactive expression for data batch correction, returns a matrix with
+    ## batch-corrected values
     a_b <- shiny::reactive({
-        shiny::req(input$batch, se_r_n()) 
-        
         batchCorrectionAssay(se_r_n(), method = input$batch, 
             batchColumn = input$batchCol)
     })
@@ -415,8 +410,6 @@ shinyQC <- function(se, app_server = FALSE) {
     ## reactive expression for data transformation, returns a matrix with
     ## transformed values
     a_t <- shiny::reactive({
-        shiny::req(input$transformation, a_b())
-        
         ## input$transformation is either "none", "log", "log2", or "vsn"
         transformAssay(a_b(), method = input$transformation)
     })
@@ -424,7 +417,6 @@ shinyQC <- function(se, app_server = FALSE) {
     ## reactive expression for data imputation, returns a matrix with
     ## imputed values
     a_i <- shiny::reactive({
-        shiny::req(input$imputation, a_t())
         if (missingValue) {
             ## impute missing values of the data.frame with transformed values
             imputeAssay(a_t(), input$imputation)    
@@ -502,11 +494,6 @@ shinyQC <- function(se, app_server = FALSE) {
     distServer("distImp", se = se_r, assay = a_i,
         method = shiny::reactive(input$methodDistMat), 
         label = shiny::reactive(input$groupDist), type = "imputed")
-    
-    output$groupDistUI <- shiny::renderUI({
-        shiny::selectInput(inputId = "groupDist", label = "annotation",
-            choices = colnames(se@colData))
-    })
     
     ## Features
     featureServer("features", se = se, a = a, a_n = a_n, a_b = a_b, a_t = a_t,

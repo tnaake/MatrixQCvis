@@ -1268,7 +1268,9 @@ tP_distUI <- function() {
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6,
                 collapsible = TRUE, collapsed = FALSE,
-                shiny::column(12, uiOutput(outputId = "groupDistUI")),
+                shiny::column(12, 
+                    shiny::selectInput(inputId = "groupDist", 
+                        label = "annotation", choices = "name")),
                 shiny::column(12, 
                 shiny::selectInput(inputId = "methodDistMat", 
                     label = "distance method", 

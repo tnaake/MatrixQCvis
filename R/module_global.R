@@ -129,17 +129,22 @@ sidebar_assayUI <- function() {
             selected = "none"),
         shiny::conditionalPanel(
             condition = "input.normalization == 'quantile division'",
-            shiny::uiOutput("quantDiv")),
+            shiny::sliderInput("quantile", label = "Quantile",
+                min = 0, max = 1, value = 0.75)),
         
         ## select type of batch correction
         shiny::selectInput(inputId = "batch",
             label = shiny::strong("Batch correction method"),
             choices = c("none", "removeBatchEffect (limma)"), 
             selected = "none"),
+        ## create conditional panel to select batch variable, use observe to
+        ## update the choices
         shiny::conditionalPanel(
             condition = "input.batch == 'removeBatchEffect (limma)'",
-            shiny::uiOutput("batchCol")),
-
+                shiny::selectInput("batchCol",
+                    label = "Select column containing batch information",
+                    choices = "name")),
+        
         ## select type of transformation
         shiny::selectInput(inputId = "transformation",
             label = shiny::strong("Transformation method"),
