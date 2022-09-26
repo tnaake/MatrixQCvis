@@ -5,9 +5,9 @@ the data sets of
 
  - raw (**raw**), 
  - normalized (**normalized**), 
- - normalized+transformed (**transformed**), 
- - normalized+transformed+batch corrected (**batch corrected**), and 
- - normalized+transformed+imputed (**imputed**).
+ - normalized+batch corrected (**batch corrected**),
+ - normalized+batch corrected+transformed (**transformed**), and 
+ - normalized+batch corrected+transformed+imputed (**imputed**).
  
 The **imputed** data set is only displayed if there are 
 missing values (`NA`s) in the **raw** data set. 

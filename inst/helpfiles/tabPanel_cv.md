@@ -4,9 +4,9 @@ This panel shows the coefficient of variation values for
 
  - raw (**raw**), 
  - normalized (**normalized**), 
- - normalized+transformed (**transformed**),
- - normalized+transformed+batch corrected (**batch corrected**), and
- - normalized+transformed+batch corrected+imputed (**imputed**) 
+ - normalized+batch corrected (**batch corrected**),
+ - normalized+batch corrected+transformed (**transformed**), and
+ - normalized++batch corrected+transformed+imputed (**imputed**) 
  
 assay values. The **imputed** values are only displayed if there are 
 missing values (`NA`s) in the **raw** data set. The different methods for 

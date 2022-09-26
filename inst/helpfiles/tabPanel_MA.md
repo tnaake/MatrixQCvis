@@ -7,15 +7,14 @@ The values are defined as follows
  - $A = 1/2 \cdot (I_i + I_j)$ and
  - $M = I_i- I_j$,
  
-where $I_i$ and $I_j$ are transformed values. In the case of **raw** or
-**normalized** the values are `log2`-transformed prior to 
-calculating `A` and `M`. In case of **transformed**,
-**batch corrected**, or **imputed**
+where $I_i$ and $I_j$ are transformed values. In the case of **raw**, 
+**normalized**, or **batch corrected** the values are `log2`-transformed 
+prior to calculating `A` and `M` if there are no negative values in the 
+data sets. In case of **transformed** or **imputed**
 the values are taken as they are (N.B. when the transformation
 method is set to **none** the values are not `log2`-transformed). 
 The **imputed** data set can only be selected if there are 
 missing values (`NA`s) in the **raw** data set. 
-
 
 The values for $I_i$ are taken from the sample $i$. For $I_j$, the feature-wise 
 means are calculated from the values of the **group** $j$ of samples specified 
@@ -33,10 +32,9 @@ input menu **plot**.
 The underlying data set can be selected by the drop-down menu 
 (**Data set for the MA plot**). 
 
-
 In the second part of the tab, the Hoeffding's D statistic values are 
-visualized for the different data sets **raw**, **normalized**, 
-**transformed**, **batch corrected**, and **imputed**. The **imputed** 
+visualized for the different data sets **raw**, **normalized**,  
+**batch corrected**, **transformed**, and **imputed**. The **imputed** 
 values are only displayed if there are missing values (`NA`s) in 
 the **raw** data set.
 
