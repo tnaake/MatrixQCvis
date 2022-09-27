@@ -435,24 +435,24 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## TAB: Values
     ## boxplots
-    boxPlotUIServer("boxUI", missingValue = missingValue, se = se)
-    boxPlotServer("boxRaw", se = se_r, 
+    boxPlotUIServer("boxUI", se = se)
+    boxPlotServer("boxRaw", se = se_r,
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "raw")
-    boxPlotServer("boxNorm", se = se_r_n, 
+    boxPlotServer("boxNorm", se = se_r_n,
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "normalized")
-    boxPlotServer("boxBatch", se = se_r_b, 
+    boxPlotServer("boxBatch", se = se_r_b,
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = shiny::reactive(input$boxLog),
         violin = shiny::reactive(input$violinPlot), type = "transformed")
-    boxPlotServer("boxTransf", se = se_r_t, 
+    boxPlotServer("boxTransf", se = se_r_t,
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = function() FALSE,
         violin = shiny::reactive(input$violinPlot), type = "transformed")
-    boxPlotServer("boxImp", se = se_r_i, 
+    boxPlotServer("boxImp", se = se_r_i,
         orderCategory = shiny::reactive(input[["boxUI-orderCategory"]]),
         boxLog = function() FALSE,
         violin = shiny::reactive(input$violinPlot), type = "imputed")
@@ -462,16 +462,15 @@ shinyQC <- function(se, app_server = FALSE) {
         se_t = se_r_t, se_i = se_r_i, missingValue = missingValue)
     
     ## coefficient of variation
-    cvServer("cv", a_r = a, a_n = a_n, a_b = a_b, a_t = a_t, a_i = a_i,
+    cvServer(id = "cv", a_r = a, a_n = a_n, a_b = a_b, a_t = a_t, a_i = a_i,
         missingValue = missingValue)
     
     ## mean-sd plot
-    meanSdUIServer("meanSd", missingValue = missingValue)
-    meanSdServer("meanSdTransf", assay = a_t, type = "transformed")
-    meanSdServer("meanSdImp", assay = a_i, type = "imputed")
+    meanSdServer(id = "meanSdTransf", assay = a_t, type = "transformed")
+    meanSdServer(id = "meanSdImp", assay = a_i, type = "imputed")
     
     ## MA plot
-    maServer("MA", se = se_r, se_n = se_r_n, se_b = se_r_b, se_t = se_r_t,
+    maServer(id = "MA", se = se_r, se_n = se_r_n, se_b = se_r_b, se_t = se_r_t,
         se_i = se_r_i, innerWidth = shiny::reactive(input$innerWidth),
         missingValue = missingValue)
     
@@ -480,8 +479,7 @@ shinyQC <- function(se, app_server = FALSE) {
         se_t = se_r_t, se_i = se_r_i, missingValue = missingValue)
     
     ## distances
-    distUIServer("distUI", missingValue = missingValue)
-    distServer("distUI-distRaw", se = se_r, assay = a,
+    distServer("distRaw", se = se_r, assay = a,
         method = shiny::reactive(input$methodDistMat), 
         label = shiny::reactive(input$groupDist), type = "raw")
     distServer("distNorm", se = se_r, assay = a_n,
@@ -508,47 +506,47 @@ shinyQC <- function(se, app_server = FALSE) {
         input[["PCA-scale"]]
         ## update upon change of PCA-scale tSNE-scale to the value of
         ## PCA-scale
-        shiny::updateCheckboxInput(session, "tSNE-scale", NULL, 
+        shiny::updateCheckboxInput(session, "tSNE-scale", NULL,
                                                         input[["PCA-scale"]])
     })
     shiny::observe({
         input[["tSNE-scale"]]
         ## update upon change of tSNE-scale PCA-scale to the value of
         ## tSNE-scale
-        shiny::updateCheckboxInput(session, "PCA-scale", NULL, 
+        shiny::updateCheckboxInput(session, "PCA-scale", NULL,
                                                         input[["tSNE-scale"]])
     })
     observe({
         input[["PCA-center"]]
         ## update upon change of PCA-center tSNE-center to the value of
         ## PCA-center
-        shiny::updateCheckboxInput(session, "tSNE-center", NULL, 
+        shiny::updateCheckboxInput(session, "tSNE-center", NULL,
                                                         input[["PCA-center"]])
     })
     shiny::observe({
         input[["tSNE-center"]]
         ## update upon change of tSNE-center PCA-center to the value of
         ## tSNE-center
-        shiny::updateCheckboxInput(session, "PCA-center", NULL, 
+        shiny::updateCheckboxInput(session, "PCA-center", NULL,
                                                         input[["tSNE-center"]])
     })
-    
+
     ## observe handlers to sync "distance" method between the 'PCoA' and
     ## 'NMDS' tab within the 'Dimension reduction' tab
     shiny::observe({
         input[["PCoA-dist"]]
         ## update upon change of PCoA-dist NMDS-dist to the value of
         ## PCoA-dist
-        shiny::updateCheckboxInput(session, "NMDS-dist", NULL, 
+        shiny::updateCheckboxInput(session, "NMDS-dist", NULL,
                                                         input[["PCoA-dist"]])
     })
     shiny::observe({
         input[["NMDS-dist"]]
         ## update upon change of NMDS-dist PCoA-dist to the value of NMDS-dist
-        shiny::updateCheckboxInput(session, "PCoA-dist", NULL, 
+        shiny::updateCheckboxInput(session, "PCoA-dist", NULL,
                                                         input[["NMDS-dist"]])
     })
-    
+
     ## create reactive values that stores the parameters for the dimension
     ## reduction plots
     params <- shiny::reactiveValues(
@@ -557,7 +555,7 @@ shinyQC <- function(se, app_server = FALSE) {
         "perplexity" = 1, "max_iter" = 1000, "initial_dims" = 10, ## for tSNE
         "dims" = 3, "pca_center" = TRUE, "pca_scale" = FALSE, ## for tSNE
         "min_dist" = 0.1, "n_neighbors" = 15, "spread" = 1) ## for UMAP
-    
+
     ## change the reactive values upon the user input changes
     shiny::observe({
         params$center <- input[["PCA-center"]]
@@ -573,38 +571,39 @@ shinyQC <- function(se, app_server = FALSE) {
         params$n_neighbors <- input[["UMAP-nNeighbors"]]
         params$spread <- input[["UMAP-spread"]]
     })
-    
+
     ## server modules for the dimensional reduction plots
-    
-    dimRedServer("PCA", se = se_r, assay = a_i, type = "PCA", 
-        label = "PC", params = shiny::reactive(params), 
-        innerWidth = reactive(input$innerWidth))
-    dimRedServer("PCoA", se = se_r, assay = a_i, type = "PCoA", 
-        label = "axis", params = shiny::reactive(params),
+    sample_n <- reactive({ncol(se_r())})
+
+    dimRedServer(id = "PCA", se = se_r, assay = a_i, type = "PCA",
+        label = "PC", params = shiny::reactive(params),
         innerWidth = shiny::reactive(input$innerWidth))
-    dimRedServer("NMDS", se = se_r, assay = a_i, type = "NMDS",
-        label = "MDS", params = shiny::reactive(params),
-        innerWidth = shiny::reactive(input$innerWidth))
-    dimRedServer("tSNE", se = se_r, assay = a_i, type = "tSNE",
-        label = "dimension", params = shiny::reactive(params),
-        innerWidth = shiny::reactive(input$innerWidth))
-    tSNEUIServer("tSNE", se = se_r)
-    dimRedServer("UMAP", se = se_r, assay = a_i, type = "UMAP",
-        label = "axis", params = shiny::reactive(params),
-        innerWidth = shiny::reactive(input$innerWidth))
-    umapUIServer("UMAP", se = se_r)
-    
-    
-    ## run additional server modules for the scree plots (only for the
-    ## tabs 'PCA' and 'tSNE') and loading plot
+    # dimRedServer(id = "PCoA", se = se_r, assay = a_i, type = "PCoA",
+    #     label = "axis", params = shiny::reactive(params),
+    #     innerWidth = shiny::reactive(input$innerWidth))
+    # dimRedServer(id = "NMDS", se = se_r, assay = a_i, type = "NMDS",
+    #     label = "MDS", params = shiny::reactive(params),
+    #     innerWidth = shiny::reactive(input$innerWidth))
+    # dimRedServer(id = "tSNE", se = se_r, assay = a_i, type = "tSNE",
+    #     label = "dimension", params = shiny::reactive(params),
+    #     innerWidth = shiny::reactive(input$innerWidth))
+    # tSNEUIServer(id = "tSNE", sample_n = sample_n)
+    # dimRedServer(id = "UMAP", se = se_r, assay = a_i, type = "UMAP",
+    #     label = "axis", params = shiny::reactive(params),
+    #     innerWidth = shiny::reactive(input$innerWidth))
+    # umapUIServer(id = "UMAP", sample_n = sample_n)
+    # 
+    # 
+    # ## run additional server modules for the scree plots (only for the
+    # ## tabs 'PCA' and 'tSNE') and loading plot
     screePlotServer("PCA", assay = a_i,
         center = shiny::reactive(input[["PCA-center"]]),
         scale = shiny::reactive(input[["PCA-scale"]]))
     loadingsPlotServer("PCA", assay = a_i, params = shiny::reactive(params))
-    screePlotServer("tSNE", assay = a_i,
-        center = shiny::reactive(input[["tSNE-center"]]),
-        scale = shiny::reactive(input[["tSNE-scale"]]))
-    
+    # screePlotServer("tSNE", assay = a_i,
+    #     center = shiny::reactive(input[["tSNE-center"]]),
+    #     scale = shiny::reactive(input[["tSNE-scale"]]))
+
     ## TAB: Differential Expression (DE)
     ## create data.frame with colData of the supplied se
     colDataServer("colData", se = se_r, missingValue = missingValue)
