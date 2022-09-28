@@ -23,7 +23,8 @@
 #' @examples
 #' tP_colDataUI("test")
 #' 
-#' @importFrom shiny NS tabPanel fluidRow column uiOutput dataTableOutput
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput dataTableOutput br
+#' @importFrom shinyhelper helper
 #' 
 #' @noRd
 tP_colDataUI <- function(id) {
@@ -31,7 +32,9 @@ tP_colDataUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Sample meta-data",
         shiny::fluidRow(width = 12,
-            shiny::column(12, shiny::uiOutput(ns("helperUI"))), 
+            shiny::column(12, 
+                shiny::br() |> 
+                    shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
                 shiny::dataTableOutput(outputId = ns("colDt")) 
             )  
@@ -60,8 +63,7 @@ tP_colDataUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI renderDataTable br
-#' @importFrom SummarizedExperiment colData
+#' @importFrom shiny moduleServer renderDataTable
 #' 
 #' @noRd
 colDataServer <- function(id, se, missingValue) {
@@ -69,18 +71,8 @@ colDataServer <- function(id, se, missingValue) {
         id, 
         function(input, output, session) {
             
-            output$helperUI <- shiny::renderUI({
-                
-                helperFile <- paste("tabPanel_DE_missingValue_", 
-                    missingValue, sep = "")
-                
-                shiny::br() |> 
-                    shinyhelper::helper(content = helperFile)
-            })
-            
-            output$colDt <- shiny::renderDataTable({
-                SummarizedExperiment::colData(se())
-            }, options = list(pageLength = 20))
+            output$colDt <- shiny::renderDataTable({se()@colData}, 
+                options = list(pageLength = 20))
         }
     )
 }
@@ -110,15 +102,17 @@ colDataServer <- function(id, se, missingValue) {
 #' @examples
 #' tP_modelMatrixUI("test")
 #' 
-#' @importFrom shiny NS tabPanel fluidRow column uiOutput
-#' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput br
+#' @importFrom shinyhelper helper
 #' @noRd
 tP_modelMatrixUI <- function(id) {
     
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Model matrix", 
         shiny::fluidRow(width = 12,
-            shiny::column(width = 12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(width = 12, 
+                shiny::br() |>
+                    shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
                 shiny::uiOutput(outputId = ns("modelMatrixTab")) 
             )  
@@ -218,8 +212,7 @@ validExprModelMatrix <- function(expr, se) {
         fMM_l_c <- as.character(fMM_l_c)
         fMM_l_c <- fMM_l_c[!(fMM_l_c %in% c("+", "0", "1"))]
         
-        if (all(fMM_l_c %in% colnames(SummarizedExperiment::colData(se))) & 
-                                                        length(fMM_l_c) != 0) {
+        if (all(fMM_l_c %in% colnames(se@colData)) & length(fMM_l_c) != 0) {
             fMM <- fMM
         } else {
             fMM <- NULL
@@ -253,7 +246,6 @@ validExprModelMatrix <- function(expr, se) {
 #' 
 #' @importFrom shiny moduleServer reactive
 #' @importFrom stats model.matrix
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 modelMatrixServer <- function(id, se, validFormulaMM) {
@@ -264,7 +256,7 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
             modelMatrix <- shiny::reactive({
                 if (!is.null(validFormulaMM())) {
                     stats::model.matrix(validFormulaMM(), 
-                        data = SummarizedExperiment::colData(se()))
+                        data = se()@colData)
                 }
             })
             
@@ -297,20 +289,12 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
 #' 
 #' @importFrom shiny moduleServer renderUI renderDataTable renderText br
 #' @importFrom shiny dataTableOutput verbatimTextOutput
-#' @importFrom shinyhelper helper 
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
     moduleServer(
         id, 
         function(input, output, session) {
-            
-            output$helperUI <- shiny::renderUI({
-                helperFile <- paste("tabPanel_DE_missingValue_", 
-                    missingValue, sep = "")
-                shiny::br() |> shinyhelper::helper(content = helperFile)
-            })
             
             output$modelMatrixTab <- shiny::renderUI({
                 ns <- session$ns
@@ -359,15 +343,17 @@ modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
 #' @examples
 #' tP_contrastUI("test")
 #' 
-#' @importFrom shiny NS tabPanel fluidRow column uiOutput
-#' 
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput br
+#' @importFrom shinyhelper helper
 #' @noRd
 tP_contrastUI <- function(id) {
     
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Contrast matrix", 
         shiny::fluidRow(width = 12,
-            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(12, 
+                shiny::br() |> 
+                    shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
                 shiny::uiOutput(outputId = ns("contrastMatrixTab")) 
             )
@@ -452,6 +438,7 @@ validExprContrastServer <- function(id, expr, action, modelMatrix) {
 validExprContrast <- function(contrasts, modelMatrix) {
     
     contrasts_c <- strsplit(contrasts, split = "-")[[1]]
+    contrasts_c <- gsub(pattern = " ", replacement = "", x = contrasts_c)
     
     if (all(contrasts_c %in% colnames(modelMatrix)) & 
         length(contrasts_c) %in% c(1, 2)) {
@@ -527,9 +514,8 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI renderDataTable dataTableOutput br
+#' @importFrom shiny moduleServer renderUI renderDataTable dataTableOutput
 #' @importFrom shiny  renderText verbatimTextOutput
-#' @importFrom shinyhelper helper
 #' 
 #' @noRd
 contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast, 
@@ -538,13 +524,6 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
         id,
         function(input, output, session) {
             
-            output$helperUI <- shiny::renderUI({
-                
-                helperFile <- paste("tabPanel_DE_missingValue_", 
-                    missingValue, sep = "")
-                shiny::br() |> shinyhelper::helper(content = helperFile)
-                
-            })
             
             output$contrastMatrixTab <- shiny::renderUI({
                 ns <- session$ns
@@ -601,7 +580,8 @@ contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast,
 #' @examples
 #' tP_topDEUI("test")
 #' 
-#' @importFrom shiny NS tabPanel fluidRow column uiOutput
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput br
+#' @importFrom shinyhelper helper
 #' 
 #' @noRd
 tP_topDEUI <- function(id) {
@@ -609,7 +589,9 @@ tP_topDEUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Top DE", 
         shiny::fluidRow(width = 12,
-            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(12, 
+                shiny::br()  |> 
+                    shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
                 shiny::uiOutput(outputId = ns("topDE")) 
             )  
@@ -643,7 +625,6 @@ tP_topDEUI <- function(id) {
 #' 
 #' @importFrom shiny moduleServer renderUI renderDataTable dataTableOutput br
 #' @importFrom shiny renderText verbatimTextOutput
-#' @importFrom shinyhelper helper
 #' @importFrom ggplot2 ggsave
 #' @importFrom SummarizedExperiment colData
 #' 
@@ -654,15 +635,6 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
     shiny::moduleServer(
         id,
         function(input, output, session) {
-            
-            output$helperUI <- shiny::renderUI({
-                
-                helperFile <- paste("tabPanel_DE_missingValue_", 
-                    missingValue, sep = "")
-                shiny::br()  |> 
-                    shinyhelper::helper(content = helperFile)
-
-            })
             
             output$topDE <- shiny::renderUI({
                 ns <- session$ns
@@ -839,14 +811,18 @@ testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM,
 #' @examples
 #' tP_volcanoUI("test")
 #'
-#' @importFrom shiny NS tabPanel fluidRow column uiOutput
+#' @importFrom shiny NS tabPanel fluidRow column uiOutput br
+#' @importFrom shinyhelper helper
+#' 
 #' @noRd
 tP_volcanoUI <- function(id) {
     
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "Volcano plot", 
         shiny::fluidRow(width = 12,
-            shiny::column(12, shiny::uiOutput(ns("helperUI"))),
+            shiny::column(12, 
+                shiny::br() |> 
+                    shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12,
                 shiny::uiOutput(outputId = ns("volcano"))
             )
@@ -891,14 +867,7 @@ volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast,
     shiny::moduleServer(
         id, 
         function(input, output, session) {
-            
-            output$helperUI <- shiny::renderUI({
-                
-                helperFile <- paste("tabPanel_DE_missingValue_", 
-                    missingValue, sep = "")
-                shiny::br() |> shinyhelper::helper(content = helperFile)
-            })
-            
+        
             output$volcano <- shiny::renderUI({
                 ns <- session$ns
                 if (!is.null(validFormulaMM())) {
