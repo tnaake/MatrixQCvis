@@ -32,10 +32,10 @@ test_that("boxPlotUIServer", {
         se <- new.env()
         missingValue <- new.env()
         
-        out <- boxPlotUIServer("", missingValue = TRUE, se = se)
-        expect_is(out, "shiny.render.function")
-        out <- boxPlotUIServer("", missingValue = FALSE, se = se)
-        expect_is(out, "shiny.render.function")
+        out <- boxPlotUIServer("", se = se)
+        expect_is(out, "Observer")
+        out <- boxPlotUIServer("", se = se)
+        expect_is(out, "Observer")
     })
 })
 
@@ -122,20 +122,6 @@ test_that("tP_meanSdUI", {
     expect_is(tP_meanSdUI(""), "shiny.tag")
 })
 
-## meanSdUIServer
-test_that("meanSdUIServer", {
-    shiny::testServer(meanSdUIServer, {
-        input <- new.env()
-        output <- new.env()
-        session <- new.env()
-        
-        out <- meanSdUIServer("", missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- meanSdUIServer("", missingValue = FALSE)
-        expect_is(out, "shiny.render.function")
-    })
-})
-
 ## meanSdServer
 test_that("meanSdServer", {
     shiny::testServer(meanSdServer, {
@@ -144,11 +130,7 @@ test_that("meanSdServer", {
         session <- new.env()
         assay <- new.env()
         
-        out <- meanSdServer("", assay = assay, type = "test", 
-            missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- meanSdServer("", assay = assay, type = "test", 
-            missingValue = FALSE)
+        out <- meanSdServer("", assay = assay, type = "test")
         expect_is(out, "shiny.render.function")
     })
     

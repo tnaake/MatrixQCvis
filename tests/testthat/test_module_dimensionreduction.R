@@ -36,10 +36,10 @@ test_that("tSNEUIServer", {
         input <- new.env()
         output <- new.env()
         session <- new.env()
-        se <- new.env()
+        sample_n <- new.env()
         
-        out <- tSNEUIServer("", se = se)
-        expect_is(out, "shiny.render.function")
+        out <- tSNEUIServer("", sample_n = sample_n)
+        expect_is(out, "Observer")
     })
 })
 
@@ -54,10 +54,10 @@ test_that("umapUIServer", {
         input <- new.env()
         output <- new.env()
         session <- new.env()
-        se <- new.env()
+        sample_n <- new.env()
         
-        out <- umapUIServer("", se = se)
-        expect_is(out, "shiny.render.function")
+        out <- umapUIServer("", sample_n = sample_n)
+        expect_is(out, "Observer")
     })
 })
 

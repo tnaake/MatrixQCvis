@@ -73,7 +73,7 @@ test_that("validExprModelMatrix", {
     expect_is(validExprModelMatrix("~foo", se = se), "NULL")
     expect_is(validExprModelMatrix("~", se = se), "NULL")
     expect_error(validExprModelMatrix("~type", se = NULL), 
-        "unable to find an inherited method for function ")
+        "trying to get slot")
 })
 
 ## modelMatrixServer
@@ -260,3 +260,4 @@ test_that("tP_DE_all", {
     expect_is(tP_DE_all(), "shiny.tag")
     expect_is(tP_DE_all(), "shiny.tag")
 })
+

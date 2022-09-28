@@ -49,7 +49,7 @@ test_that("sidebar_excludeSampleServer", {
         se <- new.env()
 
         out <- sidebar_excludeSampleServer("", se = se)
-        expect_is(out, "shiny.render.function")
+        expect_is(out, "Observer")
     })
 })
 

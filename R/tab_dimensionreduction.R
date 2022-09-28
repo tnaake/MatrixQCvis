@@ -213,8 +213,7 @@ dimensionReductionPlot <- function(tbl, se,
     }
     
     g <- g + ggplot2::theme_classic()
-         
-    
+
     if (interactive) {
         g <- g + ggplot2::theme(legend.position = "none") 
         plotly::ggplotly(g, tooltip = tT, height = height, width = height)
