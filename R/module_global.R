@@ -260,7 +260,7 @@ sidebar_DEUI <- function() {
 #'
 #' sidebar_excludeSampleUI("select")
 #' 
-#' @importFrom shiny NS conditionalPanel radioButtons uiOutput
+#' @importFrom shiny NS conditionalPanel radioButtons selectizeInput
 #' 
 #' @noRd
 sidebar_excludeSampleUI <- function(id) {
@@ -269,7 +269,8 @@ sidebar_excludeSampleUI <- function(id) {
         shiny::radioButtons(inputId = ns("mode"), label = "Select samples",
             choices = list("all" = "all", "exclude" = "exclude", 
                                                         "select" = "select")),
-        shiny::uiOutput(outputId = ns("excludeSamplesUI"))
+        shiny::selectizeInput(inputId = ns("excludeSamples"),
+            label = NULL, choices = "samples", multiple = TRUE)
     )
 }
 
@@ -293,7 +294,7 @@ sidebar_excludeSampleUI <- function(id) {
 #' 
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer selectInput
+#' @importFrom shiny moduleServer updateSelectizeInput observe
 #' 
 #' @noRd
 sidebar_excludeSampleServer <- function(id, se) {
@@ -301,10 +302,10 @@ sidebar_excludeSampleServer <- function(id, se) {
         id,
         function(input, output, session) {
             
-            output$excludeSamplesUI <- renderUI({
-                shiny::selectInput(inputId = session$ns("excludeSamples"),
-                            label = NULL, choices = colnames(se),
-                            multiple = TRUE)
+            shiny::observe({
+                shiny::updateSelectizeInput(session = session, 
+                    inputId = "excludeSamples",
+                    choices = colnames(se), server = TRUE)
             })
         }
     )
@@ -370,8 +371,8 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
     shiny::conditionalPanel(
         condition = "output.lengthAssays == 'TRUE'", 
         shiny::selectInput(inputId = "assaySelected",
-                    label = "Select data input", choices = choicesAssaySE, 
-                    selected = 1, multiple = FALSE))
+            label = "Select data input", choices = choicesAssaySE, 
+            selected = 1, multiple = FALSE))
 }
 
 #' @name choiceAssaySE

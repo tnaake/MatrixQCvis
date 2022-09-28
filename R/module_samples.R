@@ -29,7 +29,8 @@ tP_histSampleUI <- function(id) {
     shiny::tabPanel(title = "Histogram", 
         plotly::plotlyOutput(outputId = ns("histSample")),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
-        shiny::uiOutput(outputId = ns("typeHistUI"))
+        shiny::selectInput(inputId = ns("typeHist"), 
+            label = "Categorical variable", choices = NULL)
     )
 }
 
@@ -53,11 +54,10 @@ tP_histSampleUI <- function(id) {
 #' 
 #' @author Thomas Naake
 #'
-#' @importFrom shiny moduleServer renderUI selectInput reactive downloadHandler
-#' @importFrom shiny req
+#' @importFrom shiny moduleServer updateSelectInput reactive 
+#' @importFrom shiny downloadHandler
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly renderPlotly
-#' @importFrom SummarizedExperiment colData
 #'
 #' @noRd
 histSampleServer <- function(id, se) {
@@ -65,13 +65,13 @@ histSampleServer <- function(id, se) {
         id, 
         function(input, output, session) {
             
-            output$typeHistUI <- shiny::renderUI({
-                shiny::selectInput(inputId = session$ns("typeHist"), 
-                    label = "Categorical variable", 
-                    choices = colnames((se()@colData)))
+            shiny::observe({
+                shiny::updateSelectInput(session = session, 
+                    inputId = "typeHist", choices = colnames(se()@colData))
             })
             
             p_hist <- shiny::reactive({
+                shiny::req(input$typeHist)
                 histTbl <- hist_sample_num(se(), category = input$typeHist)
                 hist_sample(histTbl, category = input$typeHist)
             })
@@ -116,7 +116,7 @@ histSampleServer <- function(id, se) {
 #' @examples
 #' tP_mosaicSampleUI("test")
 #' 
-#' @importFrom shiny NS tabPanel plotOutput downloadButton uiOutput
+#' @importFrom shiny NS tabPanel plotOutput downloadButton selectInput
 #' @importFrom shinyhelper helper
 #' 
 #' @noRd
@@ -126,8 +126,15 @@ tP_mosaicSampleUI <- function(id) {
         shiny::plotOutput(outputId = ns("mosaicSample")) |>
             shinyhelper::helper(content = "tabPanel_mosaicSample"),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
-        shiny::uiOutput(outputId = ns("mosaicVarUI"))
+        shiny::tagList(
+            shiny::selectInput(inputId = ns("mosaicf1"), 
+                label = "Categorical variable 1", 
+                choices = "type"),
+            shiny::selectInput(inputId = ns("mosaicf2"),
+                label = "Categorical variable 2", 
+                choices = "type")
         )
+    )
 }
 
 #' @name mosaicSampleServer
@@ -148,9 +155,8 @@ tP_mosaicSampleUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI tagList selectInput reactive
-#' @importFrom shiny renderPlot req downloadHandler
-#' @importFrom SummarizedExperiment colData
+#' @importFrom shiny moduleServer tagList updateSelectInput reactive
+#' @importFrom shiny renderPlot downloadHandler observe
 #' @importFrom ggplot2 ggsave
 #' 
 #' @noRd
@@ -159,16 +165,12 @@ mosaicSampleServer <- function(id, se) {
         id, 
         function(input, output, session) {
 
-            output$mosaicVarUI <- shiny::renderUI({
-                cn <- colnames(SummarizedExperiment::colData(se()))
-                shiny::tagList(
-                    shiny::selectInput(inputId = session$ns("mosaicf1"), 
-                        label = "Categorical variable 1", 
-                        choices = cn, selected = "type"),
-                    shiny::selectInput(inputId = session$ns("mosaicf2"),
-                        label = "Categorical variable 2", 
-                        choices = cn,
-                        selected = "type"))
+            shiny::observe({
+                cn <- colnames(se()@colData)
+                shiny::updateSelectInput(inputId = "mosaicf1", 
+                    choices = cn)
+                shiny::updateSelectInput(inputId = "mosaicf2",
+                    choices = cn)
             })
             
             p_mosaic <- shiny::reactive({

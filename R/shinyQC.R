@@ -577,32 +577,36 @@ shinyQC <- function(se, app_server = FALSE) {
 
     dimRedServer(id = "PCA", se = se_r, assay = a_i, type = "PCA",
         label = "PC", params = shiny::reactive(params),
-        innerWidth = shiny::reactive(input$innerWidth))
-    # dimRedServer(id = "PCoA", se = se_r, assay = a_i, type = "PCoA",
-    #     label = "axis", params = shiny::reactive(params),
-    #     innerWidth = shiny::reactive(input$innerWidth))
-    # dimRedServer(id = "NMDS", se = se_r, assay = a_i, type = "NMDS",
-    #     label = "MDS", params = shiny::reactive(params),
-    #     innerWidth = shiny::reactive(input$innerWidth))
-    # dimRedServer(id = "tSNE", se = se_r, assay = a_i, type = "tSNE",
-    #     label = "dimension", params = shiny::reactive(params),
-    #     innerWidth = shiny::reactive(input$innerWidth))
-    # tSNEUIServer(id = "tSNE", sample_n = sample_n)
-    # dimRedServer(id = "UMAP", se = se_r, assay = a_i, type = "UMAP",
-    #     label = "axis", params = shiny::reactive(params),
-    #     innerWidth = shiny::reactive(input$innerWidth))
-    # umapUIServer(id = "UMAP", sample_n = sample_n)
-    # 
-    # 
-    # ## run additional server modules for the scree plots (only for the
-    # ## tabs 'PCA' and 'tSNE') and loading plot
+        innerWidth = shiny::reactive(input$innerWidth), 
+        selectedTab = shiny::reactive(input$dimensionReductionTab))
+    dimRedServer(id = "PCoA", se = se_r, assay = a_i, type = "PCoA",
+        label = "axis", params = shiny::reactive(params),
+        innerWidth = shiny::reactive(input$innerWidth), 
+        selectedTab = shiny::reactive(input$dimensionReductionTab))
+    dimRedServer(id = "NMDS", se = se_r, assay = a_i, type = "NMDS",
+        label = "MDS", params = shiny::reactive(params),
+        innerWidth = shiny::reactive(input$innerWidth), 
+        selectedTab = shiny::reactive(input$dimensionReductionTab))
+    dimRedServer(id = "tSNE", se = se_r, assay = a_i, type = "tSNE",
+        label = "dimension", params = shiny::reactive(params),
+        innerWidth = shiny::reactive(input$innerWidth),
+        selectedTab = shiny::reactive(input$dimensionReductionTab))
+    tSNEUIServer(id = "tSNE", sample_n = sample_n)
+    dimRedServer(id = "UMAP", se = se_r, assay = a_i, type = "UMAP",
+        label = "axis", params = shiny::reactive(params),
+        innerWidth = shiny::reactive(input$innerWidth),
+        selectedTab = shiny::reactive(input$dimensionReductionTab))
+    umapUIServer(id = "UMAP", sample_n = sample_n)
+ 
+    ## run additional server modules for the scree plots (only for the
+    ## tabs 'PCA' and 'tSNE') and loading plot
     screePlotServer("PCA", assay = a_i,
         center = shiny::reactive(input[["PCA-center"]]),
         scale = shiny::reactive(input[["PCA-scale"]]))
     loadingsPlotServer("PCA", assay = a_i, params = shiny::reactive(params))
-    # screePlotServer("tSNE", assay = a_i,
-    #     center = shiny::reactive(input[["tSNE-center"]]),
-    #     scale = shiny::reactive(input[["tSNE-scale"]]))
+    screePlotServer("tSNE", assay = a_i,
+        center = shiny::reactive(input[["tSNE-center"]]),
+        scale = shiny::reactive(input[["tSNE-scale"]]))
 
     ## TAB: Differential Expression (DE)
     ## create data.frame with colData of the supplied se

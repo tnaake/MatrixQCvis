@@ -1,47 +1,3 @@
-#' @name coordsUI
-#' 
-#' @title UI for \code{selectInput} for dimension selection
-#' 
-#' @description 
-#' The module defines the UI in the tab panel 'Dimension reduction'. It allows
-#' to switch between the different coordinates. 
-#' 
-#' @details
-#' Internal function for \code{shinyQC}.
-#' 
-#' @param df \code{data.frame} as obtained by the function 
-#' \code{dimensionReduction}
-#' @param name \code{character} title/name for row
-#' @param x \code{character}, character string for \code{input$x}
-#' @param y \code{character}, character string for \code{input$y}
-#' @param session \code{shiny} session
-#' 
-#' @examples
-#' df <- dimensionReduction(x, "PCA")
-#' coordsUI(df)
-#'
-#' @author Thomas Naake
-#' 
-#' @importFrom shiny fluidRow column selectInput
-#' 
-#' @noRd
-coordsUI <- function(df, name = "PC", x = "dimensionReduction_x", 
-    y = "dimensionReduction_y", session = session) {
-    
-    cols_df <- colnames(df)[-1]
-    
-    shiny::fluidRow(
-        shiny::column(12, name),
-        shiny::column(6, 
-            shiny::selectInput(session$ns(x), label = "x-axis",
-                    choices = cols_df, selected = cols_df[1])),
-        shiny::column(6, 
-            shiny::selectInput(session$ns(y), label = "y-axis",
-                    choices = cols_df, selected = cols_df[2]))
-    )
-}
-
-
 #' @name tP_PCAUI
 #' 
 #' @title Tab panel UI for tab panel 'PCA'
@@ -63,7 +19,7 @@ coordsUI <- function(df, name = "PC", x = "dimensionReduction_x",
 #' @examples
 #' tP_PCAUI("test")
 #' 
-#' @importFrom shiny NS tabPanel fluidRow column downloadButton uiOutput
+#' @importFrom shiny NS tabPanel fluidRow column downloadButton
 #' @importFrom shiny checkboxInput plotOutput
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
@@ -72,7 +28,7 @@ coordsUI <- function(df, name = "PC", x = "dimensionReduction_x",
 #' @noRd
 tP_PCAUI <- function(id) {
     ns <- shiny::NS(id)
-    shiny::tabPanel(title = "PCA", 
+    tabPanel(title = "PCA", value = "PCA",
         shiny::fluidRow(
             shiny::column(12, 
                 plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
@@ -83,7 +39,16 @@ tP_PCAUI <- function(id) {
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
                 shiny::column(12, 
-                    shiny::uiOutput(outputId = ns("coords"))),
+                    shiny::fluidRow(
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("x"), 
+                                label = "x-axis", choices = "PC1", 
+                                selected = "PC1")),
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("y"), 
+                                label = "y-axis", choices = "PC2", 
+                                selected = "PC2"))
+                    )), 
                 shiny::column(3, 
                     shiny::checkboxInput(inputId = ns("scale"),
                         label = "scale", value = TRUE)),
@@ -91,7 +56,8 @@ tP_PCAUI <- function(id) {
                     shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("highlightUI")))
+                    shiny::selectInput(inputId = ns("highlight"), 
+                        label = "Highlight", choices = "none"))
             ),
             shinydashboard::box(title = "Scree plot", width = 6, 
                 collapsible = TRUE, collapsed = TRUE,
@@ -145,8 +111,17 @@ tP_PCoAUI <- function(id) {
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
                 shiny::column(12, 
-                    shiny::uiOutput(ns("coords"))
-                ),
+                    shiny::fluidRow(
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("x"), 
+                                label = "x-axis", choices = "Axis.1", 
+                                selected = "Axis.1")),
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("y"), 
+                                label = "y-axis", choices = "Axis.2", 
+                                selected = "Axis.2"))
+                    ))
+            ),
                 shiny::column(6, 
                     shiny::selectInput(inputId = ns("dist"),
                         label = "Distance measure",
@@ -155,9 +130,9 @@ tP_PCoAUI <- function(id) {
                         selected = "euclidean")
                 ),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("highlightUI"))
+                    shiny::selectInput(inputId = ns("highlight"), 
+                         label = "Highlight", choices = "none")
                 )
-            )
         )
     )
 }
@@ -202,8 +177,16 @@ tP_NMDSUI <- function(id) {
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
                 shiny::column(12, 
-                    shiny::uiOutput(outputId = ns("coords"))
-                ),
+                    shiny::fluidRow(
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("x"), 
+                                label = "x-axis", choices = "MDS1", 
+                                selected = "MDS1")),
+                        shiny::column(6,
+                            shiny::selectInput(inputId = ns("y"), 
+                                label = "y-axis", choices = "MDS2", 
+                                selected = "MDS2"))
+                    )),
                 shiny::column(6, 
                     shiny::selectInput(inputId = ns("dist"),
                         label = "Distance measure",
@@ -212,7 +195,8 @@ tP_NMDSUI <- function(id) {
                         selected = "euclidean")
                 ),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("highlightUI"))
+                    shiny::selectInput(inputId = ns("highlight"), 
+                        label = "Highlight", choices = "none")
                 )
             )
         )
@@ -270,15 +254,25 @@ tP_tSNEUI <- function(id) {
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
-                shiny::uiOutput(outputId = ns("coords")),
+                shiny::fluidRow(
+                    shiny::column(6,
+                        shiny::selectInput(inputId = ns("x"), label = "x-axis", 
+                            choices = "X1", selected = "X1")),
+                    shiny::column(6,
+                        shiny::selectInput(inputId = ns("y"), label = "y-axis", 
+                            choices = "X2", selected = "X2"))
+                ),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("perplexityUI"))),
+                    shiny::sliderInput(inputId = ns("perplexity"), 
+                        label = "Perplexity", min = 1, max = 5, 2, step = 1)),
                 shiny::column(6, 
                     shiny::sliderInput(inputId = ns("maxIter"),
                         label = "Number of iterations", 
                         min = 100, max = 10000, value = 1000)),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("initialDimsUI"))),
+                    shiny::sliderInput(inputId = ns("initialDims"),
+                        label = "Number of retained dimensions in initial PCA",
+                        min = 1, max = 5, value = 3, step = 1)),
                 shiny::column(6, 
                     shiny::sliderInput(inputId = ns("dims"),
                         label = "Output dimensionality",
@@ -290,7 +284,8 @@ tP_tSNEUI <- function(id) {
                     shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("highlightUI"))
+                    shiny::selectInput(inputId = ns("highlight"), 
+                        label = "Highlight", choices = "none")
                 )
             )
         )
@@ -311,40 +306,34 @@ tP_tSNEUI <- function(id) {
 #' server-side. Internal function for \code{shinyQC}.
 #' 
 #' @param id \code{character}
-#' @param se \code{SummarizedExperiment} and \code{reactive} value
+#' @param sample_n \code{numeric(1)} and \code{reactive} value, number of 
+#' samples
 #' 
 #' @author Thomas Naake
 #' 
 #' @return 
 #' \code{shiny.render.function}
 #' 
-#' @importFrom shiny NS moduleServer renderUI sliderInput
+#' @importFrom shiny NS moduleServer updateSliderInput
 #' @importFrom plotly plotlyOutput
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
-tSNEUIServer <- function(id, se) {
+tSNEUIServer <- function(id, sample_n) {
     ns <- shiny::NS(id)
     shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            cD_n <- reactive(nrow(SummarizedExperiment::colData(se())))
-            
-            output$perplexityUI <- shiny::renderUI({
-                req(cD_n())
-                shiny::sliderInput(inputId = session$ns("perplexity"), 
-                    label = "Perplexity", min = 1,
-                    max = ceiling((cD_n() - 1) / 3),
-                    value = ceiling(cD_n()^0.5),
-                    step = 1)
+            shiny::observe({
+                shiny::updateSliderInput(session = session, 
+                    inputId = "perplexity", 
+                    max = ceiling((sample_n() - 1) / 3),
+                    value = ceiling(sample_n()^0.5))
             })
             
-            output$initialDimsUI <- shiny::renderUI({
-                req(cD_n())
-                shiny::sliderInput(inputId = session$ns("initialDims"),
-                    label = "Number of retained dimensions in initial PCA",
-                    min = 1, max = cD_n(), value = 3, step = 1)
+            shiny::observe({
+                shiny::updateSliderInput(session = session, 
+                    inputId = "initialDims", max = sample_n())
             })
         }
     )
@@ -392,20 +381,30 @@ tP_umapUI <- function(id) {
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
-                shiny::uiOutput(outputId = ns("coords")),
+                shiny::fluidRow(
+                    shiny::column(6,
+                        shiny::selectInput(inputId = ns("x"), label = "x-axis", 
+                            choices = "X1", selected = "X1")),
+                    shiny::column(6,
+                        shiny::selectInput(inputId = ns("y"), label = "y-axis", 
+                            choices = "X2", selected = "X2"))
+                ),
                 shiny::column(6, 
                     shiny::sliderInput(
                         inputId = ns("minDist"), 
                         label = "Minimum distance", min = 0.01, 
                         max = 10, value = 0.1)),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("nNeighborsUI"))),
+                    shiny::sliderInput(inputId = ns("nNeighbors"), 
+                        label = "Number of neighbors", min = 2, 
+                        max = 10, value = 10, step = 1)),
                 shiny::column(6, 
                     shiny::sliderInput(
                         inputId = ns("spread"), 
                         label = "Spread", min = 0.01, max = 10, value = 1)),
                 shiny::column(6, 
-                    shiny::uiOutput(outputId = ns("highlightUI"))
+                    shiny::selectInput(inputId = ns("highlight"), 
+                        label = "Highlight", choices = "none")
                 )
             )
         )
@@ -424,28 +423,26 @@ tP_umapUI <- function(id) {
 #' server-side. Internal function for \code{shinyQC}.
 #' 
 #' @param id \code{character}
-#' @param se \code{SummarizedExperiment} and \code{reactive} value
-#' 
+#' @param sample_n \code{numeric(1)} and \code{reactive} value, number of 
+#' samples
+#'
 #' @author Thomas Naake
 #' 
 #' @return 
 #' \code{shiny.render.function}
 #' 
-#' @importFrom shiny moduleServer renderUI sliderInput
+#' @importFrom shiny moduleServer updateSliderInput
 #' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
-umapUIServer <- function(id, se) {
+umapUIServer <- function(id, sample_n) {
     shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$nNeighborsUI <- shiny::renderUI({
-                shiny::sliderInput(
-                    inputId = session$ns("nNeighbors"), 
-                    label = "Number of neighbors", min = 2, 
-                    max = nrow(SummarizedExperiment::colData(se())), 
-                        value = 15, step = 1)
+            shiny::observe({
+                shiny::updateSliderInput(session = session,
+                    inputId = "nNeighbors", max = sample_n)
             })
         }
     )
@@ -470,14 +467,16 @@ umapUIServer <- function(id, se) {
 #' @param params \code{reactiveValues}
 #' @param innerWidth \code{numeric} and \code{reactive} value, specifying the 
 #' width of the window size
+#' @param selectedTab \code{character} and \code{reactive} value, specifying
+#' the selected tab panel, e.g. \code{"PCA"}
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer reactive renderUI fluidRow column selectInput
-#' @importFrom shiny reactiveValuesToList downloadHandler req
+#' @importFrom shiny moduleServer reactive fluidRow column updateSelectInput
+#' @importFrom shiny reactiveValuesToList downloadHandler req bindCache
 #' @importFrom plotly renderPlotly
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom SummarizedExperiment colData
@@ -485,64 +484,75 @@ umapUIServer <- function(id, se) {
 #' @noRd
 #' 
 dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params, 
-    innerWidth) {
+    innerWidth, selectedTab) {
     
     shiny::moduleServer(
         id, 
         function(input, output, session) {
             
-            ## create data.frame with new coordinates: x, type, params 
-            dimensionReduction_list <- shiny::reactive({
-                dimensionReduction(x = assay(), type = type, 
-                    params = reactiveValuesToList(params()))
+            ## create reactiveValues to store results from dimensionReduction,
+            ## only update/calculate when the user has selected the tab
+            ## (selectedTab() == id) and if the values were not previously 
+            ## calcuated (rv$run), update also if there are changes to the 
+            ## parameters
+            rv <- reactiveValues(
+                run = FALSE, dimensionReduction_list = NULL, coordinates = NULL,
+                explainedVar = NULL, innerWidth = "600px")
+            
+            observeEvent({reactiveValuesToList(params()); se(); assay()}, {
+                rv$run <- FALSE
             })
             
-            tbl_vals <- shiny::reactive({
-                dimensionReduction_list()[[1]]
+            observeEvent({selectedTab(); rv$run}, {
+                if (selectedTab() == id & !rv$run) {
+                    rv$dimensionReduction_list <- dimensionReduction(
+                        x = assay(), type = type, 
+                        params = reactiveValuesToList(params()))
+                    rv$coordinates <- rv$dimensionReduction_list[[1]]
+                    
+                    if (id %in% c("PCA", "PCoA")) {
+                        rv$explainedVar <- explVar(
+                            d = rv$dimensionReduction_list[[2]], type = id)
+                    }
+                    rv$run <- TRUE
+                }
+            })
+            
+            
+            observeEvent(innerWidth(), {
+                rv$innerWidth <- innerWidth() * 3 / 5
             })
             
             ## create an expression that retrieves information on the columns of
             ## dimensionReduction tbl (from PCA, PCoA, or NMDS), i.e. the 
-            ## principal components or axis (remove the first column = namesDf)
-            output$coords <- shiny::renderUI({
-                cn_tbl <- colnames(tbl_vals())[-1]
-                shiny::fluidRow(
-                    shiny::column(6,
-                        shiny::selectInput(session$ns("x"), label = "x-axis", 
-                            choices = cn_tbl, selected = cn_tbl[1])),
-                    shiny::column(6,
-                        shiny::selectInput(session$ns("y"), label = "y-axis", 
-                            choices = cn_tbl, selected = cn_tbl[2]))
-                )
+            ## principal components or axis (remove the last column = namesDf)
+            shiny::observe({
+                if (!is.null(rv$coordinates)) {
+                    cn <- colnames(rv$coordinates)
+                    cn <- cn[-length(cn)]
+                    
+                    shiny::updateSelectInput(session = session, inputId = "x", 
+                        choices = cn, selected = cn[1])
+                    shiny::updateSelectInput(session = session, inputId = "y", 
+                        choices = cn, selected = cn[2])
+                }
             })
             
-            output$highlightUI <- shiny::renderUI({
-                ns <- session$ns
-                shiny::selectInput(
-                    inputId = ns("highlight"), label = "Highlight", 
-                    choices = c("none", 
-                        colnames(SummarizedExperiment::colData(se()))))
+            shiny::observe({
+                shiny::updateSelectInput(session = session, 
+                    inputId = "highlight", 
+                    choices = c("none", colnames(se()@colData)))
             })
             
             ## reactive plot for dimension reduction plots
             output$plot <- plotly::renderPlotly({
-                shiny::req(input$x)
                 
-                if (id %in% c("PCA", "PCoA")) {
-                    params_l <- shiny::reactiveValuesToList(params())
-                    explainedVar <- explVar(dimensionReduction_list()[[2]], 
-                        type = id)
-                    dimensionReductionPlot(tbl_vals(), se = se(), 
-                        highlight = input$highlight, 
-                        x_coord = input$x, y_coord = input$y,
-                        explainedVar = explainedVar, 
-                        height = innerWidth() * 3 / 5)
-                } else {
-                    dimensionReductionPlot(tbl_vals(), se = se(), 
-                        highlight = input$highlight, 
-                        x_coord = input$x, y_coord = input$y, 
-                        explainedVar = NULL, 
-                        height = innerWidth() * 3 / 5)
+                if (!is.null(rv$coordinates)) {
+                    dimensionReductionPlot(rv$coordinates, se = se(), 
+                            highlight = input$highlight, 
+                            x_coord = input$x, y_coord = input$y,
+                            explainedVar = rv$explainedVar,
+                            height = rv$innerWidth)
                 }
             })
 
@@ -553,9 +563,11 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 },
                 content = function(file) {
                     htmlwidgets::saveWidget(
-                        dimensionReductionPlot(tbl = tbl_vals(), se = se(), 
+                        dimensionReductionPlot(tbl = rv$coordinates, se = se(), 
                             highlight = input$highlight, 
-                            x_coord = input$x, y_coord = input$y), file)
+                            x_coord = input$x, y_coord = input$y,
+                            explainedVar = rv$explainedVar,
+                            height = rv$innerWidth), file)
                 }
             )
         }
@@ -698,7 +710,8 @@ loadingsPlotServer <- function(id, assay, params) {
 #' @noRd
 tP_dimensionReduction_all <- function() {
     shiny::tabPanel("Dimension Reduction",
-        shinydashboard::tabBox(title = "", width = 12,
+        shinydashboard::tabBox(title = "", width = 12, 
+            id = "dimensionReductionTab",
             tP_PCAUI(id = "PCA"),
             tP_PCoAUI(id = "PCoA"),
             tP_NMDSUI(id = "NMDS"),

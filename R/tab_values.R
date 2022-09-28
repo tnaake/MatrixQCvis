@@ -377,7 +377,7 @@ plotCV <- function(df) {
     if (!is.data.frame(df)) stop("df is not a data.frame")
     df[["sample"]] <- rownames(df)
     df[["sample"]] <- factor(x = df[["sample"]], levels = df[["sample"]])
-    df <- tidyr::pivot_longer(df, cols = 2:(ncol(df) - 1))
+    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
     
     ggplot2::ggplot(df, ggplot2::aes_string(x = "sample", y = "value")) + 
         ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
@@ -811,7 +811,7 @@ hoeffDValues <- function(tbl, name = "raw", sample_n = NULL) {
     unique_features <- unique(tbl$Feature)
     if (!is.numeric(sample_n)) sample_n <- length(unique_features)
     min_features <- min(length(unique_features), sample_n)
-    features <- sample(unique_features, size = sample_n, replace = FALSE)
+    features <- sample(unique_features, size = min_features, replace = FALSE)
     tbl <- tbl[tbl$Feature %in% features, ]
          
     ## create a wide tibble with the samples as columns and features as rows 
@@ -910,9 +910,7 @@ hoeffDPlot <- function(df, lines = TRUE) {
     
     ## refactor the names according to the supplied order (cols)
     names_f <- factor(dplyr::pull(df,"processing_step"), cols)
-    df <- dplyr::mutate(df, processing_step = names_f)
-
-    df <- dplyr::mutate(df, x = as.numeric(names_f))
+    df <- dplyr::mutate(df, processing_step = names_f, x = as.numeric(names_f))
 
     df$x_jitter <- jitter(df$x)
     # ## do the actual plotting
@@ -1020,14 +1018,16 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     }
     
     if (group != "name") {
-        g <- g + ggplot2::facet_wrap(fm) + ggplot2::theme(aspect.ratio = 1)
+        g <- g + ggplot2::facet_wrap(fm, scales = "free")# + ggplot2::theme(aspect.ratio = 1)
     } else {
         g <- g + ggplot2::coord_fixed()
     }
     
     if (!any(is.na(x_lim))) g <- g + ggplot2::xlim(x_lim)
     if (!any(is.na(y_lim))) g <- g + ggplot2::ylim(y_lim)
-    g + ggplot2::theme_bw()
+    g <- g + ggplot2::theme_bw()
+    g + ggplot2::theme(aspect.ratio = 1) 
+        #plot.margin = grid::unit(c(0,0,0,0), "mm"))
 }
 
 #' @name createDfFeature

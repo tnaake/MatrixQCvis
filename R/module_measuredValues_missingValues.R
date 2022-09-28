@@ -176,7 +176,8 @@ tP_histFeatUI <- function(id) {
         plotly::plotlyOutput(ns("histFeature")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot_hist"), ""),
-        shiny::uiOutput(outputId = ns("binwidthUI"))
+        shiny::sliderInput(inputId = ns("binwidth"), label = "Binwidth: ", 
+            min = 1, max = 1, value = 1, step = 1)
     )
     
 }
@@ -203,10 +204,9 @@ tP_histFeatUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI reactive sliderInput
+#' @importFrom shiny moduleServer reactive updateSliderInput
 #' @importFrom shiny downloadHandler 
 #' @importFrom htmlwidgets saveWidget
-#' @importFrom SummarizedExperiment colData
 #' 
 #' @noRd
 histFeatServer <- function(id, se, assay, measured = TRUE) {
@@ -215,10 +215,9 @@ histFeatServer <- function(id, se, assay, measured = TRUE) {
         id, 
         function(input, output, session) {
             
-            output$binwidthUI <- shiny::renderUI({
-                shiny::sliderInput(session$ns("binwidth"), 
-                    "Binwidth: ", min = 1, 
-                    max = ncol(se()), value = 1, step = 1)
+            shiny::observe({
+                shiny::updateSliderInput(session = session, 
+                    inputId = "binwidth", max = ncol(se()))
             })
             
             p_histFeature <- shiny::reactive({
@@ -287,8 +286,11 @@ tP_histFeatCategoryUI <- function(id) {
         plotly::plotlyOutput(ns("histFeatureCategory")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot_histFeat"), ""),
-        shiny::uiOutput(ns("binwidthCUI")),
-        shiny::uiOutput(ns("categoryHistUI"))
+        sliderInput(inputId = ns("numberFeatures"),
+            label = "Binwidth (# features per sample type): ", 
+            step = 1, min = 1, value = 1, max = 2),
+        shiny::selectInput(inputId = ns("categoryHist"), 
+            label = "Variable for stratification", choices = "name")
     )
 }
 
@@ -313,8 +315,8 @@ tP_histFeatCategoryUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI selectInput reactive req
-#' @importFrom shiny downloadHandler
+#' @importFrom shiny moduleServer updateSelectInput updateSliderInput reactive
+#' @importFrom shiny req downloadHandler
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly renderPlotly
 #' 
@@ -327,28 +329,25 @@ histFeatCategoryServer <- function(id, se, measured = TRUE) {
             
             cD <- shiny::reactive(se()@colData)
             
-            output$categoryHistUI <- shiny::renderUI({
-                shiny::selectInput(
-                    inputId = session$ns("categoryHist"),
-                    label = "Variable for stratification",
-                    choices = colnames(cD()), selected = "type")
+            shiny::observe({
+                shiny::updateSelectInput(session = session,
+                    inputId = "categoryHist",
+                    choices = colnames(cD()))
             })
             
-            output$binwidthCUI <- shiny::renderUI({
-                shiny::req(input$categoryHist)
-                sliderInput(session$ns("binwidthC"),
-                    label = "Binwidth (# features per sample type): ", 
-                    step = 1, min = 1, value = 1,
+            shiny::observe({
+                req(input$categoryHist)
+                updateSliderInput(session = session,
+                    inputId = "numberFeatures",
                     max = max(as.vector(table(cD()[[input$categoryHist]]))))
             })
             
             p_histFeatureCategory <- shiny::reactive({
-                histFeatureCategory(se(), binwidth = input$binwidthC, 
+                histFeatureCategory(se(), binwidth = input$numberFeatures, 
                     measured = measured, category = input$categoryHist)
             })
             
             output$histFeatureCategory <- plotly::renderPlotly({
-                shiny::req(input$binwidthC)
                 p_histFeatureCategory()
             })
             
@@ -405,7 +404,8 @@ tP_upSetUI <- function(id) {
         shiny::plotOutput(ns("upsetSample")) |>
             shinyhelper::helper(content = helper_file),
         shiny::downloadButton(outputId = ns("downloadPlot"), ""),
-        shiny::uiOutput(ns("categoryUpSetUI"))
+        shiny::selectInput(inputId = ns("categoryUpSet"), 
+            label = "Variable for stratification", choices = "type")
     )
 }
 
@@ -428,7 +428,7 @@ tP_upSetUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI selectInput req reactive
+#' @importFrom shiny moduleServer updateSelectInput req reactive
 #' @importFrom shiny downloadHandler renderPlot
 #' @importFrom ggplot2 ggsave
 #' 
@@ -439,12 +439,10 @@ upSetServer <- function(id, se, measured = TRUE) {
         id, 
         function(input, output, session) {
             
-            output$categoryUpSetUI <- shiny::renderUI({
-                shiny::selectInput(
-                    inputId = session$ns("categoryUpSet"), 
-                    label = "Variable for stratification", 
-                    choices = colnames(se()@colData),
-                    selected = "type")
+            shiny::observe({
+                shiny::updateSelectInput(session = session,
+                    inputId = "categoryUpSet", 
+                    choices = colnames(se()@colData))
             })
             
             p_upset <- shiny::reactive({
@@ -453,7 +451,6 @@ upSetServer <- function(id, se, measured = TRUE) {
             })
             
             output$upsetSample <- shiny::renderPlot({
-                shiny::req(input$categoryUpSet)
                 p_upset()
             })
             
@@ -504,7 +501,8 @@ tP_setsUI <- function(id) {
     }
     
     shiny::tabPanel(title = "Sets", 
-        shiny::uiOutput(ns("checkboxCategoryUI")) |>
+        shiny::checkboxGroupInput(inputId = ns("checkboxCategory"), 
+            label = "Select sets", choices = "setA") |> 
             shinyhelper::helper(content = helper_file),
         shiny::textOutput(ns("combinationText"))
     )
@@ -529,8 +527,8 @@ tP_setsUI <- function(id) {
 #'
 #' @author Thomas Naake
 #' 
-#' @importFrom shiny moduleServer renderUI checkboxGroupInput renderText
-#' @importFrom SummarizedExperiment colData
+#' @importFrom shiny moduleServer updateCheckboxGroupInput renderText 
+#' @importFrom shiny req
 #' 
 #' @noRd
 setsServer <- function(id, se, measured = TRUE) {
@@ -538,9 +536,11 @@ setsServer <- function(id, se, measured = TRUE) {
     shiny::moduleServer(
         id, 
         function(input, output, session) {
-            output$checkboxCategoryUI <- shiny::renderUI({
-                shiny::checkboxGroupInput(session$ns("checkboxCategory"), 
-                    label = "Select sets", 
+            
+            shiny::observe({
+                shiny::req(input$categoryUpSet)
+                shiny::updateCheckboxGroupInput(session = session,
+                    inputId = "checkboxCategory", 
                     choices = unique(se()@colData[[input$categoryUpSet]])) 
             })
             
