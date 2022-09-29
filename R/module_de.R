@@ -55,8 +55,6 @@ tP_colDataUI <- function(id) {
 #' 
 #' @param id \code{character}
 #' @param se \code{SummarizedExperiment} and \code{reactive} value
-#' @param missingValue \code{logical}, will load the respective help page for a
-#' \code{SummarizedExperiment} containign missing or non-missing data
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
@@ -66,7 +64,7 @@ tP_colDataUI <- function(id) {
 #' @importFrom shiny moduleServer renderDataTable
 #' 
 #' @noRd
-colDataServer <- function(id, se, missingValue) {
+colDataServer <- function(id, se) {
     shiny::moduleServer(
         id, 
         function(input, output, session) {
@@ -114,7 +112,8 @@ tP_modelMatrixUI <- function(id) {
                 shiny::br() |>
                     shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
-                shiny::uiOutput(outputId = ns("modelMatrixTab")) 
+                shiny::verbatimTextOutput(outputId = ns("textModelMatrix")),
+                shiny::dataTableOutput(outputId = ns("modelMatrixDataTable")) 
             )  
         )
     )
@@ -204,24 +203,15 @@ validFormulaMMServer <- function(id, expr, action, se) {
 validExprModelMatrix <- function(expr, se) {
     
     fMM <- tryCatch(stats::as.formula(expr), error = function(e) NULL)
+    mM <- tryCatch(stats::model.matrix(fMM, data = se@colData), 
+        error = function(e) NULL)
     
-    if (!is.null(fMM)) {
-        
-        fMM_l <- as.list(fMM)
-        fMM_l_c <- fMM_l[[length(fMM_l)]]
-        fMM_l_c <- as.character(fMM_l_c)
-        fMM_l_c <- fMM_l_c[!(fMM_l_c %in% c("+", "0", "1"))]
-        
-        if (all(fMM_l_c %in% colnames(se@colData)) & length(fMM_l_c) != 0) {
-            fMM <- fMM
-        } else {
-            fMM <- NULL
-        }
-    } else {
+    if (is.null(mM))
         fMM <- NULL
-    }
-    return(fMM)
+    
+    fMM
 }
+
 
 #' @name modelMatrixServer
 #'  
@@ -260,7 +250,7 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
                 }
             })
             
-            return(modelMatrix)
+            modelMatrix
         }
     )
 }
@@ -279,8 +269,6 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
 #' @param id \code{character}
 #' @param modelMatrix \code{matrix} and \code{reactive} value
 #' @param validFormulaMM \code{formula} and \code{reactive} value
-#' @param missingValue \code{logical}, will load the respective help page for a
-#' \code{SummarizedExperiment} containign missing or non-missing data
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
@@ -291,29 +279,34 @@ modelMatrixServer <- function(id, se, validFormulaMM) {
 #' @importFrom shiny dataTableOutput verbatimTextOutput
 #' 
 #' @noRd
-modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM, missingValue) {
+modelMatrixUIServer <- function(id, modelMatrix, validFormulaMM) {
     moduleServer(
         id, 
         function(input, output, session) {
             
-            output$modelMatrixTab <- shiny::renderUI({
-                ns <- session$ns
+            output$textModelMatrix <- shiny::renderText({
+                
+                msg <- NULL
+                
+                if (is.null(validFormulaMM()))
+                    msg <- c("formula for model matrix not valid with the",
+                             "given colData")
+                
+                msg
+            })
+            
+            
+            
+            output$modelMatrixDataTable <- shiny::renderDataTable({
+                
                 ## if there is a valid formula return the DataTable
                 if (!is.null(validFormulaMM())) {
-                    output$dtMM <- shiny::renderDataTable({
+                    
                         mM <- modelMatrix() |> as.matrix()
                         cbind(rownames(mM), mM)
-                    }, options = list(pageLength = 20))
-                    shiny::dataTableOutput(ns("dtMM"))
-                } else {
-                    ## show that the formula is not valid
-                    output$textfMM <- shiny::renderText(
-                        c("formula for Model Matrix not valid with",
-                            "the given colData"))
-                    shiny::verbatimTextOutput(ns("textfMM"))
                 }
                 
-            })
+            }, options = list(pageLength = 20))
             
         }
     )
@@ -355,7 +348,8 @@ tP_contrastUI <- function(id) {
                 shiny::br() |> 
                     shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
-                shiny::uiOutput(outputId = ns("contrastMatrixTab")) 
+                shiny::verbatimTextOutput(outputId = ns("textContrastMatrix")),
+                shiny::dataTableOutput(ns("contrastMatrix")) 
             )
         ) 
     )
@@ -391,14 +385,14 @@ validExprContrastServer <- function(id, expr, action, modelMatrix) {
         id,
         function(input, output, session) {
             
-            validExprC <- shiny::reactive({
+            validExpressionContrast <- shiny::reactive({
                 action()
                 contrasts <- shiny::isolate(expr())
                 validExprContrast(contrasts = contrasts,
                     modelMatrix = modelMatrix())
             })
             
-            return(validExprC)
+            validExpressionContrast
         }
     )
 }
@@ -437,17 +431,14 @@ validExprContrastServer <- function(id, expr, action, modelMatrix) {
 #' @noRd
 validExprContrast <- function(contrasts, modelMatrix) {
     
-    contrasts_c <- strsplit(contrasts, split = "-")[[1]]
-    contrasts_c <- gsub(pattern = " ", replacement = "", x = contrasts_c)
+    tmp <- tryCatch(
+        limma::makeContrasts(contrasts = contrasts, levels = modelMatrix),
+        error = function(e) NULL)
     
-    if (all(contrasts_c %in% colnames(modelMatrix)) & 
-        length(contrasts_c) %in% c(1, 2)) {
-        contrasts <- paste(contrasts_c, sep = "-")
-    } else {
-        contrasts <- NULL
-    }
-    
-    return(contrasts)
+    if (!is.null(tmp)) 
+        contrasts
+    else
+        NULL
 }
 
 #' @name contrastMatrixServer
@@ -506,8 +497,6 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
 #' @param validFormulaMM \code{formula} and \code{reactive} value
 #' @param validExprContrast \code{character} and \code{reactive} value
 #' @param contrastMatrix \code{matrix} and \code{reactive} value
-#' @param missingValue \code{logical}, will load the respective help page for a
-#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
@@ -519,38 +508,37 @@ contrastMatrixServer <- function(id, validExprContrast, modelMatrix) {
 #' 
 #' @noRd
 contrastMatrixUIServer <- function(id, validFormulaMM, validExprContrast, 
-        contrastMatrix, missingValue) {
+        contrastMatrix) {
     shiny::moduleServer(
         id,
         function(input, output, session) {
-            
-            
-            output$contrastMatrixTab <- shiny::renderUI({
-                ns <- session$ns
-                ## if there is a valid formula return the DataTable
-                if (!is.null(validFormulaMM()) & 
-                                !is.null(validExprContrast())) {
-                    output$dtCM <- shiny::renderDataTable({
-                        cM <- contrastMatrix()
-                        cbind(rownames(cM), cM)
-                    }, options = list(pageLength = 20))
-                    shiny::dataTableOutput(ns("dtCM"))
-                } else {
-                    if (is.null(validFormulaMM())) {
-                        ## show that the formula for Model Matrix is not valid
-                        output$textfCM <- shiny::renderText(
-                            c("formula for Model Matrix not valid", 
-                            "with the given colData"))
-                        
-                    } else {
-                        ## show that the expression of contrasts is not valid
-                        output$textfCM <- shiny::renderText(
-                            c("contrast formula not valid with", 
-                                "the given Model Matrix"))
-                    }
-                    shiny::verbatimTextOutput(ns("textfCM"))
-                }
+
+            output$textContrastMatrix <- shiny::renderText({
+                
+                msg <- NULL
+                
+                if (is.null(validFormulaMM()))
+                    msg <- c("formula for model matrix not valid with the",
+                             "given colData")
+                
+                if (!is.null(validFormulaMM()) & is.null(validExprContrast()))
+                    msg <- c("contrast expression not valid with",
+                             "the given model matrix")
+                
+                return(msg)
             })
+            
+            output$contrastMatrix <- shiny::renderDataTable({
+            
+                cM <- NULL
+                ## if there are valid formulas return the contrast matrix
+                if (!is.null(validFormulaMM()) & !is.null(validExprContrast())) {
+                    cM <- contrastMatrix()
+                    cM <- cbind(rownames(cM), cM)
+    
+                }
+                cM
+            }, options = list(pageLength = 20))
             
         }
     )
@@ -593,7 +581,8 @@ tP_topDEUI <- function(id) {
                 shiny::br()  |> 
                     shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12, 
-                shiny::uiOutput(outputId = ns("topDE")) 
+                shiny::verbatimTextOutput(outputId = ns("textDataTable")),
+                shiny::dataTableOutput(outputId = ns("dataTable")) 
             )  
         )
     )
@@ -615,8 +604,6 @@ tP_topDEUI <- function(id) {
 #' @param validFormulaMM \code{formula} and \code{reactive} value
 #' @param validExprContrast \code{character} and \code{reactive} value
 #' @param testResult \code{matrix} and \code{reactive} value
-#' @param missingValue \code{logical}, will load the respective help page for a
-#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
@@ -630,44 +617,33 @@ tP_topDEUI <- function(id) {
 #' 
 #' @noRd
 topDEUIServer <- function(id, type, validFormulaMM, validExprContrast, 
-        testResult, missingValue) {
+        testResult) {
     
     shiny::moduleServer(
         id,
         function(input, output, session) {
             
-            output$topDE <- shiny::renderUI({
-                ns <- session$ns
-                if (!is.null(validFormulaMM())) {
-                    
-                    if (type() == "ttest") {
-                        output$dtTest <- shiny::renderDataTable({
-                            testResult()
-                        })
-                        return(shiny::dataTableOutput(ns("dtTest")))
-                    }
-
-                    if (type() == "proDA") {
-                        if (!is.null(validExprContrast())) {
-                            output$dtTest <- shiny::renderDataTable({
-                                testResult()
-                            })
-                            return(shiny::dataTableOutput(ns("dtTest")))
-                        } else {
-                            output$textTest <- shiny::renderText(
-                                c("expression for contrasts not valid with",
-                                    "the given colData"))
-                            return(shiny::verbatimTextOutput(ns("textTest")))
-                        } 
-                    }
-                    
-                } else { ## no valid formula for Model Matrix
-                    output$textTest <- shiny::renderText(
-                        c("formula for Model Matrix not valid with the",
-                            "given colData"))
-                    return(shiny::verbatimTextOutput(ns("textTest")))
-                }
+            output$textDataTable <- shiny::renderText({
                 
+                msg <- NULL
+                
+                if (is.null(validFormulaMM()))
+                    msg <- c("formula for model matrix not valid with the",
+                      "given colData")
+                
+                if (!is.null(validFormulaMM()) & is.null(validExprContrast()))
+                    msg <- c("contrast expression not valid with",
+                        "the given model matrix")
+                
+                msg
+            })
+    
+            output$dataTable <- shiny::renderDataTable({
+                dataTable <- NULL
+                if (!is.null(validFormulaMM())) {
+                    dataTable <- testResult()
+                }
+                dataTable
             })
         }
     )
@@ -693,7 +669,6 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #' @param id \code{character}
 #' @param assay \code{matrix} and \code{reactive} value, obtained from 
 #' \code{assay(SummarizedExperiment)}
-#' @param validFormulaMM \code{formula} and \code{reactive} value
 #' @param modelMatrix \code{matrix} and \code{reactive} value
 #' @param contrastMatrix \code{matrix} and \code{reactive} value
 #' 
@@ -707,26 +682,24 @@ topDEUIServer <- function(id, type, validFormulaMM, validExprContrast,
 #' @importFrom proDA proDA
 #' 
 #' @noRd
-fitServer <- function(id, assay, validFormulaMM, modelMatrix, contrastMatrix) {
+fitServer <- function(id, assay, modelMatrix, contrastMatrix) {
     shiny::moduleServer(
         id,
         function(input, output, session) {
             
             fit <- shiny::reactive({
-                if (!is.null(validFormulaMM())) {
                     
-                    if (id == "ttest") {
-                        fit <- limma::lmFit(assay(), design = modelMatrix())
-                        if (!is.null(contrastMatrix())) 
-                            fit <- limma::contrasts.fit(fit, contrastMatrix())
-                        fit <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
-                    }
-                    if (id == "proDA") {
-                        fit <- proDA::proDA(assay(), design = modelMatrix()) 
-                    }
-                    
-                    return(fit)
-                } 
+                if (id == "ttest") {
+                    fit <- limma::lmFit(assay(), design = modelMatrix())
+                    if (!is.null(contrastMatrix())) 
+                        fit <- limma::contrasts.fit(fit, contrastMatrix())
+                    fit <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
+                }
+                if (id == "proDA") {
+                    fit <- proDA::proDA(assay(), design = modelMatrix()) 
+                }
+    
+                fit
             })
         }
     )
@@ -781,7 +754,7 @@ testResultServer <- function(id, type, fit_ttest, fit_proDA, validFormulaMM,
                     return(t)
                 }
             })
-            return(testResult)
+            testResult
         }
     )
 }
@@ -824,6 +797,7 @@ tP_volcanoUI <- function(id) {
                 shiny::br() |> 
                     shinyhelper::helper(content = "tabPanel_DE")),
             shiny::column(width = 12,
+                shiny::verbatimTextOutput(outputId = ns("textVolcano")),
                 shiny::uiOutput(outputId = ns("volcano"))
             )
         )
@@ -846,8 +820,6 @@ tP_volcanoUI <- function(id) {
 #' @param validFormulaMM \code{formula} and \code{reactive} value
 #' @param validExprContrast \code{character} and \code{reactive} value
 #' @param testResult \code{matrix} and \code{reactive} value
-#' @param missingValue \code{logical}, will load the respective help page for a
-#' \code{SummarizedExperiment} containing missing or non-missing data
 #' 
 #' @return 
 #' \code{shiny.render.function} expression
@@ -862,53 +834,61 @@ tP_volcanoUI <- function(id) {
 #' 
 #' @noRd
 volcanoUIServer <- function(id, type, validFormulaMM, validExprContrast, 
-        testResult, missingValue) {
+        testResult) {
 
     shiny::moduleServer(
         id, 
         function(input, output, session) {
+            
+            
+            output$textVolcano <- shiny::renderText({
+                
+                msg <- NULL
+                
+                if (is.null(validFormulaMM())) {
+                    msg <- c("formula for model matrix not valid with the",
+                             "given colData")
+                }
+                
+                if (!is.null(validFormulaMM()) & is.null(validExprContrast())) {
+                    msg <- c("contrast expression not valid with",
+                             "the given model matrix")
+                }
+                
+                return(msg)
+            })
+            
+            
+            
         
             output$volcano <- shiny::renderUI({
                 ns <- session$ns
-                if (!is.null(validFormulaMM())) {
+                if (!is.null(validFormulaMM()) & 
+                    !is.null(validExprContrast())) {
                     
-                    if (!is.null(validExprContrast())) {
+                    p_volcano <- shiny::reactive({
+                        volcanoPlot(testResult(), type())
+                    })
                         
-                        p_volcano <- shiny::reactive({
-                            volcanoPlot(testResult(), type())
-                        })
+                    output$plotVolcano <- plotly::renderPlotly({
+                        p_volcano()
+                    })
                         
-                        output$plotVolcano <- plotly::renderPlotly({
-                            p_volcano()
-                        })
+                    output$downloadPlot <- shiny::downloadHandler(
+                        filename = function() {
+                            paste("Volcano_", type(), ".html")
+                        },
+                        content = function(file) {
+                            htmlwidgets::saveWidget(p_volcano(), file)
+                        }
+                    )
                         
-                        output$downloadPlot <- shiny::downloadHandler(
-                            filename = function() {
-                                paste("Volcano_", type(), ".html")
-                            },
-                            content = function(file) {
-                                htmlwidgets::saveWidget(p_volcano(), file)
-                            }
-                        )
-                        
-                        ## return plot and downloadButton
-                        shiny::tagList(
-                            plotly::plotlyOutput(ns("plotVolcano")),
-                            shiny::downloadButton(
-                                outputId = ns("downloadPlot"), "")
-                        )
-                        
-                    } else {
-                        output$textVolcano <- shiny::renderText({
-                            c("expression for contrasts not",
-                                "valid with the given colData")})
-                        shiny::verbatimTextOutput(ns("textVolcano"))
-                    }
-                } else {
-                    output$textVolcano <- shiny::renderText({
-                        c("formula for Model Matrix not valid",
-                            "with the given colData")})
-                    shiny::verbatimTextOutput(ns("textVolcano"))
+                    ## return plot and downloadButton
+                    shiny::tagList(
+                        plotly::plotlyOutput(ns("plotVolcano")),
+                        shiny::downloadButton(
+                            outputId = ns("downloadPlot"), "")
+                    )
                 }
             })
         }

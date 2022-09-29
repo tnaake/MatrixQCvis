@@ -2,7 +2,7 @@
 
 The panel shows the mean-sd (standard deviation) plots for 
 
- - normalized+batch corrected+transformed (**transformed**), and 
+ - normalized+batch corrected+transformed (**transformed**) and 
  - normalized+batch corrected+transformed+imputed (**imputed**) assay values.
  
 The **imputed** values are only displayed if there are missing values (`NA`s) in the 

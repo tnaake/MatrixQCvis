@@ -518,7 +518,6 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 }
             })
             
-            
             observeEvent(innerWidth(), {
                 rv$innerWidth <- innerWidth() * 3 / 5
             })

@@ -610,7 +610,7 @@ shinyQC <- function(se, app_server = FALSE) {
 
     ## TAB: Differential Expression (DE)
     ## create data.frame with colData of the supplied se
-    colDataServer("colData", se = se_r, missingValue = missingValue)
+    colDataServer("colData", se = se_r)
     
     ## check if the supplied formula (input$modelMat) is valid and return
     ## NULL if otherwise
@@ -624,7 +624,7 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## create the data.frame of the Model Matrix to display
     modelMatrixUIServer("modelMatrix", modelMatrix = modelMatrix, 
-        validFormulaMM = validFormulaMM, missingValue = missingValue)
+        validFormulaMM = validFormulaMM)
     
     ## check if the supplied formula/expr (input$contrastMat) is vald and 
     ## return NULL if otherwise
@@ -638,18 +638,17 @@ shinyQC <- function(se, app_server = FALSE) {
     
     ## create the data.frame of the Contrast Matrix to display
     contrastMatrixUIServer("contrast", validFormulaMM = validFormulaMM, 
-        validExprContrast = validExprContrast, contrastMatrix = contrastMatrix,
-        missingValue = missingValue)
+        validExprContrast = validExprContrast, contrastMatrix = contrastMatrix)
     
     ## calculate the fit and test results with eBayes (ttest) and 
     ## proDA, cache the results for proDA since it is computationally
     ## expensive
     fit_ttest <- fitServer("ttest", assay = a_i, 
-        validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
+        modelMatrix = modelMatrix,
         contrastMatrix = contrastMatrix)
     
     fit_proDA <- fitServer("proDA", assay = a_t,
-            validFormulaMM = validFormulaMM, modelMatrix = modelMatrix,
+            modelMatrix = modelMatrix,
             contrastMatrix = contrastMatrix) |>
         shiny::bindCache(a_t(), modelMatrix(), contrastMatrix(), 
                                                             cache = "session")
@@ -664,14 +663,12 @@ shinyQC <- function(se, app_server = FALSE) {
     ## display the test results
     topDEUIServer("topDE", type = shiny::reactive(input$DEtype),
         validFormulaMM = validFormulaMM, 
-        validExprContrast = validExprContrast, testResult = testResult,
-        missingValue = missingValue)
+        validExprContrast = validExprContrast, testResult = testResult)
     
     ## create Volcano plot
     volcanoUIServer("volcano", type = shiny::reactive(input$DEtype),
         validFormulaMM = validFormulaMM,
-        validExprContrast = validExprContrast, testResult = testResult,
-        missingValue = missingValue)
+        validExprContrast = validExprContrast, testResult = testResult)
     
     ## observer for creating the report
     output$report <- shiny::downloadHandler(

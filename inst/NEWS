@@ -1,5 +1,12 @@
+Changes in version 1.5.7 (2022-09-29)
++ change renderUI functions to update...Input whenever possible
++ remove the dual interface for measured/missing values help pages in the 
+  values tab
++ improve the formula/expression checks in the DE tab using the 
+  model.matrix and makeContrasts functions
+
 Changes in version 1.5.6 (2022-09-23)
-+ speed up functions
++ speed up non-server functions
 
 Changes in version 1.5.5 (2022-08-23)
 + add unit tests for imputation of missing values

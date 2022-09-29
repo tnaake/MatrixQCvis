@@ -45,9 +45,7 @@ test_that("colDataServer", {
         session <- new.env()
         se <- new.env()
         
-        out <- colDataServer("", se = se, missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- colDataServer("", se = se, missingValue = FALSE)
+        out <- colDataServer("", se = se)
         expect_is(out, "shiny.render.function")
     })
 })
@@ -72,8 +70,8 @@ test_that("validExprModelMatrix", {
     expect_is(validExprModelMatrix("~type", se = se), "formula")
     expect_is(validExprModelMatrix("~foo", se = se), "NULL")
     expect_is(validExprModelMatrix("~", se = se), "NULL")
-    expect_error(validExprModelMatrix("~type", se = NULL), 
-        "trying to get slot")
+    expect_is(validExprModelMatrix("~type", se = NULL), 
+        "NULL")
 })
 
 ## modelMatrixServer
@@ -101,10 +99,7 @@ test_that("modelMatrixUIServer", {
         validFormulaMM <- new.env()
         
         out <- modelMatrixUIServer("", modelMatrix = modelMatrix, 
-            validFormulaMM = validFormulaMM, missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- modelMatrixUIServer("", modelMatrix = modelMatrix, 
-            validFormulaMM = validFormulaMM, missingValue = FALSE)
+            validFormulaMM = validFormulaMM)
         expect_is(out, "shiny.render.function")
     })
 })
@@ -128,10 +123,17 @@ test_that("validExprContrastServer", {
 ## validExprContrast
 test_that("validExprContrast", {
     modelMatrix <- stats::model.matrix(~type, colData(se))
-    expect_equal(validExprContrast("type2", modelMatrix = modelMatrix), "type2")
-    expect_equal(validExprContrast("type2-", modelMatrix = modelMatrix), "type2")
-    expect_is(validExprContrast("foo", modelMatrix = modelMatrix), "NULL")
-    expect_is(validExprContrast("type2", modelMatrix = NULL), "NULL")
+    expect_equal(suppressWarnings(validExprContrast("type2", 
+        modelMatrix = modelMatrix)), "type2")
+    expect_is(suppressWarnings(validExprContrast("type2-", 
+        modelMatrix = modelMatrix)), "NULL")
+    expect_is(suppressWarnings(validExprContrast("foo", 
+        modelMatrix = modelMatrix)), "NULL")
+    expect_is(suppressWarnings(validExprContrast("type2", modelMatrix = NULL)), 
+        "NULL")
+    modelMatrix <- stats::model.matrix(~type + 0, colData(se))
+    expect_equal(suppressWarnings(validExprContrast("type2-type1", 
+        modelMatrix = modelMatrix)), "type2-type1")
 })
 
 ## contrastMatrixServer
@@ -161,11 +163,7 @@ test_that("contrastMatrixUIServer", {
         
         out <- contrastMatrixUIServer("", validFormulaMM = validFormulaMM,
             validExprContrast = validExprContrast, 
-            contrastMatrix = contrastMatrix, missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- contrastMatrixUIServer("", validFormulaMM = validFormulaMM,
-            validExprContrast = validExprContrast, 
-            contrastMatrix = contrastMatrix, missingValue = FALSE)
+            contrastMatrix = contrastMatrix)
         expect_is(out, "shiny.render.function")
     })
 })
@@ -183,13 +181,7 @@ test_that("topDEUIServer", {
         
         out <- topDEUIServer("", type = type, 
             validFormulaMM = validFormulaMM, 
-            validExprContrast = validExprContrast, testResult = testResult,
-            missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        ut <- topDEUIServer("", type = type, 
-            validFormulaMM = validFormulaMM, 
-            validExprContrast = validExprContrast, testResult = testResult,
-            missingValue = FALSE)
+            validExprContrast = validExprContrast, testResult = testResult)
         expect_is(out, "shiny.render.function")
     })
 })
@@ -205,7 +197,7 @@ test_that("fitServer", {
         modelMatrix <- new.env()
         contrastMatrix <- new.env()
         
-        out <- fitServer("", assay = assay, validFormulaMM = validFormulaMM,
+        out <- fitServer("", assay = assay, 
             modelMatrix = modelMatrix, contrastMatrix = contrastMatrix)
         expect_is(out, "reactiveExpr")
     })
@@ -244,13 +236,7 @@ test_that("volcanoUIServer", {
         
         out <- volcanoUIServer("", type = type, 
             validFormulaMM = validFormulaMM, 
-            validExprContrast = validExprContrast, testResult = testResult,
-            missingValue = TRUE)
-        expect_is(out, "shiny.render.function")
-        out <- volcanoUIServer("", type = type, 
-            validFormulaMM = validFormulaMM, 
-            validExprContrast = validExprContrast, testResult = testResult,
-            missingValue = TRUE)
+            validExprContrast = validExprContrast, testResult = testResult)
         expect_is(out, "shiny.render.function")
     })
 })
