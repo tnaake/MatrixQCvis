@@ -14,13 +14,13 @@
 #' Uniform Manifold Approximation and Projection (UMAP).
 #' 
 #' The second list entry will contains the object returned from 
-#' \code{prcomp} (PCA), \code{cmdscale} (PCoA), \code{metaMDS} (NMDS), 
+#' \code{prcomp} (PCA), \code{cmdscale} (PCoA), \code{isoMDS} (NMDS), 
 #' \code{Rtsne} (tSNE), or \code{umap} (UMAP).
 #' 
 #' @details 
 #' The function \code{dimensionReduction} is a wrapper around the following 
 #' functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA), 
-#' \code{vegan::metaMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
+#' \code{MASS::isoMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
 #' \code{umap::umap} (UMAP). For the function \code{umap::umap} 
 #' the method is set to \code{naive}. 
 #' 
@@ -49,14 +49,14 @@
 #' @author Thomas Naake
 #'
 #' @importFrom stats prcomp dist cmdscale
-#' @importFrom vegan metaMDS
+#' @importFrom MASS isoMDS
 #' @importFrom Rtsne Rtsne
 #' @importFrom umap umap
 #' @importFrom methods formalArgs
 #' 
 #' @return list, first entry contains a \code{tbl}, second entry contains
 #' the object returned from \code{prcomp} (PCA), \code{cmdscale} (PCoA),
-#' \code{metaMDS} (NMDS), \code{Rtsne} (tSNE), or \code{umap} (UMAP)
+#' \code{isoMDS} (NMDS), \code{Rtsne} (tSNE), or \code{umap} (UMAP)
 #' 
 #' @export
 dimensionReduction <- function(x, 
@@ -85,9 +85,10 @@ dimensionReduction <- function(x,
         ## truncate params
         params <- params[names(params) %in% formalArgs(dist)] 
         d <- do.call(what = stats::dist, args = params)
-        d <- vegan::metaMDS(d)
+        d <- MASS::isoMDS(d, k = 2)
         tbl <- d$points |>
             tibble::as_tibble()
+        colnames(tbl) <- paste("MDS", seq_len(ncol(tbl)), sep = "")
     }
     if (type == "tSNE") { 
         ## hyperparameters for tSNE: perplexity, max_iter, initial_dims, dims

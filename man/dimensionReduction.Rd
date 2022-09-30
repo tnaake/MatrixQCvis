@@ -26,7 +26,7 @@ dimensionality reduction. One of \code{PCA}, \code{PCoA}, \code{NMDS},
 \value{
 list, first entry contains a \code{tbl}, second entry contains
 the object returned from \code{prcomp} (PCA), \code{cmdscale} (PCoA),
-\code{metaMDS} (NMDS), \code{Rtsne} (tSNE), or \code{umap} (UMAP)
+\code{isoMDS} (NMDS), \code{Rtsne} (tSNE), or \code{umap} (UMAP)
 }
 \description{
 The function \code{dimensionReduction} creates a \code{data.frame} 
@@ -39,13 +39,13 @@ scaling (NMDS), t-distributed stochastic neighbor embedding (tSNE), and
 Uniform Manifold Approximation and Projection (UMAP).
 
 The second list entry will contains the object returned from 
-\code{prcomp} (PCA), \code{cmdscale} (PCoA), \code{metaMDS} (NMDS), 
+\code{prcomp} (PCA), \code{cmdscale} (PCoA), \code{isoMDS} (NMDS), 
 \code{Rtsne} (tSNE), or \code{umap} (UMAP).
 }
 \details{
 The function \code{dimensionReduction} is a wrapper around the following 
 functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA), 
-\code{vegan::metaMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
+\code{MASS::isoMDS} (NMDS), \code{Rtsne::Rtsne} (tSNE), and 
 \code{umap::umap} (UMAP). For the function \code{umap::umap} 
 the method is set to \code{naive}.
 }

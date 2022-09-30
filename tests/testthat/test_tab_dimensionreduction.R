@@ -1,6 +1,6 @@
 #' @importFrom stats prcomp
 #' @importFrom ape pcoa
-#' @importFrom vegan metaMDS
+#' @importFrom MASS isoMDS
 #' @importFrom Rtsne Rtsne
 #' @importFrom umap umap
 #' @importFrom tibble as_tibble 
@@ -42,8 +42,9 @@ test_that("dimensionReduction", {
     colnames(pcoa_r) <- paste("Axis.", seq_len(99), sep = "")
     pcoa_r <- tibble::as_tibble(pcoa_r)
     suppressWarnings(
-        nmds_r <- vegan::metaMDS(dist(t(x), method = "euclidean"))$points)
+        nmds_r <- MASS::isoMDS(dist(t(x), method = "euclidean"), k = 2)$points)
     nmds_r <- tibble::as_tibble(nmds_r)
+    colnames(nmds_r) <- c("MDS1", "MDS2")
     tsne_r <- Rtsne::Rtsne(t(x), perplexity = 3, max_iter = 1000,
         initial_dims = 2, dims = 2, pca_center = TRUE, pca_scale = FALSE,
         theta = 0)$Y
@@ -73,14 +74,8 @@ test_that("dimensionReduction", {
         c("sdev", "rotation", "center", "scale", "x"))
     expect_true(is(pcoa_o[[2]], "list"))
     expect_equal(names(pcoa_o[[2]]), c("points", "eig", "x", "ac", "GOF"))
-    expect_true(is(nmds_o[[2]], "metaMDS"))
-    expect_equal(names(nmds_o[[2]]), 
-        c("nobj", "nfix", "ndim", "ndis", "ngrp", "diss", "iidx", "jidx",
-            "xinit", "istart", "isform", "ities", "iregn", "iscal", "maxits",
-            "sratmx", "strmin", "sfgrmn", "dist", "dhat", "points", "stress",
-            "grstress", "iters", "icause", "call", "model", "distmethod",
-            "distcall", "distance", "converged", "tries", "engine", "species",
-            "data"))
+    expect_true(is(nmds_o[[2]], "list"))
+    expect_equal(names(nmds_o[[2]]), c("points", "stress"))
     expect_true(is(tsne_o[[2]], "Rtsne"))
     expect_equal(names(tsne_o[[2]]), 
         c("N", "Y", "costs", "itercosts", "origD", "perplexity", "theta",
