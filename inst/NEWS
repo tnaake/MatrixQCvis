@@ -1,3 +1,6 @@
+Changes in version 1.5.8 (2022-09-30)
++ replace vegan::metaMDS by MASS::isoMDS for NMDS dimension reduction
+
 Changes in version 1.5.7 (2022-09-29)
 + change renderUI functions to update...Input whenever possible
 + remove the dual interface for measured/missing values help pages in the 
