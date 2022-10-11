@@ -6,7 +6,7 @@ test_that("shinyQC", {
     ## create SummarizedExperiment that doesn't comply with the expectations
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = list(counts = matrix(100 * runif(100 * 8), 100, 8)),
-        colData = S4Vectors::DataFrame(sample = paste0("S", 1:8),
+        colData = data.frame(sample = paste0("S", 1:8),
             group = sample(LETTERS[1:2], 8, replace = TRUE),
             name = paste0("S", 1:8))
     )
@@ -22,9 +22,9 @@ test_that("shinyQC", {
 test_that(".initialize_server", {
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = list(counts = matrix(100 * runif(100 * 8), 100, 8)),
-        colData = S4Vectors::DataFrame(sample = paste0("S", 1:8),
-                                       group = sample(LETTERS[1:2], 8, replace = TRUE),
-                                       name = paste0("S", 1:8))
+        colData = data.frame(sample = paste0("S", 1:8),
+            group = sample(LETTERS[1:2], 8, replace = TRUE),
+            name = paste0("S", 1:8))
     )
     expect_error(MatrixQCvis:::.initialize_server(se = se, input = new.env(),
         output = new.env, session = new.env(), missingValue = NULL,

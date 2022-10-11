@@ -243,7 +243,6 @@ shinyQC <- function(se, app_server = FALSE) {
 #' Observers and reactive server expressions for all app elements
 #' 
 #' @importFrom SummarizedExperiment assays `metadata<-`
-#' @importFrom S4Vectors metadata
 #' @importFrom rmarkdown render
 #' @importFrom shinyhelper observe_helpers
 #' @importFrom shiny renderText req outputOptions reactive observe sliderInput
@@ -770,13 +769,13 @@ shinyQC <- function(se, app_server = FALSE) {
     ## (this object will be returned when exiting shinyQC)
     observe({
         se <- se_r_i()
-        S4Vectors::metadata(se) <- list(
+        se@metadata <- list(
             "normalized" = input$normalization,
             "batch corrected" = input$batch,
             "transformation" = input$transformation)
 
         if (missingValue) {
-            S4Vectors::metadata(se)[["imputation"]] <- input$imputation
+            se@metadata[["imputation"]] <- input$imputation
         }
         assign("se_return", se, envir = envir)
         

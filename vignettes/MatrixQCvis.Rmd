@@ -81,8 +81,8 @@ BiocManager::install("MatrixQCvis")
 Before starting with the analysis, load the `MatrixQCvis` package. This 
 will also load the required packages `Biobase`, `BiocGenerics`, `GenomeInfoDb`,
 `GenomicRanges`, `ggplot2`, `IRanges`, `MatrixGenerics`,
-`parallel`, `matrixStats`, `plotly`, `S4Vectors`, `shiny`,
-`shinydashboard`, `SummarizedExperiment`, and `stats4`.
+`parallel`, `matrixStats`, `plotly`, `shiny`, `SummarizedExperiment`, and 
+`stats4`.
 
 ```{r load_MatrixQCvis, eval=TRUE}
 library(MatrixQCvis)
