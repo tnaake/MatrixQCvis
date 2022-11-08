@@ -218,7 +218,7 @@ test_that("MAplot", {
     g <- MAplot(tbl, group = "all", plot = "all")
     
     expect_error(MAplot(se, "all"), 
-        "must be a data frame, or other object")
+        "must be a ")
     expect_error(MAplot(tbl, group = "foo", plot = "all"), "should be one of ")
     expect_error(MAplot(tbl, group = "all", plot = "foo"), 
         "plot not in ")
