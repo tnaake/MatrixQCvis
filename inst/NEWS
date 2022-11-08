@@ -1,3 +1,6 @@
+Changes in version 1.6.1 (2022-11-08)
++ update error messages in unit tests to comply with updated dependencies
+
 Changes in version 1.5.9 (2022-10-19)
 + add ShinyApps to biocViews
 

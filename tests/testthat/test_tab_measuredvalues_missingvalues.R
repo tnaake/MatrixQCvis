@@ -36,9 +36,9 @@ test_that("barplotSamplesMeasuredMissing", {
     expect_is(barplotSamplesMeasuredMissing(x, measured = FALSE), "plotly")
     ##expect_error(barplotSamplesMeasuredMissing(NULL, measured = FALSE), "not found")
     expect_error(barplotSamplesMeasuredMissing("foo", measured = FALSE), 
-        "must be a data frame, or other object coercible by")
+        "must be a ")
     expect_error(barplotSamplesMeasuredMissing(1:10, measured = FALSE), 
-        "must be a data frame, or other object coercible by")
+        "must be a ")
     expect_error(barplotSamplesMeasuredMissing(x, measured = NULL), 
         "argument is of length zero")
     
