@@ -1488,7 +1488,7 @@ imputeAssay <- function(a,
         n_samp <- nrow(a_i)
         ## expects a matrix with features in columns, samples in rows
         res <- pcaMethods::pca(a_i, method = "bpca", nPcs = (n_samp - 1),
-                                                            verbose = FALSE)
+            verbose = FALSE, maxSteps = 200, center = TRUE, scale = "uv")
         a_i <- pcaMethods::completeObs(res)
     }
 
