@@ -505,7 +505,7 @@ ECDF <- function(se, sample = colnames(se),
     ggplot2::ggplot(df, 
         ggplot2::aes(x = !!ggplot2::sym("value"), 
             color = !!ggplot2::sym("type"), group = !!ggplot2::sym("type"))) + 
-        ggplot2::stat_ecdf(size=1) + ggplot2::theme_bw() + 
+        ggplot2::stat_ecdf(linewidth = 1) + ggplot2::theme_bw() + 
         ggplot2::xlab(sample) + ggplot2::ylab("ECDF") +
         ggplot2::ggtitle(sprintf("K-S Test: D: %s, p-value: %s", 
             signif(ks_test$statistic, 3), 
