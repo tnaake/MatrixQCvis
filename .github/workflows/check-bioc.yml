@@ -176,7 +176,7 @@ jobs:
           gha_repos <- if(
               .Platform$OS.type == "unix" && Sys.info()["sysname"] != "Darwin"
           ) c(
-              "AnVIL" = "https://bioconductordocker.blob.core.windows.net/packages/3.15/bioc",
+              "AnVIL" = "https://bioconductordocker.blob.core.windows.net/packages/3.17/bioc",
               BiocManager::repositories()
               ) else BiocManager::repositories()
 
