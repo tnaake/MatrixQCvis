@@ -74,14 +74,15 @@ hist_sample_num <- function(se, category = "type") {
 #' tbl <- hist_sample_num(se, category = "type")
 #' hist_sample(tbl)
 #' 
-#' @importFrom ggplot2 ggplot aes_string geom_bar ggtitle ylab xlab theme_bw
+#' @importFrom ggplot2 ggplot aes sym geom_bar ggtitle ylab xlab theme_bw
 #' @importFrom ggplot2 theme element_text
 #' @importFrom plotly ggplotly
 #' 
 #' @export
 hist_sample <- function(tbl, category = "type") {
     ## do the actual plotting
-    p <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "names", y = "values")) + 
+    p <- ggplot2::ggplot(tbl, ggplot2::aes(x = !!ggplot2::sym("names"), 
+            y = !!ggplot2::sym("values"))) + 
         ggplot2::geom_bar(stat = "identity") + 
         ggplot2::ggtitle("Number of samples") + 
         ggplot2::ylab("number") + ggplot2::xlab(category) + 
@@ -127,7 +128,7 @@ hist_sample <- function(tbl, category = "type") {
 #' @importFrom rlang := .data
 #' @importFrom dplyr group_by summarise mutate ungroup n
 #' @importFrom SummarizedExperiment colData
-#' @importFrom ggplot2 ggplot aes_string geom_bar geom_text position_stack
+#' @importFrom ggplot2 ggplot aes sym geom_bar geom_text position_stack
 #' @importFrom ggplot2 facet_grid scale_fill_brewer theme_bw ylab
 #' @importFrom ggplot2 scale_y_continuous theme element_text
 #' 
@@ -165,11 +166,13 @@ mosaic <- function(se, f1, f2) {
     df$f1_labs <- paste0(df[[f1]], " (", sample_percent, "%)")
     
     ## plotting
-    ggplot2::ggplot(df, ggplot2::aes_string(x = f1, y = deparse(quote(prop)), 
-                        width = deparse(quote(cut.count)), fill = f2)) +
+    ggplot2::ggplot(df, ggplot2::aes(x = !!ggplot2::sym(f1), 
+            y = !!ggplot2::sym("prop"), 
+            width = !!ggplot2::sym("cut.count"), 
+            fill = !!ggplot2::sym(f2))) +
         ggplot2::geom_bar(stat = "identity", position = "fill", 
             colour = "black") +
-        ggplot2::geom_text(ggplot2::aes_string(label = "prop_percent"), 
+        ggplot2::geom_text(ggplot2::aes(label = !!ggplot2::sym("prop_percent")), 
             angle = 90, position = ggplot2::position_stack(vjust = 0.5)) +
         ggplot2::facet_grid(~ f1_labs, scales = "free_x", space = "free_x") +
         ggplot2::scale_fill_brewer() + ggplot2::theme_classic() + 

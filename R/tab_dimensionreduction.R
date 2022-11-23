@@ -166,7 +166,7 @@ dimensionReduction <- function(x,
 #'
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr left_join
-#' @importFrom ggplot2 ggplot aes_string xlab ylab geom_point coord_fixed
+#' @importFrom ggplot2 ggplot aes sym xlab ylab geom_point coord_fixed
 #' @importFrom ggplot2 theme_classic theme
 #' 
 #' @return \code{plotly} or \code{gg}
@@ -193,10 +193,10 @@ dimensionReductionPlot <- function(tbl, se,
         tT <- c("text", "color")
     }
     
-    ## use deparse(quote(name)) to convert object name into
-    ## character string
-    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = x_coord, y = y_coord, 
-        text = deparse(quote(name))))
+    ## do the actual plotting
+    g <- ggplot2::ggplot(tbl, ggplot2::aes(x = !!ggplot2::sym(x_coord), 
+        y = !!ggplot2::sym(y_coord), 
+        text = !!ggplot2::sym("name")))
     
     if (!is.null(explainedVar)) {
         g <- g + ggplot2::xlab(paste(x_coord, " (", 
@@ -210,7 +210,8 @@ dimensionReductionPlot <- function(tbl, se,
     if (highlight == "none") {
         g <- g + ggplot2::geom_point()
     } else {
-        g <- g + ggplot2::geom_point(ggplot2::aes_string(color = "color"))
+        g <- g + ggplot2::geom_point(
+            ggplot2::aes(color = !!ggplot2::sym("color")))
     }
     
     g <- g + ggplot2::theme_classic()
@@ -389,7 +390,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE,
 #' 
 #' @author Thomas Naake
 #' 
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_line theme_bw
+#' @importFrom ggplot2 ggplot aes sym geom_point geom_line theme_bw
 #' @importFrom ggplot2 ylab xlab theme element_text element_blank
 #'
 #' @export
@@ -407,9 +408,11 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
     df[["values"]] <- df[["values"]] * 100
     
     ## plotting
-    g <- ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values"))  + 
-        ggplot2::geom_point(ggplot2::aes_string(color = "group")) + 
-        ggplot2::geom_line(ggplot2::aes_string(color = "group", group = "group")) +
+    g <- ggplot2::ggplot(df, ggplot2::aes(x = !!ggplot2::sym("PC"), 
+            y = !!ggplot2::sym("values")))  + 
+        ggplot2::geom_point(ggplot2::aes(color = !!ggplot2::sym("group"))) + 
+        ggplot2::geom_line(ggplot2::aes(color = !!ggplot2::sym("group"), 
+            group = !!ggplot2::sym("group"))) +
         ggplot2::theme_bw() + ggplot2::ylab("explained variance (%)") + 
         ggplot2::xlab("principal components") +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
@@ -446,7 +449,7 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' 
 #' @return \code{gg} object from \code{ggplot}
 #' 
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_line geom_hline aes
+#' @importFrom ggplot2 ggplot aes sym geom_point geom_line geom_hline aes
 #' @importFrom ggplot2 ylab xlab theme_bw theme element_text
 #'
 #' @author Thomas Naake
@@ -459,10 +462,11 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
     df[["PC"]] <- factor(df[["PC"]], levels = df[["PC"]])
     
     ## plotting
-    ggplot2::ggplot(df, ggplot2::aes_string(x = "PC", y = "values")) + 
+    ggplot2::ggplot(df, ggplot2::aes(x = !!ggplot2::sym("PC"), 
+            y = !!ggplot2::sym("values"))) + 
         ggplot2::geom_point() + 
-        ggplot2::geom_line(ggplot2::aes_string(group = "group")) + 
-        ggplot2::geom_hline(ggplot2::aes(yintercept=0.05), color = "red") +
+        ggplot2::geom_line(ggplot2::aes(group = !!ggplot2::sym("group"))) + 
+        ggplot2::geom_hline(ggplot2::aes(yintercept = 0.05), color = "red") +
         ggplot2::ylab("p-value") + ggplot2::xlab("principal components") + 
         ggplot2::theme_bw() + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
@@ -541,16 +545,16 @@ tblPCALoadings <- function(x, params) {
 #' @author Thomas Naake
 #' 
 #' @importFrom plotly ggplotly
-#' @importFrom ggplot2 ggplot aes_string geom_point xlab ylab theme_classic
+#' @importFrom ggplot2 ggplot aes sym geom_point xlab ylab theme_classic
 #' @importFrom ggplot2 theme
 #' 
 #' @export
 plotPCALoadings <- function(tbl, x_coord, y_coord) {
     
     g <- ggplot2::ggplot(tbl, 
-            ggplot2::aes_string(text = deparse(quote(name)))) +
-        ggplot2::geom_point(ggplot2::aes_string(x = x_coord, y = y_coord), 
-            alpha = 0.4) +
+            ggplot2::aes(text = !!ggplot2::sym("name"))) +
+        ggplot2::geom_point(ggplot2::aes(x = !!ggplot2::sym(x_coord), 
+            y = !!ggplot2::sym(y_coord)), alpha = 0.4) +
         ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) +
         ggplot2::theme_classic() + ggplot2::theme(legend.position = "none")
 

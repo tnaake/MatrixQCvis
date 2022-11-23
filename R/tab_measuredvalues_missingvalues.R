@@ -77,7 +77,7 @@ samplesMeasuredMissing <- function(se) {
 #' ## plot number of missing values
 #' barplotSamplesMeasuredMissing(tbl, measured = FALSE)
 #'
-#' @importFrom ggplot2 ggplot geom_bar aes_string ylab theme_classic xlab theme
+#' @importFrom ggplot2 ggplot geom_bar aes sym ylab theme_classic xlab theme
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly
 #' 
@@ -88,11 +88,13 @@ barplotSamplesMeasuredMissing <- function(tbl, measured = TRUE) {
     g <- ggplot2::ggplot(tbl) 
     if (measured) 
         g <- g + ggplot2::geom_bar(
-            ggplot2::aes_string(x = "name", y = "measured"), stat = "identity") +
+            ggplot2::aes(x = !!ggplot2::sym("name"), 
+                y = !!ggplot2::sym("measured")), stat = "identity") +
             ggplot2::ylab("number of measured features")
     if (!measured) 
         g <- g + ggplot2::geom_bar(
-            ggplot2::aes_string(x = "name", y = "missing"), stat = "identity") +
+            ggplot2::aes(x = !!ggplot2::sym("name"), 
+                y = !!ggplot2::sym("missing")), stat = "identity") +
             ggplot2::ylab("number of missing features")
     g <- g + ggplot2::theme_classic() + ggplot2::xlab("sample") + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
@@ -143,7 +145,7 @@ histFeature <- function(x, measured = TRUE, ...) {
     val <- tibble::tibble(values = val)
     
     ## plotting
-    g <- ggplot2::ggplot(val, aes_string(x = "values")) + 
+    g <- ggplot2::ggplot(val, aes(x = !!ggplot2::sym("values"))) + 
         ggplot2::geom_histogram(...) + 
         ggplot2::xlab(x_lab) + 
         ggplot2::ylab("number of features") + 
@@ -267,7 +269,7 @@ measuredCategory <- function(se, measured = TRUE, category = "type") {
 #' histFeatureCategory(se, measured = TRUE, category = "type")
 #' 
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes_string geom_histogram facet_grid ggtitle
+#' @importFrom ggplot2 ggplot aes sym geom_histogram facet_grid ggtitle
 #' @importFrom ggplot2 xlab ylab theme_classic theme
 #' @importFrom plotly ggplotly
 #'
@@ -293,8 +295,10 @@ histFeatureCategory <- function(se, measured = TRUE,
         x_lab <- "number of missing values per feature"
     }
 
-    p <- ggplot2::ggplot(tbl_type_l, ggplot2::aes_string(x = "value")) + 
-        ggplot2::geom_histogram(ggplot2::aes_string(fill = "name"), ...) +
+    p <- ggplot2::ggplot(tbl_type_l,
+            ggplot2::aes(x = !!ggplot2::sym("value"))) + 
+        ggplot2::geom_histogram(ggplot2::aes(fill = !!ggplot2::sym("name")), 
+            ...) +
         ggplot2::facet_grid(. ~ name) + ggplot2::ggtitle(title) + 
         ggplot2::xlab(x_lab) + ggplot2::ylab("number of features") +
         ggplot2::theme_classic() + ggplot2::theme(legend.position = "none")

@@ -217,7 +217,7 @@ test_that("MAplot", {
     tbl <- MAvalues(se, group = "all")
     g <- MAplot(tbl, group = "all", plot = "all")
     
-    expect_error(MAplot(se, "all"), 
+    expect_error(suppressWarnings(MAplot(se, "all")), 
         "must be a ")
     expect_error(MAplot(tbl, group = "foo", plot = "all"), "should be one of ")
     expect_error(MAplot(tbl, group = "all", plot = "foo"), 

@@ -63,7 +63,7 @@
 #' @importFrom limma makeContrasts eBayes topTable
 #' @importFrom stats model.matrix
 #' @importFrom proDA proDA test_diff
-#' @importFrom ggplot2 ggplot aes_string geom_point ylab xlab theme_bw
+#' @importFrom ggplot2 ggplot aes sym geom_point ylab xlab theme_bw
 #' @importFrom plotly ggplotly style
 #' 
 #' @return \code{plotly}
@@ -76,7 +76,9 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
         
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$P.Value))
-        p <- ggplot2::ggplot(df, aes_string(x = "logFC", y = "log10pvalue")) + 
+        p <- ggplot2::ggplot(df, 
+                ggplot2::aes(x = !!ggplot2::sym("logFC"), 
+                    y = !!ggplot2::sym("log10pvalue"))) + 
             ggplot2::geom_point() + 
             ggplot2::ylab("-log10(p-value)") + 
             ggplot2::xlab("log fold change") + 
@@ -93,7 +95,8 @@ volcanoPlot <- function(df, type = c("ttest", "proDA")) {
         ## add -log10(pvalue)
         df <- cbind(df, log10pvalue = -log10(df$pval))
         p <- ggplot2::ggplot(df, 
-                ggplot2::aes_string(x = "diff", y = "log10pvalue")) + 
+                ggplot2::aes(x = !!ggplot2::sym("diff"), 
+                    y = !!ggplot2::sym("log10pvalue"))) + 
             ggplot2::geom_point() + 
             ggplot2::ylab("-log10(p-value)") + 
             ggplot2::xlab("difference") + 

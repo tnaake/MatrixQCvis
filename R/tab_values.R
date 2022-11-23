@@ -39,7 +39,7 @@
 #' @importFrom tidyr pivot_longer 
 #' @importFrom tibble tibble as_tibble
 #' @importFrom SummarizedExperiment assay
-#' @importFrom ggplot2 ggplot aes_string geom_boxplot geom_violin
+#' @importFrom ggplot2 ggplot aes geom_boxplot geom_violin sym
 #' @importFrom ggplot2 scale_x_discrete theme element_text ggtitle xlab
 #' @importFrom ggplot2 theme_classic
 #' 
@@ -125,10 +125,13 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
     ## do the actual plotting
     if (!violin) { 
         
-        g <- ggplot2::ggplot(a_l, ggplot2::aes_string(x = "x_ggplot_vals")) +
-            ggplot2::geom_boxplot(aes_string(ymin = "ymin", 
-                lower = "lower", middle = "middle", upper = "upper", 
-                ymax = "ymax"), stat = "identity") 
+        g <- ggplot2::ggplot(a_l, 
+                ggplot2::aes(x = !!ggplot2::sym("x_ggplot_vals"))) +
+            ggplot2::geom_boxplot(ggplot2::aes(ymin = !!ggplot2::sym("ymin"), 
+                lower = !!ggplot2::sym("lower"), 
+                middle = !!ggplot2::sym("middle"), 
+                upper = !!ggplot2::sym("upper"), 
+                ymax = !!ggplot2::sym("ymax")), stat = "identity") 
         
         if (nrow(a_out) > 0) {
             ## add x-axis order to outliers data set
@@ -137,13 +140,15 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
             a_out_o <- paste(a_out[[orderCategory]], a_out[["name"]])
             a_out[["x_ggplot_vals"]] <- factor(x = a_out_o, levels = sort(a_o_u))
             g <- g + geom_point(
-                ggplot2::aes_string(x = "x_ggplot_vals", y = "value"), 
+                ggplot2::aes(x = !!ggplot2::sym("x_ggplot_vals"), 
+                    y = !!ggplot2::sym("value")), 
                 data = a_out)    
         }
         
     } else { ## violin == TRUE
         g <- ggplot2::ggplot(a_l, 
-            ggplot2::aes_string(y = "value", x = "x_ggplot_vals")) +
+            ggplot2::aes(y = !!ggplot2::sym("value"), 
+                x = !!ggplot2::sym("x_ggplot_vals"))) +
             ggplot2::geom_violin()
     }
     
@@ -201,7 +206,7 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
 #' @importFrom tidyr pivot_longer 
 #' @importFrom stats median
 #' @importFrom SummarizedExperiment assay
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_smooth theme_classic
+#' @importFrom ggplot2 ggplot aes geom_point geom_smooth theme_classic sym
 #' @importFrom ggplot2 scale_color_manual scale_x_discrete xlab ylab theme
 #' @importFrom ggplot2 element_text
 #' @importFrom plotly ggplotly style 
@@ -272,15 +277,18 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     tbl_subset[["x_ggplot_vals_num"]] <- as.numeric(tbl_subset[["x_ggplot_vals"]])
 
     g <- ggplot2::ggplot(tbl,
-            ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
-            col = "col_ggplot_points")) + 
+            ggplot2::aes(x = !!ggplot2::sym("x_ggplot_vals"), 
+                y = !!ggplot2::sym("value"), 
+                col = !!ggplot2::sym("col_ggplot_points"))) + 
         suppressWarnings(
-            ggplot2::geom_point(ggplot2::aes_string(text = "name"))) + 
+            ggplot2::geom_point(ggplot2::aes(text = !!ggplot2::sym("name")))) + 
         ggplot2::geom_point(data = tbl_subset, 
-            ggplot2::aes_string(x = "x_ggplot_vals", y = "value", 
-            col = "col_ggplot_points")) + 
+            ggplot2::aes(x = !!ggplot2::sym("x_ggplot_vals"), 
+                y = !!ggplot2::sym("value"), 
+                col = !!ggplot2::sym("col_ggplot_points"))) + 
         ggplot2::geom_smooth(data = tbl_subset, 
-            ggplot2::aes_string(x = "x_ggplot_vals_num", y = "value"), 
+            ggplot2::aes(x = !!ggplot2::sym("x_ggplot_vals_num"), 
+                y = !!ggplot2::sym("value")), 
             method = method) +
         ggplot2::theme_classic() + 
         ggplot2::scale_color_manual(values = c("#000000", "#2A6CEF")) +
@@ -368,7 +376,7 @@ cv <- function(x, name = "raw") {
 #' @return \code{gg} object from \code{ggplot2}
 #' 
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_line xlab ylab
+#' @importFrom ggplot2 ggplot aes geom_point geom_line xlab ylab sym
 #' @importFrom ggplot2 theme_bw theme element_text
 #' @export
 plotCV <- function(df) {
@@ -379,10 +387,11 @@ plotCV <- function(df) {
     df[["sample"]] <- factor(x = df[["sample"]], levels = df[["sample"]])
     df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
     
-    ggplot2::ggplot(df, ggplot2::aes_string(x = "sample", y = "value")) + 
-        ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
-        ggplot2::geom_line(ggplot2::aes_string(group = "name", 
-            color = "name")) + 
+    ggplot2::ggplot(df, ggplot2::aes(x = !!ggplot2::sym("sample"), 
+            y = !!ggplot2::sym("value"))) + 
+        ggplot2::geom_point(ggplot2::aes(color = !!ggplot2::sym("name"))) + 
+        ggplot2::geom_line(ggplot2::aes(group = !!ggplot2::sym("name"), 
+            color = !!ggplot2::sym("name"))) + 
         ggplot2::xlab("sample") + 
         ggplot2::ylab("coefficient of variation (in %)") + 
         ggplot2::theme_bw() + 
@@ -436,7 +445,7 @@ plotCV <- function(df) {
 #' 
 #' @importFrom SummarizedExperiment assay
 #' @importFrom stats ks.test
-#' @importFrom ggplot2 ggplot aes_string stat_ecdf theme_bw xlab ylab
+#' @importFrom ggplot2 ggplot aes sym stat_ecdf theme_bw xlab ylab
 #' @importFrom ggplot2 ggtitle theme element_blank
 #' 
 #' @return \code{gg} object from \code{ggplot2}
@@ -494,7 +503,8 @@ ECDF <- function(se, sample = colnames(se),
     df <- rbind(df, df_group)
 
     ggplot2::ggplot(df, 
-        ggplot2::aes_string(x = "value", color = "type", group = "type")) + 
+        ggplot2::aes(x = !!ggplot2::sym("value"), 
+            color = !!ggplot2::sym("type"), group = !!ggplot2::sym("type"))) + 
         ggplot2::stat_ecdf(size=1) + ggplot2::theme_bw() + 
         ggplot2::xlab(sample) + ggplot2::ylab("ECDF") +
         ggplot2::ggtitle(sprintf("K-S Test: D: %s, p-value: %s", 
@@ -628,7 +638,7 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #'
 #' @return \code{gg} object from \code{ggplot2}
 #'
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_segment ggtitle
+#' @importFrom ggplot2 ggplot aes sym geom_point geom_segment ggtitle
 #' @importFrom ggplot2 xlab ylab theme_classic theme element_blank
 #' @importFrom tibble tibble
 #' @importFrom plotly ggplotly
@@ -637,10 +647,12 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 sumDistSample <- function(d, title = "raw") {
     d_sum <- rowSums(d) 
     tbl <- tibble::tibble(name = names(d_sum), distance = d_sum)
-    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "distance", y = "name")) + 
+    g <- ggplot2::ggplot(tbl, ggplot2::aes(x = !!ggplot2::sym("distance"), 
+            y = !!ggplot2::sym("name"))) + 
         ggplot2::geom_point(size = 0.5) + 
-        ggplot2::geom_segment(ggplot2::aes_string(xend = 0, yend = "name"), 
-            size = 0.1) + 
+        ggplot2::geom_segment(ggplot2::aes(xend = 0, 
+            yend = !!ggplot2::sym("name")), 
+            linewidth = 0.1) + 
         ggplot2::ggtitle(title) +
         ggplot2::xlab("sum of distances") + ggplot2::ylab("") + 
         ggplot2::theme_classic()
@@ -890,7 +902,7 @@ hoeffDValues <- function(tbl, name = "raw", sample_n = NULL) {
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
-#' @importFrom ggplot2 ggplot geom_violin geom_point aes_string geom_line
+#' @importFrom ggplot2 ggplot geom_violin geom_point aes sym geom_line
 #' @importFrom ggplot2 ylab theme_classic theme
 #' @importFrom plotly ggplotly
 #' 
@@ -916,14 +928,18 @@ hoeffDPlot <- function(df, lines = TRUE) {
     # ## do the actual plotting
     g <- ggplot2::ggplot(df) + 
         ggplot2::geom_violin(
-            ggplot2::aes_string(x = "processing_step", y = "value"), 
+            ggplot2::aes(x = !!ggplot2::sym("processing_step"), 
+                y = !!ggplot2::sym("value")), 
             na.rm = TRUE) + 
         suppressWarnings(
             ggplot2::geom_point(
-                ggplot2::aes_string(x = "x_jitter", y = "value", 
-                    color = "processing_step", text = "sample")))
+                ggplot2::aes(x = !!ggplot2::sym("x_jitter"), 
+                    y = !!ggplot2::sym("value"), 
+                    color = !!ggplot2::sym("processing_step"), 
+                    text = !!ggplot2::sym("sample"))))
     if (lines) g <- g + ggplot2::geom_line(
-        ggplot2::aes_string(x = "x_jitter", y = "value", group = "sample"))
+        ggplot2::aes(x = !!ggplot2::sym("x_jitter"), 
+            y = !!ggplot2::sym("value"), group = !!ggplot2::sym("sample")))
     g <- g + ggplot2::ylab("Hoeffding's D statistic") + 
         ggplot2::xlab("processing step") + ggplot2::theme_classic() +
         ggplot2::theme(legend.position = "none")
@@ -971,7 +987,7 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' MAplot(tbl, group = "all", plot = "all")
 #'
 #' @importFrom dplyr pull filter
-#' @importFrom ggplot2 ggplot aes_string geom_hex geom_point facet_wrap
+#' @importFrom ggplot2 ggplot aes geom_hex geom_point facet_wrap sym
 #' @importFrom ggplot2 theme coord_fixed xlim ylim theme_bw
 #' @importFrom stats formula
 #' 
@@ -1010,7 +1026,8 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
     }
     
     ## do the actual plotting
-    g <- ggplot2::ggplot(tbl, ggplot2::aes_string(x = "A", y = "M")) 
+    g <- ggplot2::ggplot(tbl, 
+        ggplot2::aes(x = !!ggplot2::sym("A"), y = !!ggplot2::sym("M")))
     if (n >= 1000) {
         g <- g + ggplot2::geom_hex()
     } else {
@@ -1098,7 +1115,7 @@ createDfFeature <- function(l, feature) {
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom tibble tibble
-#' @importFrom ggplot2 ggplot aes_string geom_point geom_line xlab ylab
+#' @importFrom ggplot2 ggplot aes sym geom_point geom_line xlab ylab
 #' @importFrom ggplot2 theme_bw theme element_text
 #' 
 #' @export
@@ -1109,10 +1126,12 @@ featurePlot <- function(df) {
     df[["sample"]] <- factor(x = rownames(df), levels = rownames(df))
     df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
     
-    ggplot2::ggplot(df, ggplot2::aes_string(x = "sample", y = "value")) + 
-        ggplot2::geom_point(ggplot2::aes_string(color = "name")) + 
-        ggplot2::geom_line(ggplot2::aes_string(group = "name", 
-            color = "name")) + 
+    ggplot2::ggplot(df, 
+            ggplot2::aes(x = !!ggplot2::sym("sample"), 
+                y = !!ggplot2::sym("value"))) + 
+        ggplot2::geom_point(ggplot2::aes(color = !!ggplot2::sym("name"))) + 
+        ggplot2::geom_line(ggplot2::aes(group = !!ggplot2::sym("name"), 
+            color = !!ggplot2::sym("name"))) + 
         ggplot2::xlab("sample") + ggplot2::ylab("value") + 
         ggplot2::theme_bw() + 
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
@@ -1147,7 +1166,7 @@ featurePlot <- function(df) {
 #' 
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
-#' @importFrom ggplot2 ggplot geom_violin aes_string geom_point geom_line
+#' @importFrom ggplot2 ggplot geom_violin aes sym geom_point geom_line
 #' @importFrom ggplot2 ylab xlab theme_classic theme
 #' @importFrom plotly ggplotly
 #' @export
@@ -1167,14 +1186,18 @@ cvFeaturePlot <- function(l, lines = FALSE) {
     # ## do the actual plotting
     g <- ggplot2::ggplot(df) 
     if (nrow(df) > 2) g <- g + 
-        ggplot2::geom_violin(ggplot2::aes_string(x = "name", y = "value"), 
-            na.rm = TRUE) 
+        ggplot2::geom_violin(
+            ggplot2::aes(x = !!ggplot2::sym("name"), 
+                y = !!ggplot2::sym("value")), 
+            na.rm = TRUE)
     g <- g + suppressWarnings(
         ggplot2::geom_point(
-            ggplot2::aes_string(x = "x_jitter", y = "value", color = "name",
-                                                            text = "feature")))
+            ggplot2::aes(x = !!ggplot2::sym("x_jitter"), 
+                y = !!ggplot2::sym("value"), color = !!ggplot2::sym("name"),
+                text = !!ggplot2::sym("feature"))))
     if (lines) g <- g + ggplot2::geom_line(
-        ggplot2::aes_string(x = "x_jitter", y = "value", group = "feature"))
+        ggplot2::aes(x = !!ggplot2::sym("x_jitter"), 
+            y = !!ggplot2::sym("value"), group = !!ggplot2::sym("feature")))
     g <- g + ggplot2::ylab("coefficient of variation") + 
         ggplot2::xlab("processing step") +
         ggplot2::theme_classic() + ggplot2::theme(legend.position = "none") 
