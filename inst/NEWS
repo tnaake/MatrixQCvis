@@ -1,3 +1,7 @@
+Changes in version 1.7.2 (2022-11-24)
++ replace aes_string by aes since aes_string is deprecated in newest ggplot2 
+  version
+
 Changes in version 1.7.1 (2022-11-08)
 + adjust errors in unit tests after updating the packages 
 

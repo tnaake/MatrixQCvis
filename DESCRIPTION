@@ -1,8 +1,8 @@
 Package: MatrixQCvis
 Type: Package
 Title: Shiny-based interactive data-quality exploration for omics data
-Version: 1.7.1
-Date: 2022-11-08
+Version: 1.7.2
+Date: 2022-11-24
 Authors@R: c(person("Thomas", "Naake", role = c("aut", "cre"), 
 		email = "thomasnaake@googlemail.com",
 		comment = c(ORCID = "0000-0001-7917-5580")),
@@ -69,4 +69,4 @@ Suggests:
 biocViews: Visualization, ShinyApps, GUI, QualityControl, DimensionReduction, Metabolomics, Proteomics, Transcriptomics
 License: GPL (>= 3)
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
