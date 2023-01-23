@@ -12,7 +12,9 @@ MAvalues(se, log2 = TRUE, group = c("all", colnames(colData(se))))
 \item{log2}{\code{logical}, specifies if values are 
 \code{log2}-transformed prior to calculating M and A values. 
 If the values are already transformed, \code{log2} should be set to 
-\code{FALSE}.}
+\code{FALSE}. If \code{log2 = TRUE} and if there are values in 
+\code{assay(se)} that are 0, the \code{log2} values are calculated by
+\code{log2(assay(se) + 1)}}
 
 \item{group}{\code{character}, either \code{"all"} or one of 
 \code{colnames(colData(se))}}

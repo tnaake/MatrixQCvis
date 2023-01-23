@@ -678,7 +678,9 @@ sumDistSample <- function(d, title = "raw") {
 #' @param log2 \code{logical}, specifies if values are 
 #' \code{log2}-transformed prior to calculating M and A values. 
 #' If the values are already transformed, \code{log2} should be set to 
-#' \code{FALSE}.
+#' \code{FALSE}. If \code{log2 = TRUE} and if there are values in 
+#' \code{assay(se)} that are 0, the \code{log2} values are calculated by
+#' \code{log2(assay(se) + 1)}
 #' @param group \code{character}, either \code{"all"} or one of 
 #' \code{colnames(colData(se))}
 #'
@@ -722,7 +724,13 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
         stop("MAplot needs more than one samples")
     
     ## take logarithm of assay values if the values are not transformed yet
-    if (log2) a <- log2(a)
+    if (log2) {
+        if (any(a == 0, na.rm = TRUE)) {
+            a <- log2(a + 1)
+        } else {
+            a <- log2(a)   
+        }
+    }
     
     ## calculate sample-wise the M and A values (iterate through the columns)
     A <- M <- matrix(NA, nrow = nrow(a), ncol = ncol(a),

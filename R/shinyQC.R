@@ -379,7 +379,11 @@ shinyQC <- function(se, app_server = FALSE) {
     })
     
     ## create reactive for assay slot
-    a <- shiny::reactive({assay(se_r())})
+    a <- shiny::reactive({
+        se_r() |>
+            assay() |>
+            as.matrix()
+    })
     
     ## reactive expression for data transformation, returns a matrix with
     ## normalized values
