@@ -54,7 +54,12 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
     a <- SummarizedExperiment::assay(se)
     
     ## take log values if log = TRUE
-    if (log) a <- log(a)
+    if (log) 
+        if (any(a == 0, na.rm = TRUE)) {
+            a <- log(a + 1)
+        } else {
+            a <- log(a)
+        }
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "x5at1t1g161asy")
@@ -217,13 +222,14 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
         category = colnames(colData(se)), orderCategory = colnames(colData(se)), 
         level = c("all", unique(colData(se)[, category])),
         method = c("loess", "lm")) {
-    
+
     aggregation <- match.arg(aggregation)
     category <- match.arg(category)
     category <- make.names(category)
     orderCategory <- match.arg(orderCategory)
     orderCategory <- make.names(orderCategory)
-    level <- match.arg(level)
+    level <- match.arg(level, 
+        choices = c("all", unique(as.character(colData(se)[, category]))))
     method <- match.arg(method)
     
     ## access the assay slot
@@ -1383,6 +1389,8 @@ batchCorrectionAssay <- function(se,
 #' @param a \code{matrix} with samples in columns and features in rows
 #' @param method \code{character}, one of \code{"none"}, \code{"log"}, 
 #' \code{"log2"} or \code{"vsn"}
+#' @param .offset \code{numeric(1)}, offset to add when \code{method} set to
+#' \code{"log"} or \code{"log2"} and \code{a} contains values of 0, default to 1 
 #'
 #' @examples
 #' a <- matrix(1:1000, nrow = 100, ncol = 10, 
@@ -1397,18 +1405,30 @@ batchCorrectionAssay <- function(se,
 #' @importFrom vsn vsn2
 #' 
 #' @export
-transformAssay <- function(a, method = c("none", "log", "log2", "vsn")) {
+transformAssay <- function(a, method = c("none", "log", "log2", "vsn"),
+    .offset = 1) {
     
     if (!is.matrix(a)) stop("a is not a matrix")
     method <- match.arg(method)
+    
+    if (length(.offset) != 1)
+        stop("'.offset' has to be of length 1")
 
     a_t <- a
 
     if (method == "log") {
-        a_t <- log(a_t)
+        if (any(a_t == 0, na.rm = TRUE)) {
+            a_t <- log(a_t + .offset)
+        } else {
+            a_t <- log(a_t)
+        }
     }
     if (method == "log2") {
-        a_t <- log2(a_t)
+        if (any(a == 0, na.rm = TRUE)) {
+            a_t <- log2(a_t + .offset)
+        } else {
+            a_t <- log2(a_t)
+        }
     }
     if (method == "vsn") {
         a_t <- vsn2(a_t)

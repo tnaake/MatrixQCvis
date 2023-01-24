@@ -39,7 +39,8 @@ hist_sample_num <- function(se, category = "type") {
     colnames(cD) <- make.names(colnames(cD))
     
     ## retrieve the sample type
-    df <- cD[[category]]
+    df <- cD[[category]] |>
+        as.character()
     df[is.na(df)] <- "NA"
     
     ## retrieve the number of samples per sample type
@@ -143,6 +144,12 @@ mosaic <- function(se, f1, f2) {
     colnames(cD) <- make.names(cols)
     f1 <- make.names(f1)
     f2 <- make.names(f2)
+    
+    ## create character for columns f1 and f2
+    cD[[f1]] <- cD[[f1]] |>
+        as.character()
+    cD[[f2]] <- cD[[f2]] |>
+        as.character()
     
     df <- cD |> 
         dplyr::group_by(!!f1 := get(f1), !!f2 := get(f2)) |>

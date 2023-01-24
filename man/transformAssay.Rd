@@ -5,13 +5,16 @@
 \title{Transform the (count/intensity) values of a \code{data.frame}, 
 \code{tbl} or \code{matrix}}
 \usage{
-transformAssay(a, method = c("none", "log", "log2", "vsn"))
+transformAssay(a, method = c("none", "log", "log2", "vsn"), .offset = 1)
 }
 \arguments{
 \item{a}{\code{matrix} with samples in columns and features in rows}
 
 \item{method}{\code{character}, one of \code{"none"}, \code{"log"}, 
 \code{"log2"} or \code{"vsn"}}
+
+\item{.offset}{\code{numeric(1)}, offset to add when \code{method} set to
+\code{"log"} or \code{"log2"} and \code{a} contains values of 0, default to 1}
 }
 \value{
 \code{matrix}

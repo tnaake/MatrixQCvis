@@ -69,7 +69,7 @@ discover any bugs, typos or develop ideas of improving
 [GitHub](https://github.com/tnaake/MatrixQCvis) or
 send a mail to the developer.
 
-# Prepare the environment and load the data {#sec-prepare}
+# Prepare the environment {#sec-prepare}
 To install `MatrixQCvis` enter the following to the `R` console
 
 ```{r install, eval=FALSE}
@@ -87,6 +87,57 @@ will also load the required packages `Biobase`, `BiocGenerics`, `GenomeInfoDb`,
 ```{r load_MatrixQCvis, eval=TRUE}
 library(MatrixQCvis)
 ``` 
+
+# Appearance of user interface depends on the data input
+Please note: Depending on the supplied `SummarizedExperiment` object the user
+interface of `shinyQC` will differ:
+
+- for a `SummarizedExperiment` object containing missing values
+    - the tabs `Samples`, `Measured Values`, `Missing Values`, `Values`,
+    `Dimension Reduction` and `DE` will be displayed,
+    - within the tabs `Values` and `Dimension Reduction` the 
+    `imputed` data set **will be** visualized,
+    - the sidebar panel **includes** a drop-down menu for the imputation method.
+- for a `SummarizedExperiment` object containing no missing values (i.e.
+ with complete observations)
+    - the tabs `Samples`, `Values`, `Dimension Reduction` and `DE` 
+    will be displayed,
+    - within the tabs `Values` and `DE` the `imputed` data set 
+    **will not** be visualized,
+    - the sidebar panel **does not includes** a drop-down menu for the 
+    imputation method.
+
+In the following, the vignette will be (mainly) described from the point of view
+of a `SummarizedExperiment` containing no missing values (RNA-seq dataset)
+and missing values (proteomics dataset). 
+
+
+# QC analysis of TCGA RNA-seq data
+
+Here, we will retrieve a `SummarizedExperiment`, `se`, object  
+from the `ExperimentHub`package. The dataset (GEO accession GSE62944) contains
+741 normal samples across 24 cancer types from the TCGA re-processed RNA-seq
+data. We will use the dataset obtained by `ExperimentHub` to showcase the 
+functionality of `shinyQC`. 
+
+```{r, prepare_se, eval=TRUE, echo=TRUE}
+library(ExperimentHub)
+eh <- ExperimentHub()
+
+## the SummarizedExperiment object has the title "RNA-Sequencing and clinical  
+## data for 741 normal samples from The Cancer Genome Atlas"
+eh[eh$title == "RNA-Sequencing and clinical data for 741 normal samples from The Cancer Genome Atlas"]
+
+## in a next step download the SummarizedExperiment object from ExperimentHub
+se <- eh[["EH1044"]]
+
+## here we will restrain the analysis on 100 samples and remove the features
+## that have a standard deviation of 0
+se <- se[, seq_len(100)]
+se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
+se <- se[!is.na(se_sds) & se_sds > 0, ]
+```
+
 
 The most important function to assess the data quality is the `shinyQC` function
 and its most important argument is `se`. `shinyQC` expects a `SummarizedExperiment` 
@@ -121,48 +172,6 @@ If there is more than one experimental data set (`assay`)
 stored in the `SummarizedExperiment` object, a select option will appear in the 
 sidebar allowing the user to select the `assay`. 
 
-Here, we will generate a `SummarizedExperiment` object with synthetic 
-quantitative information on proteins and use this object, `se`, to showcase the 
-functionality of `shinyQC`. The object will contain information from 40 
-samples. The samples consist of four different types (`1`, `2`, `3`, and `4`) 
-and each type has two treatments, `A` and `B`. In total there are 1000 features. 
-
-```{r, prepare_se, eval=TRUE, echo=TRUE}
-## create synthetic assay using the generate_synthetic_data function from the
-## proDA package
-library(proDA)
-n_samples <- 40
-n_feat <- 1000
-data <- generate_synthetic_data(n_feat, n_conditions = n_samples / 10, 
-    n_replicates = n_samples / 4, frac_changed = 0.1)
-a <- data$Y
-colnames(a) <- gsub(colnames(a), pattern = "Condition", replacement = "Sample")
-
-## add some treatment-specific effects
-set.seed(1)
-a[, 1:5] <- a[, 1:5] + rnorm(5000, mean = 1.0, sd = 0.5)
-a[, 11:15] <- a[, 11:15] + rnorm(5000, mean = 0.8, sd = 0.5)
-a[, 21:25] <- a[, 21:25] + rnorm(5000, mean = 1.2, sd = 0.5)
-a[, 31:35] <- a[, 31:35] + rnorm(5000, mean = 0.7, sd = 0.5)
-
-## create information on the samples
-type_sample <- gsub(data$groups, pattern = "Condition", replacement = "Type")
-trmt_sample <- paste(
-   c(rep("1", 10), rep("2", 10), rep("3", 10), rep("4", 10)),
-   c(rep("A", 5), rep("B", 5)), sep = "_")
-cD <- data.frame(name = colnames(a), type = type_sample, 
-                     treatment = trmt_sample)
-
-## create information on the proteins
-rD <- data.frame(spectra = rownames(a))
-
-## create se
-se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
-
-## remove the features that have only NA values
-se <- se[!apply(assay(se), 1, function(row_i) all(is.na(row_i))), ]
-se
-```
 
 The actual shiny application can then be started by entering the following 
 to the `R` console:
@@ -181,29 +190,9 @@ returned if the function call was assigned to an object, e.g.
 Now, we will have a closer look on the user interface of the Shiny 
 application. 
 
-# Appearance of user interface depends on the data input
-Please note: Depending on the supplied `SummarizedExperiment` object the user
-interface of `shinyQC` will differ:
-
-- for a `SummarizedExperiment` object containing missing values
-    - the tabs `Samples`, `Measured Values`, `Missing Values`, `Values`,
-    `Dimension Reduction` and `DE` will be displayed,
-    - within the tabs `Values` and `Dimension Reduction` the 
-    `imputed` data set **will be** visualized,
-    - the sidebar panel **includes** a drop-down menu for the imputation method.
-- for a `SummarizedExperiment` object containing no missing values (i.e.
- with complete observations)
-    - the tabs `Samples`, `Values`, `Dimension Reduction` and `DE` 
-    will be displayed,
-    - within the tabs `Values` and `DE` the `imputed` data set 
-    **will not** be visualized,
-    - the sidebar panel **does not includes** a drop-down menu for the 
-    imputation method.
-
-In the following, the vignette will be (mainly) described from the point of view
-of a `SummarizedExperiment` containing missing values. 
 
 ## Sidebar
+
 The sidebar enables the user to exclude (e.g. in the case of identified outliers)
 and select samples (e.g. in the case if there is interest for a specific 
 sample type). Samples are excluded/selected by entering the sample name 
@@ -254,11 +243,12 @@ The sidebar in the last tab (`DE`) is different from the other tabs and will
 be explained in the section `Tab: DE`. 
   
 
-# Tab: Samples
+## Tab: Samples
+
 The tab `Samples` gives general information on the number of samples in the 
 `se` object. 
 
-## Histogram
+### Histogram
 The first panel shows a barplot and displays the number of 
 samples per sample type, treatment, etc. As an example, if we want to display
 how many samples are in `se` for the different `type`s (`type` is a 
@@ -269,145 +259,33 @@ tbl <- hist_sample_num(se = se, category = "type")
 partial_bundle(hist_sample(tbl, category = "type"))
 ```
 
-## Mosaic
+### Mosaic plot
+
 The figure in this panel displays the relative proportions of the numbers, 
-e.g. how many samples (in %) are there for `type` against `treatment`. Again,
-`type` and `treatment` are columns in `colData(se)` and any column in 
-`colData(se)` can be selected. 
-The figure will tell us that `se` contains the different types/treatments in a
-balanced manner:
+e.g. how many samples (in %) are there for `type` against `arbitrary_values`.
+As the dataset was only shipped with a `type` and `sample` column, for 
+demonstration, we manually added the column `arbitrary_levels` to the `se` 
+object. This column is filled with the the values `"A"` and `"B"`.
+
+Again, `type` and `arbitrary_values` are columns in `colData(se)` and any 
+column in `colData(se)` can be selected to create the Mosaic plot.
+
+The figure will tell us to what extent the `se` contains the different types 
+in a balanced manner depending on `arbitrary_values`:
+
 ```{r mosaic, eval=TRUE, echo=FALSE, crop=NULL}
-mosaic(se = se, f1 = "type", f2 = "treatment")
+se_tmp <- se
+se_tmp$arbitrary_values <- c("A", "B")
+mosaic(se = se_tmp, f1 = "type", f2 = "arbitrary_values")
 ```
 
-   
-# Tab: Measured Values and Missing Values
+ 
 
-The tabs `Measured Values` and `Missing Values` are only displayed if the 
-`SummarizedExperiment` object contains missing values. 
-
-The layout in the tabs `Measured Values` and `Missing Values` is similar. 
-Therefore, the two tabs are described here simultaneously and the differences
-are pointed out where necessary. 
-
-## Barplot for samples
-The plot shows the number of measured or missing values per sample 
-in the data set (depending on the selected tab). For example for the tab
-`Measured Values`, the plot will look like
-
-```{r samplesMeasuredMissing, eval=TRUE, echo=FALSE, crop=NULL}
-tbl <- samplesMeasuredMissing(se) 
-partial_bundle(barplotSamplesMeasuredMissing(tbl, measured = TRUE))
-```
-
-In this case, the samples show approximately the same number of measured features,
-i.e. there is no indication to remove any sample based on this measure. 
-
-## Histogram Features
-
-The plot shows different data depending on which tab 
-(`Measured Values` or `Missing Values`) is selected. The binwidth will be 
-determined by the slider input (`Binwidth (Measured Values)` or 
-`Binwidth (Missing Values)`).
-
-### Measured Variables
-The plot shows how often a feature was measured in a certain number of 
-samples.
-
-Examples:
-
-1. in the case of one sample (x-axis), the y-axis will denote the number of 
-features for which only one feature was measured.
-
-2. in the case of the number of total samples (x-axis), the y-axis will 
-denote the number of features with complete observations (i.e. the number 
-of features for which the feature was quantified in all samples).
-
-```{r histFeature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(histFeature(assay(se), measured = TRUE))
-```
-
-### Missing Variables
-The plot shows how often a feature was missing in a certain number of samples.
-
-Examples:
-
-1. in the case of one sample (x-axis), the y-axis will denote the number of 
-features for which only one feature was missing.
-
-2. in the case of the number of total samples (x-axis), the y-axis will 
-denote the number of features with completely missing observations 
-(i.e. the number of features for which no feature was quantified in all 
-samples).
-
-```{r histFeature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(histFeature(assay(se), measured = FALSE))
-```
-
-## Histogram Features along variable
-
-The plot in this panel can be read accordingly to the one in the panel 
-`Histogram Features`, but, it is segregated for the specified variable 
-(e.g. it shows the distribution of measured/missing values among the sample 
-types).
-
-```{r histFeatureCategory, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
-partial_bundle(histFeatureCategory(se, measured = TRUE, category = "type"))
-```
-
-## UpSet
-The plot shows the interaction of sets between different variables 
-depending on their presence or absence. The dots in the UpSet plot specify 
-if the criteria for presence/absence are fulfilled (see below for the 
-definition). In each column the intersections are displayed together with 
-the number of features regarding the type of intersection. The boxplots in 
-the rows display the number of present/absent features per set.
-
-All sets present in the data set are displayed. Depending on the data set, 
-however, not all intersections sets are displayed (see the help page for 
-the `upset` function from the `UpSetR` package).
-
-### Measured Values
-Presence is defined by a feature being measured in at least one sample of a 
-set.
-
-```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL}
-upsetCategory(se, category = "type", measured = TRUE) 
-```
-
-### Missing Values
-Absence is defined by a feature with only missing values (i.e. no measured 
-values) of a set.
-
-```{r upsetmissing, eval=TRUE, echo=FALSE, crop=NULL}
-upsetCategory(se, category = "type", measured = FALSE)
-```
-
-## Sets
-
-This panel will retrieve the features specified by intersection of sets. 
-
-This panel builds upon the `Upset` panel. By selecting the check boxes, 
-the names of the features (taken from the `rownames` of the features) are 
-printed as text that fulfill the defined intersection of sets.
-
-Example: Four sets (`Type_1`, `Type_2`, `Type_3`, and `Type_4`) are found for 
-a specified variable (here: `type`). When selecting the boxes for `Type_1` and 
-`Type_2` (while not selecting the boxes for `Type_3` and `Type_4`) the 
-features that are present/absent for `Type_1` and `Type_2` 
-(but not in the sets `Type_3` and `Type_4`) are returned.
-
-For the tab `Measured Values`, presence is defined by a feature being 
-measured in at least one sample of a set.
-
-For the tab `Missing Values`, absence is defined by a feature with only 
-missing values (i.e. no measured values) of a set.
-
-# Tab: Values
+## Tab: Values
 The tab `Values` will take a closer look on the `assay` slot of the 
 `SummarizedExperiment`. 
 
-## Boxplot/Violin plot
+### Boxplot/Violin plot
 
 This panel shows the (count/intensity) values for raw (`raw`), 
 batch corrected (`normalized`), normalized+batch corrected (`batch corrected`), 
@@ -426,13 +304,13 @@ radio buttons in
 The type of visualization (boxplot or violin plot) can be specified by 
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
-The figure (violin plot) using the raw values will look like
+The figure (violin plot) using the raw values will look like (log set to `TRUE`)
 ```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
-createBoxplot(se, orderCategory = "name", title = "raw", log = FALSE, 
+createBoxplot(se, orderCategory = "sample", title = "raw", log = TRUE, 
                violin = TRUE)
 ```
 
-## Trend/drift 
+### Trend/drift 
 This panel shows a trend line for aggregated values to 
 indicate drifts/trends in data acquisition. It
 shows the sum- or median-aggregated values (specified in
@@ -452,10 +330,10 @@ selection of samples that are specified by the drop-down menus
 `Select variable` and `Select level to highlight`. 
 The menu `Select variable` corresponds to the `colnames` in 
 `colData(se)`. Here, we can select for the higher-order variable, e.g.
-the sample type (containing for example `Type_1`, `Type_2`, ..., `QC`). 
+the type (containing for example `BLCA`, `BRCA`, etc.). 
 The drop-down menu `Select level to highlight` will specify the actual selection 
 from which
-the trend line will be calculated (e.g. `Type_1`, `Type_2`, ..., `QC`). Also,
+the trend line will be calculated (e.g. `BLCA`, `BRCA`, etc.). Also,
 the menu will always include the level `all`, which will use all points to 
 calculate the trend line. If we want to calculate the trend line of 
 aggregated values of all samples belonging to the type `QC`, we select
@@ -473,15 +351,16 @@ selected level (and the sample name).
 
 
 Here, we are interested in observing if there is a trend/drift for 
-samples of `type` `Type_1`. We select `LOESS` as the method for the trend line 
+samples of `type` `BRCA`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
+
 ```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
 partial_bundle(driftPlot(se, aggregation = "median", category = "type",
-          orderCategory = "type", level = "Type_1", method = "loess"))
+          orderCategory = "type", level = "BRCA", method = "loess"))
 ```
 
 
-## Coefficient of variation
+### Coefficient of variation
 
 This panel shows the coefficient of variation values for raw (`raw`),
 normalized (`normalized`), normalized+batch corrected (`batch corrected`), 
@@ -503,6 +382,7 @@ Here, we shows the plot of coefficient of variation values from the
 raw values (as obtained by `assay(se)`), normalized values (using `sum` 
 normalization), transformed values (using `vsn`), batch corrected values
 (using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
+
 ```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, crop=NULL}
 a <- assay(se)
 a_n <- normalizeAssay(a, "sum")
@@ -525,7 +405,7 @@ plotCV(df)
 ```
 
  
-## Mean-sd plot
+### Mean-sd plot
 
 The panel shows the three mean-sd (standard deviation) plots for
 normalized+batch corrected+transformed (`transformed`)
@@ -543,7 +423,7 @@ For the transformed values, the mean-sd plot will look like
 vsn::meanSdPlot(assay(se_t))
 ```
 
-## MA plot
+### MA plot
 
 The panel displays MA plots and Hoeffding's D statistic. 
 
@@ -592,12 +472,13 @@ transformation (and imputation) methods on the `D` values.
 
 The MA plot using the raw values and `group = "all"` will look like the 
 following (`plot` = "Sample_1-1"`):
+
 ```{r maplot, eval=TRUE, echo = FALSE, show=FALSE, crop=NULL}
 tbl <- MAvalues(se, group = "all")
-MAplot(tbl, group = "all", plot = "Sample_1-1")
+MAplot(tbl, group = "all", plot = "TCGA-K4-A3WV-11A-21R-A22U-07")
 ```
 
-## ECDF
+### ECDF
 The plot shows the ECDF of the values of the sample 
 $i$ and the feature-wise mean values of a group $j$ of samples specified 
 by the drop-down menu `Group`. The sample for calculating $I_i$ is
@@ -612,14 +493,17 @@ The underlying data set can be selected by the drop-down menu
 the drop-down menu `Sample`. The group can be selected by 
 the drop-down menu `Group`.
 
-The ECDF plot for the sample `"Sample_1-1"`, `group = "all"`, and the 
+The ECDF plot for the sample `"TCGA-K4-A3WV-11A-21R-A22U-07"`, 
+`group = "all"`, and the 
 raw values (as obtained by `assay(se)`) will look like:
+
 ```{r ecdf, eval=TRUE, echo=FALSE, crop=NULL}
-ECDF(se, "Sample_1-1", group = "all")
+ECDF(se, "TCGA-K4-A3WV-11A-21R-A22U-07", group = "all")
 ```
 
 
-## Distance matrix
+### Distance matrix
+
 On the left, the panel depicts heatmaps of distances between samples for 
 the data sets of
 raw (`raw`), normalized (`normalized`),
@@ -634,6 +518,7 @@ On the right panel the sum of distances to other samples is depicted.
 
 The distance matrix and sum of distances (for raw values, as obtained by
 `assay(se)`) will look like:
+
 ```{r distSampe, eval=TRUE, echo=FALSE, crop=NULL}
 a <- assay(se)
 dist_mat <- distShiny(a)
@@ -641,7 +526,7 @@ distSample(dist_mat, se, "type")
 partial_bundle(sumDistSample(dist_mat, title = "raw"))
 ```
 
-## Features
+### Features
 
 The first plot shows the values for each samples along the data 
 processing steps.
@@ -677,7 +562,7 @@ will be selected from the uploaded `SummarizedExperiment`
 selection to take place).
 
 
-# Tab: Dimension Reduction
+## Tab: Dimension Reduction
 
 Within this tab several dimension reduction plots are displayed to visualize
 the level of similarity of samples of a data set: 
@@ -688,7 +573,8 @@ t-distributed stochastic neighbor embedding (tSNE, @vanderMaaten2008), and
 uniform manifold approximation and projection (UMAP, @McInnes2018). 
 Data input for the dimension reduction plots is the `imputed` data set. 
 
-## PCA
+### PCA
+
 The panel depicts a plot of PCA. The data input can be `scale`d and 
 `center`ed prior to calculating the principal components by adjusting the
 respective tick marks. The different PCs can be displayed by changing the
@@ -697,21 +583,24 @@ values in the drop-down menus for the x-axis and y-axis.
 A scree plot, showing the explained variance per PC, is displayed in the 
 right panel.
 
-## PCoA
+### PCoA
+
 The panel depicts a plot of PCoA (= multidimensional scaling). Different distance 
 measures can be used to calculate the distances between the samples 
 (euclidean, maximum, manhattan, canberra, minkowski). 
 The different axes of the transformed data can be displayed by changing the
 values in the drop-down menus for the x-axis and y-axis. 
 
-## NMDS
+### NMDS
+
 The panel depicts a plot of NMDS. Different distance 
 measures can be used to calculate the distances between the samples 
 (euclidean, maximum, manhattan, canberra, minkowski). 
 The different axes of the transformed data can be displayed by changing the
 values in the drop-down menus for the x-axis and y-axis. 
 
-## tSNE
+### tSNE
+
 The panel depicts a plot of tSNE. The parameters `Perplexity`, 
 `Number of iterations`, `Number of retained dimensions in initial PCA`,
 and `Output dimensionality` required for the tSNE algorithm can be
@@ -727,7 +616,8 @@ The different dimensions of the transformed data can be displayed by changing
 the values in the drop-down menus for the x-axis and y-axis (either two or 
 three dimensions according to the `Output dimensionality`).  
 
-## UMAP
+### UMAP
+
 The panel depicts a plot of UMAP. The parameters `Minimum distance`, 
 `Number of neighbors`, and `Spread`, required for the UMAP algorithm can be
 set with the sliders. 
@@ -735,7 +625,8 @@ set with the sliders.
 The different dimensions of the transformed data can be displayed by changing 
 the values in the drop-down menus for the x-axis and y-axis.  
 
-# DE
+## Tab: DE
+
 This tab enables the user to test for differential expression between conditions. 
 
 Currently, two methods/tests are implemented for calculating differential 
@@ -757,7 +648,7 @@ with inference about each individual feature [@Kammers2015]. We use the
 `proDA` [@Ahlmann2019] was developed for the differential abundance analysis
 in label-free proteomics data sets. `proDA` models missing values in an 
 intensity-dependent probabilistic manner based on a dropout curve 
-(for further details see @Ahlmann2019).
+(for further details see @Ahlmann2019). 
 
 In the input field for levels, the formula for the levels is entered.
 The formula has to start with a `~` (tilde) and the `R`-specific symbolic form:
@@ -786,7 +677,8 @@ p-values (displayed as `-log10(p-value)`.
 In the following, we will look at the different panels with the
 `se` input as specified above.
 
-## Sample meta-data
+### Sample meta-data
+
 The panel `Sample meta-data` will show the column data of the `se` object. The 
 output will help to specify the levels for the model matrix.
 
@@ -794,31 +686,33 @@ output will help to specify the levels for the model matrix.
 colData(se)
 ```
 
-## Model matrix
-When entering `~ treatment + 0` into the input field 
+### Model matrix
+
+When entering `~ type + 0` into the input field 
 `Select levels for Model Matrix`, the `Model matrix` panel will look like
 (only the first few rows are shown here):
 
 ```{r modelMatrix, echo=FALSE, eval=TRUE}
-mM <- model.matrix(formula("~ treatment + 0"), data = colData(se))
+mM <- model.matrix(formula("~ type + 0"), data = colData(se))
 head(mM)
 ```
 
-## Contrast matrix
+### Contrast matrix
+
 As an example, we are interested in the differential expression between 
-`1_A` and `1_B`, i.e. the differential expression between treatment `A` and
-`B` of the type `Type_1`. We enter `treatment1_B-treatment1_A` in the input
+the samples of typ `BRCA` and `LUAD`. We enter `typeBRCA-typeLUAD` in the input
 field `Select contast(s)`. The contrast matrix (only the first few rows 
 are shown here) will then look like:
 
 ```{r contrasts, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 library(limma)
-cM <- makeContrasts(contrasts = "treatment1_B-treatment1_A", levels = mM)
+cM <- makeContrasts(contrasts = "typeBRCA-typeLUAD", levels = mM)
 head(cM)
 ```
 
 
-## Top DE
+### Top DE
+
 Switching to the panel `Top DE`, we will obtain a table with the differentially
 expressed features (normalization method is set to `none`, 
 transformation method to `none` and imputation method to `MinDet`). 
@@ -826,6 +720,7 @@ Here, differential expression is tested via moderated
 t-tests (from the `limma` package): 
 
 The output will be:
+
 ```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 a <- assay(se)
 a_n <- a %>% normalizeAssay(., "none")
@@ -840,15 +735,221 @@ rmarkdown::paged_table(tT)
 ```
 
 
-## Volcano plot
+### Volcano plot
+
 The last panel of the tab `DE` displays the information from the differential
 expression analysis. In the case of moderated t-tests, the plot shows the
 log fold changes between the specified contrasts against the p-values. 
 Using the afore-mentioned specification for the model matrix and the 
 contrast matrix, the plot will look like:
+
 ```{r volcano, eval=TRUE, echo=FALSE, crop=NULL}
 partial_bundle(volcanoPlot(tT, type = "ttest"))
 ```
+
+
+
+# QC analysis of proteomics data
+
+We will retrieve a proteomics dataset from the `ExperimentHub` package. The 
+dataset contains quantitative profiling information of about 12000 proteins
+in 375 cell lines spanning 24 primary diseases and 27 lineages. The 
+dataset was obtained by the Gygilab at Harvard University.
+Within the `ExperimentHub`, the dataset is stored as a `tibble` in long
+format. We will convert it here to a `SummarizedExperiment` class object.
+
+```{r}
+eh[eh$title == "proteomic_20Q2"]
+tbl <- eh[["EH3459"]]
+
+## using the information from protein_id/cell_line calculate the mean expression
+## from the protein_expression values, 
+tbl_mean <- tbl %>%
+    dplyr::group_by(protein_id, cell_line) %>%
+    dplyr::summarise(mean_expression = mean(protein_expression, na.rm = TRUE), 
+        .groups = "drop") 
+
+## create wide format from averaged expression data
+tbl_mean <- tbl_mean |>
+    tidyr::pivot_wider(names_from = cell_line, values_from = mean_expression,
+        id_cols = protein_id, names_expand = TRUE)
+
+## add additional information from tbl to tbl_mean, remove first columns 
+## protein_expression and cell_line, remove the duplicated rows based on 
+## protein_id, finally add the tbl_mean to tbl_info
+tbl_info <- tbl |>
+    dplyr::select(-protein_expression, -cell_line) |> 
+    dplyr::distinct(protein_id, .keep_all = TRUE)
+tbl_mean <- left_join(tbl_info, tbl_mean,
+    by = c("protein_id" = "protein_id")) 
+
+## create assay object
+cols_a_start <- which(colnames(tbl_mean) == "22RV1_PROSTATE")
+a <- tbl_mean[, cols_a_start:ncol(tbl_mean)] |>
+    as.matrix()
+rownames(a) <- pull(tbl_mean, "protein_id")
+
+## create rowData object
+rD <- tbl_mean[, 1:(cols_a_start - 1)] |>
+    as.data.frame()
+rownames(rD) <- pull(tbl_mean, "protein_id")
+
+## create colData object, for the tissue column split the strings in column 
+## sample by "_", remove the first element (cell_line) and paste the remaining
+## elements
+cD <- data.frame(
+    sample = colnames(tbl_mean)[cols_a_start:ncol(tbl_mean)]
+) |> 
+    mutate(tissue = unlist(lapply(strsplit(sample, split = "_"), function(sample_i) 
+        paste0(sample_i[-1], collapse = "_"))))
+rownames(cD) <- cD$sample
+
+
+## create the SummarizedExperiment
+se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
+
+## here we will restrain the analysis on 100 samples and remove the features
+## that have a standard deviation of 0
+se <- se[, seq_len(100)]
+se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
+se <- se[!is.na(se_sds) & se_sds > 0, ]
+```
+
+Again, the shiny application can be started via
+
+```{r, eval = FALSE}
+shinyQC(se)
+```
+
+A description of the tabs `Samples`, `Values`, `Dimension Reduction`, and 
+`DE` can be found above under the section `QC analysis of TCGA RNA-seq data`.
+We will focus here on the two tabs that are shown only for data sets that 
+contain missing values, `Measured Values` and `Missing Values`.
+  
+## Tab: Measured Values and Missing Values
+
+The tabs `Measured Values` and `Missing Values` are only displayed if the 
+`SummarizedExperiment` object contains missing values as in the case 
+of this proteomics dataset. 
+
+The layout in the tabs `Measured Values` and `Missing Values` is similar. 
+Therefore, the two tabs are described here simultaneously and the differences
+are pointed out where necessary. 
+
+### Barplot for samples
+The plot shows the number of measured or missing values per sample 
+in the data set (depending on the selected tab). For example for the tab
+`Measured Values`, the plot will look like
+
+```{r samplesMeasuredMissing, eval=TRUE, echo=FALSE, crop=NULL}
+tbl <- samplesMeasuredMissing(se)
+partial_bundle(barplotSamplesMeasuredMissing(tbl, measured = TRUE))
+```
+
+In this case, the samples show approximately the same number of measured features,
+i.e. there is no indication to remove any sample based on this measure. 
+
+### Histogram Features
+
+The plot shows different data depending on which tab 
+(`Measured Values` or `Missing Values`) is selected. The binwidth will be 
+determined by the slider input (`Binwidth (Measured Values)` or 
+`Binwidth (Missing Values)`).
+
+#### Measured Variables
+
+The plot shows how often a feature was measured in a certain number of 
+samples.
+
+Examples:
+
+1. in the case of one sample (x-axis), the y-axis will denote the number of 
+features for which only one feature was measured.
+
+2. in the case of the number of total samples (x-axis), the y-axis will 
+denote the number of features with complete observations (i.e. the number 
+of features for which the feature was quantified in all samples).
+
+```{r histFeature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeature(assay(se), measured = TRUE))
+```
+
+#### Missing Variables
+The plot shows how often a feature was missing in a certain number of samples.
+
+Examples:
+
+1. in the case of one sample (x-axis), the y-axis will denote the number of 
+features for which only one feature was missing.
+
+2. in the case of the number of total samples (x-axis), the y-axis will 
+denote the number of features with completely missing observations 
+(i.e. the number of features for which no feature was quantified in all 
+samples).
+
+```{r histFeature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeature(assay(se), measured = FALSE))
+```
+
+### Histogram Features along variable
+
+The plot in this panel can be read accordingly to the one in the panel 
+`Histogram Features`, but, it is segregated for the specified variable 
+(e.g. it shows the distribution of measured/missing values among the sample 
+types).
+
+```{r histFeatureCategory, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+partial_bundle(histFeatureCategory(se, measured = TRUE, category = "tissue"))
+```
+
+### UpSet
+The plot shows the interaction of sets between different variables 
+depending on their presence or absence. The dots in the UpSet plot specify 
+if the criteria for presence/absence are fulfilled (see below for the 
+definition). In each column the intersections are displayed together with 
+the number of features regarding the type of intersection. The boxplots in 
+the rows display the number of present/absent features per set.
+
+All sets present in the data set are displayed. Depending on the data set, 
+however, not all intersections sets are displayed (see the help page for 
+the `upset` function from the `UpSetR` package).
+
+#### Measured Values
+Presence is defined by a feature being measured in at least one sample of a 
+set.
+
+```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL}
+upsetCategory(se, category = "tissue", measured = TRUE)
+```
+
+#### Missing Values
+Absence is defined by a feature with only missing values (i.e. no measured 
+values) of a set.
+
+```{r upsetmissing, eval=TRUE, echo=FALSE, crop=NULL}
+upsetCategory(se, category = "tissue", measured = FALSE)
+```
+
+### Sets
+
+This panel will retrieve the features specified by intersection of sets. 
+
+This panel builds upon the `Upset` panel. By selecting the check boxes, 
+the names of the features (taken from the `rownames` of the features) are 
+printed as text that fulfill the defined intersection of sets.
+
+Example: Four sets (`Type_1`, `Type_2`, `Type_3`, and `Type_4`) are found for 
+a specified variable (here: `type`). When selecting the boxes for `Type_1` and 
+`Type_2` (while not selecting the boxes for `Type_3` and `Type_4`) the 
+features that are present/absent for `Type_1` and `Type_2` 
+(but not in the sets `Type_3` and `Type_4`) are returned.
+
+For the tab `Measured Values`, presence is defined by a feature being 
+measured in at least one sample of a set.
+
+For the tab `Missing Values`, absence is defined by a feature with only 
+missing values (i.e. no measured values) of a set.
+
 
 
 # Appendix {-}
