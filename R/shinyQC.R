@@ -1,3 +1,6 @@
+#' @importFrom ExperimentHub ExperimentHub
+NULL
+
 #' @name shinyQC
 #'
 #' @title Shiny application for initial QC exploration of -omics data sets
