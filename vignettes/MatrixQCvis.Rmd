@@ -24,7 +24,7 @@ BiocStyle::markdown()
 
 ```{r env, include=FALSE, echo=FALSE, cache=FALSE}
 library("knitr")
-opts_chunk$set(stop_on_error = 1L)
+opts_chunk$set(stop_on_error = 1L, scale_down = 0.8)
 suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
