@@ -291,7 +291,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_17-r-4.3-results
           path: check
 
       - uses: docker/build-push-action@v1
