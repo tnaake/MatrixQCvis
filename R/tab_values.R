@@ -588,7 +588,7 @@ distShiny <- function(x, method = "euclidean") {
 #' distSample(dist, se, label = "type", title = "imputed", 
 #'     show_row_names = TRUE)
 #'
-#' @return \code{plotly}
+#' @return \code{Heatmap} object from \code{ComplexHeatmap}
 #'
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap
 #' @importFrom grDevices hcl.colors

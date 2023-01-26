@@ -18,7 +18,7 @@ distSample(d, se, label = "name", title = "raw", ...)
 \item{...}{further arguments passed to \code{ComplexHeatmap::Heatmap}}
 }
 \value{
-\code{plotly}
+\code{Heatmap} object from \code{ComplexHeatmap}
 }
 \description{
 The function \code{distSample} creates a heatmap from a distance matrix 

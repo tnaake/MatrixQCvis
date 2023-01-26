@@ -24,7 +24,7 @@ BiocStyle::markdown()
 
 ```{r env, include=FALSE, echo=FALSE, cache=FALSE}
 library("knitr")
-opts_chunk$set(stop_on_error = 1L, out.width = "80%")
+opts_chunk$set(stop_on_error = 1L)
 suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
@@ -131,9 +131,9 @@ eh[eh$title == "RNA-Sequencing and clinical data for 741 normal samples from The
 ## in a next step download the SummarizedExperiment object from ExperimentHub
 se <- eh[["EH1044"]]
 
-## here we will restrain the analysis on 100 samples and remove the features
+## here we will restrain the analysis on 40 samples and remove the features
 ## that have a standard deviation of 0
-se <- se[, seq_len(50)]
+se <- se[, seq_len(40)]
 se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
 se <- se[!is.na(se_sds) & se_sds > 0, ]
 ```
@@ -254,7 +254,7 @@ samples per sample type, treatment, etc. As an example, if we want to display
 how many samples are in `se` for the different `type`s (`type` is a 
 column name in `colData(se)` and any column in `colData(se)` can be selected), 
 this panel will show the following output:
-```{r hist_sample, eval=TRUE, echo=FALSE, crop=NULL}
+```{r hist_sample, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 tbl <- hist_sample_num(se = se, category = "type")
 partial_bundle(hist_sample(tbl, category = "type"))
 ```
@@ -273,7 +273,7 @@ column in `colData(se)` can be selected to create the Mosaic plot.
 The figure will tell us to what extent the `se` contains the different types 
 in a balanced manner depending on `arbitrary_values`:
 
-```{r mosaic, eval=TRUE, echo=FALSE, crop=NULL}
+```{r mosaic, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 se_tmp <- se
 se_tmp$arbitrary_values <- c("A", "B")
 mosaic(se = se_tmp, f1 = "type", f2 = "arbitrary_values")
@@ -305,7 +305,7 @@ The type of visualization (boxplot or violin plot) can be specified by
 selecting `boxplot` or `violin` in the radio button panel (`Type of display`).
 
 The figure (violin plot) using the raw values will look like (log set to `TRUE`)
-```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
+```{r boxplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 createBoxplot(se, orderCategory = "sample", title = "raw", log = TRUE, 
                violin = TRUE)
 ```
@@ -354,7 +354,7 @@ Here, we are interested in observing if there is a trend/drift for
 samples of `type` `BRCA`. We select `LOESS` as the method for the trend line 
 and `median` as the aggregation method. The figure will then look as follows:
 
-```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+```{r drift, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(driftPlot(se, aggregation = "median", category = "type",
           orderCategory = "type", level = "BRCA", method = "loess"))
 ```
@@ -383,7 +383,7 @@ raw values (as obtained by `assay(se)`), normalized values (using `sum`
 normalization), transformed values (using `vsn`), batch corrected values
 (using `none`) and imputed values (using the `MinDet` algorithm, @Lazar2016).
 
-```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, crop=NULL}
+```{r cv, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, crop=NULL, out.width = "200px", dpi=65}
 a <- assay(se)
 a_n <- normalizeAssay(a, "sum")
 se_n <- MatrixQCvis:::updateSE(se = se, assay = a_n)
@@ -419,7 +419,7 @@ In case of sd-mean independence, the running median should be approximately
 horizontal.
 
 For the transformed values, the mean-sd plot will look like
-```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL}
+```{r meansdplot, eval=TRUE, echo=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 vsn::meanSdPlot(assay(se_t))
 ```
 
@@ -473,7 +473,7 @@ transformation (and imputation) methods on the `D` values.
 The MA plot using the raw values and `group = "all"` will look like the 
 following (`plot` = "Sample_1-1"`):
 
-```{r maplot, eval=TRUE, echo = FALSE, show=FALSE, crop=NULL}
+```{r maplot, eval=TRUE, echo = FALSE, show=FALSE, crop=NULL, out.width = "200px", dpi=65}
 tbl <- MAvalues(se, group = "all")
 MAplot(tbl, group = "all", plot = "TCGA-K4-A3WV-11A-21R-A22U-07")
 ```
@@ -497,7 +497,7 @@ The ECDF plot for the sample `"TCGA-K4-A3WV-11A-21R-A22U-07"`,
 `group = "all"`, and the 
 raw values (as obtained by `assay(se)`) will look like:
 
-```{r ecdf, eval=TRUE, echo=FALSE, crop=NULL}
+```{r ecdf, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 ECDF(se, "TCGA-K4-A3WV-11A-21R-A22U-07", group = "all")
 ```
 
@@ -519,10 +519,10 @@ On the right panel the sum of distances to other samples is depicted.
 The distance matrix and sum of distances (for raw values, as obtained by
 `assay(se)`) will look like:
 
-```{r distSampe, eval=TRUE, echo=FALSE, crop=NULL}
+```{r distSampe, eval=TRUE, echo=FALSE, crop=NULL, warning=FALSE, message=FALSE, out.width = "200px", dpi=65}
 a <- assay(se)
 dist_mat <- distShiny(a)
-distSample(dist_mat, se, "type")
+distSample(dist_mat, se, "type", use_raster = TRUE, raster_device = "jpeg")
 partial_bundle(sumDistSample(dist_mat, title = "raw"))
 ```
 
@@ -533,7 +533,7 @@ processing steps.
 The feature to be displayed is selected via the drop-down menu 
 **Select feature**. 
 
-```{r featurePlot, eval=TRUE, echo=FALSE, crop=NULL}
+```{r featurePlot, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 l_assays <- list(raw = a, normalized = a_n, `batch.corrected` = a_b,
    transformed = a_t, imputed = a_i)
 df_feature <- createDfFeature(l_assays, feature = rownames(se)[1])
@@ -544,7 +544,7 @@ The second plot shows the coefficient of variation of the values for all feature
 in the data set along the data processing steps. The features of same 
 identity can be connected by lines by clicking on `lines`. 
 
-```{r cvFeaturePlot, eval=TRUE, echo=FALSE, crop=NULL}
+```{r cvFeaturePlot, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(cvFeaturePlot(l_assays, lines = FALSE))
 ```
 
@@ -682,8 +682,8 @@ In the following, we will look at the different panels with the
 The panel `Sample meta-data` will show the column data of the `se` object. The 
 output will help to specify the levels for the model matrix.
 
-The output will look like the following (the output will only show the first 
-10 entries)
+The output will look like the following (only the first few rows are shown 
+here)
 ```{r colData, echo=FALSE, eval=TRUE}
 colData(se) |>
     head(n = 10)
@@ -722,7 +722,7 @@ transformation method to `none` and imputation method to `MinDet`).
 Here, differential expression is tested via moderated 
 t-tests (from the `limma` package): 
 
-The output will be (only the first 50 rows will be shown here):
+The output will be (only the first 20 rows will be shown here):
 
 ```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 a <- assay(se)
@@ -734,7 +734,7 @@ fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
 fit <- eBayes(fit, trend = TRUE, robust = TRUE)
 tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
-rmarkdown::paged_table(tT[seq_len(50), ])
+rmarkdown::paged_table(tT[seq_len(20), ])
 ```
 
 
@@ -746,7 +746,7 @@ log fold changes between the specified contrasts against the p-values.
 Using the afore-mentioned specification for the model matrix and the 
 contrast matrix, the plot will look like:
 
-```{r volcano, eval=TRUE, echo=FALSE, crop=NULL}
+```{r volcano, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(volcanoPlot(tT, type = "ttest"))
 ```
 
@@ -761,9 +761,15 @@ dataset was obtained by the Gygilab at Harvard University.
 Within the `ExperimentHub`, the dataset is stored as a `tibble` in long
 format. We will convert it here to a `SummarizedExperiment` class object.
 
-```{r}
+```{r data_proteomics}
 eh[eh$title == "proteomic_20Q2"]
 tbl <- eh[["EH3459"]]
+
+## reduce the number of files to speed computations up (can be skipped)
+cell_line_unique <- dplyr::pull(tbl, "cell_line") |>
+    unique()
+tbl <- tbl |> 
+    filter(tbl[["cell_line"]] %in% cell_line_unique[seq_len(40)])
 
 ## using the information from protein_id/cell_line calculate the mean expression
 ## from the protein_expression values, 
@@ -783,11 +789,11 @@ tbl_mean <- tbl_mean |>
 tbl_info <- tbl |>
     dplyr::select(-protein_expression, -cell_line) |> 
     dplyr::distinct(protein_id, .keep_all = TRUE)
-tbl_mean <- left_join(tbl_info, tbl_mean,
+tbl_mean <- right_join(tbl_info, tbl_mean,
     by = c("protein_id" = "protein_id")) 
 
 ## create assay object
-cols_a_start <- which(colnames(tbl_mean) == "22RV1_PROSTATE")
+cols_a_start <- which(colnames(tbl_mean) == "A2058_SKIN")
 a <- tbl_mean[, cols_a_start:ncol(tbl_mean)] |>
     as.matrix()
 rownames(a) <- pull(tbl_mean, "protein_id")
@@ -810,16 +816,14 @@ rownames(cD) <- cD$sample
 ## create the SummarizedExperiment
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
-## here we will restrain the analysis on 100 samples and remove the features
-## that have a standard deviation of 0
-se <- se[, seq_len(50)]
+## here we remove the features that have a standard deviation of 0
 se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
 se <- se[!is.na(se_sds) & se_sds > 0, ]
 ```
 
 Again, the shiny application can be started via
 
-```{r, eval = FALSE}
+```{r shinyQC_proteomics, eval = FALSE}
 shinyQC(se)
 ```
 
@@ -843,7 +847,7 @@ The plot shows the number of measured or missing values per sample
 in the data set (depending on the selected tab). For example for the tab
 `Measured Values`, the plot will look like
 
-```{r samplesMeasuredMissing, eval=TRUE, echo=FALSE, crop=NULL}
+```{r samplesMeasuredMissing, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 tbl <- samplesMeasuredMissing(se)
 partial_bundle(barplotSamplesMeasuredMissing(tbl, measured = TRUE))
 ```
@@ -872,7 +876,7 @@ features for which only one feature was measured.
 denote the number of features with complete observations (i.e. the number 
 of features for which the feature was quantified in all samples).
 
-```{r histFeature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+```{r histFeature_measured, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(histFeature(assay(se), measured = TRUE))
 ```
 
@@ -889,7 +893,7 @@ denote the number of features with completely missing observations
 (i.e. the number of features for which no feature was quantified in all 
 samples).
 
-```{r histFeature_missing, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+```{r histFeature_missing, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(histFeature(assay(se), measured = FALSE))
 ```
 
@@ -900,7 +904,7 @@ The plot in this panel can be read accordingly to the one in the panel
 (e.g. it shows the distribution of measured/missing values among the sample 
 types).
 
-```{r histFeatureCategory, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL}
+```{r histFeatureCategory, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, crop=NULL, out.width = "200px", dpi=65}
 partial_bundle(histFeatureCategory(se, measured = TRUE, category = "tissue"))
 ```
 
@@ -920,7 +924,7 @@ the `upset` function from the `UpSetR` package).
 Presence is defined by a feature being measured in at least one sample of a 
 set.
 
-```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL}
+```{r upsetmeasured, eval=TRUE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 upsetCategory(se, category = "tissue", measured = TRUE)
 ```
 
@@ -928,7 +932,7 @@ upsetCategory(se, category = "tissue", measured = TRUE)
 Absence is defined by a feature with only missing values (i.e. no measured 
 values) of a set.
 
-```{r upsetmissing, eval=TRUE, echo=FALSE, crop=NULL}
+```{r upsetmissing, eval=FALSE, echo=FALSE, crop=NULL, out.width = "200px", dpi=65}
 upsetCategory(se, category = "tissue", measured = FALSE)
 ```
 
@@ -960,7 +964,7 @@ missing values (i.e. no measured values) of a set.
 
 All software and respective versions to build this vignette are listed here:
 
-```{r session,eval=TRUE, echo=FALSE}
+```{r session, eval=TRUE, echo=FALSE}
 sessionInfo()
 ```
 
