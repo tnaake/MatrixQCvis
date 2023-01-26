@@ -2,7 +2,7 @@ Package: MatrixQCvis
 Type: Package
 Title: Shiny-based interactive data-quality exploration for omics data
 Version: 1.7.3
-Date: 2023-01-23
+Date: 2023-01-26
 Authors@R: c(person("Thomas", "Naake", role = c("aut", "cre"), 
 		email = "thomasnaake@googlemail.com",
 		comment = c(ORCID = "0000-0001-7917-5580")),
@@ -38,6 +38,7 @@ Imports:
 	ComplexHeatmap (>= 2.7.9),
 	dplyr (>= 1.0.5),
 	ExperimentHub (>= 2.6.0),
+	GEOquery (>= 2.66.0),
 	ggplot2 (>= 3.3.3),
 	grDevices (>= 4.1.0),
 	Hmisc (>= 4.5-0),
