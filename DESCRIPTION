@@ -68,6 +68,6 @@ Suggests:
 	knitr (>= 1.33),
 	testthat (>= 3.0.2)
 biocViews: Visualization, ShinyApps, GUI, QualityControl, DimensionReduction, Metabolomics, Proteomics, Transcriptomics
-License: GPL (>= 3)
+License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.2.2
