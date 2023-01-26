@@ -1,5 +1,4 @@
 #' @importFrom ExperimentHub ExperimentHub
-#' @import GEOquery
 NULL
 
 #' @name shinyQC

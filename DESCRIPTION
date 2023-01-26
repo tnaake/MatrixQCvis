@@ -38,7 +38,6 @@ Imports:
 	ComplexHeatmap (>= 2.7.9),
 	dplyr (>= 1.0.5),
 	ExperimentHub (>= 2.6.0),
-	GEOquery (>= 2.66.0),
 	ggplot2 (>= 3.3.3),
 	grDevices (>= 4.1.0),
 	Hmisc (>= 4.5-0),
