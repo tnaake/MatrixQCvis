@@ -1,3 +1,6 @@
+Changes in version 1.7.4 (2023-01-26)
++ add ExperimentHub and GEOquery to NAMESPACE
+
 Changes in version 1.7.3 (2023-01-23)
 + use TCGA RNA-seq and cell line proteomics datasets from ExperimentHub in 
   vignette to showcase the functionality of the package
