@@ -24,7 +24,7 @@ BiocStyle::markdown()
 
 ```{r env, include=FALSE, echo=FALSE, cache=FALSE}
 library("knitr")
-opts_chunk$set(stop_on_error = 1L, scale_down = 0.8)
+opts_chunk$set(stop_on_error = 1L, out.width = "80%")
 suppressPackageStartupMessages(library("MatrixQCvis"))
 ```
 
@@ -133,7 +133,7 @@ se <- eh[["EH1044"]]
 
 ## here we will restrain the analysis on 100 samples and remove the features
 ## that have a standard deviation of 0
-se <- se[, seq_len(100)]
+se <- se[, seq_len(50)]
 se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
 se <- se[!is.na(se_sds) & se_sds > 0, ]
 ```
@@ -682,8 +682,11 @@ In the following, we will look at the different panels with the
 The panel `Sample meta-data` will show the column data of the `se` object. The 
 output will help to specify the levels for the model matrix.
 
+The output will look like the following (the output will only show the first 
+10 entries)
 ```{r colData, echo=FALSE, eval=TRUE}
-colData(se)
+colData(se) |>
+    head(n = 10)
 ```
 
 ### Model matrix
@@ -809,7 +812,7 @@ se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
 
 ## here we will restrain the analysis on 100 samples and remove the features
 ## that have a standard deviation of 0
-se <- se[, seq_len(100)]
+se <- se[, seq_len(50)]
 se_sds <- apply(assay(se), 1, sd, na.rm = TRUE)
 se <- se[!is.na(se_sds) & se_sds > 0, ]
 ```
