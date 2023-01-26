@@ -731,7 +731,7 @@ fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
 fit <- eBayes(fit, trend = TRUE, robust = TRUE)
 tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
-rmarkdown::paged_table(tT[seq_along(50), ])
+rmarkdown::paged_table(tT[seq_len(50), ])
 ```
 
 
@@ -790,7 +790,7 @@ a <- tbl_mean[, cols_a_start:ncol(tbl_mean)] |>
 rownames(a) <- pull(tbl_mean, "protein_id")
 
 ## create rowData object
-rD <- tbl_mean[, 1:(cols_a_start - 1)] |>
+rD <- tbl_mean[, seq_len(cols_a_start - 1)] |>
     as.data.frame()
 rownames(rD) <- pull(tbl_mean, "protein_id")
 
