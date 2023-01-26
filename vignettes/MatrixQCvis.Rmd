@@ -719,7 +719,7 @@ transformation method to `none` and imputation method to `MinDet`).
 Here, differential expression is tested via moderated 
 t-tests (from the `limma` package): 
 
-The output will be:
+The output will be (only the first 50 rows will be shown here):
 
 ```{r topDE, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
 a <- assay(se)
@@ -731,7 +731,7 @@ fit <- lmFit(a_i, design = mM)
 fit <- contrasts.fit(fit, contrasts = cM)
 fit <- eBayes(fit, trend = TRUE, robust = TRUE)
 tT <- topTable(fit, number = Inf, adjust.method = "fdr", p.value = 0.05)
-rmarkdown::paged_table(tT)
+rmarkdown::paged_table(tT[seq_along(50), ])
 ```
 
 
@@ -803,7 +803,6 @@ cD <- data.frame(
     mutate(tissue = unlist(lapply(strsplit(sample, split = "_"), function(sample_i) 
         paste0(sample_i[-1], collapse = "_"))))
 rownames(cD) <- cD$sample
-
 
 ## create the SummarizedExperiment
 se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
