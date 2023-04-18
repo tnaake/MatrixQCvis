@@ -87,7 +87,7 @@ test_that("measuredCategory", {
         "'arg' should be one of ")
     expect_error(
         measuredCategory(se = NULL, measured = TRUE, category = "type"),
-        "trying to get slot")
+        "no applicable method for")
     expect_error(
         measuredCategory(se = se, measured = "", category = "type"),
         "argument is not interpretable as logical")
@@ -99,7 +99,7 @@ test_that("histFeatureCategory", {
         category = "type", binwidth = 2)
     expect_error(
         histFeatureCategory(NULL, measured = TRUE, category = "type", 
-            binwidth = 2), "trying to get slot")
+            binwidth = 2), "no applicable method for")
     expect_error(
         histFeatureCategory(se, measured = "", category = "type", 
             binwidth = 2), "argument is not interpretable as logical")
@@ -160,6 +160,6 @@ test_that("extractComb", {
         "'arg' should be one of ")
     expect_error(
         extractComb(se = NULL, combination = "1", measured = TRUE, 
-            category = "type"), "trying to get slot")
+            category = "type"), "no applicable method for")
 })
 

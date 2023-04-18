@@ -140,7 +140,7 @@ test_that("dimensionReductionPlot", {
         x_coord = "PC1", y_coord = "PC2"), "object 'name' not found")
     expect_error(dimensionReductionPlot(tbl = se, se = se), "is missing")
     expect_error(dimensionReductionPlot(tbl = tbl, se = "foo"), 
-        "trying to get slot")
+        "no applicable method for")
     expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "foo"), 
         "should be one of")
     expect_is(g, "plotly")
