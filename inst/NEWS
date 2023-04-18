@@ -1,3 +1,6 @@
+Changes in version 1.7.5 (2023-04-18)
++ adjust test ERROR messages 
+
 Changes in version 1.7.4 (2023-01-26)
 + add ExperimentHub and GEOquery to NAMESPACE
 
