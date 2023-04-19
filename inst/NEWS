@@ -1,3 +1,6 @@
+Changes in version 1.7.6 (2023-04-19)
++ add package jpeg to Suggests
+
 Changes in version 1.7.5 (2023-04-18)
 + adjust test ERROR messages 
 
