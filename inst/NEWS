@@ -1,3 +1,6 @@
+Changes in version 1.7.7 (2023-04-20)
++ add package statmod to Suggests
+
 Changes in version 1.7.6 (2023-04-19)
 + add package jpeg to Suggests
 
