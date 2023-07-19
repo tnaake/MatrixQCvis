@@ -122,7 +122,7 @@ functionality of `shinyQC`.
 
 ```{r, prepare_se, eval=TRUE, echo=TRUE}
 library(ExperimentHub)
-eh <- ExperimentHub()
+eh <- ExperimentHub(localHub = FALSE)
 
 ## the SummarizedExperiment object has the title "RNA-Sequencing and clinical  
 ## data for 741 normal samples from The Cancer Genome Atlas"
