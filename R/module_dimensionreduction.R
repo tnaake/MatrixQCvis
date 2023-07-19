@@ -610,7 +610,7 @@ screePlotServer <- function(id, assay, center, scale) {
                 pca <- dimensionReduction(assay(), 
                     params = list(center = center(), scale = scale()), 
                     type = "PCA")
-                explVar(d = var_x, type = "PCA")
+                explVar(d = pca[[2]], type = "PCA")
             })
             
             if (id == "PCA") {
