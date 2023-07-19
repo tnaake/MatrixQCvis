@@ -123,7 +123,7 @@ functionality of `shinyQC`.
 ```{r eval = TRUE, echo = FALSE}
 ## run under Linux only
 if (grepl(tolower(Sys.info()[["sysname"]]), pattern = "linux"))
-    setExperimentHubOption("PROXY", Sys.getenv("HTTP_PROXY"))
+    ExperimentHub::setExperimentHubOption("PROXY", Sys.getenv("HTTP_PROXY"))
 ```
 
 ```{r, prepare_se, eval=TRUE, echo=TRUE}
