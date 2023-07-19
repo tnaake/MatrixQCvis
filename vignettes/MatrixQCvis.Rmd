@@ -120,9 +120,15 @@ from the `ExperimentHub`package. The dataset (GEO accession GSE62944) contains
 data. We will use the dataset obtained by `ExperimentHub` to showcase the 
 functionality of `shinyQC`. 
 
+```{r eval = TRUE, echo = FALSE}
+## run under Linux only
+if (grepl(tolower(Sys.info()[["sysname"]]), pattern = "linux"))
+    setExperimentHubOption("PROXY", Sys.getenv("HTTP_PROXY"))
+```
+
 ```{r, prepare_se, eval=TRUE, echo=TRUE}
 library(ExperimentHub)
-eh <- ExperimentHub(localHub = FALSE)
+eh <- ExperimentHub()
 
 ## the SummarizedExperiment object has the title "RNA-Sequencing and clinical  
 ## data for 741 normal samples from The Cancer Genome Atlas"
