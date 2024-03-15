@@ -20,9 +20,9 @@
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'     dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -197,8 +197,8 @@ createBoxplot <- function(se, orderCategory = colnames(colData(se)),
 #' #' ## create se
 #' set.seed(1)
 #' a <- matrix(rnorm(1000), nrow = 10, ncol = 100, 
-#'     dimnames = list(1:10, paste("sample", 1:100)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(100))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 50), rep("2", 50)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
@@ -330,7 +330,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
 #' @return \code{list}
 #' 
 #' @examples
-#' x <- matrix(1:10, ncol = 2)
+#' x <- matrix(seq_len(10), ncol = 2)
 #' cv(x)
 #' 
 #' @importFrom stats sd
@@ -365,10 +365,10 @@ cv <- function(x, name = "raw") {
 #' coefficients of variation
 #' 
 #' @examples
-#' x1 <- matrix(1:10, ncol = 2)
-#' x2 <- matrix(11:20, ncol = 2)
-#' x3 <- matrix(21:30, ncol = 2)
-#' x4 <- matrix(31:40, ncol = 2)
+#' x1 <- matrix(seq_len(10), ncol = 2)
+#' x2 <- matrix(seq(11, 20), ncol = 2)
+#' x3 <- matrix(seq(21, 30), ncol = 2)
+#' x4 <- matrix(seq(31, 40), ncol = 2)
 #' 
 #' ## calculate cv values
 #' cv1 <- cv(x1, "x1")
@@ -391,7 +391,7 @@ plotCV <- function(df) {
     if (!is.data.frame(df)) stop("df is not a data.frame")
     df[["sample"]] <- rownames(df)
     df[["sample"]] <- factor(x = df[["sample"]], levels = df[["sample"]])
-    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
+    df <- tidyr::pivot_longer(df, cols = seq_len((ncol(df) - 1)))
     
     ggplot2::ggplot(df, ggplot2::aes(x = !!ggplot2::sym("sample"), 
             y = !!ggplot2::sym("value"))) + 
@@ -441,8 +441,8 @@ plotCV <- function(df) {
 #' ## create se
 #' set.seed(1)
 #' a <- matrix(rnorm(1000), nrow = 100, ncol = 10, 
-#'     dimnames = list(1:100, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#'     dimnames = list(seq_len(100), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
@@ -537,8 +537,8 @@ ECDF <- function(se, sample = colnames(se),
 #' @param method \code{character}, method for distance calculation
 #'
 #' @examples
-#' x <- matrix(1:100, nrow = 10, ncol = 10, 
-#'         dimnames = list(1:10, paste("sample", 1:10)))
+#' x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'         dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' distShiny(x = x)
 #' 
 #' @return \code{matrix}
@@ -572,9 +572,9 @@ distShiny <- function(x, method = "euclidean") {
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10,
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10,
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' a_i <- imputeAssay(a, method = "MinDet")
@@ -636,8 +636,8 @@ distSample <- function(d, se, label = "name", title = "raw", ...) {
 #' @param title \code{character} specifying the title to be added to the plot
 #' 
 #' @examples
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' dist <- distShiny(a)
 #' 
 #' sumDistSample(dist, title = "raw")
@@ -697,8 +697,8 @@ sumDistSample <- function(d, title = "raw") {
 #' ## create se
 #' set.seed(1)
 #' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
-#'             dimnames = list(1:1000, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#'             dimnames = list(seq_len(1000), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment(assay = a, rowData = rD, colData = cD)
@@ -796,9 +796,9 @@ MAvalues <- function(se, log2 = TRUE, group = c("all", colnames(colData(se)))) {
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -892,8 +892,8 @@ hoeffDValues <- function(tbl, name = "raw", sample_n = NULL) {
 #' ## create se
 #' set.seed(1)
 #' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10, 
-#'             dimnames = list(1:1000, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#'             dimnames = list(seq_len(1000), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a, 
@@ -990,8 +990,8 @@ hoeffDPlot <- function(df, lines = TRUE) {
 #' ## create se
 #' set.seed(1)
 #' a <- matrix(rnorm(10000), nrow = 1000, ncol = 10,
-#'             dimnames = list(1:1000, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#'             dimnames = list(seq_len(1000), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assay = a,
@@ -1084,7 +1084,7 @@ MAplot <- function(tbl, group = c("all", colnames(tbl)),
 #' @examples 
 #' set.seed(1)
 #' x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
-#'     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+#'     dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
 #' x2 <- x1 + 5
 #' x3 <- x2 + 10
 #' 
@@ -1120,7 +1120,7 @@ createDfFeature <- function(l, feature) {
 #' @examples 
 #' set.seed(1)
 #' x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
-#'     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+#'     dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
 #' x2 <- x1 + 5
 #' x3 <- x2 + 10
 #' l <- list(x1 = x1, x2 = x2, x3 = x3)
@@ -1138,7 +1138,7 @@ featurePlot <- function(df) {
     ## add a sample column
     if (!is.data.frame(df)) stop("df is not a data.frame")
     df[["sample"]] <- factor(x = rownames(df), levels = rownames(df))
-    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
+    df <- tidyr::pivot_longer(df, cols = seq_len((ncol(df) - 1)))
     
     ggplot2::ggplot(df, 
             ggplot2::aes(x = !!ggplot2::sym("sample"), 
@@ -1171,8 +1171,8 @@ featurePlot <- function(df) {
 #' @return \code{plotly}
 #' 
 #' @examples
-#' x1 <- matrix(1:100, ncol = 10, nrow = 10, 
-#'     dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+#' x1 <- matrix(seq_len(100), ncol = 10, nrow = 10, 
+#'     dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
 #' x2 <- x1 + 5
 #' x3 <- x2 + 10
 #' l <- list(x1 = x1, x2 = x2, x3 = x3)
@@ -1192,7 +1192,7 @@ cvFeaturePlot <- function(l, lines = FALSE) {
     
     ## create df containing cv values
     df[["feature"]] <- rownames(l[[1]])
-    df <- tidyr::pivot_longer(df, cols = 1:(ncol(df) - 1))
+    df <- tidyr::pivot_longer(df, cols = seq_len((ncol(df) - 1)))
     df[["name"]] <- factor(df[["name"]], levels = names(l))
     df[["x_jitter"]] <- as.numeric(df$name) |>
         jitter()
@@ -1282,8 +1282,8 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #' \code{method = "quantile division"}
 #'
 #' @examples
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'         dimnames = list(1:10, paste("sample", 1:10)))
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'         dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' normalizeAssay(a, "sum")
 #' 
 #' @return \code{matrix}
@@ -1302,7 +1302,9 @@ normalizeAssay <- function(a,
     a_n <- a
 
     if (method == "sum") {
-        if (any(a < 0))
+        contains_negative <- a < 0
+        contains_negative[is.na(contains_negative)] <- FALSE
+        if (any(contains_negative))
             print("'a' contains negative values. Normalization may lead to undesired results.")
         
         if (multiplyByNormalizationValue) {
@@ -1319,7 +1321,9 @@ normalizeAssay <- function(a,
         }
     }
     if (method == "quantile division") {
-        if (any(a < 0))
+        contains_negative <- a < 0
+        contains_negative[is.na(contains_negative)] <- FALSE
+        if (any(contains_negative))
             print("'a' contains negative values. Normalization may lead to undesired results.")
         if (is.null(probs)) 
             probs <- 0.75
@@ -1374,9 +1378,9 @@ normalizeAssay <- function(a,
 #'
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), 
@@ -1445,8 +1449,8 @@ batchCorrectionAssay <- function(se,
 #' \code{"log"} or \code{"log2"} and \code{a} contains values of 0, default to 1 
 #'
 #' @examples
-#' a <- matrix(1:1000, nrow = 100, ncol = 10, 
-#'         dimnames = list(1:100, paste("sample", 1:10)))
+#' a <- matrix(seq_len(1000), nrow = 100, ncol = 10, 
+#'         dimnames = list(seq_len(100), paste("sample", seq_len(10))))
 #' transformAssay(a, "none")
 #' transformAssay(a, "log")
 #' transformAssay(a, "log2")
@@ -1537,9 +1541,9 @@ transformAssay <- function(a, method = c("none", "log", "log2", "vsn"),
 #' \code{"MinDet"}, or \code{"MinProb"}
 #'
 #' @examples
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'     dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' 
 #' imputeAssay(a, method = "kNN")
 #' imputeAssay(a, method = "Min")
