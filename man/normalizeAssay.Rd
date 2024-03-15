@@ -7,7 +7,8 @@
 normalizeAssay(
   a,
   method = c("none", "sum", "quantile division", "quantile"),
-  probs = 0.75
+  probs = 0.75,
+  multiplyByNormalizationValue = FALSE
 )
 }
 \arguments{
@@ -19,25 +20,48 @@ normalizeAssay(
 \item{probs}{\code{numeric}, ranging between \code{[0, 1)}. \code{probs} 
 is used as the divisor for quantile division in 
 \code{method = "quantile division"}}
+
+\item{multiplyByNormalizationValue}{\code{logical}, if TRUE, normalization 
+values will be calculated and the values in \code{a} will be multiplied by 
+the values The parameter is only relavant for \code{method = "sum"} and 
+\code{method = "quantile division"}}
 }
 \value{
 \code{matrix}
 }
 \description{
 The function \code{normalizeAssay} performs normalization by sum of the 
-(count/intensity) values per sample or quantile division per sample
-or by quantile normalization (adjusting the distributions that they become
-identical in statistical distributions). The divisor for quantile division
-(e.g., the 75% quantile per sample) can be specified by the \code{probs} 
-argument. Quantile normalization is performed by using the 
-\code{normalizeQuantiles} function from \code{limma}.
+(count/intensity) values per sample (\code{method = "sum"}), quantile 
+division per sample (\code{method = "quantile division"}), 
+or by quantile normalization (adjusting the value distributions that they 
+become identical in statistical properties, \code{method = "quantile"}). 
+The value for quantile division (e.g., the 75% quantile per sample) can be 
+specified by the \code{probs} argument. Quantile normalization is 
+performed by using the \code{normalizeQuantiles} function from \code{limma}.
+
+For the methods \code{"sum"} and \code{"quantile division"}, normalization
+will be done depending on the \code{multiplyByNormalizationValue} parameter.
+If set to \code{TRUE}, normalization values (e.g. sum or quantile) will be
+calculated per sample. In a next step, adjusted normalization values will 
+be calculated for each sample in relation to the median normalization 
+values across all samples. Finally, the values in \code{a} are 
+multiplied by these adjusted normalization values.
+If \code{multiplyByNormalizationValue} is set to \code{FALSE}, 
+normalization values (e.g. sum or quantile) will be
+calculated per sample. The values in \code{a} are sample-wise divided by
+the normalization values.
 }
 \details{
 Internal usage in \code{shinyQC}. If \code{method} is set to \code{"none"}, 
 the object \code{x} is returned as is (pass-through).
 
-If \code{probs} is NULL, \code{probs} is internally set to "name" if 
+If \code{probs} is NULL, \code{probs} is internally set to 0.75 if 
 \code{method = "quantile division"}.
+
+Depending on the values in \code{a}, if \code{multiplyByNormalizationValue}
+is set to \code{TRUE} the returned normalized values will be in the same 
+order of magnitude than the original values, while if \code{FALSE}, the 
+returned values will be in a smaller order of magnitude.
 }
 \examples{
 a <- matrix(1:100, nrow = 10, ncol = 10, 
