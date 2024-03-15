@@ -1,3 +1,6 @@
+Changes in version 1.11.1 (2024-03-15)
++ add parameter multiplyByNormalizationValue in normalizeAssay
+
 Changes in version 1.9.1 (2023-07-19)
 + fix bug in scree plot (subset the dimensionReduction object)
 
