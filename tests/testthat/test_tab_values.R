@@ -2,9 +2,9 @@
 #' @importFrom tibble tibble
 
 ## create se
-a <- matrix(1:1000, nrow = 100, ncol = 10, 
-            dimnames = list(1:100, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
+a <- matrix(seq_len(1000), nrow = 100, ncol = 10, 
+    dimnames = list(seq_len(100), paste("sample", seq_len(10))))
+a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(1000)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -60,20 +60,20 @@ test_that("driftPlot", {
 
 ## function cv
 test_that("cv", {
-    x <- matrix(1:100, ncol = 5)
+    x <- matrix(seq_len(100), ncol = 5)
     expect_equal(cv(x)$raw, 
         c(56.343617, 19.396983, 11.715009,  8.391603,  6.537105))
     expect_equal(names(cv(x)), "raw")
     expect_equal(names(cv(x, NULL)), NULL)
     expect_true(is.numeric(cv(x)$raw))
     expect_error(cv("foo"), "must have a positive length")
-    expect_error(cv(1:100), "must have a positive length")
+    expect_error(cv(seq_len(100)), "must have a positive length")
 })
 
 ## function plotCV
 test_that("plotCV", {
-    x1 <- matrix(1:100, ncol = 5)
-    x2 <- matrix(101:200, ncol = 5)
+    x1 <- matrix(seq_len(100), ncol = 5)
+    x2 <- matrix(seq(101, 200), ncol = 5)
     df <- data.frame(cv(x1, "raw"), cv(x2, "normalized"))
     g <- plotCV(df)
     expect_error(plotCV(NULL), "df is not a data.frame")
@@ -105,10 +105,10 @@ test_that("distShiny", {
         c(0,        173.0173, 349.8123, 
           173.0173, 0,        176.7957,
           349.8123, 176.7957, 0), byrow = TRUE, ncol = 3, nrow = 3,
-        dimnames = list(c(colnames(x)[1:3]), c(colnames(x)[1:3])))
+        dimnames = list(c(colnames(x)[seq_len(3)]), c(colnames(x)[seq_len(3)])))
     
     expect_error(distShiny(x, "test"), "invalid distance method")
-    expect_equal(distShiny(x[1:3, 1:3], method = "euclidean"), matTest, 
+    expect_equal(distShiny(x[seq_len(3), seq_len(3)], method = "euclidean"), matTest, 
                  tolerance = 1e-02)
     expect_true(is.matrix(distShiny(x)))
 })
@@ -119,9 +119,9 @@ test_that("distSample", {
     d <- distShiny(x, method = "euclidean")
     g <- distSample(d, se, label = "type")
     
-    expect_error(distSample(d[1:3, 1:3], se = se, label = "type"), 
+    expect_error(distSample(d[seq_len(3), seq_len(3)], se = se, label = "type"), 
         "number of observations in top annotation")
-    expect_error(distSample(d, se = se[, 1:3], label = "type"), 
+    expect_error(distSample(d, se = se[, seq_len(3)], label = "type"), 
         "number of observations in top annotation")
     expect_is(g, "Heatmap")
 })
@@ -133,7 +133,7 @@ test_that("sumDistSample", {
     g <- sumDistSample(d)
     
     ##expect_error(sumDistSample(d, se), "no method for coercing this S4 class")
-    ##expect_error(sumDistSample(matrix(1:3)), "requires the following aesthetics")
+    ##expect_error(sumDistSample(matrix(seq_len(3))), "requires the following aesthetics")
     expect_error(sumDistSample(se), 
         "must be an array of at least two dimensions")
     expect_is(g, "plotly")
@@ -142,10 +142,10 @@ test_that("sumDistSample", {
 ## function MAvalues
 test_that("MAvalues", {
     tbl_test <- tibble::tibble(Feature = as.character(c(rep(2, 3), rep(3, 3))), 
-        name = rep(colnames(se)[1:3], 2),
+        name = rep(colnames(se)[seq_len(3)], 2),
         A = c(4.149180, 5.535751, 5.785051, 4.144537, 5.534471, 5.785192),
         M = c( -6.044885, 2.274541, 3.770344, -6.061178, 2.278427, 3.782751),
-        name.y = rep(colnames(se)[1:3], 2),
+        name.y = rep(colnames(se)[seq_len(3)], 2),
         type = "1")
     ma <- MAvalues(se = se, group = "all")
     
@@ -163,7 +163,7 @@ test_that("MAvalues", {
     expect_true(is.numeric(ma$A))
     expect_true(is.numeric(ma$M))
     expect_true(is.character(ma$type))
-    expect_equal(MAvalues(se[2:3, 1:3], group = "all"), tbl_test, 
+    expect_equal(MAvalues(se[c(2, 3), seq_len(3)], group = "all"), tbl_test, 
           tolerance = 1e-07)
 })
 
@@ -195,12 +195,12 @@ test_that("hoeffDValues", {
 
 ## function hoeffDPlot
 test_that("hoeffDPlot", {
-    l_1 <- list(raw = 1:10)
-    l_2 <- list(normalized = 1:10)
-    l_3 <- list(transformed = 1:10)
-    l_4 <- list("batch corrected" = 1:10)
-    l_5 <- list(imputed = 1:10)
-    l_6 <- list(foo = 1:9)
+    l_1 <- list(raw = seq_len(10))
+    l_2 <- list(normalized = seq_len(10))
+    l_3 <- list(transformed = seq_len(10))
+    l_4 <- list("batch corrected" = seq_len(10))
+    l_5 <- list(imputed = seq_len(10))
+    l_6 <- list(foo = seq_len(9))
     df <- data.frame(l_1, l_2)
     g <- hoeffDPlot(df)
     
@@ -230,8 +230,8 @@ test_that("MAplot", {
 ## function createDfFeature
 test_that("createDfFeature", {
     
-    x1 <- matrix(1:100, ncol = 10, nrow = 10, 
-         dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+    x1 <- matrix(seq_len(100), ncol = 10, nrow = 10, 
+         dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
     x2 <- x1 + 5
     x3 <- x2 + 10
      
@@ -241,7 +241,7 @@ test_that("createDfFeature", {
     expect_equal(df$x2, seq(6, 96, 10))
     expect_equal(df$x3, seq(16, 106, 10))
     expect_is(df, "data.frame")
-    expect_identical(rownames(df), paste("sample", 1:10))
+    expect_identical(rownames(df), paste("sample", seq_len(10)))
     expect_error(createDfFeature(l, "foo"), "subscript out of bounds")
     expect_error(createDfFeature("foo", "feature 1"), 
         "incorrect number of dimensions")
@@ -249,8 +249,8 @@ test_that("createDfFeature", {
 
 ## function featurePlot
 test_that("featurePlot", {
-    x1 <- matrix(1:100, ncol = 10, nrow = 10, 
-      dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+    x1 <- matrix(seq_len(100), ncol = 10, nrow = 10, 
+      dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
     x2 <- x1 + 5
     x3 <- x2 + 10
     
@@ -262,8 +262,8 @@ test_that("featurePlot", {
 
 ## function cvFeaturePlot
 test_that("cvFeaturePlot", {
-    x1 <- matrix(1:100, ncol = 10, nrow = 10, 
-        dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+    x1 <- matrix(seq_len(100), ncol = 10, nrow = 10, 
+        dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
     x2 <- x1 + 5
     x3 <- x2 + 10
 
@@ -372,8 +372,8 @@ test_that("transformAssay", {
 
 ## function batchCorrectionAssay
 test_that("batchCorrectionAssay", {
-    a <- matrix(1:1000, nrow = 100, ncol = 10, 
-        dimnames = list(1:100, paste("sample", 1:10)))
+    a <- matrix(seq_len(1000), nrow = 100, ncol = 10, 
+        dimnames = list(seq_len(100), paste("sample", seq_len(10))))
     se_b <- se
     SummarizedExperiment::assay(se_b) <- a
     a_n <- batchCorrectionAssay(se_b, method = "none")
@@ -427,38 +427,38 @@ test_that("imputeAssay", {
     expect_equal(colnames(a_min), colnames(a))
     expect_equal(colnames(a_mindet), colnames(a))
     expect_equal(colnames(a_minprob), colnames(a))
-    expect_equal(as.vector(a[1, 1:6]), c(NA, NA, NA, NA, NA, 501.0773),
+    expect_equal(as.vector(a[1, seq_len(6)]), c(NA, NA, NA, NA, NA, 501.0773),
         tolerance = 1e-04)
-    expect_equal(as.vector(a[5, 1:6]), c(NA, NA, NA, NA, NA, 505.9916),
+    expect_equal(as.vector(a[5, seq_len(6)]), c(NA, NA, NA, NA, NA, 505.9916),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_bpca[1, 1:6]), 
+    expect_equal(as.vector(a_bpca[1, seq_len(6)]), 
         c(700.2801, 700.2800, 700.2800, 700.2801, 700.2801, 501.0773), 
         tolerance = 5e-01)
-    expect_equal(as.vector(a_bpca[5, 1:6]), 
+    expect_equal(as.vector(a_bpca[5, seq_len(6)]), 
         c(704.9565, 704.9565, 704.9565, 704.9566, 704.9566, 505.9916),
         tolerance = 5e-01)
-    expect_equal(as.vector(a_knn[1, 1:6]), 
+    expect_equal(as.vector(a_knn[1, seq_len(6)]), 
         c(6.799054, 106.900480, 207.305202, 306.809707, 406.564452, 501.077303),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_knn[5, 1:6]), 
+    expect_equal(as.vector(a_knn[5, seq_len(6)]), 
         c(6.799054, 106.900480, 207.305202, 306.809707, 406.564452, 505.991601),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_min[1, 1:6]), 
+    expect_equal(as.vector(a_min[1, seq_len(6)]), 
         c(2.164371, 2.164371, 2.164371, 2.164371, 2.164371, 501.077303),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_min[5, 1:6]), 
+    expect_equal(as.vector(a_min[5, seq_len(6)]), 
         c(2.164371, 2.164371, 2.164371, 2.164371, 2.164371, 505.991601),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_mindet[1, 1:6]), 
+    expect_equal(as.vector(a_mindet[1, seq_len(6)]), 
         c(505.0606, 505.0606, 505.0606, 505.0606, 505.0606, 501.0773),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_mindet[5, 1:6]), 
+    expect_equal(as.vector(a_mindet[5, seq_len(6)]), 
         c(509.9465, 509.9465, 509.9465, 509.9465, 509.9465, 505.9916),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_minprob[1, 1:6]), 
+    expect_equal(as.vector(a_minprob[1, seq_len(6)]), 
         c(485.9080, 507.6398, 495.5805, 490.3416, 479.0684, 501.0773),
         tolerance = 1e-04)
-    expect_equal(as.vector(a_minprob[5, 1:6]), 
+    expect_equal(as.vector(a_minprob[5, seq_len(6)]), 
         c(550.3846, 479.6420, 547.0334, 449.2677, 429.0399, 505.9916),
         tolerance = 1e-04)
 })

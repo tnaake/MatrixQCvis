@@ -34,9 +34,9 @@
 #' \code{umap::umap}
 #' 
 #' @examples 
-#' x <- matrix(rnorm(1:10000), ncol = 100)
-#' rownames(x) <- paste("feature", 1:nrow(x))
-#' colnames(x) <- paste("sample", 1:ncol(x))
+#' x <- matrix(rnorm(seq_len(10000)), ncol = 100)
+#' rownames(x) <- paste("feature", seq_len(nrow(x)))
+#' colnames(x) <- paste("sample", seq_len(ncol(x)))
 #' params <- list(method = "euclidean", ## dist
 #'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
@@ -149,8 +149,8 @@ dimensionReduction <- function(x,
 #' library(SummarizedExperiment)
 #' 
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, byrow = TRUE,
-#'             dimnames = list(1:10, paste("sample", 1:10)))
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, byrow = TRUE,
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -250,8 +250,8 @@ dimensionReductionPlot <- function(tbl, se,
 #' for each PC or Axis
 #' 
 #' @examples
-#' x <- matrix(1:100, nrow = 10, ncol = 10, 
-#'     dimnames = list(1:10, paste("sample", 1:10)))
+#' x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' set.seed(1)
 #' x <- x + rnorm(100)
 #'
@@ -321,8 +321,8 @@ explVar <- function(d, type = c("PCA", "PCoA")) {
 #' taken
 #' 
 #' @examples  
-#' x <- matrix(1:100, nrow = 10, ncol = 10,
-#'     dimnames = list(1:10, paste("sample", 1:10)))
+#' x <- matrix(seq_len(100), nrow = 10, ncol = 10,
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 #' permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE, sample_n = NULL)
 #'
 #' @return matrix with explained variance
@@ -378,7 +378,7 @@ permuteExplVar <- function(x, n = 10, center = TRUE, scale = TRUE,
 #' permutation (function \code{permuteExplVar})
 #' 
 #' @examples 
-#' x <- matrix(1:100, ncol = 10)
+#' x <- matrix(seq_len(100), ncol = 10)
 #' pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE),
 #'     type = "PCA")[[2]]
 #' var_x <- explVar(d = pca, type = "PCA")
@@ -440,7 +440,7 @@ plotPCAVar <- function(var_x, var_perm = NULL) {
 #' @param var_perm \code{matrix}, variances obtained by permutation
 #' 
 #' @examples
-#' x <- matrix(1:100, ncol = 10)
+#' x <- matrix(seq_len(100), ncol = 10)
 #' pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE), 
 #'     type = "PCA")[[2]]
 #' var_x <- explVar(d = pca, type = "PCA")
@@ -490,9 +490,9 @@ plotPCAVarPvalue <- function(var_x, var_perm) {
 #' 
 #' @examples 
 #' set.seed(1)
-#' x <- matrix(rnorm(1:10000), ncol = 100)
-#' rownames(x) <- paste("feature", 1:nrow(x))
-#' colnames(x) <- paste("sample", 1:ncol(x))
+#' x <- matrix(rnorm(seq_len(10000)), ncol = 100)
+#' rownames(x) <- paste("feature", seq_len(nrow(x)))
+#' colnames(x) <- paste("sample", seq_len(ncol(x)))
 #' params <- list(method = "euclidean", ## dist
 #'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP
@@ -531,9 +531,9 @@ tblPCALoadings <- function(x, params) {
 #' coordinates
 #' 
 #' @examples 
-#' x <- matrix(rnorm(1:10000), ncol = 100)
-#' rownames(x) <- paste("feature", 1:nrow(x))
-#' colnames(x) <- paste("sample", 1:ncol(x))
+#' x <- matrix(rnorm(seq_len(10000)), ncol = 100)
+#' rownames(x) <- paste("feature", seq_len(nrow(x)))
+#' colnames(x) <- paste("sample", seq_len(ncol(x)))
 #' params <- list(method = "euclidean", ## dist
 #'     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
 #'     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP

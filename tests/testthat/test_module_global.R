@@ -1,7 +1,7 @@
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10,
-    dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
+a <- matrix(seq_len(100), nrow = 10, ncol = 10,
+    dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a),
@@ -60,7 +60,7 @@ test_that("sidebar_reportUI", {
 
 ## function sidebar_selectAssayUI
 test_that("sidebar_selectAssayUI", {
-    expect_is(sidebar_selectAssayUI(choicesAssaySE = 1:2), "shiny.tag")
+    expect_is(sidebar_selectAssayUI(choicesAssaySE = c(1, 2)), "shiny.tag")
 })
 
 ## function choiceDataSE
@@ -72,7 +72,7 @@ test_that("choiceAssaySE", {
     names(SummarizedExperiment::assays(se_2)) <- c("abc", NA)
     expect_error(choiceAssaySE(se_2), "contains NA")
     names(SummarizedExperiment::assays(se_2)) <- NULL
-    expect_equal(choiceAssaySE(se_2), 1:2)
+    expect_equal(choiceAssaySE(se_2), c(1, 2))
 })
 
 ## function selectAssaySE
@@ -138,11 +138,11 @@ test_that("selectSampleSE", {
     expect_equal(selectSampleSE(se, "sample 2", "exclude"), se[, -2])
     expect_equal(selectSampleSE(se, "sample 2", "select"), se)
     expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "exclude"), 
-        se[, -c(2:3)])
+        se[, -c(2, 3)])
     expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "select"), se)
     expect_equal(
         selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"), 
-        se[, 2:4])
+        se[, c(2, 3, 4)])
     expect_error(selectSampleSE("foo", "sample 1", "exclude"),
         "incorrect number of dimensions")
     expect_error(selectSampleSE("foo", 
@@ -164,8 +164,8 @@ test_that("selectFeatureSE", {
     expect_equal(selectFeatureSE(se, "2", "exclude"), se[-2,])
     expect_equal(selectFeatureSE(se, "2", "select"), se)
     expect_equal(selectFeatureSE(se, c("1", "2"), "select"), se)
-    expect_equal(selectFeatureSE(se, c("1", "2", "3"), "select"), se[1:3, ])
-    expect_equal(selectFeatureSE(se, c("2", "3"), "exclude"), se[-c(2:3), ])
+    expect_equal(selectFeatureSE(se, c("1", "2", "3"), "select"), se[c(1, 2, 3), ])
+    expect_equal(selectFeatureSE(se, c("2", "3"), "exclude"), se[-c(2, 3), ])
     expect_error(selectFeatureSE("foo", "1", "exclude"),
         "incorrect number of dimensions")
 })

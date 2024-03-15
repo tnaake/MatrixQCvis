@@ -248,9 +248,9 @@ sidebar_DEUI <- function() {
 #' @examples
 #'
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -362,7 +362,7 @@ sidebar_reportUI <- function() {
 #' @author Thomas Naake
 #' 
 #' @examples
-#' choicesAssaySE <- 1:2
+#' choicesAssaySE <- c(1, 2)
 #' sidebar_selectAssayUI(choicesAssaySE = choicesAssaySE)
 #' 
 #' @importFrom shiny conditionalPanel selectInput
@@ -399,15 +399,15 @@ sidebar_selectAssayUI <- function(choicesAssaySE) {
 #' 
 #' @examples 
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'     dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assays = list(a, a+10), 
-#'                                     rowData = rD, colData = cD)
+#'     rowData = rD, colData = cD)
 #' 
 #' choiceAssaySE(se = se)
 #' 
@@ -453,15 +453,15 @@ choiceAssaySE <- function(se) {
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 #' rD <- data.frame(spectra = rownames(a))
 #' se <- SummarizedExperiment::SummarizedExperiment(assays = list(a, a+10), 
-#'                                     rowData = rD, colData = cD)
+#'     rowData = rD, colData = cD)
 #' 
 #' selectAssaySE(se = se, selected = 1)
 #' selectAssaySE(se = se, selected = 2)
@@ -545,9 +545,9 @@ selectAssayServer <- function(id, se, selected) {
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -606,9 +606,9 @@ selectSampleSE <- function(se, selection,
 #' 
 #' @examples
 #' ## create se
-#' a <- matrix(1:100, nrow = 10, ncol = 10, 
-#'             dimnames = list(1:10, paste("sample", 1:10)))
-#' a[c(1, 5, 8), 1:5] <- NA
+#' a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+#'             dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+#' a[c(1, 5, 8), seq_len(5)] <- NA
 #' set.seed(1)
 #' a <- a + rnorm(100)
 #' cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))

@@ -10,11 +10,11 @@
 test_that("dimensionReduction", {
     set.seed(1)
     x <- matrix(rnorm(100000), nrow = 1000, ncol = 100, 
-        dimnames = list(1:1000, paste("sample", 1:100)))
-    x[, 1:25] <- x[, 1:25] - 50
-    x[, 26:50] <- x[, 26:50] - 25
-    x[, 51:75] <- x[, 51:75] + 25
-    x[, 76:100] <- x[, 76:100] + 50
+        dimnames = list(seq_len(1000), paste("sample", seq_len(100))))
+    x[, seq(1, 25)] <- x[, seq(1, 25)] - 50
+    x[, seq(26, 50)] <- x[, seq(26, 50)] - 25
+    x[, seq(51, 75)] <- x[, seq(51, 75)] + 25
+    x[, seq(76, 100)] <- x[, seq(76, 100)] + 50
     #x <- x + rnorm(10000)
     x_foo <- x
     x_foo[1, 3] <- NA
@@ -96,7 +96,7 @@ test_that("dimensionReduction", {
     expect_equal(tsne_o[[1]][, -3], tsne_r, tolerance = 1e01)
     expect_equal(umap_o[[1]][, -3], umap_r, tolerance = 1e01)
     
-    cols <- paste("sample", 1:100)
+    cols <- paste("sample", seq_len(100))
     expect_equal(pca_o[[1]][["name"]], cols)
     expect_equal(pcoa_o[[1]][["name"]], cols)
     expect_equal(nmds_o[[1]][["name"]], cols)
@@ -108,8 +108,8 @@ test_that("dimensionReduction", {
 test_that("dimensionReductionPlot", {
      
     ## create se
-    a <- matrix(1:100, nrow = 10, ncol = 10, 
-                 dimnames = list(1:10, paste("sample", 1:10)))
+    a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                 dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     set.seed(1)
     a <- a + rnorm(100)
     cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -151,8 +151,8 @@ test_that("dimensionReductionPlot", {
 
 ## function explVar
 test_that("explVar", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-                dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     set.seed(1)
     x <- x + rnorm(100)
     
@@ -181,14 +181,14 @@ test_that("explVar", {
         c(9.992597e-01, 2.673699e-04, 2.267327e-04, 1.145103e-04, 5.908631e-05,
             4.653893e-05, 1.855159e-05, 6.844296e-06, 6.848357e-07),
         tolerance = 1e-07)
-    expect_equal(names(varExpl_pca), paste("PC", 1:10, sep = ""))
-    expect_equal(names(varExpl_pcoa), paste("Axis.", 1:9, sep = ""))
+    expect_equal(names(varExpl_pca), paste("PC", seq_len(10), sep = ""))
+    expect_equal(names(varExpl_pcoa), paste("Axis.", seq_len(9), sep = ""))
 })
 
 ## function permuteExplVar
 test_that("permuteExplVar", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-                dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     set.seed(1)
     x <- x + rnorm(100)
     x_foo <- x
@@ -207,13 +207,13 @@ test_that("permuteExplVar", {
         "length of 'scale' must equal the number of columns of 'x'")
     expect_equal(as.numeric(rowSums(varExplPerm)), rep(1, 10), tolerance = 1e-05)
     expect_equal(dim(varExplPerm), dim(x))
-    expect_equal(colnames(varExplPerm), paste("PC", 1:10, sep = ""))
+    expect_equal(colnames(varExplPerm), paste("PC", seq_len(10), sep = ""))
 })
 
 ## function plotPCAVar
 test_that("plotPCAVar", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-        dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+        dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     set.seed(1)
     x <- x + rnorm(100)
     pca <- dimensionReduction(x, params = list(center = TRUE, scale = TRUE), 
@@ -231,8 +231,8 @@ test_that("plotPCAVar", {
 
 ## function plotPCAVarPvalue
 test_that("plotPCAVarPvalue", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-                dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     set.seed(1)
     x <- x + rnorm(100)
     pca <- dimensionReduction(x, params = list(center = TRUE, scale = TRUE), 
@@ -249,14 +249,14 @@ test_that("plotPCAVarPvalue", {
 
 ## function tblPCALoadings
 test_that("tblPCALoadings", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-                dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     params <- list(center = TRUE, scale = TRUE)
     tbl <- tblPCALoadings(x = x, params = params)
     expect_is(tbl, "tbl")
     expect_equal(dim(tbl), c(10, 11))
-    expect_equal(tbl$name, as.character(1:10))
-    expect_equal(colnames(tbl), c(paste0("PC", 1:10), "name"))
+    expect_equal(tbl$name, as.character(seq_len(10)))
+    expect_equal(colnames(tbl), c(paste0("PC", seq_len(10)), "name"))
     expect_equal(tbl$PC1, rep(0.316, 10), tolerance = 1e-3)
     expect_equal(tbl$PC2, c(-0.9486833, rep(0.1054093, 9)), tolerance = 1e-3)
     expect_error(tblPCALoadings(x = "foo", params = params), "must be numeric")
@@ -266,8 +266,8 @@ test_that("tblPCALoadings", {
 
 ## function plotPCALoadings
 test_that("plotPCALoadings", {
-    x <- matrix(1:100, nrow = 10, ncol = 10, 
-                dimnames = list(1:10, paste("sample", 1:10)))
+    x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+                dimnames = list(seq_len(10), paste("sample", seq_len(10))))
     params <- list(center = TRUE, scale = TRUE)
     tbl <- tblPCALoadings(x = x, params = params)
     expect_is(plotPCALoadings(tbl, "PC1", "PC2"), "plotly")

@@ -799,7 +799,7 @@ maServer <-  function(id, se, se_n, se_b, se_t, se_i, innerWidth,
             
             selected_samples <- reactive({
                 if (nrow(cD()) > 3) {
-                    rownames(cD())[1:3]
+                    rownames(cD())[seq_len(3)]
                 } else {
                     rownames(cD())
                 }

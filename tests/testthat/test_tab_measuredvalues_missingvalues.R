@@ -3,9 +3,9 @@
 #' @importFrom tibble tibble is_tibble
 
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+            dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(sample = colnames(a), type = c(rep("1", 5), rep("2", 5)))
@@ -26,7 +26,7 @@ test_that("samplesMeasuredMissing", {
     expect_is(x, "tbl")
     expect_error(samplesMeasuredMissing(NULL), "unable to find an inherited")
     expect_error(samplesMeasuredMissing("foo"), "unable to find an inherited")
-    expect_error(samplesMeasuredMissing(1:10), "unable to find an inherited")
+    expect_error(samplesMeasuredMissing(seq_len(10)), "unable to find an inherited")
 })
 
 ## function barplotSamplesMeasuredMissing
@@ -37,7 +37,7 @@ test_that("barplotSamplesMeasuredMissing", {
     ##expect_error(barplotSamplesMeasuredMissing(NULL, measured = FALSE), "not found")
     expect_error(barplotSamplesMeasuredMissing("foo", measured = FALSE), 
         "must be a ")
-    expect_error(barplotSamplesMeasuredMissing(1:10, measured = FALSE), 
+    expect_error(barplotSamplesMeasuredMissing(seq_len(10), measured = FALSE), 
         "must be a ")
     expect_error(barplotSamplesMeasuredMissing(x, measured = NULL), 
         "argument is of length zero")
@@ -121,9 +121,9 @@ test_that("upset_category", {
     
     se_2 <- SummarizedExperiment(
         assays = list(counts = matrix(100 * runif(100 * 8), 100, 8)),
-        colData = DataFrame(sample = paste0("S", 1:8),
-                            type = sample(LETTERS[1:2], 8, replace = TRUE),
-                            name = paste0("S", 1:8))
+            colData = DataFrame(sample = paste0("S", seq_len(8)),
+            type = sample(LETTERS[c(1, 2)], 8, replace = TRUE),
+            name = paste0("S", seq_len(8)))
     )
     assay(se_2)[5, 1] <- NA
     g <- upsetCategory(se_2, category = "type", measured = FALSE)
