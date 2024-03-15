@@ -4,20 +4,16 @@ This panel shows the sum- or median-aggregated values (specified in
 **Select aggregation**). The plot allows to display trends in data
 acquisition that originate e.g. from differences in instrument 
 sensitivity. The panel allows to display aggregated values for 
+raw (**raw**), normalized 
+(**normalized**), normalized+transformed (**transformed**), and
+normalized+transformed+batch corrected (**batch corrected**)
+assay values. 
+The different methods for normalization, transformation, and batch correction 
+are specified in the side panel. 
 
- - raw (**raw**), 
- - normalized (**normalized**), 
- - normalized+batch corrected (**batch corrected**),
- - normalized+batch corrected+transformed (**transformed**), and
- - normalized+batch corrected+transformed+imputed (**imputed**) 
-
-assay values. The **imputed** data set can only be selected if there are 
-missing values (`NA`s) in the **raw** data set. The different methods for 
-normalization, transformation, batch correction, and imputation are
-specified in the side panel. 
-
-The smoothing is calculated from a selection of samples that are specified 
-by the drop-down menus **Select variable** and **Select level to highlight**. 
+The smoothing is calculated from a 
+selection of samples that are specified by the drop-down menus
+**Select variable** and **Select level to highlight**. 
 The menu **Select variable** corresponds to the `colnames` in 
 `colData(se)`. Here, we can select for the higher-order variable, e.g.
 the sample type (containing for example `Type_1`, `Type_2`, ..., `QC`). 

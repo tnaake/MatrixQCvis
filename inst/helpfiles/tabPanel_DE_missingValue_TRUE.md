@@ -3,12 +3,10 @@
 Currently, two methods/tests are implemented for calculating differential 
 expression between conditions: moderated t-tests from `limma` and the
 Wald test from `proDA`. The approach of `proDA` does not require imputed 
-values and will take the normalized+batch corrected+transformed
-(**transformed**) data set as input. If there are missing 
-values (`NA`s) in the **raw** data set, the `limma` approach takes 
-normalized+batch corrected+transformed+imputed intensities 
-(**imputed**) as input, otherwise `limma` takes the **transformed**
-data set.
+values and will take the normalized+transformed+batch corrected 
+(**batch corrected**) data set as input. The `limma` approach takes 
+normalized+transformed+batch corrected+imputed intensities 
+(**imputed**) as input.
 
 #### Levels
 Enter here the formula for the levels. The formula has to start with a `~` 
