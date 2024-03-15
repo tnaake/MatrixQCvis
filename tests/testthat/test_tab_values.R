@@ -272,7 +272,7 @@ test_that("cvFeaturePlot", {
     expect_is(cvFeaturePlot(l = l, lines = FALSE), "plotly")
     expect_is(cvFeaturePlot(l = l, lines = TRUE), "plotly")
     expect_error(cvFeaturePlot(l = NULL, lines = TRUE), 
-        "Selections can't have negative values")
+        "Problem while evaluating")
     expect_error(cvFeaturePlot(l = l, lines = "foo"), 
         "argument is not interpretable as logical")
 })

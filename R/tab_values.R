@@ -253,7 +253,7 @@ driftPlot <- function(se, aggregation = c("median", "sum"),
     ## aggregate the values across the samples
     a_l <- dplyr::group_by(.data = a_l, .data$name)
     a_l <- dplyr::summarise(a_l, 
-        dplyr::across(dplyr::starts_with("value"), FUN, na.rm = TRUE))
+        dplyr::across(dplyr::starts_with("value"), ~ FUN(x, na.rm = TRUE)))
 
     ## join with cD
     tbl <- dplyr::left_join(a_l, cD, 

@@ -34,3 +34,4 @@ test_that(".initialize_server", {
         envir = NULL), "envir has to be of class environment")
     expect_is(MatrixQCvis:::.initialize_server, "function")
 })
+
