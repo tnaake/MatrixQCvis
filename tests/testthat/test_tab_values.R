@@ -280,29 +280,63 @@ test_that("cvFeaturePlot", {
 ## function normalizeAssay
 test_that("normalizeAssay", {
     a <- SummarizedExperiment::assay(se)
-    a_n <- normalizeAssay(a, method = "none")
-    a_s <- normalizeAssay(a, method = "sum")
-    a_qd <- normalizeAssay(a, method = "quantile division", probs = 0.75)
-    a_q <- normalizeAssay(a, method = "quantile")
+    a_n <- normalizeAssay(a, method = "none",
+        multiplyByNormalizationValue = FALSE)
+    a_n_multiply <- normalizeAssay(a, method = "none", 
+        multiplyByNormalizationValue = TRUE)
+    a_s <- normalizeAssay(a, method = "sum", 
+        multiplyByNormalizationValue = FALSE)
+    a_s_multiply <- normalizeAssay(a, method = "sum", 
+        multiplyByNormalizationValue = TRUE)
+    a_qd <- normalizeAssay(a, method = "quantile division", probs = 0.75,  
+        multiplyByNormalizationValue = FALSE)
+    a_qd_multiply <- normalizeAssay(a, method = "quantile division",
+        probs = 0.75, multiplyByNormalizationValue = TRUE)
+    a_q <- normalizeAssay(a, method = "quantile", multiplyByNormalizationValue = FALSE)
+    a_q_multiply <- normalizeAssay(a, method = "quantile", multiplyByNormalizationValue = TRUE)
     expect_error(normalizeAssay(se), "a is not a matrix")
     expect_error(normalizeAssay(a, "foo"), "'arg' should be one of ")
+    
     expect_equal(a_n, a)
+    expect_equal(a_n_multiply, a)
+    expect_equal(a_n_multiply, a_n)
+    expect_equal(a_q, a_q_multiply)
+    
     expect_true(is.matrix(a_n))
+    expect_true(is.matrix(a_n_multiply))
     expect_true(is.matrix(a_s))
+    expect_true(is.matrix(a_s_multiply))
     expect_true(is.matrix(a_qd))
+    expect_true(is.matrix(a_qd_multiply))
     expect_true(is.matrix(a_q))
+    expect_true(is.matrix(a_q_multiply))
+    
     expect_equal(dim(a_n), dim(a))
+    expect_equal(dim(a_n_multiply), dim(a))
     expect_equal(dim(a_s), dim(a))
+    expect_equal(dim(a_s_multiply), dim(a))
     expect_equal(dim(a_qd), dim(a))
+    expect_equal(dim(a_qd_multiply), dim(a))
     expect_equal(dim(a_q), dim(a))
+    expect_equal(dim(a_q_multiply), dim(a))
+    
     expect_equal(rownames(a_n), rownames(a))
+    expect_equal(rownames(a_n_multiply), rownames(a))
     expect_equal(rownames(a_s), rownames(a))
+    expect_equal(rownames(a_s_multiply), rownames(a))
     expect_equal(rownames(a_qd), rownames(a))
+    expect_equal(rownames(a_qd_multiply), rownames(a))
     expect_equal(rownames(a_q), rownames(a))
+    expect_equal(rownames(a_q_multiply), rownames(a))
+    
     expect_equal(colnames(a_n), colnames(a))
+    expect_equal(colnames(a_n_multiply), colnames(a))
     expect_equal(colnames(a_s), colnames(a))
+    expect_equal(colnames(a_s_multiply), colnames(a))
     expect_equal(colnames(a_qd), colnames(a))
+    expect_equal(colnames(a_qd_multiply), colnames(a))
     expect_equal(colnames(a_q), colnames(a))
+    expect_equal(colnames(a_q_multiply), colnames(a))
 })
 
 ## function transformAssay
