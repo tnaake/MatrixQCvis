@@ -64,8 +64,8 @@ order of magnitude than the original values, while if \code{FALSE}, the
 returned values will be in a smaller order of magnitude.
 }
 \examples{
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-        dimnames = list(1:10, paste("sample", 1:10)))
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+        dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 normalizeAssay(a, "sum")
 
 }

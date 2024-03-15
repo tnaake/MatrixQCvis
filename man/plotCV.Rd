@@ -23,10 +23,10 @@ in the different columns in different colors.
 Internal usage in \code{shinyQC}.
 }
 \examples{
-x1 <- matrix(1:10, ncol = 2)
-x2 <- matrix(11:20, ncol = 2)
-x3 <- matrix(21:30, ncol = 2)
-x4 <- matrix(31:40, ncol = 2)
+x1 <- matrix(seq_len(10), ncol = 2)
+x2 <- matrix(seq(11, 20), ncol = 2)
+x3 <- matrix(seq(21, 30), ncol = 2)
+x4 <- matrix(seq(31, 40), ncol = 2)
 
 ## calculate cv values
 cv1 <- cv(x1, "x1")

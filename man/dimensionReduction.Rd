@@ -50,9 +50,9 @@ functions \code{stats::prcomp} (PCA), \code{stats::cmdscale} (PCoA),
 the method is set to \code{naive}.
 }
 \examples{
-x <- matrix(rnorm(1:10000), ncol = 100)
-rownames(x) <- paste("feature", 1:nrow(x))
-colnames(x) <- paste("sample", 1:ncol(x))
+x <- matrix(rnorm(seq_len(10000)), ncol = 100)
+rownames(x) <- paste("feature", seq_len(nrow(x)))
+colnames(x) <- paste("sample", seq_len(ncol(x)))
 params <- list(method = "euclidean", ## dist
     initial_dims = 10, max_iter = 100, dims = 3, perplexity = 3, ## tSNE
     min_dist = 0.1, n_neighbors = 15, spread = 1) ## UMAP

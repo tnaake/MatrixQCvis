@@ -29,8 +29,8 @@ package to retrieve the explained variation based on eigenvalues per
 Axis (\code{type = "PCoA"}).
 }
 \examples{
-x <- matrix(1:100, nrow = 10, ncol = 10, 
-    dimnames = list(1:10, paste("sample", 1:10)))
+x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+    dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 set.seed(1)
 x <- x + rnorm(100)
 

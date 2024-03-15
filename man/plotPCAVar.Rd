@@ -24,7 +24,7 @@ The argument \code{var_perm} is optional and visualization of permuted values
 can be omitted by setting \code{var_perm = NULL}.
 }
 \examples{
-x <- matrix(1:100, ncol = 10)
+x <- matrix(seq_len(100), ncol = 10)
 pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE),
     type = "PCA")[[2]]
 var_x <- explVar(d = pca, type = "PCA")

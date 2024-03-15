@@ -30,8 +30,8 @@ stabilizing normalisation (\code{vsn}) or no transformation method
 Internal use in \code{shinyQC}.
 }
 \examples{
-a <- matrix(1:1000, nrow = 100, ncol = 10, 
-        dimnames = list(1:100, paste("sample", 1:10)))
+a <- matrix(seq_len(1000), nrow = 100, ncol = 10, 
+        dimnames = list(seq_len(100), paste("sample", seq_len(10))))
 transformAssay(a, "none")
 transformAssay(a, "log")
 transformAssay(a, "log2")

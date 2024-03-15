@@ -56,8 +56,8 @@ The function \code{dimensionReductionPlot} is a wrapper for a
 library(SummarizedExperiment)
 
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, byrow = TRUE,
-            dimnames = list(1:10, paste("sample", 1:10)))
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, byrow = TRUE,
+            dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))

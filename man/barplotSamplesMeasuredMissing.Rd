@@ -22,9 +22,9 @@ take as input the returned \code{tbl} of \code{samplesMeasuredMissing}.
 }
 \examples{
 ## create se
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+            dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))

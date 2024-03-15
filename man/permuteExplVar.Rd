@@ -43,8 +43,8 @@ variance.
 }
 \examples{
  
-x <- matrix(1:100, nrow = 10, ncol = 10,
-    dimnames = list(1:10, paste("sample", 1:10)))
+x <- matrix(seq_len(100), nrow = 10, ncol = 10,
+    dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 permuteExplVar(x = x, n = 10, center = TRUE, scale = TRUE, sample_n = NULL)
 
 }

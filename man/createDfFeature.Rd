@@ -28,7 +28,7 @@ Internal usage in \code{shinyQC}
 \examples{
 set.seed(1)
 x1 <- matrix(rnorm(100), ncol = 10, nrow = 10, 
-    dimnames = list(paste("feature", 1:10), paste("sample", 1:10)))
+    dimnames = list(paste("feature", seq_len(10)), paste("sample", seq_len(10))))
 x2 <- x1 + 5
 x3 <- x2 + 10
 

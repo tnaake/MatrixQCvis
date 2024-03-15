@@ -19,8 +19,8 @@ The function \code{sumDistSample} creates a plot showing the sum of distance
 of a sample to other samples.
 }
 \examples{
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-            dimnames = list(1:10, paste("sample", 1:10)))
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+            dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 dist <- distShiny(a)
 
 sumDistSample(dist, title = "raw")

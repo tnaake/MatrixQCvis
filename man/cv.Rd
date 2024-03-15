@@ -26,7 +26,7 @@ The function returned a named \code{list} (the name is specified by the
 columns of \code{x}.
 }
 \examples{
-x <- matrix(1:10, ncol = 2)
+x <- matrix(seq_len(10), ncol = 2)
 cv(x)
 
 }

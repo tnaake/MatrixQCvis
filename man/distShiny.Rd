@@ -24,8 +24,8 @@ on the defined \code{method} (e.g. euclidean distance).
 Internal use in \code{shinyQC}.
 }
 \examples{
-x <- matrix(1:100, nrow = 10, ncol = 10, 
-        dimnames = list(1:10, paste("sample", 1:10)))
+x <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+        dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 distShiny(x = x)
 
 }

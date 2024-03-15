@@ -52,9 +52,9 @@ from a Gaussion distribution with the mean set to the minimal value of a
 sample. \code{MinProb} is a MNAR imputation method.
 }
 \examples{
-a <- matrix(1:100, nrow = 10, ncol = 10, 
-    dimnames = list(1:10, paste("sample", 1:10)))
-a[c(1, 5, 8), 1:5] <- NA
+a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+    dimnames = list(seq_len(10), paste("sample", seq_len(10))))
+a[c(1, 5, 8), seq_len(5)] <- NA
 
 imputeAssay(a, method = "kNN")
 imputeAssay(a, method = "Min")

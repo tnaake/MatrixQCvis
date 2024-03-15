@@ -23,7 +23,7 @@ principal components can be selected.
 Internal usage in \code{shinyQC}.
 }
 \examples{
-x <- matrix(1:100, ncol = 10)
+x <- matrix(seq_len(100), ncol = 10)
 pca <- dimensionReduction(x = x, params = list(center = TRUE, scale = TRUE), 
     type = "PCA")[[2]]
 var_x <- explVar(d = pca, type = "PCA")
