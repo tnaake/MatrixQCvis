@@ -1238,25 +1238,47 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #'
 #' @description
 #' The function \code{normalizeAssay} performs normalization by sum of the 
-#' (count/intensity) values per sample or quantile division per sample
-#' or by quantile normalization (adjusting the distributions that they become
-#' identical in statistical distributions). The divisor for quantile division
-#' (e.g., the 75% quantile per sample) can be specified by the \code{probs} 
-#' argument. Quantile normalization is performed by using the 
-#' \code{normalizeQuantiles} function from \code{limma}.
+#' (count/intensity) values per sample (\code{method = "sum"}), quantile 
+#' division per sample (\code{method = "quantile division"}), 
+#' or by quantile normalization (adjusting the value distributions that they 
+#' become identical in statistical properties, \code{method = "quantile"}). 
+#' The value for quantile division (e.g., the 75% quantile per sample) can be 
+#' specified by the \code{probs} argument. Quantile normalization is 
+#' performed by using the \code{normalizeQuantiles} function from \code{limma}.
+#' 
+#' For the methods \code{"sum"} and \code{"quantile division"}, normalization
+#' will be done depending on the \code{multiplyByNormalizationValue} parameter.
+#' If set to \code{TRUE}, normalization values (e.g. sum or quantile) will be
+#' calculated per sample. In a next step, adjusted normalization values will 
+#' be calculated for each sample in relation to the median normalization 
+#' values across all samples. Finally, the values in \code{a} are 
+#' multiplied by these adjusted normalization values.
+#' If \code{multiplyByNormalizationValue} is set to \code{FALSE}, 
+#' normalization values (e.g. sum or quantile) will be
+#' calculated per sample. The values in \code{a} are sample-wise divided by
+#' the normalization values. 
 #' 
 #' @details
 #' Internal usage in \code{shinyQC}. If \code{method} is set to \code{"none"}, 
 #' the object \code{x} is returned as is (pass-through).
 #' 
-#' If \code{probs} is NULL, \code{probs} is internally set to "name" if 
+#' If \code{probs} is NULL, \code{probs} is internally set to 0.75 if 
 #' \code{method = "quantile division"}.
+#' 
+#' Depending on the values in \code{a}, if \code{multiplyByNormalizationValue}
+#' is set to \code{TRUE} the returned normalized values will be in the same 
+#' order of magnitude than the original values, while if \code{FALSE}, the 
+#' returned values will be in a smaller order of magnitude.
 #' 
 #' @param a \code{matrix} with samples in columns and features in rows
 #' @param method \code{character}, one of \code{"none"}, \code{"sum"}, 
 #' \code{"quantile division"}, \code{"quantile"}
 #' @param probs \code{numeric}, ranging between \code{[0, 1)}. \code{probs} 
 #' is used as the divisor for quantile division in 
+#' \code{method = "quantile division"}
+#' @param multiplyByNormalizationValue \code{logical}, if TRUE, normalization 
+#' values will be calculated and the values in \code{a} will be multiplied by 
+#' the values The parameter is only relavant for \code{method = "sum"} and 
 #' \code{method = "quantile division"}
 #'
 #' @examples
@@ -1271,7 +1293,8 @@ cvFeaturePlot <- function(l, lines = FALSE) {
 #'  
 #' @export
 normalizeAssay <- function(a, 
-    method = c("none", "sum", "quantile division", "quantile"), probs = 0.75) {
+    method = c("none", "sum", "quantile division", "quantile"), probs = 0.75,
+    multiplyByNormalizationValue = FALSE) {
     
     if (!is.matrix(a)) stop ("a is not a matrix")
     method <- match.arg(method)
@@ -1279,12 +1302,41 @@ normalizeAssay <- function(a,
     a_n <- a
 
     if (method == "sum") {
-        a_n <- apply(a_n, 2, function(x) x / sum(x, na.rm = TRUE))
+        if (any(a < 0))
+            print("'a' contains negative values. Normalization may lead to undesired results.")
+        
+        if (multiplyByNormalizationValue) {
+            normFactors <- apply(a_n, 2, sum, na.rm = TRUE)
+            adjustedNormFactors <- median(normFactors) / normFactors
+            a_n <- apply(a_n, 1, function(rows_i) rows_i * adjustedNormFactors)
+            
+            ## transpose the matrix if the a_n was transposed by apply
+            if (!all(colnames(a) == colnames(a_n)))
+                a_n <- t(a_n)
+        } else {
+            a_n <- apply(a_n, 2, 
+                function(cols_i) cols_i / sum(cols_i, na.rm = TRUE))    
+        }
     }
     if (method == "quantile division") {
-        if (is.null(probs)) probs <- 0.75
-        a_n <- apply(a_n, 2,
-                function(x) x / stats::quantile(x, probs = probs, na.rm = TRUE))
+        if (any(a < 0))
+            print("'a' contains negative values. Normalization may lead to undesired results.")
+        if (is.null(probs)) 
+            probs <- 0.75
+        
+        if (multiplyByNormalizationValue) {
+            normFactors <- apply(a_n, 2, function(cols_i) stats::quantile(cols_i, probs = probs, na.rm = TRUE))
+            adjustedNormFactors <- median(normFactors) / normFactors
+            a_n <- apply(a_n, 1, function(rows_i) rows_i * adjustedNormFactors)
+            
+            ## transpose the matrix if the a_n was transposed by apply
+            if (!all(colnames(a) == colnames(a_n)))
+                a_n <- t(a_n)
+        } else {
+            a_n <- apply(a_n, 2,
+                function(cols_i) cols_i / stats::quantile(cols_i, probs = probs, na.rm = TRUE)) 
+        }
+        
     }
     if (method == "quantile") {
         a_n <- limma::normalizeQuantiles(a_n, ties = TRUE)
