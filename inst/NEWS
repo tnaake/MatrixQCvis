@@ -1,3 +1,6 @@
+Changes in version 1.11.2 (2024-03-18)
++ fix warning in normalizeAssay
+
 Changes in version 1.11.1 (2024-03-15)
 + add parameter multiplyByNormalizationValue in normalizeAssay
 

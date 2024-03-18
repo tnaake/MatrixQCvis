@@ -1313,7 +1313,7 @@ normalizeAssay <- function(a,
             a_n <- apply(a_n, 1, function(rows_i) rows_i * adjustedNormFactors)
             
             ## transpose the matrix if the a_n was transposed by apply
-            if (!all(colnames(a) == colnames(a_n)))
+            if (!all(colnames(a) %in% colnames(a_n)))
                 a_n <- t(a_n)
         } else {
             a_n <- apply(a_n, 2, 
@@ -1334,7 +1334,7 @@ normalizeAssay <- function(a,
             a_n <- apply(a_n, 1, function(rows_i) rows_i * adjustedNormFactors)
             
             ## transpose the matrix if the a_n was transposed by apply
-            if (!all(colnames(a) == colnames(a_n)))
+            if (!all(colnames(a) %in% colnames(a_n)))
                 a_n <- t(a_n)
         } else {
             a_n <- apply(a_n, 2,
