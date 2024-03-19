@@ -1343,7 +1343,9 @@ normalizeAssay <- function(a,
         
     }
     if (method == "quantile") {
-        a_n <- limma::normalizeQuantiles(a_n, ties = TRUE)
+        cols_nona <- apply(a_n, 2, function(cols_i) !all(is.na(cols_i)))
+        cols_nona <- names(cols_nona[cols_nona])
+        a_n[, cols_nona] <- limma::normalizeQuantiles(a_n[, cols_nona], ties = TRUE)
     }
     
     rownames(a_n) <- rownames(a)
