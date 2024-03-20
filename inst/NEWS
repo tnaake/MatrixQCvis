@@ -1,3 +1,7 @@
+Changes in version 1.11.3 (2024-03-20)
++ allow quantile normalisation (method = "quantile") for assays with columns 
+  that contain only NA values
+
 Changes in version 1.11.2 (2024-03-18)
 + fix warning in normalizeAssay
 
