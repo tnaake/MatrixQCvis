@@ -13,3 +13,4 @@
 # R Environment Variables
 *.Renviron
 .Rhistory
+.DS_Store
