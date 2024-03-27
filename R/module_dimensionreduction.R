@@ -56,8 +56,8 @@ tP_PCAUI <- function(id) {
                     shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
                 shiny::column(6, 
-                    shiny::selectInput(inputId = ns("highlight"), 
-                        label = "Highlight", choices = "none"))
+                    shiny::selectInput(inputId = ns("color"), 
+                        label = "Color", choices = "none"))
             ),
             shinydashboard::box(title = "Scree plot", width = 6, 
                 collapsible = TRUE, collapsed = TRUE,
@@ -130,8 +130,8 @@ tP_PCoAUI <- function(id) {
                         selected = "euclidean")
                 ),
                 shiny::column(6, 
-                    shiny::selectInput(inputId = ns("highlight"), 
-                         label = "Highlight", choices = "none")
+                    shiny::selectInput(inputId = ns("color"), 
+                         label = "Color", choices = "none")
                 )
         )
     )
@@ -195,8 +195,8 @@ tP_NMDSUI <- function(id) {
                         selected = "euclidean")
                 ),
                 shiny::column(6, 
-                    shiny::selectInput(inputId = ns("highlight"), 
-                        label = "Highlight", choices = "none")
+                    shiny::selectInput(inputId = ns("color"), 
+                        label = "Color", choices = "none")
                 )
             )
         )
@@ -284,8 +284,8 @@ tP_tSNEUI <- function(id) {
                     shiny::checkboxInput(inputId = ns("center"),
                         label = "center", value = TRUE)),
                 shiny::column(6, 
-                    shiny::selectInput(inputId = ns("highlight"), 
-                        label = "Highlight", choices = "none")
+                    shiny::selectInput(inputId = ns("color"), 
+                        label = "Color", choices = "none")
                 )
             )
         )
@@ -403,8 +403,8 @@ tP_umapUI <- function(id) {
                         inputId = ns("spread"), 
                         label = "Spread", min = 0.01, max = 10, value = 1)),
                 shiny::column(6, 
-                    shiny::selectInput(inputId = ns("highlight"), 
-                        label = "Highlight", choices = "none")
+                    shiny::selectInput(inputId = ns("color"), 
+                        label = "Color", choices = "none")
                 )
             )
         )
@@ -539,7 +539,7 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             
             shiny::observe({
                 shiny::updateSelectInput(session = session, 
-                    inputId = "highlight", 
+                    inputId = "color", 
                     choices = c("none", colnames(se()@colData)))
             })
             
@@ -548,7 +548,7 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                 
                 if (!is.null(rv$coordinates)) {
                     dimensionReductionPlot(rv$coordinates, se = se(), 
-                            highlight = input$highlight, 
+                            color = input$color, 
                             x_coord = input$x, y_coord = input$y,
                             explainedVar = rv$explainedVar,
                             height = rv$innerWidth)
@@ -558,12 +558,12 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste(type, "_", input$x, "_", input$y, "_", 
-                        input$highlight, ".html", sep = "")
+                        input$color, ".html", sep = "")
                 },
                 content = function(file) {
                     htmlwidgets::saveWidget(
                         dimensionReductionPlot(tbl = rv$coordinates, se = se(), 
-                            highlight = input$highlight, 
+                            color = input$color, 
                             x_coord = input$x, y_coord = input$y,
                             explainedVar = rv$explainedVar,
                             height = rv$innerWidth), file)

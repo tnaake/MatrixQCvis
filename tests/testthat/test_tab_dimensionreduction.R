@@ -123,25 +123,28 @@ test_that("dimensionReductionPlot", {
     parameters <- list("center" = TRUE, "scale" = FALSE)
     tbl <- dimensionReduction(SummarizedExperiment::assay(se), 
         type = "PCA", params = parameters)[[1]]
-    g <- dimensionReductionPlot(tbl = tbl, se = se, highlight = "type", 
-        x_coord = "PC1", y_coord = "PC2")
+    g <- dimensionReductionPlot(tbl = tbl, se = se, color = "type", 
+        size = "type", x_coord = "PC1", y_coord = "PC2")
     
     expect_error(dimensionReductionPlot(tbl = tbl), 'argument "se" is missing')
     expect_error(dimensionReductionPlot(tbl = tbl, se = se), 
         'argument "x_coord" is missing')
     expect_error(dimensionReductionPlot(tbl = tbl, se = se,
-        highlight = "none"), 'argument "x_coord" is missing')
-    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "none", 
+        color = "none"), 'argument "x_coord" is missing')
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, color = "none", 
         x_coord = "PC1"), 'argument "y_coord" is missing')
-    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, color = "none", 
         x_coord = "test", y_coord = "PC2"), 
         "object 'test' not found")
-    expect_error(dimensionReductionPlot(tbl = tbl[, -11], se = se, highlight = "none", 
+    expect_error(dimensionReductionPlot(tbl = tbl[, -11], se = se, color = "none", 
         x_coord = "PC1", y_coord = "PC2"), "object 'name' not found")
     expect_error(dimensionReductionPlot(tbl = se, se = se), "is missing")
     expect_error(dimensionReductionPlot(tbl = tbl, se = "foo"), 
         "no applicable method for")
-    expect_error(dimensionReductionPlot(tbl = tbl, se = se, highlight = "foo"), 
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, color = "foo"), 
+        "should be one of")
+    expect_error(dimensionReductionPlot(tbl = tbl, se = se, color = "none", 
+            size = "foo"), 
         "should be one of")
     expect_is(g, "plotly")
 })

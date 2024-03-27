@@ -131,7 +131,9 @@ dimensionReduction <- function(x,
 #'
 #' @param tbl \code{tbl} as obtained by the function \code{dimensionReduction}
 #' @param se \code{SummarizedExperiment}
-#' @param highlight \code{character}, one of \code{"none"} or 
+#' @param color \code{character}, one of \code{"none"} or 
+#' \code{colnames(se@@colData)}
+#' @param size \code{character}, one of \code{"none"} or 
 #' \code{colnames(se@@colData)}
 #' @param explainedVar NULL or named \code{numeric}, if \code{numeric} 
 #' \code{explainedVar} contains the explained variance per principal component 
@@ -159,7 +161,7 @@ dimensionReduction <- function(x,
 #' 
 #' pca <- dimensionReduction(x = assay(se), type = "PCA", params = list())[[1]]
 #' 
-#' dimensionReductionPlot(tbl = pca, se = se, highlight = "type", 
+#' dimensionReductionPlot(tbl = pca, se = se, color = "type", size = "none",
 #'     x_coord = "PC1", y_coord = "PC2")
 #'
 #' @author Thomas Naake
@@ -173,11 +175,14 @@ dimensionReduction <- function(x,
 #' 
 #' @export
 dimensionReductionPlot <- function(tbl, se, 
-    highlight = c("none", colnames(se@colData)), 
+    color = c("none", colnames(se@colData)), 
+    size = c("none", colnames(se@colData)), 
     explainedVar = NULL, x_coord, y_coord, height = 600, interactive = TRUE) {
     
-    highlight <- match.arg(highlight)
-    highlight <- make.names(highlight)
+    color <- match.arg(color)
+    color <- make.names(color)
+    size <- match.arg(size)
+    size <- make.names(size)
     
     ## access the colData slot and add the rownames as a new column to cD
     ## (will add the column "rowname")
@@ -185,10 +190,10 @@ dimensionReductionPlot <- function(tbl, se,
     colnames(cD) <- make.names(colnames(cD))
     cD[["name"]] <- rownames(cD)
     
-    if (highlight == "none") {
+    if (color == "none") {
         tT <- c("text")
     } else {
-        cD_cut <- data.frame(name = cD[["name"]], color = cD[[highlight]])
+        cD_cut <- data.frame(name = cD[["name"]], color = cD[[color]])
         tbl <- dplyr::left_join(tbl, cD_cut, by = "name", copy = TRUE)
         tT <- c("text", "color")
     }
@@ -207,7 +212,7 @@ dimensionReductionPlot <- function(tbl, se,
         g <- g + ggplot2::xlab(x_coord) + ggplot2::ylab(y_coord) 
     }
     
-    if (highlight == "none") {
+    if (color == "none") {
         g <- g + ggplot2::geom_point()
     } else {
         g <- g + ggplot2::geom_point(

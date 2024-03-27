@@ -45,14 +45,14 @@ params:
     int_feat_featLine: FALSE,
     dr_pca_center: TRUE
     dr_pca_scale: TRUE
-    dr_pca_highlight: "none"
+    dr_pca_color: "none"
     dr_pca_x: "PC1"
     dr_pca_y: "PC1"
     dr_pcoa_method: "euclidean"
-    dr_pcoa_highlight: "none" 
+    dr_pcoa_color: "none" 
     dr_pcoa_x: "Axis.1"
     dr_pcoa_y: "Axis.2"
-    dr_nmds_highlight: "none"
+    dr_nmds_color: "none"
     dr_nmds_x: "MDS1"
     dr_nmds_y: "MDS2"
     dr_tsne_perplexity: 1
@@ -61,13 +61,13 @@ params:
     dr_tsne_dims: 3
     dr_tsne_pca_center: TRUE
     dr_tsne_pca_scale: TRUE
-    dr_tsne_highlight: "none"
+    dr_tsne_color: "none"
     dr_tsne_x: "X1"
     dr_tsne_y: "X2"
     dr_umap_min_dist: 0.1
     dr_umap_n_neighbors: 15
     dr_umap_spread: 1
-    dr_umap_highlight: "none"
+    dr_umap_color: "none"
     dr_umap_x: "X1"
     dr_umap_y: "X2"
     de_m_formula: NULL
@@ -683,18 +683,18 @@ if (shiny::isRunning())
 
 ## PCA
 ```{r PCA_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-if (!is.null(params$dr_pca_highlight)) {
+if (!is.null(params$dr_pca_color)) {
     called <- TRUE
     dr_pca_center <- params$dr_pca_center
     dr_pca_scale <- params$dr_pca_scale
-    dr_pca_highlight <- params$dr_pca_highlight
+    dr_pca_color <- params$dr_pca_color
     dr_pca_x <- params$dr_pca_x
     dr_pca_y <- params$dr_pca_y
 } else {
     called <- FALSE
     dr_pca_center <- TRUE
     dr_pca_scale <- TRUE
-    dr_pca_highlight <- "none"
+    dr_pca_color <- "none"
     dr_pca_x <- "PC1"
     dr_pca_y <- "PC2"
 }
@@ -708,30 +708,30 @@ Use the settings
 - *y-axis = * `r dr_pca_y`, 
 - *scale = * `r dr_pca_scale`,
 - *center = * `r dr_pca_center`, and 
-- *Highlight = * `r dr_pca_highlight`. 
+- *Color = * `r dr_pca_color`. 
 
 ```{r PCA, eval=TRUE, echo=FALSE}
 tbl <- dimensionReduction(a_i, type = "PCA",
     params = list(center = dr_pca_center, scale = dr_pca_scale))
 explainedVar <- explVar(x = a_i, 
     params = list(center = dr_pca_center, scale = dr_pca_scale))
-dimensionReductionPlot(tbl = tbl, se = se_r, highlight = dr_pca_highlight,
+dimensionReductionPlot(tbl = tbl, se = se_r, color = dr_pca_color,
     explainedVar = explainedVar, x_coord = dr_pca_x, y_coord = dr_pca_y)
 ```
 
 
 ## PCoA
 ```{r PCoA_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-if (!is.null(params$dr_pcoa_highlight)) {
+if (!is.null(params$dr_pcoa_color)) {
     called <- TRUE
     dr_pcoa_method <- params$dr_pcoa_method
-    dr_pcoa_highlight <- params$dr_pcoa_highlight
+    dr_pcoa_color <- params$dr_pcoa_color
     dr_pcoa_x <- params$dr_pcoa_x
     dr_pcoa_y <- params$dr_pcoa_y
 } else {
     called <- FALSE
     dr_pcoa_method <- "euclidean"
-    dr_pcoa_highlight <- "none"
+    dr_pcoa_color <- "none"
     dr_pcoa_x <- "Axis.1"
     dr_pcoa_y <- "Axis.2"
 }
@@ -744,12 +744,12 @@ Use the settings
 - *x-axis = * `r dr_pcoa_x`, 
 - *y-axis = * `r dr_pcoa_y`, 
 - *Distance measure = * `r dr_pcoa_method`, and 
-- *Highlight = * `r dr_pcoa_highlight`. 
+- *Color = * `r dr_pcoa_color`. 
 
 ```{r PCoA, eval=TRUE, echo=FALSE}
 tbl <- dimensionReduction(a_i, type = "PCoA",
     params = list(method = dr_pcoa_method))
-dimensionReductionPlot(tbl = tbl, se = se_r, highlight = dr_pcoa_highlight,
+dimensionReductionPlot(tbl = tbl, se = se_r, color = dr_pcoa_color,
     explainedVar = NULL, x_coord = dr_pcoa_x, y_coord = dr_pcoa_y)
 ```
 
@@ -760,16 +760,16 @@ if (shiny::isRunning())
 
 ## NMDS
 ```{r NMDS_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
-if (!is.null(params$dr_nmds_highlight)) {
+if (!is.null(params$dr_nmds_color)) {
     called <- TRUE
     dr_nmds_method <- params$dr_pcoa_method
-    dr_nmds_highlight <- params$dr_nmds_highlight
+    dr_nmds_color <- params$dr_nmds_color
     dr_nmds_x <- params$dr_nmds_x
     dr_nmds_y <- params$dr_nmds_y
 } else {
     called <- FALSE
     dr_nmds_method <- "euclidean"
-    dr_nmds_highlight <- "none"
+    dr_nmds_color <- "none"
     dr_nmds_x <- "MDS1"
     dr_nmds_y <- "MDS2"
 }
@@ -782,20 +782,20 @@ Use the settings
 - *x-axis = * `r dr_nmds_x`, 
 - *y-axis = * `r dr_nmds_y`, 
 - *Distance measure = * `r dr_nmds_method`, and 
-- *Highlight = * `r dr_nmds_highlight`. 
+- *Color = * `r dr_nmds_color`. 
 
 ```{r NMDS, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 tbl <- dimensionReduction(a_i, type = "NMDS", 
     params = list(method = dr_nmds_method))
 ```
 ```{r NMDS_plot, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-dimensionReductionPlot(tbl = tbl, se = se_r, highlight = dr_nmds_highlight,
+dimensionReductionPlot(tbl = tbl, se = se_r, color = dr_nmds_color,
     explainedVar = NULL, x_coord = dr_nmds_x, y_coord = dr_nmds_y)
 ```
 
 ## tSNE
 ```{r tSNE_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-if (!is.null(params$dr_tsne_highlight)) {
+if (!is.null(params$dr_tsne_color)) {
     called <- TRUE
     dr_tsne_perplexity <- params$dr_tsne_perplexity
     dr_tsne_max_iter <- params$dr_tsne_max_iter
@@ -803,7 +803,7 @@ if (!is.null(params$dr_tsne_highlight)) {
     dr_tsne_dims <- params$dr_tsne_dims
     dr_tsne_pca_center <- params$dr_tsne_pca_center
     dr_tsne_pca_scale <- params$dr_tsne_pca_scale
-    dr_tsne_highlight <- params$dr_tsne_highlight
+    dr_tsne_color <- params$dr_tsne_color
     dr_tsne_x <- params$dr_tsne_x
     dr_tsne_y <- params$dr_tsne_y
 } else {
@@ -814,7 +814,7 @@ if (!is.null(params$dr_tsne_highlight)) {
     dr_tsne_dims <- 3
     dr_tsne_pca_center <- TRUE
     dr_tsne_pca_scale <- TRUE
-    dr_tsne_highlight <- "none"
+    dr_tsne_color <- "none"
     dr_tsne_x <- "X1"
     dr_tsne_y <- "X2"
 }
@@ -836,7 +836,7 @@ Use the settings
 - *Number of retained dimensions in intial PCA = * `r dr_tsne_initial_dims`,
 - *Output dimensionality = * `r dr_tsne_dims`, `scale =` `r dr_tsne_pca_scale`,
 - *center = * `r dr_tsne_pca_center`, and 
-- *Highlight = * `r dr_tsne_highlight`.
+- *Color = * `r dr_tsne_color`.
 
 ```{r tSNE, eval=TRUE, echo=FALSE}
 tbl <- dimensionReduction(a_i, type = "tSNE", 
@@ -844,19 +844,19 @@ tbl <- dimensionReduction(a_i, type = "tSNE",
     max_iter = dr_tsne_max_iter, initial_dims = dr_tsne_initial_dims,
     dims = dr_tsne_dims, pca_center = dr_tsne_pca_center,
     pca_scale = dr_tsne_pca_scale))
-dimensionReductionPlot(tbl = tbl, se = se_r, highlight = dr_tsne_highlight,
+dimensionReductionPlot(tbl = tbl, se = se_r, color = dr_tsne_color,
     explainedVar = NULL, x_coord = dr_tsne_x, y_coord = dr_tsne_y)
 ```
 
 
 ## UMAP
 ```{r UMAP_prepare, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
-if (!is.null(params$dr_umap_highlight)) {
+if (!is.null(params$dr_umap_color)) {
     called <- TRUE
     dr_umap_min_dist = params$dr_umap_min_dist
     dr_umap_n_neighbors = params$dr_umap_n_neighbors
     dr_umap_spread = params$dr_umap_spread
-    dr_umap_highlight = params$dr_umap_highlight
+    dr_umap_color = params$dr_umap_color
     dr_umap_x = params$dr_umap_x
     dr_umap_y = params$dr_umap_y
 } else {
@@ -864,7 +864,7 @@ if (!is.null(params$dr_umap_highlight)) {
     dr_umap_min_dist = 0.1
     dr_umap_n_neighbors = min(15, ncol(se_r))
     dr_umap_spread = 1
-    dr_umap_highlight = "none"
+    dr_umap_color = "none"
     dr_umap_x = "X1"
     dr_umap_y = "X2"
 }
@@ -879,13 +879,13 @@ Use the settings
 - *Minimum distance =* `r dr_umap_min_dist`, 
 - *Number of neighbors =* `r dr_umap_n_neighbors`, 
 - *Spread = * `r dr_umap_spread`, and
-- *Highlight = * `r dr_umap_highlight`. 
+- *Color = * `r dr_umap_color`. 
 
 ```{r UMAP, eval=TRUE, echo=FALSE}
 tbl <- dimensionReduction(a_i, type = "UMAP", 
     params = list(min_dist = dr_umap_min_dist, n_neighbors = dr_umap_n_neighbors,
         spread = dr_umap_spread))
-dimensionReductionPlot(tbl = tbl, se = se_r, highlight = dr_umap_highlight,
+dimensionReductionPlot(tbl = tbl, se = se_r, color = dr_umap_color,
     explainedVar = NULL, x_coord = dr_umap_x, y_coord = dr_umap_y)
 ```
 
