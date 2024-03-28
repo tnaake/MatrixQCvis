@@ -30,7 +30,7 @@ tP_PCAUI <- function(id) {
     ns <- shiny::NS(id)
     tabPanel(title = "PCA", value = "PCA",
         shiny::fluidRow(
-            shiny::column(12, 
+            shiny::column(width = 12, 
                 plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_PCA"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))
@@ -38,34 +38,41 @@ tP_PCAUI <- function(id) {
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
-                shiny::column(12, 
-                    shiny::fluidRow(
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("x"), 
-                                label = "x-axis", choices = "PC1", 
-                                selected = "PC1")),
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("y"), 
-                                label = "y-axis", choices = "PC2", 
-                                selected = "PC2"))
-                    )), 
-                shiny::column(3, 
-                    shiny::checkboxInput(inputId = ns("scale"),
-                        label = "scale", value = TRUE)),
-                shiny::column(3, 
-                    shiny::checkboxInput(inputId = ns("center"),
-                        label = "center", value = TRUE)),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("color"), 
-                        label = "Color", choices = "none"))
+                shiny::fluidRow(
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("x"), 
+                            label = "x-axis", choices = "PC1", 
+                            selected = "PC1")),
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("y"), 
+                            label = "y-axis", choices = "PC2", 
+                            selected = "PC2"))
+                ), 
+                shiny::fluidRow(
+                    shiny::column(3, 
+                        shiny::checkboxInput(inputId = ns("scale"),
+                            label = "scale", value = TRUE)),
+                    shiny::column(3, 
+                        shiny::checkboxInput(inputId = ns("center"),
+                           label = "center", value = TRUE)),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("color"), 
+                            label = "Color", choices = "none"))
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("size"), 
+                            label = "Size", choices = "none"))  
+                )
             ),
-            shinydashboard::box(title = "Scree plot", width = 6, 
-                collapsible = TRUE, collapsed = TRUE,
-                shiny::plotOutput(outputId = ns("PCAVarplot"))
-            ),
-            shinydashboard::box(title = "Loadings plot",
-                collapsible = TRUE, collapsed = TRUE,
-                plotly::plotlyOutput(outputId = ns("PCALoadings"))
+            shiny::column(width = 6, 
+                shinydashboard::box(title = "Scree plot", width = 12, 
+                    collapsible = TRUE, collapsed = TRUE,
+                    shiny::plotOutput(outputId = ns("PCAVarplot"))),
+                shinydashboard::box(title = "Loadings plot", width = 12,
+                    collapsible = TRUE, collapsed = TRUE,
+                    plotly::plotlyOutput(outputId = ns("PCALoadings")))
             )
         )
     )
@@ -101,7 +108,7 @@ tP_PCoAUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "PCoA", 
         shiny::fluidRow(
-            shiny::column(12, 
+            shiny::column(width = 12, 
                 plotly::plotlyOutput(outputId = ns("plot"), 
                                                         height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_PCoA"),
@@ -110,29 +117,34 @@ tP_PCoAUI <- function(id) {
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
-                shiny::column(12, 
-                    shiny::fluidRow(
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("x"), 
-                                label = "x-axis", choices = "Axis.1", 
-                                selected = "Axis.1")),
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("y"), 
-                                label = "y-axis", choices = "Axis.2", 
-                                selected = "Axis.2"))
-                    ))
-            ),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("dist"),
-                        label = "Distance measure",
-                        choices = c("euclidean", "maximum", 
-                            "manhattan", "canberra", "minkowski"), 
-                        selected = "euclidean")
+                shiny::fluidRow(
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("x"), 
+                            label = "x-axis", choices = "Axis.1", 
+                            selected = "Axis.1")),
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("y"), 
+                            label = "y-axis", choices = "Axis.2", 
+                            selected = "Axis.2"))
                 ),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("color"), 
-                         label = "Color", choices = "none")
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("dist"),
+                            label = "Distance measure",
+                            choices = c("euclidean", "maximum", 
+                                "manhattan", "canberra", "minkowski"), 
+                            selected = "euclidean")),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("color"), 
+                            label = "Color", choices = "none"))
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("size"), 
+                            label = "Size", choices = "none"))
                 )
+            )
         )
     )
 }
@@ -169,34 +181,39 @@ tP_NMDSUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "NMDS", 
         shiny::fluidRow(
-            shiny::column(12, 
+            shiny::column(width = 12, 
                 plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_NMDS"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))), 
         shiny::fluidRow(
             shinydashboard::box(title = "Parameters", width = 6, 
-                collapsible = TRUE, 
-                shiny::column(12, 
-                    shiny::fluidRow(
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("x"), 
-                                label = "x-axis", choices = "MDS1", 
-                                selected = "MDS1")),
-                        shiny::column(6,
-                            shiny::selectInput(inputId = ns("y"), 
-                                label = "y-axis", choices = "MDS2", 
-                                selected = "MDS2"))
-                    )),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("dist"),
-                        label = "Distance measure",
-                        choices = c("euclidean", "maximum", 
-                            "manhattan", "canberra", "minkowski"), 
-                        selected = "euclidean")
+                collapsible = TRUE,
+                shiny::fluidRow(
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("x"), 
+                            label = "x-axis", choices = "MDS1", 
+                            selected = "MDS1")),
+                    shiny::column(width = 6,
+                        shiny::selectInput(inputId = ns("y"), 
+                            label = "y-axis", choices = "MDS2", 
+                            selected = "MDS2"))
                 ),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("color"), 
-                        label = "Color", choices = "none")
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("dist"),
+                            label = "Distance measure",
+                            choices = c("euclidean", "maximum", 
+                                "manhattan", "canberra", "minkowski"), 
+                            selected = "euclidean")),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("color"), 
+                        label = "Color", choices = "none"))
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("size"), 
+                            label = "Size", choices = "none"))
                 )
             )
         )
@@ -235,7 +252,7 @@ tP_tSNEUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "tSNE", 
         shiny::fluidRow(
-            shiny::column(12, 
+            shiny::column(width = 12, 
                 plotly::plotlyOutput(outputId = ns("plot"), height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_tSNE"),
                 shiny::downloadButton(outputId = ns("downloadPlot"), ""))),
@@ -244,9 +261,9 @@ tP_tSNEUI <- function(id) {
                 title = "Principal components", status = "primary", width = 12,
                 collapsible = TRUE, collapsed = TRUE,
                 shiny::fluidRow(
-                    shiny::column(6, 
+                    shiny::column(width = 6, 
                         shiny::plotOutput(outputId = ns("PCAVarplotPerm"))),
-                    shiny::column(6, 
+                    shiny::column(width = 6, 
                         shiny::plotOutput(outputId = ns("PCAVarPvalueplot")))
                 )
             )
@@ -255,37 +272,50 @@ tP_tSNEUI <- function(id) {
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
                 shiny::fluidRow(
-                    shiny::column(6,
+                    shiny::column(width = 6,
                         shiny::selectInput(inputId = ns("x"), label = "x-axis", 
                             choices = "X1", selected = "X1")),
-                    shiny::column(6,
+                    shiny::column(width = 6,
                         shiny::selectInput(inputId = ns("y"), label = "y-axis", 
                             choices = "X2", selected = "X2"))
                 ),
-                shiny::column(6, 
-                    shiny::sliderInput(inputId = ns("perplexity"), 
-                        label = "Perplexity", min = 1, max = 5, 2, step = 1)),
-                shiny::column(6, 
-                    shiny::sliderInput(inputId = ns("maxIter"),
-                        label = "Number of iterations", 
-                        min = 100, max = 10000, value = 1000)),
-                shiny::column(6, 
-                    shiny::sliderInput(inputId = ns("initialDims"),
-                        label = "Number of retained dimensions in initial PCA",
-                        min = 1, max = 5, value = 3, step = 1)),
-                shiny::column(6, 
-                    shiny::sliderInput(inputId = ns("dims"),
-                        label = "Output dimensionality",
-                        min = 2, max = 3, value = 3, step = 1)),
-                shiny::column(3, 
-                    shiny::checkboxInput(inputId = ns("scale"),
-                        label = "scale", value = TRUE)),
-                shiny::column(3, 
-                    shiny::checkboxInput(inputId = ns("center"),
-                        label = "center", value = TRUE)),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("color"), 
-                        label = "Color", choices = "none")
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(inputId = ns("perplexity"), 
+                            label = "Perplexity", min = 1, max = 5, value = 2, 
+                            step = 1)),
+                        shiny::column(width = 6, 
+                            shiny::sliderInput(inputId = ns("maxIter"),
+                                label = "Number of iterations", 
+                                min = 100, max = 10000, value = 1000))
+                                
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(inputId = ns("initialDims"),
+                            label = "Number of retained dimensions in initial PCA",
+                            min = 1, max = 5, value = 3, step = 1)),
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(inputId = ns("dims"),
+                            label = "Output dimensionality",
+                            min = 2, max = 3, value = 3, step = 1))
+                ),
+                shiny::fluidRow( 
+                    shiny::column(3, 
+                        shiny::checkboxInput(inputId = ns("scale"),
+                            label = "scale", value = TRUE)),
+                    shiny::column(3, 
+                        shiny::checkboxInput(inputId = ns("center"),
+                            label = "center", value = TRUE)),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("color"), 
+                            label = "Color", choices = "none"))
+                ),
+                fluidRow(
+                    shiny::column(width = 6),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("size"), 
+                            label = "Size", choices = "none"))
                 )
             )
         )
@@ -373,7 +403,7 @@ tP_umapUI <- function(id) {
     ns <- shiny::NS(id)
     shiny::tabPanel(title = "UMAP", 
         shiny::fluidRow(
-            shiny::column(12, 
+            shiny::column(width = 12, 
                 plotly::plotlyOutput(outputId = ns("plot"), 
                     height = "auto") |>
                     shinyhelper::helper(content = "tabPanel_UMAP"),
@@ -382,29 +412,38 @@ tP_umapUI <- function(id) {
             shinydashboard::box(title = "Parameters", width = 6, 
                 collapsible = TRUE, 
                 shiny::fluidRow(
-                    shiny::column(6,
+                    shiny::column(width = 6,
                         shiny::selectInput(inputId = ns("x"), label = "x-axis", 
                             choices = "X1", selected = "X1")),
-                    shiny::column(6,
+                    shiny::column(width = 6,
                         shiny::selectInput(inputId = ns("y"), label = "y-axis", 
                             choices = "X2", selected = "X2"))
                 ),
-                shiny::column(6, 
-                    shiny::sliderInput(
-                        inputId = ns("minDist"), 
-                        label = "Minimum distance", min = 0.01, 
-                        max = 10, value = 0.1)),
-                shiny::column(6, 
-                    shiny::sliderInput(inputId = ns("nNeighbors"), 
-                        label = "Number of neighbors", min = 2, 
-                        max = 10, value = 10, step = 1)),
-                shiny::column(6, 
-                    shiny::sliderInput(
-                        inputId = ns("spread"), 
-                        label = "Spread", min = 0.01, max = 10, value = 1)),
-                shiny::column(6, 
-                    shiny::selectInput(inputId = ns("color"), 
-                        label = "Color", choices = "none")
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(
+                            inputId = ns("minDist"), 
+                            label = "Minimum distance", min = 0.01, 
+                            max = 10, value = 0.1)),
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(inputId = ns("nNeighbors"), 
+                            label = "Number of neighbors", min = 2, 
+                            max = 10, value = 10, step = 1))
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6, 
+                        shiny::sliderInput(
+                            inputId = ns("spread"), 
+                            label = "Spread", min = 0.01, max = 10, value = 1)),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("color"), 
+                            label = "Color", choices = "none"))
+                ),
+                shiny::fluidRow(
+                    shiny::column(width = 6),
+                    shiny::column(width = 6, 
+                        shiny::selectInput(inputId = ns("size"), 
+                            label = "Size", choices = "none"))
                 )
             )
         )
@@ -543,12 +582,18 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
                     choices = c("none", colnames(se()@colData)))
             })
             
+            shiny::observe({
+                shiny::updateSelectInput(session = session, 
+                    inputId = "size", 
+                    choices = c("none", colnames(se()@colData)))
+            })
+            
             ## reactive plot for dimension reduction plots
             output$plot <- plotly::renderPlotly({
                 
                 if (!is.null(rv$coordinates)) {
                     dimensionReductionPlot(rv$coordinates, se = se(), 
-                            color = input$color, 
+                            color = input$color, size = input$size,
                             x_coord = input$x, y_coord = input$y,
                             explainedVar = rv$explainedVar,
                             height = rv$innerWidth)
@@ -558,12 +603,12 @@ dimRedServer <- function(id, se, assay, type = "PCA", label = "PC", params,
             output$downloadPlot <- shiny::downloadHandler(
                 filename = function() {
                     paste(type, "_", input$x, "_", input$y, "_", 
-                        input$color, ".html", sep = "")
+                        input$color, "_", input$size, ".html", sep = "")
                 },
                 content = function(file) {
                     htmlwidgets::saveWidget(
                         dimensionReductionPlot(tbl = rv$coordinates, se = se(), 
-                            color = input$color, 
+                            color = input$color, size = input$size,
                             x_coord = input$x, y_coord = input$y,
                             explainedVar = rv$explainedVar,
                             height = rv$innerWidth), file)
