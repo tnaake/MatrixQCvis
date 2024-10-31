@@ -5,7 +5,7 @@
 ## https://lcolladotor.github.io/biocthis/articles/biocthis_dev_notes.html
 ##
 ## You can add this workflow to other packages using:
-## > biocthis::use_bioc_github_action()
+## > biocthis::use_bioc_github_action() 
 ##
 ## Using GitHub Actions exposes you to many details about how R packages are
 ## compiled and installed in several operating system.s
