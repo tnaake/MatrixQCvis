@@ -5,7 +5,7 @@
 ## https://lcolladotor.github.io/biocthis/articles/biocthis_dev_notes.html
 ##
 ## You can add this workflow to other packages using:
-## > biocthis::use_bioc_github_action() 
+## > biocthis::use_bioc_github_action()
 ##
 ## Using GitHub Actions exposes you to many details about how R packages are
 ## compiled and installed in several operating system.s
@@ -38,6 +38,7 @@ env:
   run_covr: 'true'
   run_pkgdown: 'true'
   has_RUnit: 'false'
+  has_BiocCheck: 'false'
   cache-version: 'cache-v1'
   run_docker: 'false'
 
@@ -105,24 +106,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_20-r-4.4-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_20-r-4.4-
 
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v3
         with:
           path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_20-r-4.4-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_20-r-4.4-
 
-      - name: Install Linux system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
-          echo $sysreqs
-          sudo -s eval "$sysreqs"
-          sudo apt-get install -y xdg-utils
+      # - name: Install Linux system dependencies
+      #   if: runner.os == 'Linux'
+      #   run: |
+      #     sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+      #     echo $sysreqs
+      #     sudo -s eval "$sysreqs"
 
       - name: Install macOS system dependencies
         if: matrix.config.os == 'macOS-latest'
@@ -203,7 +203,7 @@ jobs:
       - name: Install pkgdown
         if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: |
-          remotes::install_github("r-lib/pkgdown")
+          remotes::install_cran("pkgdown")
         shell: Rscript {0}
 
       - name: Session info
@@ -286,7 +286,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-biocversion-devel-r-4.4-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_20-r-4.4-results
           path: check
 
 
