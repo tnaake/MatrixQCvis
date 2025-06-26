@@ -730,7 +730,7 @@ head(cM)
 
 Switching to the panel `Top DE`, we will obtain a table with the differentially
 expressed features (normalization method is set to `none`, 
-transformation method to `vsn` and imputation method to `MinDet`). 
+transformation method to `none` and imputation method to `MinDet`). 
 Here, differential expression is tested via moderated 
 t-tests (from the `limma` package): 
 
@@ -741,7 +741,7 @@ a <- assay(se)
 a_n <- a |>
     normalizeAssay(method = "none")
 a_t <- a_n |>
-    transformAssay(method = "vsn")
+    transformAssay(method = "none")
 a_i <- a_t |>
     imputeAssay(method = "MinDet")
 
