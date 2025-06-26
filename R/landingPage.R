@@ -84,7 +84,7 @@ createLandingPage <- function(seUI = NULL, seLoad = NULL,
                 ## load the tabPanel and hide the upload button
                 ## tabPanel for tab "Measured Values"
                 missingValue2 <- missingValuesSE(se2)
-                if (missingValue2) shiny::insertTab(inputId = "tabs", 
+                if (missingValue2) shiny::insertTab(inputId = "tabs",
                     tP_measuredValues_all(), target = "Samples", 
                     position = "after")
                 ## tabPanel for tab "Missing Values"
