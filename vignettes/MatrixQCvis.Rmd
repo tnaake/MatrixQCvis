@@ -123,6 +123,11 @@ functionality of `shinyQC`.
 ```{r eval = TRUE, echo = FALSE}
 ## run under Linux only
 if (grepl(tolower(Sys.info()[["sysname"]]), pattern = "linux")) {
+    proxy_string <- Sys.getenv("http_proxy")
+    if (nzchar(proxy_string)) {
+        ExperimentHub::setExperimentHubOption("PROXY", proxy_string)
+    }
+    
     #proxy <- httr2::req_proxy(Sys.getenv("http_proxy")) ## proxy <- httr::use_proxy(Sys.getenv("http_proxy"))
     #httr::set_config(proxy)
     #ExperimentHub::setExperimentHubOption("PROXY", proxy)
