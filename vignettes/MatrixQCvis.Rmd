@@ -127,10 +127,6 @@ if (grepl(tolower(Sys.info()[["sysname"]]), pattern = "linux")) {
     if (nzchar(proxy_string)) {
         ExperimentHub::setExperimentHubOption("PROXY", proxy_string)
     }
-    
-    #proxy <- httr2::req_proxy(Sys.getenv("http_proxy")) ## proxy <- httr::use_proxy(Sys.getenv("http_proxy"))
-    #httr::set_config(proxy)
-    #ExperimentHub::setExperimentHubOption("PROXY", proxy)
 }
     
 ```
@@ -734,7 +730,7 @@ head(cM)
 
 Switching to the panel `Top DE`, we will obtain a table with the differentially
 expressed features (normalization method is set to `none`, 
-transformation method to `none` and imputation method to `MinDet`). 
+transformation method to `vsn` and imputation method to `MinDet`). 
 Here, differential expression is tested via moderated 
 t-tests (from the `limma` package): 
 
@@ -745,7 +741,7 @@ a <- assay(se)
 a_n <- a |>
     normalizeAssay(method = "none")
 a_t <- a_n |>
-    transformAssay(method = "none")
+    transformAssay(method = "vsn")
 a_i <- a_t |>
     imputeAssay(method = "MinDet")
 

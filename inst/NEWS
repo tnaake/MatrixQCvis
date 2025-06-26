@@ -1,3 +1,6 @@
+Changes in version 1.17.1 (2025-06-26)
++ fix error with respect to setExperimentHubOption in vignette
+
 Changes in version 1.13.5 (2024-06-27)
 + add log10 as transformation method in transformAssay
 + add "none" as imputation method in imputeAssay
