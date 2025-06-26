@@ -123,9 +123,9 @@ functionality of `shinyQC`.
 ```{r eval = TRUE, echo = FALSE}
 ## run under Linux only
 if (grepl(tolower(Sys.info()[["sysname"]]), pattern = "linux")) {
-    proxy <- httr::use_proxy(Sys.getenv("http_proxy"))
-    httr::set_config(proxy)
-    ExperimentHub::setExperimentHubOption("PROXY", proxy)
+    #proxy <- httr2::req_proxy(Sys.getenv("http_proxy")) ## proxy <- httr::use_proxy(Sys.getenv("http_proxy"))
+    #httr::set_config(proxy)
+    #ExperimentHub::setExperimentHubOption("PROXY", proxy)
 }
     
 ```
