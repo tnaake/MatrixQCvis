@@ -7,7 +7,7 @@ a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a),
     type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
                                                                 colData = cD)
 
 ## function tag_loadMessage
@@ -42,13 +42,13 @@ test_that("sidebar_excludeSampleUI", {
 
 ## excludeSampleServer
 test_that("sidebar_excludeSampleServer", {
-    shiny::testServer(sidebar_excludeSampleServer, {
+    shiny::testServer(app = sidebar_excludeSampleServer, expr = {
         input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
 
-        out <- sidebar_excludeSampleServer("", se = se)
+        out <- sidebar_excludeSampleServer("test_module", se = se)
         expect_is(out, "Observer")
     })
 })
@@ -80,46 +80,46 @@ test_that("selectAssaySE", {
     se_2 <- se
     assays(se_2)[[2]] <- assay(se)
     names(assays(se_2)) <- c("abc", "def")
-    expect_equal(assay(selectAssaySE(se_2, "abc")), 
+    expect_equal(assay(selectAssaySE(se_2, "abc")),
         SummarizedExperiment::assays(se_2)[[1]])
-    expect_equal(colData(selectAssaySE(se_2, "abc")), 
+    expect_equal(colData(selectAssaySE(se_2, "abc")),
         SummarizedExperiment::colData(se))
-    expect_equal(rowData(selectAssaySE(se_2, "abc")), 
+    expect_equal(rowData(selectAssaySE(se_2, "abc")),
         SummarizedExperiment::rowData(se))
-    expect_equal(assay(selectAssaySE(se_2, "def")), 
+    expect_equal(assay(selectAssaySE(se_2, "def")),
         SummarizedExperiment::assays(se_2)[[2]])
-    expect_equal(colData(selectAssaySE(se_2, "def")), 
+    expect_equal(colData(selectAssaySE(se_2, "def")),
         SummarizedExperiment::colData(se))
-    expect_equal(rowData(selectAssaySE(se_2, "def")), 
+    expect_equal(rowData(selectAssaySE(se_2, "def")),
         SummarizedExperiment::rowData(se))
     names(assays(se_2)) <- c(1, 2)
-    expect_equal(assay(selectAssaySE(se_2, 1)), 
+    expect_equal(assay(selectAssaySE(se_2, 1)),
         SummarizedExperiment::assays(se_2)[[1]])
-    expect_equal(colData(selectAssaySE(se_2, 1)), 
+    expect_equal(colData(selectAssaySE(se_2, 1)),
         SummarizedExperiment::colData(se))
-    expect_equal(rowData(selectAssaySE(se_2, 1)), 
+    expect_equal(rowData(selectAssaySE(se_2, 1)),
         SummarizedExperiment::rowData(se))
-    expect_equal(assay(selectAssaySE(se_2, 2)), 
+    expect_equal(assay(selectAssaySE(se_2, 2)),
         SummarizedExperiment::assays(se_2)[[2]])
-    expect_equal(colData(selectAssaySE(se_2, 2)), 
+    expect_equal(colData(selectAssaySE(se_2, 2)),
         SummarizedExperiment::colData(se))
-    expect_equal(rowData(selectAssaySE(se_2, 2)), 
+    expect_equal(rowData(selectAssaySE(se_2, 2)),
         SummarizedExperiment::rowData(se))
     expect_error(selectAssaySE(se_2, "abc"), "not in names")
-    expect_error(selectAssaySE(se_2, NULL), 
+    expect_error(selectAssaySE(se_2, NULL),
         "unable to find an inherited method")
 })
 
 ## selectAssayServer
 test_that("selectAssayServer", {
-    shiny::testServer(selectAssayServer, {
+    shiny::testServer(app = selectAssayServer, expr = {
         input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
         selected <- new.env()
 
-        out <- selectAssayServer("", se = se, selected = selected)
+        out <- selectAssayServer("test_module", se = se, selected = selected)
         expect_is(out, "reactiveExpr")
     })
 })
@@ -137,15 +137,15 @@ test_that("selectSampleSE", {
     expect_equal(selectSampleSE(se, "sample 2", "all"), se)
     expect_equal(selectSampleSE(se, "sample 2", "exclude"), se[, -2])
     expect_equal(selectSampleSE(se, "sample 2", "select"), se)
-    expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "exclude"), 
+    expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "exclude"),
         se[, -c(2, 3)])
     expect_equal(selectSampleSE(se, c("sample 2", "sample 3"), "select"), se)
     expect_equal(
-        selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"), 
+        selectSampleSE(se, c("sample 2", "sample 3", "sample 4"), "select"),
         se[, c(2, 3, 4)])
     expect_error(selectSampleSE("foo", "sample 1", "exclude"),
         "incorrect number of dimensions")
-    expect_error(selectSampleSE("foo", 
+    expect_error(selectSampleSE("foo",
         c("sample 1", "sample 2", "sample 3"), "select"),
         "incorrect number of dimensions")
 })
@@ -181,4 +181,3 @@ test_that("updateSE", {
     expect_error(updateSE("", SummarizedExperiment::assay(se)),
         "unable to find an inherited method for function")
 })
-

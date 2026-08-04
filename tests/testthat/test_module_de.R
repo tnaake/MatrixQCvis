@@ -2,14 +2,14 @@
 #' @importFrom shiny testServer
 
 ## create se
-a <- matrix(seq_len(100), nrow = 10, ncol = 10, 
+a <- matrix(seq_len(100), nrow = 10, ncol = 10,
              dimnames = list(seq_len(10), paste("sample", seq_len(10))))
 a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(100)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
     colData = cD)
 
 ## tP_colDataUI
@@ -39,28 +39,29 @@ test_that("tP_volcanoUI", {
 
 ## colDataServer
 test_that("colDataServer", {
-    shiny::testServer(colDataServer, {
-        input <- new.env()    
+    shiny::testServer(app = colDataServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
-        
-        out <- colDataServer("", se = se)
+
+        out <- colDataServer("test_module", se = se)
         expect_is(out, "shiny.render.function")
     })
 })
 
 ## validFormulaMMServer
 test_that("validFormulaMMServer", {
-    shiny::testServer(validFormulaMMServer, {
-        input <- new.env()    
+    shiny::testServer(app = validFormulaMMServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         expr <- new.env()
         action <- new.env()
         se <- new.env()
-        
-        out <- validFormulaMMServer("", expr = expr, action = action, se = se)
+
+        out <- validFormulaMMServer("test_module", expr = expr,
+            action = action, se = se)
         expect_is(out, "reactiveExpr")
     })
 })
@@ -70,20 +71,20 @@ test_that("validExprModelMatrix", {
     expect_is(validExprModelMatrix("~type", se = se), "formula")
     expect_is(validExprModelMatrix("~foo", se = se), "NULL")
     expect_is(validExprModelMatrix("~", se = se), "NULL")
-    expect_is(validExprModelMatrix("~type", se = NULL), 
+    expect_is(validExprModelMatrix("~type", se = NULL),
         "NULL")
 })
 
 ## modelMatrixServer
 test_that("modelMatrixServer", {
-    shiny::testServer(modelMatrixServer, {
-        input <- new.env()    
+    shiny::testServer(app = modelMatrixServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
         validFormulaMM <- new.env()
-        
-        out <- modelMatrixServer("modelMatrixServer", se = se, 
+
+        out <- modelMatrixServer("modelMatrixServer", se = se,
             validFormulaMM = validFormulaMM)
         expect_is(out, "reactiveExpr")
     })
@@ -91,14 +92,14 @@ test_that("modelMatrixServer", {
 
 ## modelMatrixUIServer
 test_that("modelMatrixUIServer", {
-    shiny::testServer(modelMatrixUIServer, {
-        input <- new.env()    
+    shiny::testServer(app = modelMatrixUIServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         modelMatrix <- new.env()
         validFormulaMM <- new.env()
-        
-        out <- modelMatrixUIServer("", modelMatrix = modelMatrix, 
+
+        out <- modelMatrixUIServer("test_module", modelMatrix = modelMatrix,
             validFormulaMM = validFormulaMM)
         expect_is(out, "shiny.render.function")
     })
@@ -106,16 +107,16 @@ test_that("modelMatrixUIServer", {
 
 ## validExprContrastServer
 test_that("validExprContrastServer", {
-    shiny::testServer(validExprContrastServer, {
-        input <- new.env()    
+    shiny::testServer(app = validExprContrastServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         expr <- new.env()
         action <- new.env()
         modelMatrix <- new.env()
-        
-        out <- validExprContrastServer("", expr = expr, action = action,
-            modelMatrix = modelMatrix)
+
+        out <- validExprContrastServer("test_module", expr = expr,
+            action = action, modelMatrix = modelMatrix)
         expect_is(out, "reactiveExpr")
     })
 })
@@ -123,46 +124,47 @@ test_that("validExprContrastServer", {
 ## validExprContrast
 test_that("validExprContrast", {
     modelMatrix <- stats::model.matrix(~type, colData(se))
-    expect_equal(suppressWarnings(validExprContrast("type2", 
+    expect_equal(suppressWarnings(validExprContrast("type2",
         modelMatrix = modelMatrix)), "type2")
-    expect_is(suppressWarnings(validExprContrast("type2-", 
+    expect_is(suppressWarnings(validExprContrast("type2-",
         modelMatrix = modelMatrix)), "NULL")
-    expect_is(suppressWarnings(validExprContrast("foo", 
+    expect_is(suppressWarnings(validExprContrast("foo",
         modelMatrix = modelMatrix)), "NULL")
-    expect_is(suppressWarnings(validExprContrast("type2", modelMatrix = NULL)), 
+    expect_is(suppressWarnings(validExprContrast("type2", modelMatrix = NULL)),
         "NULL")
     modelMatrix <- stats::model.matrix(~type + 0, colData(se))
-    expect_equal(suppressWarnings(validExprContrast("type2-type1", 
+    expect_equal(suppressWarnings(validExprContrast("type2-type1",
         modelMatrix = modelMatrix)), "type2-type1")
 })
 
 ## contrastMatrixServer
 test_that("contrastMatrixServer", {
-    shiny::testServer(contrastMatrixServer, {
-        input <- new.env()    
+    shiny::testServer(app = contrastMatrixServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         validExprContrast <- new.env()
         modelMatrix <- new.env()
-        
-        out <- contrastMatrixServer("", validExprContrast = validExprContrast,
-            modelMatrix = modelMatrix)
+
+        out <- contrastMatrixServer("test_module",
+            validExprContrast = validExprContrast, modelMatrix = modelMatrix)
         expect_is(out, "reactiveExpr")
     })
 })
 
 ## contrastMatrixUIServer
 test_that("contrastMatrixUIServer", {
-    shiny::testServer(contrastMatrixUIServer, {
-        input <- new.env()    
+    shiny::testServer(app = contrastMatrixUIServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         validFormulaMM <- new.env()
         validExprContrast <- new.env()
-        contrastMatrix <- new.env() 
-        
-        out <- contrastMatrixUIServer("", validFormulaMM = validFormulaMM,
-            validExprContrast = validExprContrast, 
+        contrastMatrix <- new.env()
+
+        out <- contrastMatrixUIServer("test_module",
+            validFormulaMM = validFormulaMM,
+            validExprContrast = validExprContrast,
             contrastMatrix = contrastMatrix)
         expect_is(out, "shiny.render.function")
     })
@@ -170,17 +172,17 @@ test_that("contrastMatrixUIServer", {
 
 ## topDEUIServer
 test_that("topDEUIServer", {
-    shiny::testServer(topDEUIServer, {
-        input <- new.env()    
+    shiny::testServer(app = topDEUIServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         type <- new.env()
         validFormulaMM <- new.env()
         validExprContrast <- new.env()
         testResult <- new.env()
-        
-        out <- topDEUIServer("", type = type, 
-            validFormulaMM = validFormulaMM, 
+
+        out <- topDEUIServer("test_module", type = type,
+            validFormulaMM = validFormulaMM,
             validExprContrast = validExprContrast, testResult = testResult)
         expect_is(out, "shiny.render.function")
     })
@@ -188,16 +190,16 @@ test_that("topDEUIServer", {
 
 ## fitServer
 test_that("fitServer", {
-    shiny::testServer(fitServer, {
-        input <- new.env()    
+    shiny::testServer(app = fitServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         assay <- new.env()
         validFormulaMM <- new.env()
         modelMatrix <- new.env()
         contrastMatrix <- new.env()
-        
-        out <- fitServer("", assay = assay, 
+
+        out <- fitServer("test_module", assay = assay,
             modelMatrix = modelMatrix, contrastMatrix = contrastMatrix)
         expect_is(out, "reactiveExpr")
     })
@@ -205,8 +207,8 @@ test_that("fitServer", {
 
 ## testResultServer
 test_that("testResultServer", {
-    shiny::testServer(testResultServer, {
-        input <- new.env()    
+    shiny::testServer(app = testResultServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         type <- new.env()
@@ -214,10 +216,10 @@ test_that("testResultServer", {
         fit_proDA <- new.env()
         validFormulaMM <- new.env()
         validExprContrast <- new.env()
-        
-        out <- testResultServer("", type = type, 
-            fit_ttest = fit_ttest, fit_proDA = fit_proDA, 
-            validFormulaMM = validFormulaMM, 
+
+        out <- testResultServer("test_module", type = type,
+            fit_ttest = fit_ttest, fit_proDA = fit_proDA,
+            validFormulaMM = validFormulaMM,
             validExprContrast = validExprContrast)
         expect_is(out, "reactiveExpr")
     })
@@ -225,17 +227,17 @@ test_that("testResultServer", {
 
 ## volcanoUIServer
 test_that("volcanoUIServer", {
-    shiny::testServer(volcanoUIServer, {
-        input <- new.env()    
+    shiny::testServer(app = volcanoUIServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         type <- new.env()
         validFormulaMM <- new.env()
         validExprContrast <- new.env()
         testResult <- new.env()
-        
-        out <- volcanoUIServer("", type = type, 
-            validFormulaMM = validFormulaMM, 
+
+        out <- volcanoUIServer("test_module", type = type,
+            validFormulaMM = validFormulaMM,
             validExprContrast = validExprContrast, testResult = testResult)
         expect_is(out, "shiny.render.function")
     })

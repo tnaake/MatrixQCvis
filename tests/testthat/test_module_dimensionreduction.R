@@ -1,12 +1,12 @@
 ## create se
-a <- matrix(seq_len(1000), nrow = 100, ncol = 10, 
+a <- matrix(seq_len(1000), nrow = 100, ncol = 10,
             dimnames = list(seq_len(100), paste("sample", seq_len(10))))
 a[c(1, 5, 8), seq_len(5)] <- NA
 set.seed(1)
 a <- a + rnorm(1000)
 cD <- data.frame(name = colnames(a), type = c(rep("1", 5), rep("2", 5)))
 rD <- data.frame(spectra = rownames(a))
-se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD, 
+se <- SummarizedExperiment::SummarizedExperiment(assay = a, rowData = rD,
                                                                 colData = cD)
 
 
@@ -32,13 +32,13 @@ test_that("tP_tSNEUI", {
 
 ## tSNEUIServer
 test_that("tSNEUIServer", {
-    shiny::testServer(tSNEUIServer, {
+    shiny::testServer(app = tSNEUIServer, expr = {
         input <- new.env()
         output <- new.env()
         session <- new.env()
         sample_n <- new.env()
-        
-        out <- tSNEUIServer("", sample_n = sample_n)
+
+        out <- tSNEUIServer("test_module", sample_n = sample_n)
         expect_is(out, "Observer")
     })
 })
@@ -50,13 +50,13 @@ test_that("tP_umapUI", {
 
 ## umapUIServer
 test_that("umapUIServer", {
-    shiny::testServer(umapUIServer, {
+    shiny::testServer(app = umapUIServer, expr = {
         input <- new.env()
         output <- new.env()
         session <- new.env()
         sample_n <- new.env()
-        
-        out <- umapUIServer("", sample_n = sample_n)
+
+        out <- umapUIServer("test_module", sample_n = sample_n)
         expect_is(out, "Observer")
     })
 })
@@ -65,8 +65,8 @@ test_that("umapUIServer", {
 
 ## dimRedServer
 test_that("dimRedServer", {
-    shiny::testServer(dimRedServer, {
-        input <- new.env()    
+    shiny::testServer(app = dimRedServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         se <- new.env()
@@ -75,8 +75,8 @@ test_that("dimRedServer", {
         label <- "PC"
         params <- new.env()
         innerWidth <- new.env()
-        
-        out <- dimRedServer("", se = se, assay = assay, type = type, 
+
+        out <- dimRedServer("test_module", se = se, assay = assay, type = type,
                     label = label, params = params, innerWidth = innerWidth)
         expect_is(out, "shiny.render.function")
     })
@@ -85,15 +85,15 @@ test_that("dimRedServer", {
 ## screePlotServer
 test_that("screePlotServer", {
 
-    shiny::testServer(screePlotServer, {
-        input <- new.env()    
+    shiny::testServer(app = screePlotServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         assay <- new.env()
         center <- new.env()
         scale <- new.env()
-        
-        out <- screePlotServer("", assay = assay, center = center, 
+
+        out <- screePlotServer("test_module", assay = assay, center = center,
             scale = scale)
 
         expect_is(out, "shiny.render.function")
@@ -102,15 +102,15 @@ test_that("screePlotServer", {
 
 ## loadingsPlotServer
 test_that("loadingsPlotServer", {
-    
-    shiny::testServer(loadingsPlotServer, {
-        input <- new.env()    
+
+    shiny::testServer(app = loadingsPlotServer, expr = {
+        input <- new.env()
         output <- new.env()
         session <- new.env()
         assay <- new.env()
         params <- new.env()
-        
-        out <- loadingsPlotServer("", assay = assay, params = params)
+
+        out <- loadingsPlotServer("test_module", assay = assay, params = params)
         expect_is(out, "shiny.render.function")
     })
 })
